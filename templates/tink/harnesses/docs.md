@@ -17,7 +17,7 @@ Write or improve README, guides, PRDs, or user-facing docs.
 
 ## Checks
 - Use only the context needed for this task.
-- Do not repeat questions already answered in `.tiny/current/answers.md`.
+- Do not repeat questions already answered in `.tink/current/answers.md`.
 - Do not store raw logs, full diffs, secrets, or one-off state in memory.
 
 ## Done means

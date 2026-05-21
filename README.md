@@ -2,7 +2,7 @@
 
 Self-growing harnesses for Claude Code.
 
-Tink gives Claude a tiny harness before it starts. It helps Claude choose the right working pattern, ask for approval, avoid repeated mistakes, and remember only what should be remembered.
+Tink helps Claude forge the right harness before work starts. It chooses or builds the smallest useful procedure, applies it with approval, avoids repeated mistakes, and remembers only reusable lessons.
 
 ## What is Tink?
 
@@ -20,7 +20,7 @@ Interactive installer:
 npx tink-harness@latest
 ```
 
-It opens a deep-blue gradient `TINK` wizard. The first question is language: English, 한국어, or 中文. Then you choose components, repo/global installation scope, and project `.tiny` tracking policy.
+It opens a deep-blue gradient `TINK` wizard. The first question is language: English, 한국어, or 中文. Then you choose components, repo/global installation scope, and project `.tink` tracking policy.
 
 Non-interactive repo-scoped install:
 
@@ -47,34 +47,33 @@ Then open Claude Code and run:
 /tink:setup
 ```
 
-During setup, Tink explains what `.tiny/harnesses/` contains before asking whether to commit it. The default policy is to commit reusable harnesses and config, while ignoring `.tiny/current/`, `.tiny/runs/`, and `.tiny/cache/`.
+During setup, Tink explains what `.tink/harnesses/` contains before asking whether to commit it. The default policy is to commit reusable harnesses and config, while ignoring `.tink/current/`, `.tink/runs/`, and `.tink/cache/`.
 
 ## Use with Claude Code
 
 Available commands:
 
-- `/tink:setup`: choose language, repo/global scope, git tracking, hook policy, and language behavior.
-- `/tink:prime`: prime Claude with the best harness set and reasons before a task. This is the main command.
-- `/tink:list`: list available harnesses without loading all bodies.
-- `/tink:save`: save an approved new or improved harness.
-- `/tink:remember`: save a repeated mistake, stable preference, or reusable lesson after approval.
-- `/tink:fix`: improve a harness after a repeated failure.
+- `/tink:setup`: choose language, repo/global scope, git tracking, and hook policy.
+- `/tink:forge`: choose or build the right harness, apply it, and propose reusable memory or harness updates. This is the main command.
+- `/tink:list`: list available harnesses and lightweight usage signals without loading all bodies.
+- `/tink:purge`: propose unused or redundant harnesses for removal. Deletes only after approval.
+- `/tink:hone`: improve active harnesses using real failures, corrections, and repeated use. Saves only after approval.
 
-Legacy `/tiny:*` aliases may also be installed for compatibility, but new docs use `/tink:*`.
+Tink intentionally keeps one focused command surface: setup, forge, list, purge, hone.
 
 For a non-trivial task, run:
 
 ```text
-/tink:prime
+/tink:forge
 ```
 
 Tink will:
 
 1. Read the harness index.
-2. Suggest the best harness set, usually 1-3 harnesses and never more than 4.
-3. Explain the reason for the recommendation.
+2. Choose an existing harness set or draft a new one if none fits, usually 1-3 harnesses and never more than 4.
+3. Explain why the chosen or newly drafted harness fits.
 4. Ask for approval with a selection-style prompt where Enter accepts the recommended option when possible.
-5. Create `.tiny/current/` for the task.
+5. Create `.tink/current/` for the task and propose reusable memory or harness updates only after approval.
 
 ## How Tink chooses harnesses
 
@@ -93,7 +92,7 @@ The `context` column in harness lists means expected prompt/context footprint:
 
 It does not mean user profile or project context.
 
-Tink reads `.tiny/harnesses/index.json` first, then loads only the selected harness files. This keeps the context clean.
+Tink reads `.tink/harnesses/index.json` first, then loads only the selected harness files. This keeps the context clean.
 
 ## Built-in harnesses
 
@@ -108,9 +107,9 @@ Tink reads `.tiny/harnesses/index.json` first, then loads only the selected harn
 
 Tink keeps memory small and explicit:
 
-- `.tiny/memory/mistakes.md`: repeated mistakes and prevention rules
-- `.tiny/memory/preferences.md`: stable user or project preferences
-- `.tiny/memory/lessons.md`: reusable lessons for future harnesses
+- `.tink/memory/mistakes.md`: repeated mistakes and prevention rules
+- `.tink/memory/preferences.md`: stable user or project preferences
+- `.tink/memory/lessons.md`: reusable lessons for future harnesses
 
 Tink does not store raw logs, full diffs, secrets, private data, or one-off task progress.
 
@@ -118,7 +117,7 @@ Memory changes require user approval.
 
 ## How Tink grows
 
-When existing harnesses are not enough, Tink proposes a new harness.
+When existing harnesses are not enough, `/tink:forge` proposes a new harness draft instead of forcing a bad fit.
 
 A new harness is saved only when:
 
@@ -128,13 +127,13 @@ A new harness is saved only when:
 - it is likely to be reused
 - the user approves it
 
-Saved harnesses live in `.tiny/harnesses/` and become future candidates.
+Saved harnesses live in `.tink/harnesses/` and become future candidates.
 
 ## Language behavior
 
-Tink should answer in the selected language from setup. The installer asks first: English, 한국어, or 中文. Built-in harness IDs stay in English for stable filenames, but descriptions, approval prompts, `.tiny/current/` run files, and final reports should be localized.
+Tink should answer in the selected language from setup. The installer asks first: English, 한국어, or 中文. Built-in harness IDs stay in English for stable filenames, but descriptions, approval prompts, `.tink/current/` run files, and final reports should be localized.
 
-If the project has a documented language policy, Tink should follow it. If language is ambiguous, ask once during `/tiny:setup` and save the preference only after approval.
+If the project has a documented language policy, Tink should follow it. If language is ambiguous, ask once during `/tink:setup` and save the preference only after approval.
 
 ## Tone: calm, clear, no jokes
 
@@ -148,7 +147,7 @@ Tink pairs well with Matt Pocock's skills because it creates task-specific conte
 
 Example flow:
 
-1. `/tink:prime` selects `bug-fix` and `code-change`.
+1. `/tink:forge` chooses `bug-fix` and `code-change`, or drafts a new harness if needed.
 2. Claude proposes the best harness set and asks for approval with reasons.
 3. A focused skill such as TDD, diagnose, grill-me, or review can use that context after approval.
 

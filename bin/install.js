@@ -27,8 +27,8 @@ const COPY = {
     components: 'Select components to install (space to toggle)',
     scope: 'Installation scope',
     gitNoteTitle: 'Git tracking',
-    gitNote: '`.tiny/harnesses/` contains reusable work templates. `.tiny/current/`, `.tiny/runs/`, and `.tiny/cache/` are runtime state.',
-    gitPolicy: 'Project .tiny tracking',
+    gitNote: '`.tink/harnesses/` contains reusable work templates. `.tink/current/`, `.tink/runs/`, and `.tink/cache/` are runtime state.',
+    gitPolicy: 'Project .tink tracking',
     hookScope: 'Hook scope',
     installed: 'Installed',
     done: 'Done'
@@ -42,8 +42,8 @@ const COPY = {
     components: '설치할 항목을 선택하세요 (space로 토글)',
     scope: '설치 범위',
     gitNoteTitle: 'Git 추적 정책',
-    gitNote: '`.tiny/harnesses/`는 재사용 작업 템플릿입니다. `.tiny/current/`, `.tiny/runs/`, `.tiny/cache/`는 실행 중 임시 상태입니다.',
-    gitPolicy: '프로젝트 .tiny 추적 방식',
+    gitNote: '`.tink/harnesses/`는 재사용 작업 템플릿입니다. `.tink/current/`, `.tink/runs/`, `.tink/cache/`는 실행 중 임시 상태입니다.',
+    gitPolicy: '프로젝트 .tink 추적 방식',
     hookScope: 'Hook 범위',
     installed: '설치 완료',
     done: '완료'
@@ -57,8 +57,8 @@ const COPY = {
     components: '选择要安装的项目（空格切换）',
     scope: '安装范围',
     gitNoteTitle: 'Git 跟踪策略',
-    gitNote: '`.tiny/harnesses/` 是可复用工作模板。`.tiny/current/`, `.tiny/runs/`, `.tiny/cache/` 是运行时临时状态。',
-    gitPolicy: '项目 .tiny 跟踪方式',
+    gitNote: '`.tink/harnesses/` 是可复用工作模板。`.tink/current/`, `.tink/runs/`, `.tink/cache/` 是运行时临时状态。',
+    gitPolicy: '项目 .tink 跟踪方式',
     hookScope: 'Hook 范围',
     installed: '安装完成',
     done: '完成'
@@ -67,21 +67,21 @@ const COPY = {
 
 const COMPONENTS = {
   en: [
-    { value: 'commands', label: 'Claude Code commands', hint: '/tink:* commands plus legacy /tiny:* aliases' },
+    { value: 'commands', label: 'Claude Code commands', hint: '/tink:setup, forge, list, purge, hone' },
     { value: 'skill', label: 'Tink skill', hint: 'Tink operating rules for Claude Code' },
     { value: 'harnesses', label: 'Built-in harnesses', hint: 'Reusable task templates' },
     { value: 'memory', label: 'Memory templates', hint: 'Approved mistakes/preferences/lessons files' },
     { value: 'hook', label: 'Hook recommendation template (optional)', hint: 'Suggests Tink on normal prompts only. Off by default.' }
   ],
   ko: [
-    { value: 'commands', label: 'Claude Code 명령', hint: '/tink:* 명령 + 기존 /tiny:* 별칭' },
+    { value: 'commands', label: 'Claude Code 명령', hint: '/tink:setup, forge, list, purge, hone' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code가 읽는 Tink 작업 원칙' },
     { value: 'harnesses', label: '기본 harness', hint: '재사용 작업 템플릿' },
     { value: 'memory', label: 'Memory 템플릿', hint: '승인된 실수/선호/교훈 파일' },
     { value: 'hook', label: 'Hook 추천 템플릿 (선택)', hint: '일반 프롬프트에만 Tink를 추천합니다. 기본 off.' }
   ],
   zh: [
-    { value: 'commands', label: 'Claude Code 命令', hint: '/tink:* 命令 + 旧 /tiny:* 别名' },
+    { value: 'commands', label: 'Claude Code 命令', hint: '/tink:setup, forge, list, purge, hone' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code 读取的 Tink 工作规则' },
     { value: 'harnesses', label: '内置 harness', hint: '可复用任务模板' },
     { value: 'memory', label: 'Memory 模板', hint: '经批准的错误/偏好/经验文件' },
@@ -138,7 +138,7 @@ function handleCancel(value) {
 }
 
 function readHarnessCount() {
-  const dir = path.join(root, 'templates/tiny/harnesses');
+  const dir = path.join(root, 'templates/tink/harnesses');
   return fs.readdirSync(dir).filter((name) => name.endsWith('.md')).length;
 }
 
@@ -184,14 +184,14 @@ function copySelected(scope, components) {
     copyDir(path.join(templateRoot, 'claude/skills'), path.join(target, '.claude/skills'), target);
   }
   if (components.includes('harnesses')) {
-    copyDir(path.join(templateRoot, 'tiny/harnesses'), path.join(target, '.tiny/harnesses'), target);
-    writeFileFromTemplate(path.join(templateRoot, 'tiny/config.json'), path.join(target, '.tiny/config.json'), target);
+    copyDir(path.join(templateRoot, 'tink/harnesses'), path.join(target, '.tink/harnesses'), target);
+    writeFileFromTemplate(path.join(templateRoot, 'tink/config.json'), path.join(target, '.tink/config.json'), target);
   }
   if (components.includes('memory')) {
-    copyDir(path.join(templateRoot, 'tiny/memory'), path.join(target, '.tiny/memory'), target);
+    copyDir(path.join(templateRoot, 'tink/memory'), path.join(target, '.tink/memory'), target);
   }
   if (components.includes('hook')) {
-    copyDir(path.join(templateRoot, 'tiny/hooks'), path.join(target, '.tiny/hooks'), target);
+    copyDir(path.join(templateRoot, 'tink/hooks'), path.join(target, '.tink/hooks'), target);
   }
 
   return { repoTarget, globalTarget, installTarget: target };
@@ -199,13 +199,13 @@ function copySelected(scope, components) {
 
 function updateGitignore(target, policy) {
   if (policy === 'all') {
-    log.message('skip .gitignore update: tracking all .tiny files');
+    log.message('skip .gitignore update: tracking all .tink files');
     return;
   }
   const gitignorePath = path.join(target, '.gitignore');
   const ignoreBlock = policy === 'none'
-    ? ['.tiny/']
-    : ['.tiny/current/', '.tiny/runs/', '.tiny/cache/'];
+    ? ['.tink/']
+    : ['.tink/current/', '.tink/runs/', '.tink/cache/'];
 
   if (fs.existsSync(gitignorePath)) {
     const existing = fs.readFileSync(gitignorePath, 'utf8');
@@ -221,7 +221,7 @@ function updateGitignore(target, policy) {
 }
 
 function patchConfig(target, scope, hookScope, language) {
-  const configPath = path.join(target, '.tiny/config.json');
+  const configPath = path.join(target, '.tink/config.json');
   if (!fs.existsSync(configPath) || dryRun) return;
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   config.install_scope = scope;
@@ -321,12 +321,12 @@ async function resolveChoices() {
         },
         {
           value: 'all',
-          label: language === 'ko' ? '전부 커밋' : language === 'zh' ? '全部提交' : 'Commit all .tiny files',
+          label: language === 'ko' ? '전부 커밋' : language === 'zh' ? '全部提交' : 'Commit all .tink files',
           hint: language === 'ko' ? '대부분 비권장.' : language === 'zh' ? '通常不推荐。' : 'Usually not recommended.'
         },
         {
           value: 'none',
-          label: language === 'ko' ? '커밋 안 함' : language === 'zh' ? '不提交 .tiny' : 'Commit no .tiny files',
+          label: language === 'ko' ? '커밋 안 함' : language === 'zh' ? '不提交 .tink' : 'Commit no .tink files',
           hint: language === 'ko' ? '이 머신에만 유지.' : language === 'zh' ? '仅保留在本机。' : 'Keep Tink local to this machine.'
         }
       ],

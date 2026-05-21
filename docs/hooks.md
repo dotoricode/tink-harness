@@ -5,8 +5,8 @@ Tink may use a Claude Code prompt hook as an optional recommendation layer.
 The hook should:
 
 - read the user prompt
-- read `.tiny/harnesses/index.json`
-- suggest 1-4 harnesses
+- read `.tink/harnesses/index.json`
+- suggest when `/tink:forge` would help
 - ask for approval
 
 The hook should not:
@@ -15,5 +15,6 @@ The hook should not:
 - save memory without approval
 - run commands without approval
 - load all harnesses by default
+- intercept other slash skills such as `/grill-me`
 
-If hook support changes, use `/tiny:use` as the stable path.
+Default recommendation: keep hooks off and use `/tink:forge` directly until the hook behavior is clearly useful.

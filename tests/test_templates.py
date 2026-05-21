@@ -30,6 +30,8 @@ HARNESS_SECTIONS = [
     '## If it fails, Tink back',
 ]
 
+EXPECTED_COMMANDS = {'setup.md', 'forge.md', 'list.md', 'purge.md', 'hone.md'}
+
 
 class TemplateTests(unittest.TestCase):
     def test_package_bin_exists(self):
@@ -45,8 +47,18 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Installation scope', installer)
         self.assertIn('Select components to install', installer)
         self.assertIn('Hook recommendation template', installer)
+        self.assertIn("'tink/harnesses'", installer)
         self.assertNotIn("value: 'both'", installer)
+        self.assertNotIn("'tiny/harnesses'", installer)
         self.assertTrue((ROOT / pkg['bin']['tink-harness']).exists())
+
+    def test_command_surface_is_focused(self):
+        command_dir = ROOT / 'templates/claude/commands/tink'
+        names = {p.name for p in command_dir.glob('*.md')}
+        self.assertEqual(names, EXPECTED_COMMANDS)
+        for forbidden in ['prime.md', 'save.md', 'remember.md', 'fix.md']:
+            self.assertFalse((command_dir / forbidden).exists())
+        self.assertFalse((ROOT / 'templates/claude/commands/tiny').exists())
 
     def test_readme_required_sections(self):
         text = (ROOT / 'README.md').read_text(encoding='utf-8')
@@ -61,12 +73,17 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('selected language', text)
         self.assertIn('/grill-me', text)
         self.assertIn('selection-style prompt', text)
-        self.assertIn('/tink:prime', text)
-        self.assertIn('Legacy `/tiny:*` aliases', text)
+        self.assertIn('/tink:forge', text)
+        self.assertIn('/tink:purge', text)
+        self.assertIn('/tink:hone', text)
+        self.assertIn('setup, forge, list, purge, hone', text)
+        self.assertNotIn('/tink:prime', text)
+        self.assertNotIn('/tiny:', text)
+        self.assertNotIn('.tiny', text)
         self.assertNotIn('dry-wit', text)
 
     def test_setup_explains_choices_before_asking(self):
-        text = (ROOT / 'templates/claude/commands/tiny/setup.md').read_text(encoding='utf-8')
+        text = (ROOT / 'templates/claude/commands/tink/setup.md').read_text(encoding='utf-8')
         self.assertIn('First question: language', text)
         self.assertIn('Before asking choices', text)
         self.assertIn('Reusable harnesses', text)
@@ -77,32 +94,38 @@ class TemplateTests(unittest.TestCase):
         self.assertNotIn('Hook scope', text)
         self.assertIn('좋은 점', text)
         self.assertIn('다른 팀원, 다른 PC, 새 clone', text)
-        self.assertIn('hooks do not apply to `/grill-me`', text)
+        self.assertIn('/tink:forge', text)
         self.assertIn('Command map after setup', text)
         self.assertIn('selected language', text)
 
-    def test_use_explains_context_and_freeform_edits(self):
-        text = (ROOT / 'templates/claude/commands/tiny/use.md').read_text(encoding='utf-8')
-        self.assertIn('Meaning of `context`', text)
-        self.assertIn('prompt/context footprint', text)
-        self.assertIn('selection-style prompt', text)
-        self.assertIn('Always ask before work', text)
-        self.assertIn('Enter should approve', text)
-        self.assertIn('/grill-me', text)
+    def test_forge_purge_hone_behavior(self):
+        forge = (ROOT / 'templates/claude/commands/tink/forge.md').read_text(encoding='utf-8')
+        purge = (ROOT / 'templates/claude/commands/tink/purge.md').read_text(encoding='utf-8')
+        hone = (ROOT / 'templates/claude/commands/tink/hone.md').read_text(encoding='utf-8')
+        self.assertIn('Meaning of `context`', forge)
+        self.assertIn('selection-style', forge)
+        self.assertIn('Enter should accept', forge)
+        self.assertIn('new harness', forge)
+        self.assertIn('/grill-me', forge)
+        self.assertIn('Do not delete without approval', purge)
+        self.assertIn('usage signals', purge)
+        self.assertIn('real failures', hone)
+        self.assertIn('Ask for approval before saving', hone)
 
     def test_harness_index_and_files(self):
-        index = json.loads((ROOT / 'templates/tiny/harnesses/index.json').read_text())
+        index = json.loads((ROOT / 'templates/tink/harnesses/index.json').read_text())
         names = {item['name'] for item in index}
         self.assertEqual(names, {'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship'})
         for name in names:
-            text = (ROOT / f'templates/tiny/harnesses/{name}.md').read_text(encoding='utf-8')
+            text = (ROOT / f'templates/tink/harnesses/{name}.md').read_text(encoding='utf-8')
             for section in HARNESS_SECTIONS:
                 self.assertIn(section, text)
+            self.assertIn('.tink/current/answers.md', text)
             self.assertLessEqual(len(text.splitlines()), 100)
 
     def test_memory_templates_exist(self):
         for name in ['mistakes.md', 'preferences.md', 'lessons.md']:
-            text = (ROOT / f'templates/tiny/memory/{name}').read_text(encoding='utf-8')
+            text = (ROOT / f'templates/tink/memory/{name}').read_text(encoding='utf-8')
             self.assertIn('approval', text.lower())
             self.assertNotIn('secret=', text.lower())
 
@@ -116,15 +139,15 @@ class TemplateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'], cwd=d, check=True, capture_output=True, text=True)
             base = Path(d)
-            self.assertTrue((base / '.claude/commands/tink/prime.md').exists())
-            self.assertTrue((base / '.claude/commands/tiny/setup.md').exists())
+            installed_commands = {p.name for p in (base / '.claude/commands/tink').glob('*.md')}
+            self.assertEqual(installed_commands, EXPECTED_COMMANDS)
             self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
-            self.assertTrue((base / '.tiny/harnesses/index.json').exists())
-            self.assertTrue((base / '.tiny/memory/mistakes.md').exists())
+            self.assertTrue((base / '.tink/harnesses/index.json').exists())
+            self.assertTrue((base / '.tink/memory/mistakes.md').exists())
             self.assertTrue((base / '.gitignore').exists())
 
     def test_config_has_scope_and_language_defaults(self):
-        cfg = json.loads((ROOT / 'templates/tiny/config.json').read_text())
+        cfg = json.loads((ROOT / 'templates/tink/config.json').read_text())
         self.assertEqual(cfg['language'], 'auto')
         self.assertEqual(cfg['install_scope'], 'repo')
         self.assertEqual(cfg['hook_scope'], 'off')
