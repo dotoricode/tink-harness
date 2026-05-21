@@ -25,11 +25,11 @@ Use this wording in Korean:
 ```text
 Tink는 두 종류의 파일을 씁니다.
 
-1. Reusable harnesses: `.tink/harnesses/`
+1. 재사용 하네스 (Reusable Harnesses): `.tink/harnesses/`
    작업 방식 템플릿입니다. 예: bug-fix, research, review.
    팀이 같이 쓰면 유용하므로 보통 git에 커밋합니다.
 
-2. Run state: `.tink/current/`, `.tink/runs/`, `.tink/cache/`
+2. 실행 상태 (Run State): `.tink/current/`, `.tink/runs/`, `.tink/cache/`
    이번 작업 계획, 체크, 임시 메모입니다.
    개인/임시 기록이라 기본적으로 git에서 제외합니다.
 ```
@@ -41,9 +41,9 @@ Ask these questions in order. Use a selection UI when the host supports it, so E
 ```text
 Tink를 어디에 설정할까요?
 
-1. Repo scope (권장)
+1. Repo 범위 (Repo Scope, 권장)
    이 프로젝트에만 `.claude/`와 `.tink/`를 둡니다. 팀 공유와 프로젝트별 하네스에 적합합니다.
-2. Global scope
+2. Global 범위 (Global Scope)
    사용자 홈의 Claude Code 설정에 둡니다. 여러 프로젝트에서 같은 명령을 쓰고 싶을 때 적합합니다.
 ```
 
@@ -53,11 +53,11 @@ There is no `Both` option by default.
 Ask only after explaining consequences.
 
 ```text
-프로젝트 harness를 git에 커밋할까요?
+프로젝트 하네스 (Harness)를 git에 커밋할까요?
 
 먼저 차이를 설명합니다.
 
-1. Harnesses만 커밋 (권장)
+1. 하네스만 커밋 (Harnesses only, 권장)
    좋은 점:
    - 팀원과 같은 작업 방식, 체크리스트, 선호를 공유합니다.
    - 다른 PC나 새 clone에서도 Tink가 같은 기준으로 동작합니다.
@@ -96,7 +96,7 @@ Hook은 선택 사항입니다.
 무엇을 하나요?
 - 일반 사용자 프롬프트를 보고 “/tink:forge를 먼저 쓰면 좋겠다”는 추천만 합니다.
 - 작업을 자동 실행하지 않습니다.
-- memory나 harness를 자동 저장하지 않습니다.
+- 메모리 (Memory)나 하네스 (Harness)를 자동 저장하지 않습니다.
 - `/grill-me` 같은 다른 slash skill 명령은 가로채지 않습니다.
 
 지금은 hook 없이 `/tink:forge`를 직접 쓰는 흐름을 권장합니다.
@@ -108,11 +108,11 @@ Explain the five commands:
 ```text
 사용 가능한 Tink 명령입니다.
 
-- `/tink:setup`: 언어, repo/global scope, git 추적, hook 정책을 정합니다.
-- `/tink:forge`: 작업에 맞는 harness를 고르거나 만들고, 적용하고, 재사용 교훈을 저장 제안합니다. 가장 자주 쓰는 명령입니다.
-- `/tink:list`: 사용 가능한 harness와 최근 사용 신호를 짧게 보여줍니다.
-- `/tink:purge`: 거의 쓰지 않는 harness를 근거와 함께 제거 후보로 제안합니다. 승인 전 삭제하지 않습니다.
-- `/tink:hone`: 자주 쓰는 harness를 실제 실패/반복/피드백 기준으로 개선합니다. 승인 전 저장하지 않습니다.
+- `/tink:setup`: 언어, repo/global 범위 (Scope), git 추적, 훅 (Hook) 정책을 정합니다.
+- `/tink:forge`: 작업에 맞는 하네스 (Harness)를 고르거나 만들고, 적용하고, 재사용 교훈을 저장 제안합니다. 가장 자주 쓰는 명령입니다.
+- `/tink:list`: 사용 가능한 하네스 (Harness)와 최근 사용 신호를 짧게 보여줍니다.
+- `/tink:purge`: 거의 쓰지 않는 하네스 (Harness)를 근거와 함께 제거 후보로 제안합니다. 승인 전 삭제하지 않습니다.
+- `/tink:hone`: 자주 쓰는 하네스 (Harness)를 실제 실패/반복/피드백 기준으로 개선합니다. 승인 전 저장하지 않습니다.
 ```
 
 ## Do not

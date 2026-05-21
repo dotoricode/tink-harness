@@ -89,13 +89,13 @@ Tink chooses the smallest useful set:
 - Finish: what proves done
 - Optional: only when clearly useful
 
-The `context` column in harness lists means expected prompt/context footprint:
+The `context` column in harness lists means expected prompt/context footprint, called 컨텍스트 사용량 (Context Footprint) in Korean-facing prose:
 
 - `tiny`: very short guidance
 - `small`: normal checklist-sized guidance
 - `large`: load only after explicit approval
 
-It does not mean user profile or project context.
+It does not mean user profile, project background, or 작업 맥락 (Work Context).
 
 Tink reads `.tink/harnesses/index.json` first, then loads only the selected harness files. This keeps the context clean.
 
@@ -170,7 +170,7 @@ Saved harnesses live in `.tink/harnesses/` and become future candidates.
 
 ## Language behavior
 
-Tink should answer in the selected language from setup. The installer asks first: English, 한국어, or 中文. Built-in harness IDs stay in English for stable filenames, but descriptions, approval prompts, `.tink/current/` run files, and final reports should be localized.
+Tink should answer in the selected language from setup. The installer asks first: English, 한국어, or 中文. Built-in harness IDs stay in English for stable filenames, but descriptions, approval prompts, `.tink/current/` run files, and final reports should be localized. In Korean-facing prose, use Korean-first terms with English parentheticals, while command names such as `forge`, `purge`, and `hone` stay English.
 
 If the project has a documented language policy, Tink should follow it. If language is ambiguous, ask once during `/tink:setup` and save the preference only after approval.
 

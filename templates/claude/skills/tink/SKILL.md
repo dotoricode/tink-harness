@@ -1,6 +1,6 @@
 ---
 name: tink
-description: Self-growing harnesses for Claude Code. Use to forge, apply, prune, and hone task harnesses.
+description: Self-growing harnesses for Claude Code. Use to forge, apply, purge, and hone task harnesses.
 ---
 
 # Tink

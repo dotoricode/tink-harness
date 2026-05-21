@@ -98,14 +98,16 @@ class TemplateTests(unittest.TestCase):
         self.assertNotIn('/tiny:', text)
         self.assertNotIn('.tiny', text)
         self.assertNotIn('dry-wit', text)
+        self.assertIn('컨텍스트 사용량 (Context Footprint)', text)
+        self.assertIn('작업 맥락 (Work Context)', text)
 
     def test_setup_explains_choices_before_asking(self):
         text = (ROOT / 'templates/claude/commands/tink/setup.md').read_text(encoding='utf-8')
         self.assertIn('First question: language', text)
         self.assertIn('Before asking choices', text)
-        self.assertIn('Reusable harnesses', text)
-        self.assertIn('Repo scope', text)
-        self.assertIn('Global scope', text)
+        self.assertIn('재사용 하네스 (Reusable Harnesses)', text)
+        self.assertIn('Repo 범위 (Repo Scope', text)
+        self.assertIn('Global 범위 (Global Scope)', text)
         self.assertNotIn('둘 다', text)
         self.assertIn('Hook template', text)
         self.assertNotIn('Hook scope', text)
@@ -139,6 +141,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('usage signals', purge)
         self.assertIn('real failures', hone)
         self.assertIn('Ask for approval before saving', hone)
+        skill = (ROOT / 'templates/claude/skills/tink/SKILL.md').read_text(encoding='utf-8')
+        self.assertIn('purge', skill)
+        self.assertNotIn('prune', skill.lower())
 
     def test_harness_index_and_files(self):
         index = json.loads((ROOT / 'templates/tink/harnesses/index.json').read_text())
@@ -197,6 +202,9 @@ class TemplateTests(unittest.TestCase):
         for term in [
             '### Tink',
             '### Forge',
+            '### Forge',
+            '### Purge',
+            '### Hone',
             '### 하네스 (Harness)',
             '### 하네스 선택 (Harness Selection)',
             '### 하네스 만들기 (Harness Synthesis)',
@@ -205,6 +213,8 @@ class TemplateTests(unittest.TestCase):
             '### 실행 중 보정 (Inline Calibration)',
             '### 자동 제안 (Hook Recommendation)',
             '### 실행 상태 (Run State)',
+            '### 컨텍스트 사용량 (Context Footprint)',
+            '### 작업 맥락 (Work Context)',
         ]:
             self.assertIn(term, text)
         self.assertIn('대표 명령', text)
@@ -212,6 +222,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('기본 사용 습관 보정 방식', text)
         self.assertIn('참고용 추천', text)
         self.assertIn('behavior-shaping rules', text)
+        self.assertIn('거의 쓰지 않거나 겹치는 하네스', text)
+        self.assertIn('실제 실패, 반복 사용, 사용자 피드백', text)
         self.assertNotIn('npm ', text)
         self.assertNotIn('TypeScript', text)
 
@@ -225,6 +237,14 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('short advisory-only automatic suggestions', hook['description'])
         self.assertIn('one line or shorter', hook['behavior'])
         self.assertIn('Never auto-apply harnesses or save memory', hook['behavior'])
+
+    def test_language_command_naming_adr_exists(self):
+        text = (ROOT / 'docs/adr/0001-language-and-command-naming-policy.md').read_text(encoding='utf-8')
+        self.assertIn('forge', text)
+        self.assertIn('purge', text)
+        self.assertIn('hone', text)
+        self.assertIn('Korean-first', text)
+        self.assertIn('English parenthetical', text)
 
     def test_config_has_scope_and_language_defaults(self):
         cfg = json.loads((ROOT / 'templates/tink/config.json').read_text())

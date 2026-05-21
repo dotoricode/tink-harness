@@ -76,24 +76,24 @@ Use concise, selection-oriented wording. The recommendation must include the fir
 분석했습니다.
 
 추천:
-- harness: code-change + review
+- 하네스 (Harness): code-change + review
 - 이유: 변경 범위가 좁고, 회귀 확인이 필요합니다.
-- 만들 run state: `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`
+- 만들 실행 상태 (Run State): `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`
 - 첫 실행: 관련 파일을 먼저 읽고 검증 명령 후보를 확정합니다.
 
 진행할까요?
-1. 승인 (권장): run state 만들고 첫 실행까지 진행
-2. 조정: 다른 harness 조합 선택
-3. 새 harness 초안 만들기
+1. 승인 (권장): 실행 상태 (Run State)를 만들고 첫 실행까지 진행
+2. 조정: 다른 하네스 (Harness) 조합 선택
+3. 새 하네스 (Harness) 초안 만들기
 4. 취소
 ```
 
 If a new harness is needed:
 
 ```text
-기존 harness가 딱 맞지 않습니다.
+기존 하네스 (Harness)가 딱 맞지 않습니다.
 
-새 harness 초안:
+새 하네스 (Harness) 초안:
 - name: customer-interview-synthesis
 - purpose: 인터뷰 노트에서 반복 pain point와 제품 기회를 추출
 - checks: 원문 근거, 추측 분리, 다음 액션
