@@ -127,7 +127,7 @@ Good generated harnesses include:
 
 Generated harnesses should not be generic names like `coding-helper` or `research-assistant`. They should change the next action, the checks, and the failure recovery for a repeated task.
 
-## 사용 습관 기반 제안
+## 사용 습관 기반 제안 (Habit-aware recommendations)
 
 Tink는 꼭 작업 지시가 들어온 뒤에만 움직일 필요가 없다. 가벼운 관측 신호에서 반복되는 사용 습관이 보이면 작은 제안을 하나 할 수 있다.
 
@@ -140,7 +140,7 @@ Tink는 꼭 작업 지시가 들어온 뒤에만 움직일 필요가 없다. 가
 
 이 제안은 성격 추측이 아니라 관측 신호에 기반해야 한다. 작고 되돌릴 수 있어야 하며, 저장은 승인 후에만 한다.
 
-기본은 `/tink:forge` 안에서 하는 **실행 중 보정**이다. 일반 프롬프트 앞에서 나오는 **자동 제안**은 optional hook을 명시적으로 켰을 때만 허용한다. 자동 제안은 참고용이어야 하고, 한 줄 이하여야 하며, 하네스 자동 적용이나 memory 자동 저장을 하면 안 된다.
+기본은 `/tink:forge` 안에서 하는 **실행 중 보정 (Inline Calibration)**이다. 일반 프롬프트 앞에서 나오는 **자동 제안 (Hook Recommendation)**은 optional hook을 명시적으로 켰을 때만 허용한다. 자동 제안은 참고용이어야 하고, 한 줄 이하여야 하며, 하네스 자동 적용이나 memory 자동 저장을 하면 안 된다.
 
 ## How Tink remembers without bloating context
 
