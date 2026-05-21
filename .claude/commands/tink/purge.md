@@ -23,19 +23,26 @@ Keep Tink small. A large harness set defeats the point.
    - merge into another harness
    - delete
    - rewrite via `/tink:hone`
-5. Ask for approval before changing files.
-6. If approved, remove or merge surgically and update `.tink/harnesses/index.json`.
+5. For each non-keep action, prepare an approval payload with exact files and operation type.
+6. If the recommendation is `hone`, write or present a hone handoff packet before ending:
+   - target harness
+   - evidence
+   - proposed direction
+   - affected files
+   - approval status
+7. Ask for approval before changing files.
+8. If approved, remove or merge surgically and update `.tink/harnesses/index.json`.
 
 ## Approval format
 ```text
-Purge candidates:
+Purge candidates with operation IDs:
 - docs: keep. Used recently and distinct.
-- ship: hone. Useful but too broad.
-- old-research: delete. No index references and no recent use signal.
+- op-1 ship: hone. Useful but too broad. Handoff: target=ship, direction=tighten release checks.
+- op-2 old-research: delete. Files: `.tink/harnesses/old-research.md`, index entry.
 
 진행할까요?
 1. 승인: 추천안 적용
-2. 일부만 적용
+2. 일부만 적용: op ID로 선택
 3. 취소
 ```
 
@@ -43,3 +50,4 @@ Purge candidates:
 - Do not delete without approval.
 - Do not delete built-in harnesses only because usage data is missing.
 - Do not treat missing `.tink/runs/` as proof of non-use.
+- Do not apply a delete, merge, hone handoff, or index update without an operation-specific approval payload.

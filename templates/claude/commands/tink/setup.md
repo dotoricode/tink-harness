@@ -85,8 +85,8 @@ Ask only after explaining consequences.
    - 프로젝트별로 쌓은 개선이 유실되거나 재설정이 필요할 수 있습니다.
 ```
 
-### 3. Hook template
-Hook is optional and off by default. If selected in the installer, do not ask for hook scope again. Use the already selected repo/global scope.
+### 3. Hook registration
+Hook is optional and off by default. If selected in the installer, it is registered as a Claude Code `UserPromptSubmit` hook. Do not ask for hook scope again. Use the already selected repo/global scope.
 
 Explain:
 
@@ -94,7 +94,7 @@ Explain:
 Hook은 선택 사항입니다.
 
 무엇을 하나요?
-- 일반 사용자 프롬프트를 보고 “/tink:forge를 먼저 쓰면 좋겠다”는 추천만 합니다.
+- Claude Code `UserPromptSubmit`에 등록되어 일반 사용자 프롬프트를 보고 “/tink:forge를 먼저 쓰면 좋겠다”는 추천만 합니다.
 - 작업을 자동 실행하지 않습니다.
 - 메모리 (Memory)나 하네스 (Harness)를 자동 저장하지 않습니다.
 - `/grill-me` 같은 다른 slash skill 명령은 가로채지 않습니다.

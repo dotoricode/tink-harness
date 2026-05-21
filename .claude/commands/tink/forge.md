@@ -28,7 +28,7 @@ A valid `/tink:forge` response must do one of these:
 If the task is clear enough to classify, do not ask broad clarification first. Make a best recommendation, ask for approval, then act.
 
 ## Run state contract
-After approval, create `.tink/current/` with these files before doing deeper work:
+After approval, create `.tink/current/` with these files before doing deeper work. `.tink/current/` is the current workbench: the one active task plan Claude should keep updating while it works. It is temporary, local runtime state, not reusable memory and not a knowledge base:
 
 - `plan.md`: goal, selected harnesses, assumptions, scope, out-of-scope, next steps
 - `checks.md`: done criteria, verification commands, evidence required before final
@@ -36,7 +36,36 @@ After approval, create `.tink/current/` with these files before doing deeper wor
 - `notes.md`: short working notes, failures, last safe point, recovery actions
 - `answers.md`: user answers or inferred defaults used for this run
 
-Also append a compact completed-run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>.md` at the end when the task finishes. Do not store secrets, raw logs, full diffs, or one-off private context.
+Also append a compact run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>.md` when the task completes, is canceled, is blocked, or is superseded. Do not store secrets, raw logs, full diffs, or one-off private context.
+
+## Current run lifecycle
+Before creating a new `.tink/current/`, check whether one already exists:
+
+1. No current run: create `.tink/current/` and start.
+2. Same task still active: resume it, update `notes.md`, and continue from the next pending step.
+3. Different task requested: ask whether to archive/replace the old current run. Do not overwrite silently.
+4. Blocked or canceled task: write a compact run record with `outcome: blocked` or `outcome: canceled`, then clear or replace `.tink/current/` after approval.
+5. Superseded task: archive the old state as `outcome: superseded` before creating the new current run.
+
+A completed or archived current run should not remain ambiguous. Either keep it only because the user explicitly chose to resume, or archive it to `.tink/runs/` and replace it.
+
+## Run record schema
+Each `.tink/runs/*.md` record starts with YAML frontmatter:
+
+```yaml
+---
+started_at: "YYYY-MM-DDTHH:MM:SSZ"
+ended_at: "YYYY-MM-DDTHH:MM:SSZ"
+outcome: completed # completed | blocked | canceled | superseded
+selected_harnesses: []
+considered_but_rejected: []
+checks_result: pass # pass | fail | blocked | not_run
+maintenance_suggestions: []
+approved_saves: []
+---
+```
+
+The body should be a short human summary: goal, evidence, negative signals, and next safe action if blocked.
 
 ## Procedure
 1. Read `.tink/harnesses/index.json` first. Do not read every harness.
@@ -52,10 +81,10 @@ Also append a compact completed-run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>
    - docs
    - ship/release
    - new pattern not covered yet
-4. Pick the best existing harness set, usually 1-3 and max 4.
+4. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context.
 5. If no existing harness fits, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
 6. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
-7. If lightweight signals show a recurring operating habit, load `context-habit-calibration` and make at most one advisory recommendation before changing persistent state.
+7. If lightweight signals show a recurring operating habit, load `context-habit-calibration` only if it earns its context cost; otherwise make one advisory recommendation without loading another body.
 8. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
 9. Ask for selection-style approval before non-trivial work. Enter should accept the recommended option when the host supports it.
 10. After approval, read only the selected harness files.
@@ -67,7 +96,31 @@ Also append a compact completed-run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>
    - or reproduce the issue.
 13. Keep `steps.json` and `notes.md` current as work progresses.
 14. Before final, verify `checks.md` and report evidence.
-15. If the task exposed a repeated mistake or reusable improvement, propose a memory or harness update. Save only after user approval.
+15. If the task exposed a repeated mistake or reusable improvement, propose a memory or harness update using the approval payload below. Save only after user approval.
+
+
+## Context budget policy
+Do not use one universal harness cap. Choose by context footprint and task risk:
+
+- Tiny harnesses: may exceed 4 when each is short and directly useful. Still explain why each one earns its place.
+- Small harnesses: usually 1-4 active bodies. Add more only when the task has separate risks that need separate checks.
+- Large harnesses: load one at a time and only after approval.
+- Meta harnesses (`harness-curation`, `harness-synthesis`, `context-habit-calibration`): count their context cost. Use them to reduce or replace the active set, not to pile on top by default.
+- No hard cap mode is allowed for complex tasks, but it must be explicit: state the expected context cost, why no cap is safer, and what will be unloaded or summarized first.
+
+If the harness list feels heavy, stop and use `harness-curation` before loading more bodies.
+
+## Approval payload for saves
+Before saving memory, a new harness, a harness edit, or index metadata, show:
+
+- operation: memory-save | harness-create | harness-edit | index-update | purge | hone
+- destination files
+- exact entry text or patch summary
+- why it is reusable
+- sensitive/private content excluded
+- rollback or removal path
+
+Do not save if the user approved only the current run. Saving reusable state needs separate approval.
 
 ## Approval format
 Use concise, selection-oriented wording. The recommendation must include the first action Tink will perform, not only the harness name.
@@ -165,13 +218,27 @@ Before saving, score the candidate 1-5 on specificity, actionability, verifiabil
 -
 ```
 
+## `answers.md` template
+```md
+# Answers and assumptions
+
+## User answers
+-
+
+## Inferred defaults
+-
+
+## Open questions
+-
+```
+
 ## `steps.json` template
 ```json
 {
   "goal": "",
   "harnesses": [],
   "steps": [
-    { "id": "1", "status": "in_progress", "description": "Create run state and inspect the target" }
+    { "id": "1", "status": "in_progress", "description": "Create run state and inspect the target", "started_at": "", "completed_at": "" }
   ]
 }
 ```

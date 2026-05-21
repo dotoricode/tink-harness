@@ -6,7 +6,7 @@ Improve harnesses that are actually being used.
 Tink should get sharper through use, not grow randomly.
 
 ## Procedure
-1. Read `.tink/harnesses/index.json`.
+1. Read `.tink/harnesses/index.json`. If invoked from `/tink:purge`, first read the purge output, `.tink/current/notes.md`, or `.tink/queue/hone.json` for the hone handoff packet.
 2. Identify one or a few active harnesses to improve using real failures and evidence:
    - repeated mistakes
    - user corrections
@@ -21,8 +21,9 @@ Tink should get sharper through use, not grow randomly.
    - tighter checks
    - smaller context footprint
    - explicit failure recovery
-5. Ask for approval before saving.
-6. Apply surgical changes and update index metadata if needed.
+5. Show an approval payload: destination files, exact patch summary, why it is reusable, sensitive content excluded, rollback path.
+6. Ask for approval before saving.
+7. Apply surgical changes and update index metadata if needed.
 
 ## Approval format
 ```text
@@ -31,6 +32,11 @@ Hone target:
 
 Why:
 - 자주 쓰이지만 검증 명령을 매번 다시 정리하고 있습니다.
+
+Approval payload:
+- operation: hone
+- destination files: `.tink/harnesses/code-change.md`, `.tink/harnesses/index.json` if metadata changes
+- rollback: revert this patch or rerun `/tink:hone` with the previous trigger
 
 Proposed improvement:
 - Checks 섹션에 “검증 명령과 실패 시 마지막 안전 지점 기록” 추가

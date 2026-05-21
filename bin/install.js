@@ -71,21 +71,21 @@ const COMPONENTS = {
     { value: 'skill', label: 'Tink skill', hint: 'Tink operating rules for Claude Code' },
     { value: 'harnesses', label: 'Built-in harnesses', hint: 'Reusable task templates' },
     { value: 'memory', label: 'Memory templates', hint: 'Approved mistakes/preferences/lessons files' },
-    { value: 'hook', label: 'Hook recommendation template (optional)', hint: 'Suggests Tink on normal prompts only. Off by default.' }
+    { value: 'hook', label: 'Hook recommendation (optional)', hint: 'Registers a safe UserPromptSubmit hook when selected. Off by default.' }
   ],
   ko: [
     { value: 'commands', label: 'Claude Code 명령', hint: '/tink:setup, forge, list, purge, hone' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code가 읽는 Tink 작업 원칙' },
     { value: 'harnesses', label: '기본 harness', hint: '재사용 작업 템플릿' },
     { value: 'memory', label: 'Memory 템플릿', hint: '승인된 실수/선호/교훈 파일' },
-    { value: 'hook', label: 'Hook 추천 템플릿 (선택)', hint: '일반 프롬프트에만 Tink를 추천합니다. 기본 off.' }
+    { value: 'hook', label: 'Hook 추천 (선택)', hint: '선택하면 안전한 UserPromptSubmit hook으로 등록합니다. 기본 off.' }
   ],
   zh: [
     { value: 'commands', label: 'Claude Code 命令', hint: '/tink:setup, forge, list, purge, hone' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code 读取的 Tink 工作规则' },
     { value: 'harnesses', label: '内置 harness', hint: '可复用任务模板' },
     { value: 'memory', label: 'Memory 模板', hint: '经批准的错误/偏好/经验文件' },
-    { value: 'hook', label: 'Hook 推荐模板（可选）', hint: '只在普通提示中推荐 Tink。默认关闭。' }
+    { value: 'hook', label: 'Hook 推荐（可选）', hint: '选择后注册安全的 UserPromptSubmit hook。默认关闭。' }
   ]
 };
 
@@ -96,7 +96,7 @@ function argValue(name) {
 }
 
 function usage() {
-  console.log(`Tink installer for Claude Code\n\nUsage:\n  npx tink-harness@latest [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--dry-run] [--force]\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select components\n  4. Select repo/global installation scope\n  5. Select git tracking policy for project state\n\nScopes:\n  repo    Install into the current project.\n  global  Install into your home Claude Code config.\n`);
+  console.log(`Tink installer for Claude Code\n\nUsage:\n  npx tink-harness@latest [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--dry-run] [--force]\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select components\n  4. Select repo/global installation scope\n  5. Select git tracking policy for project state\n\nScopes:\n  repo    Install into the current project.\n  global  Install into your home Claude Code config.\n`);
 }
 
 function colorLine(line, color) {
@@ -171,6 +171,45 @@ function copyDir(src, dest, base) {
   }
 }
 
+
+function readJsonFile(filePath, fallback) {
+  if (!fs.existsSync(filePath)) return fallback;
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch {
+    return fallback;
+  }
+}
+
+function writeJsonFile(filePath, value, base) {
+  log.message(`${dryRun ? 'would write' : 'write'} ${displayPath(base, filePath)}`);
+  if (!dryRun) {
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
+  }
+}
+
+function hookCommandFor(scope, target) {
+  const script = path.join(target, '.tink/hooks/user-prompt-submit.mjs');
+  const display = scope === 'repo' ? '.tink/hooks/user-prompt-submit.mjs' : script;
+  return `node ${JSON.stringify(display)}`;
+}
+
+function registerClaudeHook(target, scope, base) {
+  const settingsPath = path.join(target, '.claude/settings.json');
+  const settings = readJsonFile(settingsPath, {});
+  const command = hookCommandFor(scope, target);
+  settings.hooks ||= {};
+  const entries = Array.isArray(settings.hooks.UserPromptSubmit) ? settings.hooks.UserPromptSubmit : [];
+  const filtered = entries.filter((entry) => !JSON.stringify(entry).includes('user-prompt-submit.mjs'));
+  filtered.push({
+    matcher: '',
+    hooks: [{ type: 'command', command }]
+  });
+  settings.hooks.UserPromptSubmit = filtered;
+  writeJsonFile(settingsPath, settings, base);
+}
+
 function copySelected(scope, components) {
   const repoTarget = process.cwd();
   const globalTarget = os.homedir();
@@ -192,6 +231,7 @@ function copySelected(scope, components) {
   }
   if (components.includes('hook')) {
     copyDir(path.join(templateRoot, 'tink/hooks'), path.join(target, '.tink/hooks'), target);
+    registerClaudeHook(target, scope, target);
   }
 
   return { repoTarget, globalTarget, installTarget: target };
@@ -241,11 +281,14 @@ async function resolveChoices() {
   if (!['en', 'ko', 'zh'].includes(language)) language = 'ko';
 
   let components = COMPONENTS[language].map((item) => item.value).filter((value) => value !== 'hook');
+  if (args.includes('--with-hook')) components.push('hook');
   let gitPolicy = 'harnesses';
   let hookScope = 'off';
 
   if (!interactive) {
-    return { scope: scope || 'repo', components, gitPolicy, hookScope, language };
+    scope = scope || 'repo';
+    if (components.includes('hook')) hookScope = scope;
+    return { scope, components, gitPolicy, hookScope, language };
   }
 
   language = handleCancel(await select({
@@ -338,10 +381,10 @@ async function resolveChoices() {
     hookScope = scope;
     note(
       language === 'ko'
-        ? `Hook 추천 템플릿을 ${scope} 범위에 설치합니다. 추가 범위 질문은 하지 않습니다. 작업 실행/저장 없이 일반 프롬프트에서만 Tink 사용을 추천합니다.`
+        ? `Hook 추천을 ${scope} 범위의 Claude Code UserPromptSubmit에 등록합니다. 추가 범위 질문은 하지 않습니다. 작업 실행/저장 없이 일반 프롬프트에서만 Tink 사용을 추천합니다.`
         : language === 'zh'
           ? `Hook 推荐模板将安装到 ${scope} 范围。不再询问额外 hook 范围。它不会执行或保存内容，只在普通提示中建议使用 Tink。`
-          : `Hook recommendation template will be installed in ${scope} scope. No extra hook scope question. It does not execute or save anything; it only suggests Tink on normal prompts.`,
+          : `Hook recommendation will be registered as a Claude Code UserPromptSubmit hook in ${scope} scope. No extra hook scope question. It does not execute or save anything; it only suggests Tink on normal prompts.`,
       language === 'ko' ? 'Hook 안전성' : language === 'zh' ? 'Hook 安全性' : 'Hook safety'
     );
   }

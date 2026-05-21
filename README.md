@@ -80,14 +80,29 @@ Tink will:
 7. Execute the first safe step immediately after approval, such as inspecting files, running a read-only diagnostic, drafting the first artifact, or reproducing the issue.
 8. Propose reusable memory or harness updates only after approval.
 
+
+## What `.tink/current/` is
+
+`.tink/current/` is Tink's current workbench. It holds the one active run Claude is working on right now:
+
+- `plan.md`: what we are trying to do and what is out of scope
+- `checks.md`: what must be true before saying done
+- `steps.json`: the step list and whether each step is pending, active, done, or blocked
+- `notes.md`: short working notes, failures, and last safe point
+- `answers.md`: user answers and assumptions used for this run
+
+It is not long-term memory. It is not a place for raw logs or full diffs. When the run finishes, gets canceled, is blocked, or is replaced, Tink writes a compact record to `.tink/runs/` so `list`, `purge`, and `hone` can use real evidence later.
+
 ## How Tink chooses harnesses
 
-Tink chooses the smallest useful set:
+Tink chooses the smallest useful set. There is no universal hard cap: the right limit depends on the context footprint and risk of each harness.
 
 - Primary: the main work type
 - Safety: what prevents mistakes
 - Finish: what proves done
 - Optional: only when clearly useful
+
+Tiny harnesses can exceed the old 3-5 guideline if they stay cheap and useful. Large harnesses should be loaded one at a time. Meta harnesses should reduce or replace the active set, not pile on top by default.
 
 The `context` column in harness lists means expected prompt/context footprint, called 컨텍스트 사용량 (Context Footprint) in Korean-facing prose:
 
@@ -140,7 +155,7 @@ Tink는 꼭 작업 지시가 들어온 뒤에만 움직일 필요가 없다. 가
 
 이 제안은 성격 추측이 아니라 관측 신호에 기반해야 한다. 작고 되돌릴 수 있어야 하며, 저장은 승인 후에만 한다.
 
-기본은 `/tink:forge` 안에서 하는 **실행 중 보정 (Inline Calibration)**이다. 일반 프롬프트 앞에서 나오는 **자동 제안 (Hook Recommendation)**은 optional hook을 명시적으로 켰을 때만 허용한다. 자동 제안은 참고용이어야 하고, 한 줄 이하여야 하며, 하네스 자동 적용이나 memory 자동 저장을 하면 안 된다.
+기본은 `/tink:forge` 안에서 하는 **실행 중 보정 (Inline Calibration)**이다. 일반 프롬프트 앞에서 나오는 **자동 제안 (Hook Recommendation)**은 optional hook을 명시적으로 켰을 때만 허용한다. 자동 제안은 참고용이어야 하고, 한 줄 이하여야 하며, 하네스 자동 적용이나 memory 자동 저장을 하면 안 된다. 사용자가 hook을 선택하면 installer가 Claude Code `UserPromptSubmit` hook으로 등록한다.
 
 ## How Tink remembers without bloating context
 
