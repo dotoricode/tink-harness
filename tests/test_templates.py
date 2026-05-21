@@ -131,11 +131,15 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('steps.json', forge)
         self.assertIn('Current run lifecycle', forge)
         self.assertIn('Run record schema', forge)
+        self.assertIn('recovery candidate', forge)
+        self.assertIn('resume, archive, replace, or cancel', forge)
         self.assertIn('selected_harnesses', forge)
         self.assertIn('considered_but_rejected', forge)
         self.assertIn('answers.md` template', forge)
         self.assertIn('Context budget policy', forge)
         self.assertIn('No hard cap mode', forge)
+        self.assertIn('one screen or less', forge)
+        self.assertIn('do not do the end-user task directly', forge)
         self.assertIn('Approval payload for saves', forge)
         self.assertIn('Harness synthesis contract', forge)
         self.assertIn('behavior-shaping rules', forge)
@@ -241,6 +245,9 @@ class TemplateTests(unittest.TestCase):
             '### 실행 상태 (Run State)',
             '### 컨텍스트 사용량 (Context Footprint)',
             '### 작업 맥락 (Work Context)',
+            '### 실행 상태 복구 (Run State Recovery)',
+            '### 하네스 크기 (Harness Size)',
+            '### 메타 하네스 (Meta Harness)',
         ]:
             self.assertIn(term, text)
         self.assertIn('대표 명령', text)

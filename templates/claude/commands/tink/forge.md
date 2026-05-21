@@ -42,12 +42,13 @@ Also append a compact run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>.md` when 
 Before creating a new `.tink/current/`, check whether one already exists:
 
 1. No current run: create `.tink/current/` and start.
-2. Same task still active: resume it, update `notes.md`, and continue from the next pending step.
-3. Different task requested: ask whether to archive/replace the old current run. Do not overwrite silently.
-4. Blocked or canceled task: write a compact run record with `outcome: blocked` or `outcome: canceled`, then clear or replace `.tink/current/` after approval.
-5. Superseded task: archive the old state as `outcome: superseded` before creating the new current run.
+2. Same task still active in the same conversation: resume it, update `notes.md`, and continue from the next pending step.
+3. `.tink/current/` exists but the conversation context is gone or uncertain: treat it as a recovery candidate, not as active truth. Read `plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md`, summarize the goal, last safe point, blocked/open questions, and ask the user to resume, archive, replace, or cancel.
+4. Different task requested: ask whether to archive/replace the old current run. Do not overwrite silently.
+5. Blocked or canceled task: write a compact run record with `outcome: blocked` or `outcome: canceled`, then clear or replace `.tink/current/` after approval.
+6. Superseded task: archive the old state as `outcome: superseded` before creating the new current run.
 
-A completed or archived current run should not remain ambiguous. Either keep it only because the user explicitly chose to resume, or archive it to `.tink/runs/` and replace it.
+A completed or archived current run should not remain ambiguous. Either keep it only because the user explicitly chose to resume, or archive it to `.tink/runs/` and replace it. When context was lost, do not silently continue from `steps.json`; first rebuild a short human summary and get a resume/archive/replace decision.
 
 ## Run record schema
 Each `.tink/runs/*.md` record starts with YAML frontmatter:
@@ -100,12 +101,12 @@ The body should be a short human summary: goal, evidence, negative signals, and 
 
 
 ## Context budget policy
-Do not use one universal harness cap. Choose by context footprint and task risk:
+Do not use one universal harness cap. Choose by context footprint and task risk. Classify size by how much thinking and checking the harness adds, not only by file length:
 
-- Tiny harnesses: may exceed 4 when each is short and directly useful. Still explain why each one earns its place.
-- Small harnesses: usually 1-4 active bodies. Add more only when the task has separate risks that need separate checks.
-- Large harnesses: load one at a time and only after approval.
-- Meta harnesses (`harness-curation`, `harness-synthesis`, `context-habit-calibration`): count their context cost. Use them to reduce or replace the active set, not to pile on top by default.
+- Tiny harnesses: one screen or less, one clear trigger, no extra tool chain, and one or two checks. May exceed 4 when each is directly useful. Still explain why each earns its place.
+- Small harnesses: checklist-sized, one work type, a few checks, and limited recovery rules. Usually 1-4 active bodies. Add more only when the task has separate risks that need separate checks.
+- Large harnesses: multi-phase, tool-heavy, research-heavy, multi-agent, or broad enough to change the whole workflow. Load one at a time and only after approval.
+- Meta harnesses (`harness-curation`, `harness-synthesis`, `context-habit-calibration`): do not do the end-user task directly. They decide whether to choose, reduce, replace, create, or tune other harnesses. Count their context cost and use them to reduce or replace the active set, not to pile on top by default.
 - No hard cap mode is allowed for complex tasks, but it must be explicit: state the expected context cost, why no cap is safer, and what will be unloaded or summarized first.
 
 If the harness list feels heavy, stop and use `harness-curation` before loading more bodies.

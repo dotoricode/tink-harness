@@ -93,6 +93,8 @@ Tink will:
 
 It is not long-term memory. It is not a place for raw logs or full diffs. When the run finishes, gets canceled, is blocked, or is replaced, Tink writes a compact record to `.tink/runs/` so `list`, `purge`, and `hone` can use real evidence later.
 
+If a new Claude session starts and `.tink/current/` already exists, Tink should treat it as a recovery candidate. It reads the current files, summarizes the previous goal and last safe point, then asks whether to resume, archive, replace, or cancel. It should not silently continue just because files exist.
+
 ## How Tink chooses harnesses
 
 Tink chooses the smallest useful set. There is no universal hard cap: the right limit depends on the context footprint and risk of each harness.
@@ -103,6 +105,8 @@ Tink chooses the smallest useful set. There is no universal hard cap: the right 
 - Optional: only when clearly useful
 
 Tiny harnesses can exceed the old 3-5 guideline if they stay cheap and useful. Large harnesses should be loaded one at a time. Meta harnesses should reduce or replace the active set, not pile on top by default.
+
+Harness size is not just line count. It also includes number of rules, tools, approvals, checks, recovery branches, and how much attention it takes from the main task.
 
 The `context` column in harness lists means expected prompt/context footprint, called 컨텍스트 사용량 (Context Footprint) in Korean-facing prose:
 
