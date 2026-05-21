@@ -88,5 +88,20 @@
       "Known risks stated",
       "Handoff is clear"
     ]
+  },
+  {
+    "name": "harness-synthesis",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "Create a domain-specific harness from research, failures, user feedback, or repeated work when generic harnesses are not enough.",
+    "asks": [
+      "What recurring task or failure should improve?",
+      "What research or examples should it learn from?"
+    ],
+    "checks": [
+      "Specific and non-duplicative",
+      "Operational checks and done criteria",
+      "Saved only after approval"
+    ]
   }
 ]

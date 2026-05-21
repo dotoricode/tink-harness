@@ -12,6 +12,7 @@ REQUIRED_README = [
     'Use with Claude Code',
     'How Tink chooses harnesses',
     'Built-in harnesses',
+    'What kinds of harnesses Tink can create',
     'How Tink remembers without bloating context',
     'How Tink grows',
     'Language behavior',
@@ -75,6 +76,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('selection-style prompt', text)
         self.assertIn('executes the first safe step', text)
         self.assertIn('plan.md', text)
+        self.assertIn('harness-synthesis', text)
+        self.assertIn('nextjs-rsc-boundary-refactor', text)
+        self.assertIn('behavior-shaping rules', text)
         self.assertIn('/tink:forge', text)
         self.assertIn('/tink:purge', text)
         self.assertIn('/tink:hone', text)
@@ -109,6 +113,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('execute the first safe step', forge)
         self.assertIn('Do not end with a harness recommendation only', forge)
         self.assertIn('steps.json', forge)
+        self.assertIn('Harness synthesis contract', forge)
+        self.assertIn('behavior-shaping rules', forge)
+        self.assertIn('pre-pr-security-gate', forge)
         self.assertIn('selection-style', forge)
         self.assertIn('Enter should accept', forge)
         self.assertIn('new harness', forge)
@@ -121,7 +128,7 @@ class TemplateTests(unittest.TestCase):
     def test_harness_index_and_files(self):
         index = json.loads((ROOT / 'templates/tink/harnesses/index.json').read_text())
         names = {item['name'] for item in index}
-        self.assertEqual(names, {'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship'})
+        self.assertEqual(names, {'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship', 'harness-synthesis'})
         for name in names:
             text = (ROOT / f'templates/tink/harnesses/{name}.md').read_text(encoding='utf-8')
             for section in HARNESS_SECTIONS:

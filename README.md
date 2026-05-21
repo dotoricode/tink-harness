@@ -54,7 +54,7 @@ During setup, Tink explains what `.tink/harnesses/` contains before asking wheth
 Available commands:
 
 - `/tink:setup`: choose language, repo/global scope, git tracking, and hook policy.
-- `/tink:forge`: choose or build the right harness, apply it, and propose reusable memory or harness updates. This is the main command.
+- `/tink:forge`: choose, build, or synthesize the right harness, create run state, start work, and propose reusable memory or harness updates. This is the main command.
 - `/tink:list`: list available harnesses and lightweight usage signals without loading all bodies.
 - `/tink:purge`: propose unused or redundant harnesses for removal. Deletes only after approval.
 - `/tink:hone`: improve active harnesses using real failures, corrections, and repeated use. Saves only after approval.
@@ -70,12 +70,13 @@ For a non-trivial task, run:
 Tink will:
 
 1. Read the harness index and small approved memory files.
-2. Choose an existing harness set or draft a new one if none fits, usually 1-3 harnesses and never more than 4.
-3. Explain why the chosen or newly drafted harness fits.
-4. Ask for approval with a selection-style prompt where Enter accepts the recommended option when possible.
-5. Create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md` for the task.
-6. Execute the first safe step immediately after approval, such as inspecting files, running a read-only diagnostic, drafting the first artifact, or reproducing the issue.
-7. Propose reusable memory or harness updates only after approval.
+2. Choose an existing harness set or synthesize a new domain-specific harness if none fits, usually 1-3 harnesses and never more than 4.
+3. When research notes, prior failures, or examples are available, extract behavior-shaping rules from them: triggers, decision rules, checks, stop conditions, recovery, and evidence.
+4. Explain why the chosen or newly drafted harness fits.
+5. Ask for approval with a selection-style prompt where Enter accepts the recommended option when possible.
+6. Create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md` for the task.
+7. Execute the first safe step immediately after approval, such as inspecting files, running a read-only diagnostic, drafting the first artifact, or reproducing the issue.
+8. Propose reusable memory or harness updates only after approval.
 
 ## How Tink chooses harnesses
 
@@ -104,6 +105,22 @@ Tink reads `.tink/harnesses/index.json` first, then loads only the selected harn
 - `review`: changed files, risks, tests, actionable findings
 - `docs`: reader, outline, examples, clarity check
 - `ship`: release, PR, deployment, or public handoff
+- `harness-synthesis`: create a narrow domain-specific harness from research, failures, examples, or repeated work
+
+## What kinds of harnesses Tink can create
+
+Tink can create harnesses that are narrower than the built-ins. The built-ins are routing primitives; generated harnesses should encode project or domain knowledge.
+
+Good generated harnesses include:
+
+- `nextjs-rsc-boundary-refactor`: split client/server boundaries with Next.js docs, target files, and build checks
+- `pre-pr-security-gate`: dependency/security review before PR using available audit tools and evidence
+- `customer-interview-synthesis`: extract pain points from interviews with source quotes and assumptions separated
+- `weekly-trend-report-validation`: validate public trend sources before producing a customer-facing note
+- `pricing-copy-experiment`: turn price/value hypotheses into copy variants and verification criteria
+- `accessibility-regression-gate`: check keyboard, labels, contrast, axe/pa11y, and screenshots before shipping UI
+
+Generated harnesses should not be generic names like `coding-helper` or `research-assistant`. They should change the next action, the checks, and the failure recovery for a repeated task.
 
 ## How Tink remembers without bloating context
 
@@ -119,7 +136,7 @@ Memory changes require user approval.
 
 ## How Tink grows
 
-When existing harnesses are not enough, `/tink:forge` proposes a new harness draft instead of forcing a bad fit.
+When existing harnesses are not enough, `/tink:forge` loads `harness-synthesis` and proposes a new domain-specific harness instead of forcing a bad fit. If the user provides research notes, prior runs, examples, or failures, Tink extracts behavior-shaping rules from them rather than summarizing them.
 
 A new harness is saved only when:
 

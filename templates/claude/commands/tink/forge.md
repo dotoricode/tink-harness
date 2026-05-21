@@ -51,18 +51,19 @@ Also append a compact completed-run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>
    - ship/release
    - new pattern not covered yet
 4. Pick the best existing harness set, usually 1-3 and max 4.
-5. If no existing harness fits, draft a small new harness for this run instead of forcing a bad fit.
-6. Ask for selection-style approval before non-trivial work. Enter should accept the recommended option when the host supports it.
-7. After approval, read only the selected harness files.
-8. Create `.tink/current/` files from the run state contract.
-9. Execute the first safe step immediately:
+5. If no existing harness fits, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
+6. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
+7. Ask for selection-style approval before non-trivial work. Enter should accept the recommended option when the host supports it.
+8. After approval, read only the selected harness files.
+9. Create `.tink/current/` files from the run state contract.
+10. Execute the first safe step immediately:
    - inspect relevant files,
    - run a read-only diagnostic,
    - draft the first artifact,
    - or reproduce the issue.
-10. Keep `steps.json` and `notes.md` current as work progresses.
-11. Before final, verify `checks.md` and report evidence.
-12. If the task exposed a repeated mistake or reusable improvement, propose a memory or harness update. Save only after user approval.
+11. Keep `steps.json` and `notes.md` current as work progresses.
+12. Before final, verify `checks.md` and report evidence.
+13. If the task exposed a repeated mistake or reusable improvement, propose a memory or harness update. Save only after user approval.
 
 ## Approval format
 Use concise, selection-oriented wording. The recommendation must include the first action Tink will perform, not only the harness name.
@@ -100,6 +101,22 @@ If a new harness is needed:
 3. 조정
 4. 취소
 ```
+
+## Harness synthesis contract
+When creating a new harness, Tink must create a procedure that would outperform a generic skill recommendation for a repeated task.
+
+A generated harness can encode:
+- domain triggers: when this exact workflow should run
+- source inputs: research notes, examples, project files, prior run notes, failures, user corrections
+- decision rules: how to choose options, reject bad paths, or stop
+- tool sequence: what to inspect, search, run, draft, verify, or avoid first
+- checks: objective evidence required before final
+- recovery: what to do when a check fails
+- memory rule: what may become reusable memory or harness improvement
+
+Do not generate broad harnesses like `coding-helper` or `research-assistant`. Generate narrow harnesses like `nextjs-rsc-boundary-refactor`, `pre-pr-security-gate`, or `cafe-menu-validation-note`.
+
+Before saving, score the candidate 1-5 on specificity, actionability, verifiability, reuse likelihood, and context cost. Save only if the weak points are acceptable and the user approves.
 
 ## `plan.md` template
 ```md
