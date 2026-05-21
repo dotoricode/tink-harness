@@ -67,21 +67,21 @@ const COPY = {
 
 const COMPONENTS = {
   en: [
-    { value: 'commands', label: 'Claude Code commands', hint: '/tiny:* commands' },
+    { value: 'commands', label: 'Claude Code commands', hint: '/tink:* commands plus legacy /tiny:* aliases' },
     { value: 'skill', label: 'Tink skill', hint: 'Tink operating rules for Claude Code' },
     { value: 'harnesses', label: 'Built-in harnesses', hint: 'Reusable task templates' },
     { value: 'memory', label: 'Memory templates', hint: 'Approved mistakes/preferences/lessons files' },
     { value: 'hook', label: 'Hook recommendation template (optional)', hint: 'Suggests Tink on normal prompts only. Off by default.' }
   ],
   ko: [
-    { value: 'commands', label: 'Claude Code 명령', hint: '/tiny:* 명령' },
+    { value: 'commands', label: 'Claude Code 명령', hint: '/tink:* 명령 + 기존 /tiny:* 별칭' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code가 읽는 Tink 작업 원칙' },
     { value: 'harnesses', label: '기본 harness', hint: '재사용 작업 템플릿' },
     { value: 'memory', label: 'Memory 템플릿', hint: '승인된 실수/선호/교훈 파일' },
     { value: 'hook', label: 'Hook 추천 템플릿 (선택)', hint: '일반 프롬프트에만 Tink를 추천합니다. 기본 off.' }
   ],
   zh: [
-    { value: 'commands', label: 'Claude Code 命令', hint: '/tiny:* 命令' },
+    { value: 'commands', label: 'Claude Code 命令', hint: '/tink:* 命令 + 旧 /tiny:* 别名' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code 读取的 Tink 工作规则' },
     { value: 'harnesses', label: '内置 harness', hint: '可复用任务模板' },
     { value: 'memory', label: 'Memory 模板', hint: '经批准的错误/偏好/经验文件' },
@@ -99,17 +99,10 @@ function usage() {
   console.log(`Tink installer for Claude Code\n\nUsage:\n  npx tink-harness@latest [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--dry-run] [--force]\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select components\n  4. Select repo/global installation scope\n  5. Select git tracking policy for project state\n\nScopes:\n  repo    Install into the current project.\n  global  Install into your home Claude Code config.\n`);
 }
 
-function colorLine(line, start, end) {
+function colorLine(line, color) {
   if (!process.stdout.isTTY && !interactive) return line;
-  const chars = [...line];
-  const denom = Math.max(chars.length - 1, 1);
-  return chars.map((ch, index) => {
-    const t = index / denom;
-    const r = Math.round(start[0] + (end[0] - start[0]) * t);
-    const g = Math.round(start[1] + (end[1] - start[1]) * t);
-    const b = Math.round(start[2] + (end[2] - start[2]) * t);
-    return `\x1b[38;2;${r};${g};${b}m${ch}\x1b[0m`;
-  }).join('');
+  const [r, g, b] = color;
+  return `\x1b[38;2;${r};${g};${b}m${line}\x1b[0m`;
 }
 
 function printBanner() {
@@ -121,22 +114,17 @@ function printBanner() {
     '   ██║   ██║██║ ╚████║██║  ██╗',
     '   ╚═╝   ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝'
   ];
-  const top = [6, 20, 66];
-  const bottom = [38, 134, 255];
+  const top = [5, 18, 58];
+  const bottom = [56, 149, 255];
   console.log('');
   lines.forEach((line, i) => {
     const t = i / Math.max(lines.length - 1, 1);
-    const start = [
-      Math.round(top[0] + (bottom[0] - top[0]) * t * 0.4),
-      Math.round(top[1] + (bottom[1] - top[1]) * t * 0.4),
-      Math.round(top[2] + (bottom[2] - top[2]) * t * 0.4)
+    const color = [
+      Math.round(top[0] + (bottom[0] - top[0]) * t),
+      Math.round(top[1] + (bottom[1] - top[1]) * t),
+      Math.round(top[2] + (bottom[2] - top[2]) * t)
     ];
-    const end = [
-      Math.round(top[0] + (bottom[0] - top[0]) * (0.45 + t * 0.55)),
-      Math.round(top[1] + (bottom[1] - top[1]) * (0.45 + t * 0.55)),
-      Math.round(top[2] + (bottom[2] - top[2]) * (0.45 + t * 0.55))
-    ];
-    console.log(colorLine(line, start, end));
+    console.log(colorLine(line, color));
   });
   console.log('');
 }
@@ -347,30 +335,15 @@ async function resolveChoices() {
   }
 
   if (components.includes('hook')) {
+    hookScope = scope;
     note(
       language === 'ko'
-        ? 'Hook은 작업을 실행하지 않고 저장도 하지 않습니다. 일반 사용자 프롬프트에서만 Tink 사용을 추천합니다. `/grill-me` 같은 다른 slash skill 명령은 가로채지 않는 것이 의도입니다.'
+        ? `Hook 추천 템플릿을 ${scope} 범위에 설치합니다. 추가 범위 질문은 하지 않습니다. 작업 실행/저장 없이 일반 프롬프트에서만 Tink 사용을 추천합니다.`
         : language === 'zh'
-          ? 'Hook 不会执行任务，也不会保存内容。它只在普通用户提示中建议使用 Tink。它有意不拦截 `/grill-me` 等其他 slash skill 命令。'
-          : 'The hook does not execute or save anything. It only suggests Tink on normal prompts. It intentionally does not intercept other slash skill commands such as `/grill-me`.',
+          ? `Hook 推荐模板将安装到 ${scope} 范围。不再询问额外 hook 范围。它不会执行或保存内容，只在普通提示中建议使用 Tink。`
+          : `Hook recommendation template will be installed in ${scope} scope. No extra hook scope question. It does not execute or save anything; it only suggests Tink on normal prompts.`,
       language === 'ko' ? 'Hook 안전성' : language === 'zh' ? 'Hook 安全性' : 'Hook safety'
     );
-    hookScope = handleCancel(await select({
-      message: copy.hookScope,
-      options: [
-        {
-          value: 'off',
-          label: language === 'ko' ? '지금은 사용 안 함' : language === 'zh' ? '暂不启用' : 'Do not enable hooks now',
-          hint: language === 'ko' ? '권장. /tiny:use를 직접 호출.' : language === 'zh' ? '推荐。手动使用 /tiny:use。' : 'Recommended. Use /tiny:use manually.'
-        },
-        {
-          value: scope,
-          label: scope === 'repo' ? 'Repo hook template' : 'Global hook template',
-          hint: language === 'ko' ? '추천 템플릿만 설치합니다.' : language === 'zh' ? '只安装推荐模板。' : 'Installs recommendation template only.'
-        }
-      ],
-      initialValue: 'off'
-    }));
   }
 
   return { scope, components, gitPolicy, hookScope, language };
@@ -413,7 +386,7 @@ async function main() {
     `Install target: ${targets.installTarget}`,
     `Components: ${components.join(', ')}`,
     `Hook scope: ${hookScope}`,
-    'Next: open Claude Code and run /tiny:setup.'
+    'Next: open Claude Code and run /tink:setup.'
   ].join('\n');
 
   if (interactive) {
@@ -421,7 +394,7 @@ async function main() {
     outro(COPY[language].done);
   } else {
     console.log(`\n${summary}`);
-    console.log('\nDone. Open Claude Code and run /tiny:setup.');
+    console.log('\nDone. Open Claude Code and run /tink:setup.');
   }
 }
 

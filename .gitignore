@@ -1,0 +1,4 @@
+# Tink runtime state
+.tiny/current/
+.tiny/runs/
+.tiny/cache/

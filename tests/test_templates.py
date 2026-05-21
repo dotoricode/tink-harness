@@ -40,6 +40,7 @@ class TemplateTests(unittest.TestCase):
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('deep-blue', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('colorLine(line, color)', installer)
         self.assertIn('Language / 언어 / 语言', installer)
         self.assertIn('Installation scope', installer)
         self.assertIn('Select components to install', installer)
@@ -59,7 +60,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('context` column', text)
         self.assertIn('selected language', text)
         self.assertIn('/grill-me', text)
-        self.assertIn('selection-style approval', text)
+        self.assertIn('selection-style prompt', text)
+        self.assertIn('/tink:prime', text)
+        self.assertIn('Legacy `/tiny:*` aliases', text)
         self.assertNotIn('dry-wit', text)
 
     def test_setup_explains_choices_before_asking(self):
@@ -70,7 +73,10 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Repo scope', text)
         self.assertIn('Global scope', text)
         self.assertNotIn('둘 다', text)
-        self.assertIn('Hook scope', text)
+        self.assertIn('Hook template', text)
+        self.assertNotIn('Hook scope', text)
+        self.assertIn('좋은 점', text)
+        self.assertIn('다른 팀원, 다른 PC, 새 clone', text)
         self.assertIn('hooks do not apply to `/grill-me`', text)
         self.assertIn('Command map after setup', text)
         self.assertIn('selected language', text)
@@ -110,6 +116,7 @@ class TemplateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'], cwd=d, check=True, capture_output=True, text=True)
             base = Path(d)
+            self.assertTrue((base / '.claude/commands/tink/prime.md').exists())
             self.assertTrue((base / '.claude/commands/tiny/setup.md').exists())
             self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
             self.assertTrue((base / '.tiny/harnesses/index.json').exists())

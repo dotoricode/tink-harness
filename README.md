@@ -28,7 +28,7 @@ Non-interactive repo-scoped install:
 npx tink-harness@latest install --yes
 ```
 
-Global install, useful when you want the same `/tiny:*` commands available across projects:
+Global install, useful when you want the same `/tink:*` commands available across projects:
 
 ```bash
 npx tink-harness@latest install --global --yes
@@ -44,7 +44,7 @@ npx github:dotoricode/tink-harness install --global
 Then open Claude Code and run:
 
 ```text
-/tiny:setup
+/tink:setup
 ```
 
 During setup, Tink explains what `.tiny/harnesses/` contains before asking whether to commit it. The default policy is to commit reusable harnesses and config, while ignoring `.tiny/current/`, `.tiny/runs/`, and `.tiny/cache/`.
@@ -53,17 +53,19 @@ During setup, Tink explains what `.tiny/harnesses/` contains before asking wheth
 
 Available commands:
 
-- `/tiny:setup`: choose language, repo/global scope, git tracking, hook policy, and language behavior.
-- `/tiny:use`: suggest the best harness set with reasons before a task and ask for selection-style approval.
-- `/tiny:list`: list available harnesses without loading all bodies.
-- `/tiny:save`: save an approved new or improved harness.
-- `/tiny:remember`: save a repeated mistake, stable preference, or reusable lesson after approval.
-- `/tiny:fix`: improve a harness after a repeated failure.
+- `/tink:setup`: choose language, repo/global scope, git tracking, hook policy, and language behavior.
+- `/tink:prime`: prime Claude with the best harness set and reasons before a task. This is the main command.
+- `/tink:list`: list available harnesses without loading all bodies.
+- `/tink:save`: save an approved new or improved harness.
+- `/tink:remember`: save a repeated mistake, stable preference, or reusable lesson after approval.
+- `/tink:fix`: improve a harness after a repeated failure.
+
+Legacy `/tiny:*` aliases may also be installed for compatibility, but new docs use `/tink:*`.
 
 For a non-trivial task, run:
 
 ```text
-/tiny:use
+/tink:prime
 ```
 
 Tink will:
@@ -146,7 +148,7 @@ Tink pairs well with Matt Pocock's skills because it creates task-specific conte
 
 Example flow:
 
-1. `/tiny:use` selects `bug-fix` and `code-change`.
+1. `/tink:prime` selects `bug-fix` and `code-change`.
 2. Claude proposes the best harness set and asks for approval with reasons.
 3. A focused skill such as TDD, diagnose, grill-me, or review can use that context after approval.
 

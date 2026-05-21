@@ -1,4 +1,4 @@
-# /tiny:setup
+# /tink:setup
 
 Set up Tink for Claude Code.
 
@@ -124,7 +124,7 @@ If the user asks why hooks do not apply to `/grill-me` or other skills, answer:
 ```
 
 ## Command map after setup
-After setup, always explain the `/tink:*` commands first. Mention `/tiny:*` only as legacy aliases:
+After setup, always explain the `/tink:*` commands first. Mention `/tink:*` only as legacy aliases:
 
 ```text
 사용 가능한 Tink 명령입니다.
@@ -136,7 +136,7 @@ After setup, always explain the `/tink:*` commands first. Mention `/tiny:*` only
 - `/tink:remember`: 반복 실수, 안정적 선호, reusable lesson을 승인 후 저장합니다.
 - `/tink:fix`: 반복 실패가 생겼을 때 harness를 좁게 개선합니다.
 
-호환을 위해 `/tiny:*` 별칭도 설치되어 있을 수 있지만, 새 문서와 안내는 `/tink:*`를 기준으로 합니다.
+호환을 위해 `/tink:*` 별칭도 설치되어 있을 수 있지만, 새 문서와 안내는 `/tink:*`를 기준으로 합니다.
 ```
 
 ## Do not

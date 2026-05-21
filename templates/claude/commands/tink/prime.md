@@ -1,6 +1,6 @@
-# /tiny:use
+# /tink:prime
 
-Use Tink before starting a non-trivial task.
+Prime Claude with the right Tink harness before starting a non-trivial task.
 
 ## Procedure
 1. Read `.tiny/harnesses/index.json` first. Do not read every harness.
