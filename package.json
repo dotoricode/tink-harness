@@ -1,7 +1,7 @@
 {
   "name": "tink-harness",
   "version": "0.1.0",
-  "description": "Interactive TINK harness installer for Claude Code.",
+  "description": "Self-growing harnesses for Claude Code.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -19,10 +19,17 @@
   },
   "keywords": [
     "claude-code",
-    "skills",
+    "ai-agents",
+    "agent-harness",
+    "developer-tools",
+    "cli",
+    "automation",
+    "agentic-coding",
+    "llm",
+    "workflow-automation",
+    "code-agents",
     "hooks",
-    "harness",
-    "ai-agents"
+    "skills"
   ],
   "repository": {
     "type": "git",

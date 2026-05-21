@@ -17,8 +17,18 @@ function safeJson(text) {
   }
 }
 
+function readConfigLanguage() {
+  try {
+    const cfg = safeJson(fs.readFileSync('.tink/config.json', 'utf8'));
+    return cfg.language || 'auto';
+  } catch {
+    return 'auto';
+  }
+}
+
 const payload = safeJson(readStdin());
 const prompt = String(payload.prompt || payload.user_prompt || payload.message || '');
+const language = readConfigLanguage();
 
 if (!prompt.trim()) process.exit(0);
 if (prompt.trim().startsWith('/')) process.exit(0);
@@ -30,5 +40,10 @@ const nonTrivialSignals = [
 ];
 
 if (nonTrivialSignals.some((pattern) => pattern.test(prompt))) {
-  console.log('Tink 제안: 복잡한 작업이면 /tink:forge로 하네스와 실행 상태를 먼저 잡을 수 있습니다.');
+  const message = language === 'en'
+    ? 'Tink suggestion: for complex work, run /tink:forge first to choose a harness and create run state.'
+    : language === 'zh'
+      ? 'Tink 建议：复杂任务可以先运行 /tink:forge，选择 harness 并创建运行状态。'
+      : 'Tink 제안: 복잡한 작업이면 /tink:forge로 하네스와 실행 상태를 먼저 잡을 수 있습니다.';
+  console.log(message);
 }

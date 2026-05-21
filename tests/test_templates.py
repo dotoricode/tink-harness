@@ -69,6 +69,9 @@ class TemplateTests(unittest.TestCase):
         for section in REQUIRED_README:
             self.assertIn(section, text)
         self.assertIn('AI jokes', text)
+        self.assertIn('img.shields.io', text)
+        self.assertIn('Project status', text)
+        self.assertIn('Philosophy', text)
         self.assertIn('--global', text)
         self.assertIn('TINK` wizard', text)
         self.assertIn('top-level loop', text)
@@ -279,6 +282,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('never auto-applies harnesses or saves memory', hook['behavior'])
         self.assertEqual(hook['command'], 'node .tink/hooks/user-prompt-submit.mjs')
         script = (ROOT / 'templates/tink/hooks/user-prompt-submit.mjs').read_text(encoding='utf-8')
+        self.assertIn('readConfigLanguage', script)
         self.assertIn('startsWith', script)
         self.assertIn('/tink:forge', script)
         self.assertIn('console.log', script)
@@ -294,6 +298,9 @@ class TemplateTests(unittest.TestCase):
     def test_config_has_scope_and_language_defaults(self):
         cfg = json.loads((ROOT / 'templates/tink/config.json').read_text())
         self.assertEqual(cfg['language'], 'auto')
+        self.assertEqual(cfg['context_budget'], 'soft')
+        self.assertIn('default_harnesses_per_task', cfg)
+        self.assertIn('harness_lines_warning', cfg)
         self.assertEqual(cfg['install_scope'], 'repo')
         self.assertEqual(cfg['hook_scope'], 'off')
 

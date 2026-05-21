@@ -5,7 +5,7 @@ Tink may use a Claude Code `UserPromptSubmit` hook as an optional recommendation
 The hook should:
 
 - read the user prompt
-- read `.tink/harnesses/index.json`
+- stay lightweight and prompt-first
 - suggest when `/tink:forge` would help
 - stay advisory-only
 - keep a hook recommendation to one line or shorter
