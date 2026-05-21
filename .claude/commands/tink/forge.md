@@ -43,12 +43,29 @@ Before creating a new `.tink/current/`, check whether one already exists:
 
 1. No current run: create `.tink/current/` and start.
 2. Same task still active in the same conversation: resume it, update `notes.md`, and continue from the next pending step.
-3. `.tink/current/` exists but the conversation context is gone or uncertain: treat it as a recovery candidate, not as active truth. Read `plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md`, summarize the goal, last safe point, blocked/open questions, and ask the user to resume, archive, replace, or cancel.
+3. `.tink/current/` exists but the conversation context is gone or uncertain: treat it as a recovery candidate, not as active truth. Even if the user says “continue” or “이어서 해”, first read `plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md`, show the five-line recovery summary below, then ask the user to resume, archive, replace, or cancel.
 4. Different task requested: ask whether to archive/replace the old current run. Do not overwrite silently.
 5. Blocked or canceled task: write a compact run record with `outcome: blocked` or `outcome: canceled`, then clear or replace `.tink/current/` after approval.
 6. Superseded task: archive the old state as `outcome: superseded` before creating the new current run.
 
 A completed or archived current run should not remain ambiguous. Either keep it only because the user explicitly chose to resume, or archive it to `.tink/runs/` and replace it. When context was lost, do not silently continue from `steps.json`; first rebuild a short human summary and get a resume/archive/replace decision.
+
+Recovery prompt format:
+
+```text
+이전 작업 복구:
+- 목표:
+- 마지막 안전 지점:
+- 다음 단계:
+- 열린 질문:
+- 검증 상태:
+
+1. 이어가기
+2. 보관하고 새 작업
+3. 교체
+4. 취소
+```
+
 
 ## Run record schema
 Each `.tink/runs/*.md` record starts with YAML frontmatter:

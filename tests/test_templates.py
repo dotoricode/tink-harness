@@ -133,6 +133,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Run record schema', forge)
         self.assertIn('recovery candidate', forge)
         self.assertIn('resume, archive, replace, or cancel', forge)
+        self.assertIn('Even if the user says', forge)
+        self.assertIn('Recovery prompt format', forge)
+        self.assertIn('이전 작업 복구', forge)
         self.assertIn('selected_harnesses', forge)
         self.assertIn('considered_but_rejected', forge)
         self.assertIn('answers.md` template', forge)
@@ -257,6 +260,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('behavior-shaping rules', text)
         self.assertIn('거의 쓰지 않거나 겹치는 하네스', text)
         self.assertIn('실제 실패, 반복 사용, 사용자 피드백', text)
+        self.assertIn('사용자가 “이어서 해”라고 해도', text)
         self.assertNotIn('npm ', text)
         self.assertNotIn('TypeScript', text)
 
