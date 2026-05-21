@@ -39,8 +39,12 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('picocolors', pkg['dependencies'])
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
+        self.assertIn('deep-blue', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('Language / 언어 / 语言', installer)
         self.assertIn('Installation scope', installer)
         self.assertIn('Select components to install', installer)
+        self.assertIn('Hook recommendation template', installer)
+        self.assertNotIn("value: 'both'", installer)
         self.assertTrue((ROOT / pkg['bin']['tink-harness']).exists())
 
     def test_readme_required_sections(self):
@@ -51,26 +55,34 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('--global', text)
         self.assertIn('TINK` wizard', text)
         self.assertIn('npx github:dotoricode/tink-harness', text)
+        self.assertIn('English, 한국어, or 中文', text)
         self.assertIn('context` column', text)
-        self.assertIn('user\'s language', text)
+        self.assertIn('selected language', text)
+        self.assertIn('/grill-me', text)
+        self.assertIn('selection-style approval', text)
         self.assertNotIn('dry-wit', text)
 
     def test_setup_explains_choices_before_asking(self):
         text = (ROOT / 'templates/claude/commands/tiny/setup.md').read_text(encoding='utf-8')
+        self.assertIn('First question: language', text)
         self.assertIn('Before asking choices', text)
         self.assertIn('Reusable harnesses', text)
         self.assertIn('Repo scope', text)
         self.assertIn('Global scope', text)
+        self.assertNotIn('둘 다', text)
         self.assertIn('Hook scope', text)
+        self.assertIn('hooks do not apply to `/grill-me`', text)
         self.assertIn('Command map after setup', text)
-        self.assertIn('Language', text)
+        self.assertIn('selected language', text)
 
     def test_use_explains_context_and_freeform_edits(self):
         text = (ROOT / 'templates/claude/commands/tiny/use.md').read_text(encoding='utf-8')
         self.assertIn('Meaning of `context`', text)
         self.assertIn('prompt/context footprint', text)
-        self.assertIn('free-form edits', text)
-        self.assertIn('직접 입력', text)
+        self.assertIn('selection-style prompt', text)
+        self.assertIn('Always ask before work', text)
+        self.assertIn('Enter should approve', text)
+        self.assertIn('/grill-me', text)
 
     def test_harness_index_and_files(self):
         index = json.loads((ROOT / 'templates/tiny/harnesses/index.json').read_text())
@@ -91,10 +103,12 @@ class TemplateTests(unittest.TestCase):
     def test_installer_dry_run_and_install(self):
         subprocess.run(['node', 'bin/install.js', 'install', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
         subprocess.run(['node', 'bin/install.js', 'install', '--global', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
-        subprocess.run(['node', 'bin/install.js', 'install', '--scope=both', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
-        subprocess.run(['node', 'bin/install.js', 'install', '--yes', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
+        bad = subprocess.run(['node', 'bin/install.js', 'install', '--scope=both', '--dry-run'], cwd=ROOT, capture_output=True, text=True)
+        self.assertNotEqual(bad.returncode, 0)
+        subprocess.run(['node', 'bin/install.js', 'install', '--lang=en', '--yes', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
+        subprocess.run(['node', 'bin/install.js', 'install', '--lang=zh', '--yes', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
         with tempfile.TemporaryDirectory() as d:
-            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--yes'], cwd=d, check=True, capture_output=True, text=True)
+            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'], cwd=d, check=True, capture_output=True, text=True)
             base = Path(d)
             self.assertTrue((base / '.claude/commands/tiny/setup.md').exists())
             self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())

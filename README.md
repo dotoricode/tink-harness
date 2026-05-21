@@ -20,7 +20,7 @@ Interactive installer:
 npx tink-harness@latest
 ```
 
-It opens a `TINK` wizard where you choose components, installation scope, and project `.tiny` tracking policy.
+It opens a deep-blue gradient `TINK` wizard. The first question is language: English, 한국어, or 中文. Then you choose components, repo/global installation scope, and project `.tiny` tracking policy.
 
 Non-interactive repo-scoped install:
 
@@ -53,8 +53,8 @@ During setup, Tink explains what `.tiny/harnesses/` contains before asking wheth
 
 Available commands:
 
-- `/tiny:setup`: choose repo/global scope, git tracking, hook policy, and language behavior.
-- `/tiny:use`: suggest 1-4 harnesses before a task and ask for approval.
+- `/tiny:setup`: choose language, repo/global scope, git tracking, hook policy, and language behavior.
+- `/tiny:use`: suggest the best harness set with reasons before a task and ask for selection-style approval.
 - `/tiny:list`: list available harnesses without loading all bodies.
 - `/tiny:save`: save an approved new or improved harness.
 - `/tiny:remember`: save a repeated mistake, stable preference, or reusable lesson after approval.
@@ -69,10 +69,10 @@ For a non-trivial task, run:
 Tink will:
 
 1. Read the harness index.
-2. Suggest 1-4 harnesses.
-3. Ask for approval.
-4. Create `.tiny/current/` for the task.
-5. Help Claude work inside the selected harnesses.
+2. Suggest the best harness set, usually 1-3 harnesses and never more than 4.
+3. Explain the reason for the recommendation.
+4. Ask for approval with a selection-style prompt where Enter accepts the recommended option when possible.
+5. Create `.tiny/current/` for the task.
 
 ## How Tink chooses harnesses
 
@@ -130,7 +130,7 @@ Saved harnesses live in `.tiny/harnesses/` and become future candidates.
 
 ## Language behavior
 
-Tink should answer in the user's language when it is clear. Built-in harness IDs stay in English for stable filenames, but descriptions, approval prompts, `.tiny/current/` run files, and final reports should be localized.
+Tink should answer in the selected language from setup. The installer asks first: English, 한국어, or 中文. Built-in harness IDs stay in English for stable filenames, but descriptions, approval prompts, `.tiny/current/` run files, and final reports should be localized.
 
 If the project has a documented language policy, Tink should follow it. If language is ambiguous, ask once during `/tiny:setup` and save the preference only after approval.
 
@@ -142,13 +142,13 @@ It should not use AI jokes, memes, or excessive character voice. Readability and
 
 ## Works with Matt Pocock skills
 
-Tink pairs well with Matt Pocock's skills because it creates task-specific context before using a deeper skill.
+Tink pairs well with Matt Pocock's skills because it creates task-specific context before using a deeper skill. It does not automatically intercept other slash skills such as `/grill-me`; that is intentional so Tink does not hijack another skill's workflow.
 
 Example flow:
 
 1. `/tiny:use` selects `bug-fix` and `code-change`.
-2. Claude creates `.tiny/current/`.
-3. A focused skill such as TDD, diagnose, or review can use that context.
+2. Claude proposes the best harness set and asks for approval with reasons.
+3. A focused skill such as TDD, diagnose, grill-me, or review can use that context after approval.
 
 Tink does not overwrite `CLAUDE.md` or force a global project structure.
 
