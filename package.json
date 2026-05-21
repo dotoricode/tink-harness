@@ -1,7 +1,7 @@
 {
   "name": "tink-harness",
   "version": "0.1.0",
-  "description": "Self-growing harnesses for Claude Code.",
+  "description": "Interactive TINK harness installer for Claude Code.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -31,5 +31,9 @@
   "bugs": {
     "url": "https://github.com/dotoricode/tink-harness/issues"
   },
-  "homepage": "https://github.com/dotoricode/tink-harness#readme"
+  "homepage": "https://github.com/dotoricode/tink-harness#readme",
+  "dependencies": {
+    "@clack/prompts": "^0.11.0",
+    "picocolors": "^1.1.1"
+  }
 }

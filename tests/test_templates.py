@@ -35,6 +35,12 @@ class TemplateTests(unittest.TestCase):
     def test_package_bin_exists(self):
         pkg = json.loads((ROOT / 'package.json').read_text())
         self.assertIn('tink-harness', pkg['bin'])
+        self.assertIn('@clack/prompts', pkg['dependencies'])
+        self.assertIn('picocolors', pkg['dependencies'])
+        installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
+        self.assertIn('TINK', installer)
+        self.assertIn('Installation scope', installer)
+        self.assertIn('Select components to install', installer)
         self.assertTrue((ROOT / pkg['bin']['tink-harness']).exists())
 
     def test_readme_required_sections(self):
@@ -43,6 +49,8 @@ class TemplateTests(unittest.TestCase):
             self.assertIn(section, text)
         self.assertIn('AI jokes', text)
         self.assertIn('--global', text)
+        self.assertIn('TINK` wizard', text)
+        self.assertIn('npx github:dotoricode/tink-harness', text)
         self.assertIn('context` column', text)
         self.assertIn('user\'s language', text)
         self.assertNotIn('dry-wit', text)
@@ -83,8 +91,10 @@ class TemplateTests(unittest.TestCase):
     def test_installer_dry_run_and_install(self):
         subprocess.run(['node', 'bin/install.js', 'install', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
         subprocess.run(['node', 'bin/install.js', 'install', '--global', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
+        subprocess.run(['node', 'bin/install.js', 'install', '--scope=both', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
+        subprocess.run(['node', 'bin/install.js', 'install', '--yes', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
         with tempfile.TemporaryDirectory() as d:
-            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install'], cwd=d, check=True, capture_output=True, text=True)
+            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--yes'], cwd=d, check=True, capture_output=True, text=True)
             base = Path(d)
             self.assertTrue((base / '.claude/commands/tiny/setup.md').exists())
             self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())

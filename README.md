@@ -14,22 +14,30 @@ A harness is a small reusable procedure for a kind of work: when to use it, what
 
 ## 30-second setup
 
-Repo-scoped install, recommended for project harnesses:
+Interactive installer:
 
 ```bash
-npx tink-harness@latest install
+npx tink-harness@latest
+```
+
+It opens a `TINK` wizard where you choose components, installation scope, and project `.tiny` tracking policy.
+
+Non-interactive repo-scoped install:
+
+```bash
+npx tink-harness@latest install --yes
 ```
 
 Global install, useful when you want the same `/tiny:*` commands available across projects:
 
 ```bash
-npx tink-harness@latest install --global
+npx tink-harness@latest install --global --yes
 ```
 
 Before npm publish, install from GitHub:
 
 ```bash
-npx github:dotoricode/tink-harness install
+npx github:dotoricode/tink-harness
 npx github:dotoricode/tink-harness install --global
 ```
 
