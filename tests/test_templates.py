@@ -79,6 +79,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('harness-synthesis', text)
         self.assertIn('nextjs-rsc-boundary-refactor', text)
         self.assertIn('behavior-shaping rules', text)
+        self.assertIn('Too many tools can make an agent worse', text)
+        self.assertIn('harness-curation', text)
         self.assertIn('/tink:forge', text)
         self.assertIn('/tink:purge', text)
         self.assertIn('/tink:hone', text)
@@ -116,6 +118,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Harness synthesis contract', forge)
         self.assertIn('behavior-shaping rules', forge)
         self.assertIn('pre-pr-security-gate', forge)
+        self.assertIn('harness-curation', forge)
+        self.assertIn('smallest effective set', forge)
         self.assertIn('selection-style', forge)
         self.assertIn('Enter should accept', forge)
         self.assertIn('new harness', forge)
@@ -128,7 +132,7 @@ class TemplateTests(unittest.TestCase):
     def test_harness_index_and_files(self):
         index = json.loads((ROOT / 'templates/tink/harnesses/index.json').read_text())
         names = {item['name'] for item in index}
-        self.assertEqual(names, {'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship', 'harness-synthesis'})
+        self.assertEqual(names, {'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship', 'harness-synthesis', 'harness-curation'})
         for name in names:
             text = (ROOT / f'templates/tink/harnesses/{name}.md').read_text(encoding='utf-8')
             for section in HARNESS_SECTIONS:
@@ -158,6 +162,15 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue((base / '.tink/harnesses/index.json').exists())
             self.assertTrue((base / '.tink/memory/mistakes.md').exists())
             self.assertTrue((base / '.gitignore').exists())
+
+    def test_harness_synthesis_dogfood_example(self):
+        text = (ROOT / 'examples/harness-synthesis-dogfood.md').read_text(encoding='utf-8')
+        self.assertIn('Harness synthesis dogfood: harness-curation', text)
+        self.assertIn('Tools become poison when there are too many', text)
+        self.assertIn('Extracted behavior-shaping rules', text)
+        self.assertIn('harness-curation', text)
+        self.assertIn('Specificity: 5/5', text)
+        self.assertIn('Validation checklist', text)
 
     def test_config_has_scope_and_language_defaults(self):
         cfg = json.loads((ROOT / 'templates/tink/config.json').read_text())

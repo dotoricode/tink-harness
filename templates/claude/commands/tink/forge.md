@@ -9,11 +9,13 @@ Tink is not a harness recommendation list. It must leave the user with an active
 
 Tink should:
 1. understand the task,
-2. choose or build the smallest useful harness,
-3. materialize the harness as a run plan,
-4. execute the first safe step after approval,
-5. prevent repeated mistakes while working,
-6. remember only reusable lessons after approval.
+2. choose the smallest effective harness/tool set,
+3. replace heavy harnesses when the current stage or token budget makes them harmful,
+4. build or synthesize a narrow harness when none fits,
+5. materialize the harness as a run plan,
+6. execute the first safe step after approval,
+7. prevent repeated mistakes while working,
+8. maintain the harness set through approved memory, hone, or purge proposals.
 
 ## Default behavior
 Do not stop after saying which harness might fit.
@@ -52,18 +54,19 @@ Also append a compact completed-run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>
    - new pattern not covered yet
 4. Pick the best existing harness set, usually 1-3 and max 4.
 5. If no existing harness fits, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
-6. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
-7. Ask for selection-style approval before non-trivial work. Enter should accept the recommended option when the host supports it.
-8. After approval, read only the selected harness files.
-9. Create `.tink/current/` files from the run state contract.
-10. Execute the first safe step immediately:
+6. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
+7. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
+8. Ask for selection-style approval before non-trivial work. Enter should accept the recommended option when the host supports it.
+9. After approval, read only the selected harness files.
+10. Create `.tink/current/` files from the run state contract.
+11. Execute the first safe step immediately:
    - inspect relevant files,
    - run a read-only diagnostic,
    - draft the first artifact,
    - or reproduce the issue.
-11. Keep `steps.json` and `notes.md` current as work progresses.
-12. Before final, verify `checks.md` and report evidence.
-13. If the task exposed a repeated mistake or reusable improvement, propose a memory or harness update. Save only after user approval.
+12. Keep `steps.json` and `notes.md` current as work progresses.
+13. Before final, verify `checks.md` and report evidence.
+14. If the task exposed a repeated mistake or reusable improvement, propose a memory or harness update. Save only after user approval.
 
 ## Approval format
 Use concise, selection-oriented wording. The recommendation must include the first action Tink will perform, not only the harness name.

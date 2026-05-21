@@ -103,5 +103,20 @@
       "Operational checks and done criteria",
       "Saved only after approval"
     ]
+  },
+  {
+    "name": "harness-curation",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "Choose, replace, synthesize, hone, or purge harnesses when too many tools or heavy workflows would hurt the current task.",
+    "asks": [
+      "What is the current task and success evidence?",
+      "What constraint makes heavy harnesses risky?"
+    ],
+    "checks": [
+      "Smallest effective set chosen",
+      "Heavy harnesses rejected or deferred with reason",
+      "Maintenance saved only after approval"
+    ]
   }
 ]

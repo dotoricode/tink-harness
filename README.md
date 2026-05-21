@@ -2,11 +2,13 @@
 
 Self-growing harnesses for Claude Code.
 
-Tink helps Claude forge the right harness, materialize it as run state, and start the work. It chooses or builds the smallest useful procedure, applies it with approval, creates `.tink/current/`, executes the first safe step, avoids repeated mistakes, and remembers only reusable lessons.
+Tink helps Claude forge the right harness, materialize it as run state, and start the work. It chooses the smallest effective tool/harness set, builds a narrow harness when none fits, applies it with approval, creates `.tink/current/`, executes the first safe step, avoids repeated mistakes, and maintains the harness set over time.
 
 ## What is Tink?
 
 Tink is a Claude Code skill and command pack.
+
+Tink's job is harness curation, not maximum tool use. Too many tools can make an agent worse. Tink should keep the active set small, often 3-5 and rarely more than 10, swap harnesses when the task changes, synthesize a lean harness when existing ones are too generic or too heavy, prevent repeated mistakes, and maintain the harness set through hone/purge proposals.
 
 It is not an agent framework. It does not run agents. It does not replace Claude Code.
 
@@ -106,6 +108,7 @@ Tink reads `.tink/harnesses/index.json` first, then loads only the selected harn
 - `docs`: reader, outline, examples, clarity check
 - `ship`: release, PR, deployment, or public handoff
 - `harness-synthesis`: create a narrow domain-specific harness from research, failures, examples, or repeated work
+- `harness-curation`: choose, replace, synthesize, hone, or purge harnesses when too many tools or heavy workflows would hurt the task
 
 ## What kinds of harnesses Tink can create
 
@@ -113,6 +116,7 @@ Tink can create harnesses that are narrower than the built-ins. The built-ins ar
 
 Good generated harnesses include:
 
+- `harness-curation`: keep active tools/harnesses small, swap heavy workflows out, and trigger hone/purge when needed
 - `nextjs-rsc-boundary-refactor`: split client/server boundaries with Next.js docs, target files, and build checks
 - `pre-pr-security-gate`: dependency/security review before PR using available audit tools and evidence
 - `customer-interview-synthesis`: extract pain points from interviews with source quotes and assumptions separated

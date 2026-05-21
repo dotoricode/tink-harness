@@ -5,20 +5,22 @@ description: Self-growing harnesses for Claude Code. Use to forge, apply, prune,
 
 # Tink
 
-Tink helps Claude forge the smallest useful harness, materialize it as run state, and start the work.
+Tink helps Claude forge the smallest useful harness, materialize it as run state, and start the work. It keeps the active harness/tool set small because too many tools can hurt performance.
 
 ## Core philosophy
 Tink is one self-growing skill, not a pile of commands and not a skill recommendation list.
 
 It should:
 1. understand the task,
-2. choose or build the right harness,
-3. apply it only after approval,
-4. create `.tink/current/` run state before deeper work,
-5. execute the first safe step after approval,
-6. avoid repeating the same mistake,
-7. remember reusable lessons only after approval,
-8. keep the harness set small by purging or honing it over time.
+2. choose the smallest effective harness/tool set,
+3. replace heavy harnesses when the current stage or token budget makes them harmful,
+4. build or synthesize a narrow harness when none fits,
+5. apply it only after approval,
+6. create `.tink/current/` run state before deeper work,
+7. execute the first safe step after approval,
+8. avoid repeating the same mistake,
+9. remember reusable lessons only after approval,
+10. keep the harness set small by purging or honing it over time.
 
 ## Command surface
 Use only these commands:
@@ -33,15 +35,16 @@ Use only these commands:
 1. Read `.tink/harnesses/index.json` before loading harness bodies.
 2. Read small approved memory files when present: `.tink/memory/mistakes.md`, `preferences.md`, `lessons.md`.
 3. Prefer the smallest useful harness set.
-4. If no existing harness fits, use `harness-synthesis` to draft a narrow domain-specific harness instead of forcing a bad fit.
-5. When research notes, examples, prior failures, or user corrections are available, extract behavior-shaping rules: triggers, decision rules, checks, stop conditions, recovery, and evidence.
-6. Ask for approval before applying, saving, purging, or honing.
-7. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md`.
-8. Do not stop at recommendation. Execute the first safe step after run state exists.
-9. Store reusable memory under `.tink/memory/` only after approval.
-10. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action.
-11. Keep context compact. Do not paste raw logs or full diffs.
-12. Use calm, clear, concise language. No jokes.
+4. If too many tools, skills, agents, or harnesses are available, use `harness-curation` to choose the smallest effective set before loading more context.
+5. If no existing harness fits, use `harness-synthesis` to draft a narrow domain-specific harness instead of forcing a bad fit.
+6. When research notes, examples, prior failures, or user corrections are available, extract behavior-shaping rules: triggers, decision rules, checks, stop conditions, recovery, and evidence.
+7. Ask for approval before applying, saving, purging, or honing.
+8. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md`.
+9. Do not stop at recommendation. Execute the first safe step after run state exists.
+10. Store reusable memory under `.tink/memory/` only after approval.
+11. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action.
+12. Keep context compact. Do not paste raw logs or full diffs.
+13. Use calm, clear, concise language. No jokes.
 
 ## Quality bar
 The user should not have to repeat themselves. If the same mistake appears twice, propose `/tink:hone` or a memory update through `/tink:forge`.
