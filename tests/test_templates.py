@@ -69,6 +69,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('AI jokes', text)
         self.assertIn('--global', text)
         self.assertIn('TINK` wizard', text)
+        self.assertIn('top-level loop', text)
         self.assertIn('npx github:dotoricode/tink-harness', text)
         self.assertIn('English, 한국어, or 中文', text)
         self.assertIn('context` column', text)
@@ -186,6 +187,24 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('output length', text)
         self.assertIn('context-habit-calibration', text)
         self.assertIn('Validation checklist', text)
+
+    def test_context_glossary_exists(self):
+        text = (ROOT / 'CONTEXT.md').read_text(encoding='utf-8')
+        for term in [
+            '### Tink',
+            '### Forge',
+            '### Harness',
+            '### Harness Selection',
+            '### Harness Synthesis',
+            '### Harness Curation',
+            '### Habit Calibration',
+            '### Run State',
+        ]:
+            self.assertIn(term, text)
+        self.assertIn('상위 명령', text)
+        self.assertIn('단순한 harness 생성 명령이 아니다', text)
+        self.assertNotIn('npm ', text)
+        self.assertNotIn('TypeScript', text)
 
     def test_config_has_scope_and_language_defaults(self):
         cfg = json.loads((ROOT / 'templates/tink/config.json').read_text())

@@ -56,7 +56,7 @@ During setup, Tink explains what `.tink/harnesses/` contains before asking wheth
 Available commands:
 
 - `/tink:setup`: choose language, repo/global scope, git tracking, and hook policy.
-- `/tink:forge`: choose, build, or synthesize the right harness, create run state, start work, and propose reusable memory or harness updates. This is the main command.
+- `/tink:forge`: top-level loop that chooses, replaces, synthesizes, or calibrates the right harness set, creates run state, starts work, and proposes reusable memory or harness updates. This is the main command.
 - `/tink:list`: list available harnesses and lightweight usage signals without loading all bodies.
 - `/tink:purge`: propose unused or redundant harnesses for removal. Deletes only after approval.
 - `/tink:hone`: improve active harnesses using real failures, corrections, and repeated use. Saves only after approval.
