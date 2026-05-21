@@ -21,7 +21,7 @@ The hook should not:
 
 Default recommendation: keep hooks off and use `/tink:forge` directly until the hook behavior is clearly useful.
 
-Terminology:
+## Terms
 
-- Inline Calibration: habit-aware recommendation inside `/tink:forge`; this is the default.
-- Hook Recommendation: optional general-prompt recommendation when the hook is explicitly enabled; it is advisory-only, short, and never applies or saves anything by itself.
+- 실행 중 보정: `/tink:forge` 안에서 하는 사용 습관 기반 제안. 기본 방식이다.
+- 자동 제안: optional hook을 명시적으로 켰을 때 일반 프롬프트 앞에서 나오는 참고용 추천. 짧고, 자동 적용이나 자동 저장을 하지 않는다.

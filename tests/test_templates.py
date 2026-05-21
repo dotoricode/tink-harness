@@ -13,7 +13,7 @@ REQUIRED_README = [
     'How Tink chooses harnesses',
     'Built-in harnesses',
     'What kinds of harnesses Tink can create',
-    'Habit-aware recommendations',
+    '사용 습관 기반 제안',
     'How Tink remembers without bloating context',
     'How Tink grows',
     'Language behavior',
@@ -86,8 +86,10 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('context-habit-calibration', text)
         self.assertIn('compact cadence', text)
         self.assertIn('context-hoarder', text)
-        self.assertIn('Inline Calibration', text)
-        self.assertIn('Hook Recommendation', text)
+        self.assertIn('실행 중 보정', text)
+        self.assertIn('자동 제안', text)
+        self.assertNotIn('Inline Calibration', text)
+        self.assertNotIn('Hook Recommendation', text)
         self.assertIn('/tink:forge', text)
         self.assertIn('/tink:purge', text)
         self.assertIn('/tink:hone', text)
@@ -195,31 +197,33 @@ class TemplateTests(unittest.TestCase):
         for term in [
             '### Tink',
             '### Forge',
-            '### Harness',
-            '### Harness Selection',
-            '### Harness Synthesis',
-            '### Harness Curation',
-            '### Habit Calibration',
-            '### Inline Calibration',
-            '### Hook Recommendation',
-            '### Run State',
+            '### 하네스',
+            '### 하네스 선택',
+            '### 하네스 만들기',
+            '### 하네스 정리',
+            '### 사용 습관 보정',
+            '### 실행 중 보정',
+            '### 자동 제안',
+            '### 실행 상태',
         ]:
             self.assertIn(term, text)
-        self.assertIn('상위 명령', text)
-        self.assertIn('단순한 harness 생성 명령이 아니다', text)
-        self.assertIn('기본 habit calibration 방식', text)
-        self.assertIn('advisory-only 추천', text)
+        self.assertIn('대표 명령', text)
+        self.assertIn('단순한 하네스 생성 명령이 아니다', text)
+        self.assertIn('기본 사용 습관 보정 방식', text)
+        self.assertIn('참고용 추천', text)
+        self.assertNotIn('Inline Calibration', text)
+        self.assertNotIn('Hook Recommendation', text)
         self.assertNotIn('npm ', text)
         self.assertNotIn('TypeScript', text)
 
     def test_hook_recommendation_stays_advisory(self):
         docs = (ROOT / 'docs/hooks.md').read_text(encoding='utf-8')
         hook = json.loads((ROOT / 'templates/tink/hooks/user-prompt-submit.json').read_text(encoding='utf-8'))
-        self.assertIn('Inline Calibration', docs)
-        self.assertIn('Hook Recommendation', docs)
+        self.assertIn('실행 중 보정', docs)
+        self.assertIn('자동 제안', docs)
         self.assertIn('advisory-only', docs)
         self.assertIn('one line or shorter', docs)
-        self.assertIn('advisory-only Hook Recommendations', hook['description'])
+        self.assertIn('short advisory-only automatic suggestions', hook['description'])
         self.assertIn('one line or shorter', hook['behavior'])
         self.assertIn('Never auto-apply harnesses or save memory', hook['behavior'])
 

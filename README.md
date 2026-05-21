@@ -127,20 +127,20 @@ Good generated harnesses include:
 
 Generated harnesses should not be generic names like `coding-helper` or `research-assistant`. They should change the next action, the checks, and the failure recovery for a repeated task.
 
-## Habit-aware recommendations
+## 사용 습관 기반 제안
 
-Tink does not have to wait for a task instruction. When lightweight signals show a recurring operating habit, Tink can make one small advisory recommendation:
+Tink는 꼭 작업 지시가 들어온 뒤에만 움직일 필요가 없다. 가벼운 관측 신호에서 반복되는 사용 습관이 보이면 작은 제안을 하나 할 수 있다.
 
-- context-hoarder: waits for compact and accumulates stale context,
-- context-resetter: uses `/new` often and loses continuity,
-- over-loader: loads too many tools, agents, or harnesses,
-- under-specifier: gives goals without success criteria,
-- over-explainer: produces or invites long output when handles would work,
-- evidence-seeker: needs raw-state evidence and negative signals.
+- context-hoarder: compact까지 기다리며 오래된 context가 쌓이는 경우
+- context-resetter: `/new`를 자주 써서 유용한 흐름이 끊기는 경우
+- over-loader: 도구, 에이전트, 하네스를 너무 많이 여는 경우
+- under-specifier: 목표는 있지만 성공 기준이 빠지는 경우
+- over-explainer: 짧은 근거만 있으면 되는데 출력이 길어지는 경우
+- evidence-seeker: 자체 보고보다 실제 근거와 부정 신호가 필요한 경우
 
-These recommendations must be based on observed signals, not personality guesses. They should be reversible, small, and saved only after approval.
+이 제안은 성격 추측이 아니라 관측 신호에 기반해야 한다. 작고 되돌릴 수 있어야 하며, 저장은 승인 후에만 한다.
 
-By default, habit-aware recommendations happen as **Inline Calibration** inside `/tink:forge`. A general-prompt **Hook Recommendation** is allowed only when the optional hook is explicitly enabled; it must be advisory-only, one line or shorter, and must not auto-apply harnesses or save memory.
+기본은 `/tink:forge` 안에서 하는 **실행 중 보정**이다. 일반 프롬프트 앞에서 나오는 **자동 제안**은 optional hook을 명시적으로 켰을 때만 허용한다. 자동 제안은 참고용이어야 하고, 한 줄 이하여야 하며, 하네스 자동 적용이나 memory 자동 저장을 하면 안 된다.
 
 ## How Tink remembers without bloating context
 
