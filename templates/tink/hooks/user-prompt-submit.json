@@ -1,6 +1,6 @@
 {
   "name": "tink-forge-suggestion",
-  "description": "Optional Claude Code hook template. Use only after /tink:setup approval. It should suggest harnesses, not auto-apply them.",
+  "description": "Optional Claude Code hook template. Use only after /tink:setup approval. It should provide advisory-only Hook Recommendations, not auto-apply harnesses.",
   "event": "UserPromptSubmit",
-  "behavior": "Read the user prompt, inspect .tink/harnesses/index.json, suggest 1-4 harnesses, and ask for approval before continuing."
+  "behavior": "Read the user prompt and .tink/harnesses/index.json, suggest when /tink:forge would help, keep the recommendation one line or shorter, and ask for approval before continuing. Never auto-apply harnesses or save memory."
 }

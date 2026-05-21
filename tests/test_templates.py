@@ -86,6 +86,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('context-habit-calibration', text)
         self.assertIn('compact cadence', text)
         self.assertIn('context-hoarder', text)
+        self.assertIn('Inline Calibration', text)
+        self.assertIn('Hook Recommendation', text)
         self.assertIn('/tink:forge', text)
         self.assertIn('/tink:purge', text)
         self.assertIn('/tink:hone', text)
@@ -198,13 +200,28 @@ class TemplateTests(unittest.TestCase):
             '### Harness Synthesis',
             '### Harness Curation',
             '### Habit Calibration',
+            '### Inline Calibration',
+            '### Hook Recommendation',
             '### Run State',
         ]:
             self.assertIn(term, text)
         self.assertIn('상위 명령', text)
         self.assertIn('단순한 harness 생성 명령이 아니다', text)
+        self.assertIn('기본 habit calibration 방식', text)
+        self.assertIn('advisory-only 추천', text)
         self.assertNotIn('npm ', text)
         self.assertNotIn('TypeScript', text)
+
+    def test_hook_recommendation_stays_advisory(self):
+        docs = (ROOT / 'docs/hooks.md').read_text(encoding='utf-8')
+        hook = json.loads((ROOT / 'templates/tink/hooks/user-prompt-submit.json').read_text(encoding='utf-8'))
+        self.assertIn('Inline Calibration', docs)
+        self.assertIn('Hook Recommendation', docs)
+        self.assertIn('advisory-only', docs)
+        self.assertIn('one line or shorter', docs)
+        self.assertIn('advisory-only Hook Recommendations', hook['description'])
+        self.assertIn('one line or shorter', hook['behavior'])
+        self.assertIn('Never auto-apply harnesses or save memory', hook['behavior'])
 
     def test_config_has_scope_and_language_defaults(self):
         cfg = json.loads((ROOT / 'templates/tink/config.json').read_text())

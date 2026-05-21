@@ -36,6 +36,18 @@ Harness는 언제 쓰는지, 무엇을 먼저 물어볼지, 어떤 순서로 진
 
 명시적 작업 지시가 없어도 context 사용, token 사용, 입력 품질, 출력 길이, reset/compact 습관, evidence 선호 같은 관측 신호를 바탕으로 작은 운영 보정을 제안하는 판단.
 
+### Inline Calibration
+
+`/tink:forge` 실행 안에서만 수행하는 habit calibration.
+
+Inline Calibration은 기본 habit calibration 방식이다. Forge가 이미 호출된 상태에서 관측 신호를 바탕으로 한 가지 작은 보정을 제안한다.
+
+### Hook Recommendation
+
+사용자가 optional hook을 명시적으로 켰을 때 일반 프롬프트 앞에서 제공하는 짧은 advisory-only 추천.
+
+Hook Recommendation은 harness를 자동 적용하거나 memory를 자동 저장하지 않는다. 다른 slash skill을 가로채지 않으며, 반복 관측 신호가 있을 때만 한 줄 이하로 `/tink:forge` 또는 작은 보정을 추천한다.
+
 ### Run State
 
 현재 forge 실행을 위해 `.tink/current/` 아래에 남기는 임시 상태.

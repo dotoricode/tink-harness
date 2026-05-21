@@ -140,6 +140,8 @@ Tink does not have to wait for a task instruction. When lightweight signals show
 
 These recommendations must be based on observed signals, not personality guesses. They should be reversible, small, and saved only after approval.
 
+By default, habit-aware recommendations happen as **Inline Calibration** inside `/tink:forge`. A general-prompt **Hook Recommendation** is allowed only when the optional hook is explicitly enabled; it must be advisory-only, one line or shorter, and must not auto-apply harnesses or save memory.
+
 ## How Tink remembers without bloating context
 
 Tink keeps memory small and explicit:
