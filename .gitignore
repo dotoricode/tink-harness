@@ -1,3 +1,5 @@
+node_modules/
+
 # Tink runtime state
 .tink/current/
 .tink/runs/

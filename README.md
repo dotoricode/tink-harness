@@ -2,7 +2,7 @@
 
 Self-growing harnesses for Claude Code.
 
-Tink helps Claude forge the right harness before work starts. It chooses or builds the smallest useful procedure, applies it with approval, avoids repeated mistakes, and remembers only reusable lessons.
+Tink helps Claude forge the right harness, materialize it as run state, and start the work. It chooses or builds the smallest useful procedure, applies it with approval, creates `.tink/current/`, executes the first safe step, avoids repeated mistakes, and remembers only reusable lessons.
 
 ## What is Tink?
 
@@ -69,11 +69,13 @@ For a non-trivial task, run:
 
 Tink will:
 
-1. Read the harness index.
+1. Read the harness index and small approved memory files.
 2. Choose an existing harness set or draft a new one if none fits, usually 1-3 harnesses and never more than 4.
 3. Explain why the chosen or newly drafted harness fits.
 4. Ask for approval with a selection-style prompt where Enter accepts the recommended option when possible.
-5. Create `.tink/current/` for the task and propose reusable memory or harness updates only after approval.
+5. Create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md` for the task.
+6. Execute the first safe step immediately after approval, such as inspecting files, running a read-only diagnostic, drafting the first artifact, or reproducing the issue.
+7. Propose reusable memory or harness updates only after approval.
 
 ## How Tink chooses harnesses
 
