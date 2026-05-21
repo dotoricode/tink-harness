@@ -1,0 +1,35 @@
+{
+  "name": "tink-harness",
+  "version": "0.1.0",
+  "description": "Self-growing harnesses for Claude Code.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "tink-harness": "./bin/install.js"
+  },
+  "files": [
+    "bin/",
+    "templates/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "python tests/test_templates.py && node --check bin/install.js",
+    "check": "npm test"
+  },
+  "keywords": [
+    "claude-code",
+    "skills",
+    "hooks",
+    "harness",
+    "ai-agents"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dotoricode/tink-harness.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dotoricode/tink-harness/issues"
+  },
+  "homepage": "https://github.com/dotoricode/tink-harness#readme"
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "step-1",
+    "task": "Reproduce or locate the redirect failure",
+    "status": "todo"
+  },
+  {
+    "id": "step-2",
+    "task": "Identify the smallest related code path",
+    "status": "todo"
+  },
+  {
+    "id": "step-3",
+    "task": "Make the minimal fix",
+    "status": "todo"
+  },
+  {
+    "id": "step-4",
+    "task": "Run regression checks and report evidence",
+    "status": "todo"
+  }
+]
