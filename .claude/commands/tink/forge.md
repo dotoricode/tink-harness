@@ -55,18 +55,19 @@ Also append a compact completed-run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>
 4. Pick the best existing harness set, usually 1-3 and max 4.
 5. If no existing harness fits, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
 6. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
-7. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
-8. Ask for selection-style approval before non-trivial work. Enter should accept the recommended option when the host supports it.
-9. After approval, read only the selected harness files.
-10. Create `.tink/current/` files from the run state contract.
-11. Execute the first safe step immediately:
+7. If lightweight signals show a recurring operating habit, load `context-habit-calibration` and make at most one advisory recommendation before changing persistent state.
+8. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
+9. Ask for selection-style approval before non-trivial work. Enter should accept the recommended option when the host supports it.
+10. After approval, read only the selected harness files.
+11. Create `.tink/current/` files from the run state contract.
+12. Execute the first safe step immediately:
    - inspect relevant files,
    - run a read-only diagnostic,
    - draft the first artifact,
    - or reproduce the issue.
-12. Keep `steps.json` and `notes.md` current as work progresses.
-13. Before final, verify `checks.md` and report evidence.
-14. If the task exposed a repeated mistake or reusable improvement, propose a memory or harness update. Save only after user approval.
+13. Keep `steps.json` and `notes.md` current as work progresses.
+14. Before final, verify `checks.md` and report evidence.
+15. If the task exposed a repeated mistake or reusable improvement, propose a memory or harness update. Save only after user approval.
 
 ## Approval format
 Use concise, selection-oriented wording. The recommendation must include the first action Tink will perform, not only the harness name.

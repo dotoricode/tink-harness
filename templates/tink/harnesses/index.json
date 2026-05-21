@@ -118,5 +118,20 @@
       "Heavy harnesses rejected or deferred with reason",
       "Maintenance saved only after approval"
     ]
+  },
+  {
+    "name": "context-habit-calibration",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "Recommend harnesses or small operating calibrations from user environment, context habits, token habits, prompt quality, and output-length patterns.",
+    "asks": [
+      "What behavior should improve: context, prompt quality, output length, tool count, or reset cadence?",
+      "What observed signal supports the recommendation?"
+    ],
+    "checks": [
+      "Observed signal, not personality guess",
+      "One small calibration proposed",
+      "Persisted only after approval"
+    ]
   }
 ]

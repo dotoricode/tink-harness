@@ -8,7 +8,7 @@ Tink helps Claude forge the right harness, materialize it as run state, and star
 
 Tink is a Claude Code skill and command pack.
 
-Tink's job is harness curation, not maximum tool use. Too many tools can make an agent worse. Tink should keep the active set small, often 3-5 and rarely more than 10, swap harnesses when the task changes, synthesize a lean harness when existing ones are too generic or too heavy, prevent repeated mistakes, and maintain the harness set through hone/purge proposals.
+Tink's job is harness curation, not maximum tool use. Too many tools can make an agent worse. Tink should keep the active set small, often 3-5 and rarely more than 10, swap harnesses when the task changes, synthesize a lean harness when existing ones are too generic or too heavy, prevent repeated mistakes, and maintain the harness set through hone/purge proposals. It can also suggest small calibrations from observed environment and operating habits: context resets, compact cadence, token pressure, prompt quality, output length, and evidence preferences.
 
 It is not an agent framework. It does not run agents. It does not replace Claude Code.
 
@@ -109,6 +109,7 @@ Tink reads `.tink/harnesses/index.json` first, then loads only the selected harn
 - `ship`: release, PR, deployment, or public handoff
 - `harness-synthesis`: create a narrow domain-specific harness from research, failures, examples, or repeated work
 - `harness-curation`: choose, replace, synthesize, hone, or purge harnesses when too many tools or heavy workflows would hurt the task
+- `context-habit-calibration`: suggest harnesses or small operating calibrations from observed context, token, input, reset, and output habits
 
 ## What kinds of harnesses Tink can create
 
@@ -125,6 +126,19 @@ Good generated harnesses include:
 - `accessibility-regression-gate`: check keyboard, labels, contrast, axe/pa11y, and screenshots before shipping UI
 
 Generated harnesses should not be generic names like `coding-helper` or `research-assistant`. They should change the next action, the checks, and the failure recovery for a repeated task.
+
+## Habit-aware recommendations
+
+Tink does not have to wait for a task instruction. When lightweight signals show a recurring operating habit, Tink can make one small advisory recommendation:
+
+- context-hoarder: waits for compact and accumulates stale context,
+- context-resetter: uses `/new` often and loses continuity,
+- over-loader: loads too many tools, agents, or harnesses,
+- under-specifier: gives goals without success criteria,
+- over-explainer: produces or invites long output when handles would work,
+- evidence-seeker: needs raw-state evidence and negative signals.
+
+These recommendations must be based on observed signals, not personality guesses. They should be reversible, small, and saved only after approval.
 
 ## How Tink remembers without bloating context
 
