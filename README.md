@@ -14,14 +14,23 @@ A harness is a small reusable procedure for a kind of work: when to use it, what
 
 ## 30-second setup
 
+Repo-scoped install, recommended for project harnesses:
+
 ```bash
 npx tink-harness@latest install
+```
+
+Global install, useful when you want the same `/tiny:*` commands available across projects:
+
+```bash
+npx tink-harness@latest install --global
 ```
 
 Before npm publish, install from GitHub:
 
 ```bash
 npx github:dotoricode/tink-harness install
+npx github:dotoricode/tink-harness install --global
 ```
 
 Then open Claude Code and run:
@@ -30,7 +39,18 @@ Then open Claude Code and run:
 /tiny:setup
 ```
 
+During setup, Tink explains what `.tiny/harnesses/` contains before asking whether to commit it. The default policy is to commit reusable harnesses and config, while ignoring `.tiny/current/`, `.tiny/runs/`, and `.tiny/cache/`.
+
 ## Use with Claude Code
+
+Available commands:
+
+- `/tiny:setup`: choose repo/global scope, git tracking, hook policy, and language behavior.
+- `/tiny:use`: suggest 1-4 harnesses before a task and ask for approval.
+- `/tiny:list`: list available harnesses without loading all bodies.
+- `/tiny:save`: save an approved new or improved harness.
+- `/tiny:remember`: save a repeated mistake, stable preference, or reusable lesson after approval.
+- `/tiny:fix`: improve a harness after a repeated failure.
 
 For a non-trivial task, run:
 
@@ -55,7 +75,15 @@ Tink chooses the smallest useful set:
 - Finish: what proves done
 - Optional: only when clearly useful
 
-It reads `.tiny/harnesses/index.json` first, then loads only the selected harness files. This keeps the context clean.
+The `context` column in harness lists means expected prompt/context footprint:
+
+- `tiny`: very short guidance
+- `small`: normal checklist-sized guidance
+- `large`: load only after explicit approval
+
+It does not mean user profile or project context.
+
+Tink reads `.tiny/harnesses/index.json` first, then loads only the selected harness files. This keeps the context clean.
 
 ## Built-in harnesses
 
@@ -91,6 +119,12 @@ A new harness is saved only when:
 - the user approves it
 
 Saved harnesses live in `.tiny/harnesses/` and become future candidates.
+
+## Language behavior
+
+Tink should answer in the user's language when it is clear. Built-in harness IDs stay in English for stable filenames, but descriptions, approval prompts, `.tiny/current/` run files, and final reports should be localized.
+
+If the project has a documented language policy, Tink should follow it. If language is ambiguous, ask once during `/tiny:setup` and save the preference only after approval.
 
 ## Tone: calm, clear, no jokes
 

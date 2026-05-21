@@ -7,5 +7,8 @@
   "save_new_harnesses_after_approval": true,
   "max_harness_lines": 100,
   "tone": "calm",
-  "humor": "off"
+  "humor": "off",
+  "language": "auto",
+  "install_scope": "repo",
+  "hook_scope": "off"
 }

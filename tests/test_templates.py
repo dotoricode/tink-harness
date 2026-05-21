@@ -14,6 +14,7 @@ REQUIRED_README = [
     'Built-in harnesses',
     'How Tink remembers without bloating context',
     'How Tink grows',
+    'Language behavior',
     'Tone: calm, clear, no jokes',
     'Works with Matt Pocock skills',
     'What Tink borrows from other harness tools',
@@ -41,7 +42,27 @@ class TemplateTests(unittest.TestCase):
         for section in REQUIRED_README:
             self.assertIn(section, text)
         self.assertIn('AI jokes', text)
+        self.assertIn('--global', text)
+        self.assertIn('context` column', text)
+        self.assertIn('user\'s language', text)
         self.assertNotIn('dry-wit', text)
+
+    def test_setup_explains_choices_before_asking(self):
+        text = (ROOT / 'templates/claude/commands/tiny/setup.md').read_text(encoding='utf-8')
+        self.assertIn('Before asking choices', text)
+        self.assertIn('Reusable harnesses', text)
+        self.assertIn('Repo scope', text)
+        self.assertIn('Global scope', text)
+        self.assertIn('Hook scope', text)
+        self.assertIn('Command map after setup', text)
+        self.assertIn('Language', text)
+
+    def test_use_explains_context_and_freeform_edits(self):
+        text = (ROOT / 'templates/claude/commands/tiny/use.md').read_text(encoding='utf-8')
+        self.assertIn('Meaning of `context`', text)
+        self.assertIn('prompt/context footprint', text)
+        self.assertIn('free-form edits', text)
+        self.assertIn('직접 입력', text)
 
     def test_harness_index_and_files(self):
         index = json.loads((ROOT / 'templates/tiny/harnesses/index.json').read_text())
@@ -61,6 +82,7 @@ class TemplateTests(unittest.TestCase):
 
     def test_installer_dry_run_and_install(self):
         subprocess.run(['node', 'bin/install.js', 'install', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
+        subprocess.run(['node', 'bin/install.js', 'install', '--global', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
         with tempfile.TemporaryDirectory() as d:
             subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install'], cwd=d, check=True, capture_output=True, text=True)
             base = Path(d)
@@ -69,6 +91,12 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue((base / '.tiny/harnesses/index.json').exists())
             self.assertTrue((base / '.tiny/memory/mistakes.md').exists())
             self.assertTrue((base / '.gitignore').exists())
+
+    def test_config_has_scope_and_language_defaults(self):
+        cfg = json.loads((ROOT / 'templates/tiny/config.json').read_text())
+        self.assertEqual(cfg['language'], 'auto')
+        self.assertEqual(cfg['install_scope'], 'repo')
+        self.assertEqual(cfg['hook_scope'], 'off')
 
 
 if __name__ == '__main__':
