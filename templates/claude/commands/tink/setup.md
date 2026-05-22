@@ -5,6 +5,32 @@ Set up Tink for Claude Code.
 ## Goal
 Prepare one small self-growing harness system that helps Claude choose/build harnesses, avoid repeated mistakes, and remember reusable lessons only after approval.
 
+## Setup review mode
+If `.tink/config.json` already exists, do not jump straight to git tracking. First show a short current-settings review, then ask what to change.
+
+Use this wording in Korean:
+
+```text
+현재 Tink 설정입니다.
+
+- 언어: {language}
+- 범위 (Scope): {install_scope}
+- 톤 (Tone): calm, clear, concise, no jokes
+- Hook: {hook_scope}
+- Git 추적: {git_policy_or_inferred_policy}
+
+톤은 선택 항목이 아니라 Tink의 고정 정책입니다. 조용하고 명확하게, 농담 없이 답하는 것을 기본으로 합니다.
+
+무엇을 바꿀까요?
+1. 그대로 사용 (권장)
+2. 언어 변경
+3. 범위 변경
+4. Hook 설정 변경
+5. Git 추적 변경
+```
+
+If the user chooses `그대로 사용`, summarize available commands and stop. Do not re-ask git tracking.
+
 ## First question: language
 Always ask language first if it is not already clear from `.tink/config.json`.
 
@@ -118,8 +144,9 @@ Explain the five commands:
 ## Do not
 - Do not edit `CLAUDE.md` automatically.
 - Do not ask the user to choose before explaining the consequences.
+- Do not ask for tone selection. Tone is a fixed Tink policy, not a setup choice.
 - Do not use jokes.
 - Do not intercept other slash commands with Tink hooks.
 
 ## Tone
-Calm, clear, concise. No jokes.
+Calm, clear, concise. No jokes. Show this as a fixed policy during setup review; do not turn it into another preference menu.

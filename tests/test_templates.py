@@ -105,6 +105,10 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('/tink:forge', text)
         self.assertIn('Command map after setup', text)
         self.assertIn('selected language', text)
+        self.assertIn('Setup review mode', text)
+        self.assertIn('current-settings review', text)
+        self.assertIn('톤은 선택 항목이 아니라 Tink의 고정 정책입니다', text)
+        self.assertIn('Do not ask for tone selection', text)
 
     def test_forge_purge_hone_behavior(self):
         forge = (ROOT / 'templates/claude/commands/tink/forge.md').read_text(encoding='utf-8')
@@ -282,6 +286,8 @@ class TemplateTests(unittest.TestCase):
             '### 컨텍스트 사용량 (Context Footprint)',
             '### 작업 맥락 (Work Context)',
             '### 실행 상태 복구 (Run State Recovery)',
+            '### 설정 리뷰 (Setup Review)',
+            '### 톤 정책 (Tone Policy)',
             '### 하네스 크기 (Harness Size)',
             '### 메타 하네스 (Meta Harness)',
         ]:
@@ -296,6 +302,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('거의 쓰지 않거나 겹치는 하네스', text)
         self.assertIn('실제 실패, 반복 사용, 사용자 피드백', text)
         self.assertIn('사용자가 “이어서 해”라고 해도', text)
+        self.assertIn('git 추적 여부만 바로 묻지 않는다', text)
+        self.assertIn('사용자가 고르는 설정값이 아니다', text)
         self.assertNotIn('npm ', text)
         self.assertNotIn('TypeScript', text)
 
