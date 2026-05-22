@@ -53,10 +53,42 @@ Claude Code plugin install:
 /tink:setup
 ```
 
+## Update
+
+Claude Code plugin users:
+
+```text
+/plugin marketplace update tink-harness
+```
+
+```text
+/plugin update tink@tink-harness
+```
+
+```text
+/reload-plugins
+```
+
+If update does not find the latest version, uninstall and install again:
+
+```text
+/plugin uninstall tink@tink-harness
+```
+
+```text
+/plugin install tink@tink-harness
+```
+
 Standalone compatibility installer:
 
 ```bash
 npx github:dotoricode/tink-harness install
+```
+
+To refresh existing installed files with the standalone installer:
+
+```bash
+npx github:dotoricode/tink-harness install --force
 ```
 
 ## Commands
