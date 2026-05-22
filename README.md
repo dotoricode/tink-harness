@@ -44,24 +44,6 @@ Current development install:
 npx github:dotoricode/tink-harness
 ```
 
-Repo-scoped install:
-
-```bash
-npx github:dotoricode/tink-harness install --yes
-```
-
-Global install:
-
-```bash
-npx github:dotoricode/tink-harness install --global --yes
-```
-
-Optional Claude Code `UserPromptSubmit` hook:
-
-```bash
-npx github:dotoricode/tink-harness install --yes --with-hook
-```
-
 After v1.0.0 is published to npm:
 
 ```bash
@@ -74,7 +56,7 @@ Tink keeps the command surface small.
 
 Claude Code discovers custom commands from filenames, so Tink uses portable hyphen commands instead of the earlier colon form.
 
-### `/tink-forge`
+### `/tink:forge`
 
 **forge** means to make something by shaping it with heat and pressure.
 
@@ -82,7 +64,7 @@ In Tink, `forge` is the main path. It reads the task, chooses or drafts the righ
 
 Use it when the task is more than a quick answer.
 
-### `/tink-purge`
+### `/tink:purge`
 
 **purge** means to remove what is unnecessary or harmful.
 
@@ -90,7 +72,7 @@ In Tink, `purge` looks for harnesses that are unused, overlapping, too broad, or
 
 Use it when the harness set starts to feel noisy.
 
-### `/tink-hone`
+### `/tink:hone`
 
 **hone** means to sharpen through small adjustments.
 
@@ -100,8 +82,8 @@ Use it when a harness is useful but slightly wrong.
 
 ### Other commands
 
-- `/tink-setup`: choose language, install scope, git tracking, and hook policy.
-- `/tink-list`: inspect available harnesses and recent usage signals.
+- `/tink:setup`: choose language, install scope, git tracking, and hook policy.
+- `/tink:list`: inspect available harnesses and recent usage signals.
 
 ## How it works
 
