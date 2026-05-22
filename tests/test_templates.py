@@ -36,7 +36,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '0.1.1')
+        self.assertEqual(pkg['version'], '0.1.2')
         self.assertLess(tuple(map(int, pkg['version'].split('.'))), (1, 0, 0))
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
@@ -91,7 +91,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('/plugin install tink@tink-harness', text)
         self.assertIn('/reload-plugins', text)
         self.assertIn('npx github:dotoricode/tink-harness install', text)
-        self.assertIn('Current version: `0.1.1`', text)
+        self.assertIn('Current version: `0.1.2`', text)
         self.assertIn('VERSIONING.md', text)
         self.assertIn('CHANGELOG.md', text)
         self.assertNotIn('npx github:dotoricode/tink-harness install --yes', text)
@@ -184,6 +184,12 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('do not do the end-user task directly', forge)
         self.assertIn('Approval payload for saves', forge)
         self.assertIn('Harness synthesis contract', forge)
+        self.assertIn('Synthesis probe', forge)
+        self.assertIn('generic fit', forge)
+        self.assertIn('run-only draft', forge)
+        self.assertIn('Do not wait for total mismatch', forge)
+        self.assertIn('이번 작업 전용', forge)
+        self.assertIn('save policy', forge)
         self.assertIn('behavior-shaping rules', forge)
         self.assertIn('pre-pr-security-gate', forge)
         self.assertIn('harness-curation', forge)
@@ -221,6 +227,12 @@ class TemplateTests(unittest.TestCase):
         skill = (ROOT / 'templates/claude/skills/tink/SKILL.md').read_text(encoding='utf-8')
         self.assertIn('purge', skill)
         self.assertNotIn('prune', skill.lower())
+
+        synthesis = (ROOT / 'templates/tink/harnesses/harness-synthesis.md').read_text(encoding='utf-8')
+        self.assertIn('no fit', synthesis)
+        self.assertIn('generic fit', synthesis)
+        self.assertIn('run-only draft by default', synthesis)
+        self.assertIn('separate save approval', synthesis)
 
     def test_harness_index_and_files(self):
         index = json.loads((ROOT / 'templates/tink/harnesses/index.json').read_text())

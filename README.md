@@ -153,7 +153,7 @@ It is a small harness layer for Claude Code.
 
 ## Status
 
-Current version: `0.1.1`.
+Current version: `0.1.2`.
 
 Tink is pre-v1 and being hardened toward v1.0.0. Version policy and release checks are tracked in [`VERSIONING.md`](VERSIONING.md), and notable changes are tracked in [`CHANGELOG.md`](CHANGELOG.md).
 

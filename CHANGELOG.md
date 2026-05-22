@@ -4,6 +4,14 @@ All notable changes to Tink are tracked here.
 
 Tink is pre-v1. Expect small, reviewable changes until the v1.0.0 hardening gates pass.
 
+## [0.1.2] - 2026-05-22
+
+### Changed
+
+- Added a synthesis probe so `/tink:forge` can detect when a built-in harness is only a generic fit.
+- Made run-only draft harnesses the default path for generic-fit cases, with saving still requiring separate approval.
+- Clarified that `harness-synthesis` should handle both `no fit` and `generic fit` cases.
+
 ## [0.1.1] - 2026-05-22
 
 ### Added

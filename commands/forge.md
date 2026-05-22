@@ -138,22 +138,52 @@ Approved reusable changes should append one JSON line to `.tink/maintenance/ledg
    - ship/release
    - new pattern not covered yet
 4. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context.
-5. If no existing harness fits, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
-6. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
-7. If lightweight signals show a recurring operating habit, load `context-habit-calibration` only if it earns its context cost; otherwise make one advisory recommendation without loading another body.
-8. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
-9. Ask for explicit approval before non-trivial work. Use a selectable UI only when the host really supports it. In plain text, ask the user to reply with a number; do not say Enter approves.
-10. After approval, read only the selected harness files.
-11. Create `.tink/current/` files from the run state contract.
-12. Execute the first safe step immediately:
+5. Always run the synthesis probe before finalizing the harness choice. The probe decides whether the existing harness is a strong fit, a generic fit, or no fit.
+6. If no existing harness fits, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
+7. If an existing harness is only a generic fit and the synthesis probe has at least two yes answers, propose a run-only draft harness or domain rules alongside the built-in harness. Do not save it by default.
+8. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
+9. If lightweight signals show a recurring operating habit, load `context-habit-calibration` only if it earns its context cost; otherwise make one advisory recommendation without loading another body.
+10. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
+11. Ask for explicit approval before non-trivial work. Use a selectable UI only when the host really supports it. In plain text, ask the user to reply with a number; do not say Enter approves.
+12. After approval, read only the selected harness files and any approved run-only draft.
+13. Create `.tink/current/` files from the run state contract.
+14. Execute the first safe step immediately:
    - inspect relevant files,
    - run a read-only diagnostic,
    - draft the first artifact,
    - or reproduce the issue.
-13. Keep `steps.json` and `notes.md` current as work progresses.
-14. Before final, verify `checks.md` and report evidence.
-15. If the task exposed a repeated mistake or reusable improvement, propose a memory or harness update using the approval payload below. Save only after user approval.
+15. Keep `steps.json` and `notes.md` current as work progresses.
+16. Before final, verify `checks.md` and report evidence.
+17. If the task exposed a repeated mistake or reusable improvement, propose a memory or harness update using the approval payload below. Save only after user approval.
 
+
+## Synthesis probe
+Run this short probe even when a built-in harness seems usable. It prevents broad default harnesses from hiding repeatable domain workflows.
+
+Answer yes/no:
+1. Is this likely to recur in this repo, product, customer segment, release process, or personal workflow?
+2. Would a domain-specific rule change the first action, the order of steps, the stop condition, or the verification evidence?
+3. Is the selected built-in harness only a loose or generic fit?
+4. Did the user correction, prior run note, failed check, research source, or named project context expose a reusable rule?
+5. Would a one-screen draft reduce future context or repeated explanation?
+
+Decision:
+- 0-1 yes: use the selected built-in harness only. Record why no draft is needed if relevant.
+- 2-3 yes: propose a run-only draft harness. It applies to this run, is written into `.tink/current/plan.md` or `notes.md`, and is not saved by default.
+- 4-5 yes: propose a run-only draft now and ask whether it should become a save candidate after the run. Saving still needs the approval payload.
+
+Run-only draft format:
+
+```text
+임시 하네스 초안 (이번 작업 전용):
+- name: <specific-lowercase-name>
+- why not just built-in: <one sentence>
+- domain rules: <2-4 bullets that change execution>
+- checks: <2-4 evidence checks>
+- save policy: 이번 run에는 적용, 저장은 반복 근거와 별도 승인 후만
+```
+
+A run-only draft is not reusable memory. Do not update `.tink/harnesses/`, `index.json`, or `.tink/maintenance/ledger.jsonl` unless the user separately approves saving.
 
 ## Context budget policy
 Do not use one universal harness cap. Choose by context footprint and task risk. Classify size by how much thinking and checking the harness adds, not only by file length:
@@ -188,6 +218,7 @@ Use concise, selection-oriented wording. The recommendation must include the fir
 
 추천:
 - 하네스 (Harness): code-change + review
+- synthesis probe: 1 yes, built-in 하네스로 충분
 - 이유: 변경 범위가 좁고, 회귀 확인이 필요합니다.
 - 만들 실행 상태 (Run State): `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`
 - 첫 실행: 관련 파일을 먼저 읽고 검증 명령 후보를 확정합니다.
@@ -201,28 +232,37 @@ Use concise, selection-oriented wording. The recommendation must include the fir
 답장: 1, 2, 3, 또는 4
 ```
 
-If a new harness is needed:
+If a run-only draft or new harness is useful:
 
 ```text
-기존 하네스 (Harness)가 딱 맞지 않습니다.
+기존 하네스 (Harness)는 쓸 수 있지만 조금 일반적입니다.
 
-새 하네스 (Harness) 초안:
+synthesis probe: 3 yes
+
+임시 하네스 초안 (이번 작업 전용):
 - name: customer-interview-synthesis
-- purpose: 인터뷰 노트에서 반복 pain point와 제품 기회를 추출
+- why not just built-in: 일반 research보다 인터뷰 단위, 원문 근거, pain point 반복성이 중요합니다.
+- domain rules:
+  - 인터뷰별 원문 근거를 먼저 분리
+  - 반복 pain point와 단발 의견을 구분
+  - 제품 기회와 다음 검증 질문을 함께 남김
 - checks: 원문 근거, 추측 분리, 다음 액션
-- 첫 실행: 입력 노트의 출처와 인터뷰 단위를 분리합니다.
+- save policy: 이번 run에는 적용, 저장은 반복 근거와 별도 승인 후만
 
 진행할까요?
-1. 승인 (권장): 이 초안으로 이번 작업에만 적용하고 `.tink/current/` 생성
-2. 저장까지 승인: 이번 작업 후 `.tink/harnesses/`에 저장 후보로 올림
+1. 승인 (권장): 기본 하네스 + 임시 초안으로 `.tink/current/` 생성
+2. 저장 후보까지 표시: 이번 작업 후 저장할지 별도 판단
 3. 조정
-4. 취소
+4. 기본 하네스만 사용
+5. 취소
 
-답장: 1, 2, 3, 또는 4
+답장: 1, 2, 3, 4, 또는 5
 ```
 
 ## Harness synthesis contract
-When creating a new harness, Tink must create a procedure that would outperform a generic skill recommendation for a repeated task.
+When creating a new harness or run-only draft, Tink must create a procedure that would outperform a generic skill recommendation for a repeated task.
+
+Do not wait for total mismatch. `generic fit` is enough to draft when the synthesis probe says the task has repeatable domain rules.
 
 A generated harness can encode:
 - domain triggers: when this exact workflow should run
