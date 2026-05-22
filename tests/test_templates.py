@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 import json
 import os
 import subprocess
@@ -26,8 +26,8 @@ HARNESS_SECTIONS = [
     '## If it fails, Tink back',
 ]
 
-EXPECTED_COMMANDS = {'setup.md', 'forge.md', 'list.md', 'purge.md', 'hone.md'}
-EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'forge.md', 'list.md', 'purge.md', 'hone.md'}
+EXPECTED_COMMANDS = {'setup.md', 'cast.md', 'list.md', 'frog.md', 'weave.md'}
+EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'cast.md', 'list.md', 'frog.md', 'weave.md'}
 
 
 class TemplateTests(unittest.TestCase):
@@ -66,11 +66,11 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('copyTinkCommands', installer)
         self.assertTrue((ROOT / '.claude-plugin/plugin.json').exists())
         self.assertTrue((ROOT / '.claude-plugin/marketplace.json').exists())
-        self.assertTrue((ROOT / 'commands/forge.md').exists())
+        self.assertTrue((ROOT / 'commands/cast.md').exists())
         self.assertTrue((ROOT / 'skills/tink/SKILL.md').exists())
         self.assertIn('remove legacy', installer)
         self.assertIn('path.join(commandDest, entry.name)', installer)
-        self.assertIn('/tink:forge <task> to start', installer)
+        self.assertIn('/tink:cast <task> to start', installer)
         self.assertIn('legacyTinyCommands', installer)
         self.assertIn('tink/maintenance', installer)
         self.assertNotIn("value: 'both'", installer)
@@ -103,13 +103,13 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('untying tangled workflows', text)
         self.assertIn('the small helper at your side', text)
         self.assertIn('Could Claude Code grow with me in the same way?', text)
-        self.assertIn('/tink:forge', text)
-        self.assertIn('/tink:purge', text)
-        self.assertIn('/tink:hone', text)
+        self.assertIn('/tink:cast', text)
+        self.assertIn('/tink:frog', text)
+        self.assertIn('/tink:weave', text)
         self.assertIn('plugin-first', text)
-        self.assertIn('forge** means', text)
-        self.assertIn('purge** means', text)
-        self.assertIn('hone** means', text)
+        self.assertIn('cast** means', text)
+        self.assertIn('frog** means', text)
+        self.assertIn('weave** means', text)
         self.assertIn('.tink/current/', text)
         self.assertIn('.tink/runs/', text)
         self.assertIn('approval', text.lower())
@@ -146,7 +146,7 @@ class TemplateTests(unittest.TestCase):
         self.assertNotIn('Hook scope', text)
         self.assertIn('좋은 점', text)
         self.assertIn('다른 팀원, 다른 PC, 새 clone', text)
-        self.assertIn('/tink:forge', text)
+        self.assertIn('/tink:cast', text)
         self.assertIn('Command map after setup', text)
         self.assertIn('selected language', text)
         self.assertIn('Setup review mode', text)
@@ -154,13 +154,13 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('톤은 선택 항목이 아니라 Tink의 고정 정책입니다', text)
         self.assertIn('Do not ask for tone selection', text)
         self.assertIn('Legacy Tiny migration', text)
-        self.assertIn('/tink:forge` replaces `/tiny:use', (ROOT / 'templates/claude/commands/tink/forge.md').read_text(encoding='utf-8'))
+        self.assertIn('/tink:cast` replaces `/tiny:use', (ROOT / 'templates/claude/commands/tink/cast.md').read_text(encoding='utf-8'))
         self.assertIn('do not claim Enter confirms a default', text)
 
-    def test_forge_purge_hone_behavior(self):
-        forge = (ROOT / 'templates/claude/commands/tink/forge.md').read_text(encoding='utf-8')
-        purge = (ROOT / 'templates/claude/commands/tink/purge.md').read_text(encoding='utf-8')
-        hone = (ROOT / 'templates/claude/commands/tink/hone.md').read_text(encoding='utf-8')
+    def test_cast_frog_weave_behavior(self):
+        forge = (ROOT / 'templates/claude/commands/tink/cast.md').read_text(encoding='utf-8')
+        purge = (ROOT / 'templates/claude/commands/tink/frog.md').read_text(encoding='utf-8')
+        hone = (ROOT / 'templates/claude/commands/tink/weave.md').read_text(encoding='utf-8')
         self.assertIn('Meaning of `context`', forge)
         self.assertIn('Run state contract', forge)
         self.assertIn('execute the first safe step', forge)
@@ -210,10 +210,10 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('/grill-me', forge)
         self.assertIn('Do not delete without approval', purge)
         self.assertIn('compact evidence', purge)
-        self.assertIn('hone handoff packet', purge)
+        self.assertIn('weave handoff packet', purge)
         self.assertIn('operation-specific approval payload', purge)
         self.assertIn('real failures', hone)
-        self.assertIn('hone handoff packet', hone)
+        self.assertIn('weave handoff packet', hone)
         self.assertIn('Approval payload', hone)
         self.assertIn('Ask for approval before saving', hone)
         list_cmd = (ROOT / 'templates/claude/commands/tink/list.md').read_text(encoding='utf-8')
@@ -222,13 +222,13 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('stale current candidate', list_cmd)
         self.assertIn('Evidence grade', purge)
         self.assertIn('Only strong evidence may recommend `delete`', purge)
-        self.assertIn('.tink/maintenance/hone-queue.json', purge)
+        self.assertIn('.tink/maintenance/weave-queue.json', purge)
         self.assertIn('.tink/maintenance/ledger.jsonl', purge)
         self.assertIn('evidence handles', hone)
         self.assertIn('context-cost delta', hone)
         self.assertIn('.tink/maintenance/ledger.jsonl', hone)
         skill = (ROOT / 'templates/claude/skills/tink/SKILL.md').read_text(encoding='utf-8')
-        self.assertIn('purge', skill)
+        self.assertIn('frog', skill)
         self.assertNotIn('prune', skill.lower())
 
         synthesis = (ROOT / 'templates/tink/harnesses/harness-synthesis.md').read_text(encoding='utf-8')
@@ -239,8 +239,8 @@ class TemplateTests(unittest.TestCase):
 
     def test_grill_gate_contract(self):
         forge_paths = [
-            ROOT / 'commands/forge.md',
-            ROOT / 'templates/claude/commands/tink/forge.md',
+            ROOT / 'commands/cast.md',
+            ROOT / 'templates/claude/commands/tink/cast.md',
         ]
         for path in forge_paths:
             text = path.read_text(encoding='utf-8')
@@ -323,7 +323,7 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
             self.assertTrue((base / '.tink/harnesses/index.json').exists())
             self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
-            self.assertTrue((base / '.tink/maintenance/hone-queue.json').exists())
+            self.assertTrue((base / '.tink/maintenance/weave-queue.json').exists())
             self.assertTrue((base / '.tink/memory/mistakes.md').exists())
             self.assertTrue((base / '.gitignore').exists())
 
@@ -348,21 +348,21 @@ class TemplateTests(unittest.TestCase):
             '.claude-plugin/plugin.json',
             '.claude-plugin/marketplace.json',
             'commands/setup.md',
-            'commands/forge.md',
+            'commands/cast.md',
             'commands/list.md',
-            'commands/purge.md',
-            'commands/hone.md',
+            'commands/frog.md',
+            'commands/weave.md',
             'skills/tink/SKILL.md',
             'templates/claude/commands/tink/setup.md',
-            'templates/claude/commands/tink/forge.md',
+            'templates/claude/commands/tink/cast.md',
             'templates/claude/commands/tink/list.md',
-            'templates/claude/commands/tink/purge.md',
-            'templates/claude/commands/tink/hone.md',
+            'templates/claude/commands/tink/frog.md',
+            'templates/claude/commands/tink/weave.md',
             'templates/claude/skills/tink/SKILL.md',
             'templates/tink/config.json',
             'templates/tink/harnesses/index.json',
             'templates/tink/maintenance/ledger.jsonl',
-            'templates/tink/maintenance/hone-queue.json',
+            'templates/tink/maintenance/weave-queue.json',
             'templates/tink/hooks/user-prompt-submit.mjs',
             'templates/tink/memory/mistakes.md',
             'README.md',
@@ -392,7 +392,7 @@ class TemplateTests(unittest.TestCase):
                 self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
                 self.assertTrue((base / '.tink/harnesses/index.json').exists())
                 self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
-                self.assertTrue((base / '.tink/maintenance/hone-queue.json').exists())
+                self.assertTrue((base / '.tink/maintenance/weave-queue.json').exists())
                 self.assertTrue((base / '.tink/memory/mistakes.md').exists())
                 self.assertTrue((base / '.tink/config.json').exists())
         finally:
@@ -420,10 +420,10 @@ class TemplateTests(unittest.TestCase):
         text = (ROOT / 'CONTEXT.md').read_text(encoding='utf-8')
         for term in [
             '### Tink',
-            '### Forge',
-            '### Forge',
-            '### Purge',
-            '### Hone',
+            '### Cast',
+            '### Cast',
+            '### Frog',
+            '### Weave',
             '### Harness (하네스)',
             '### Harness Selection (하네스 선택)',
             '### Harness Synthesis (하네스 만들기)',
@@ -475,19 +475,19 @@ class TemplateTests(unittest.TestCase):
         script = (ROOT / 'templates/tink/hooks/user-prompt-submit.mjs').read_text(encoding='utf-8')
         self.assertIn('readConfigLanguage', script)
         self.assertIn('startsWith', script)
-        self.assertIn('/tink:forge', script)
+        self.assertIn('/tink:cast', script)
         self.assertIn('console.log', script)
 
     def test_language_command_naming_adr_exists(self):
         text = (ROOT / 'docs/adr/0001-language-and-command-naming-policy.md').read_text(encoding='utf-8')
-        self.assertIn('forge', text)
-        self.assertIn('purge', text)
-        self.assertIn('hone', text)
+        self.assertIn('cast', text)
+        self.assertIn('frog', text)
+        self.assertIn('weave', text)
         self.assertIn('Korean-first', text)
         self.assertIn('English parenthetical', text)
 
         command_text = (ROOT / 'docs/adr/0002-claude-code-command-naming.md').read_text(encoding='utf-8')
-        self.assertIn('/tink:forge', command_text)
+        self.assertIn('/tink:cast', command_text)
         self.assertIn('plugin-first command surface', command_text)
         self.assertIn('removes the earlier flat hyphen files', command_text)
         self.assertIn('Public docs and hook suggestions use `/tink:*`', command_text)

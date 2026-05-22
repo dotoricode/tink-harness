@@ -25,12 +25,14 @@ Use this wording in Korean:
 
 톤은 선택 항목이 아니라 Tink의 고정 정책입니다. 조용하고 명확하게, 농담 없이 답하는 것을 기본으로 합니다.
 
-무엇을 바꿀까요?
-1. 그대로 사용 (권장)
-2. 언어 변경
-3. 범위 변경
-4. Hook 설정 변경
-5. Git 추적 변경
+? 무엇을 바꿀까요?
+❯ 1. 그대로 사용 (권장)
+  2. 언어 변경
+  3. 범위 변경
+  4. Hook 설정 변경
+  5. Git 추적 변경
+
+[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 If the user chooses `그대로 사용`, summarize available commands and stop. Do not re-ask git tracking.
@@ -43,26 +45,29 @@ Show this short explanation before changing files:
 ```text
 이전 Tiny 설정이 보입니다.
 
-Tink v1에서는 `/tiny:use` 대신 `/tink:forge`를 사용합니다.
-필요하면 기존 `.tiny/`의 harness/config/memory를 `.tink/`로 옮기고, 앞으로의 안내를 `/tink:forge` 기준으로 정리할 수 있습니다.
+Tink v1에서는 `/tiny:use` 대신 `/tink:cast`를 사용합니다.
+필요하면 기존 `.tiny/`의 harness/config/memory를 `.tink/`로 옮기고, 앞으로의 안내를 `/tink:cast` 기준으로 정리할 수 있습니다.
 
-1. 이전 Tiny 설정을 Tink로 옮기기
-2. 이전 Tiny 설정은 그대로 두고 Tink만 사용하기
-3. 취소
+? 어떻게 할까요?
+❯ 1. 이전 Tiny 설정을 Tink로 옮기기
+  2. 이전 Tiny 설정은 그대로 두고 Tink만 사용하기
+  3. 취소
 
-답장: 1, 2, 또는 3
+[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
-Only migrate after the user chooses option 1. Migration means copying useful `.tiny/harnesses/`, `.tiny/config.json`, and `.tiny/memory/` into `.tink/` without deleting the original unless the user explicitly asks. Update stale guidance so future next steps say `/tink:forge`, not `/tiny:use`.
+Only migrate after the user chooses option 1. Migration means copying useful `.tiny/harnesses/`, `.tiny/config.json`, and `.tiny/memory/` into `.tink/` without deleting the original unless the user explicitly asks. Update stale guidance so future next steps say `/tink:cast`, not `/tiny:use`.
 
 ## First question: language
 Always ask language first if it is not already clear from `.tink/config.json`.
 
 ```text
-언어를 선택해주세요.
-1. 한국어
-2. English
-3. 中文
+? 언어를 선택해주세요.
+❯ 1. 한국어
+  2. English
+  3. 中文
+
+[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 Use the selected language for setup prompts, run files, approval prompts, and final reports. Keep built-in harness IDs in English for stable filenames.
@@ -85,16 +90,17 @@ Tink는 두 종류의 파일을 씁니다.
 ```
 
 ## Setup questions
-Ask these questions in order. Use a selection UI only when the host supports it. In plain text, ask for a number and do not claim Enter confirms a default.
+Ask these questions in order. Use the CLI Select format for all choice prompts.
 
 ### 1. Scope
 ```text
-Tink를 어디에 설정할까요?
+? Tink를 어디에 설정할까요?
+❯ 1. Repo 범위 (Repo Scope, 권장)
+     이 프로젝트에만 `.claude/`와 `.tink/`를 둡니다. 팀 공유와 프로젝트별 하네스에 적합합니다.
+  2. Global 범위 (Global Scope)
+     사용자 홈의 Claude Code 설정에 둡니다. 여러 프로젝트에서 같은 명령을 쓰고 싶을 때 적합합니다.
 
-1. Repo 범위 (Repo Scope, 권장)
-   이 프로젝트에만 `.claude/`와 `.tink/`를 둡니다. 팀 공유와 프로젝트별 하네스에 적합합니다.
-2. Global 범위 (Global Scope)
-   사용자 홈의 Claude Code 설정에 둡니다. 여러 프로젝트에서 같은 명령을 쓰고 싶을 때 적합합니다.
+[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 There is no `Both` option by default.
@@ -103,11 +109,11 @@ There is no `Both` option by default.
 Ask only after explaining consequences.
 
 ```text
-프로젝트 하네스 (Harness)를 git에 커밋할까요?
+? 프로젝트 하네스 (Harness)를 git에 커밋할까요?
 
 먼저 차이를 설명합니다.
 
-1. 하네스만 커밋 (Harnesses only, 권장)
+❯ 1. 하네스만 커밋 (Harnesses only, 권장)
    좋은 점:
    - 팀원과 같은 작업 방식, 체크리스트, 선호를 공유합니다.
    - 다른 PC나 새 clone에서도 Tink가 같은 기준으로 동작합니다.
@@ -121,18 +127,20 @@ Ask only after explaining consequences.
    제외되는 것:
    - `.tink/current/`, `.tink/runs/`, `.tink/cache/`: 이번 실행 기록/임시 상태
 
-2. 전부 커밋
+  2. 전부 커밋
    좋은 점:
    - 실행 과정까지 전부 남길 수 있습니다.
    주의:
    - 임시 메모, 작업 중 파일, 개인 맥락이 섞일 수 있어 대부분 비권장입니다.
 
-3. 커밋 안 함
+  3. 커밋 안 함
    좋은 점:
    - repo에는 아무 흔적을 남기지 않고 개인 도구로만 씁니다.
    결과:
    - 다른 팀원, 다른 PC, 새 clone에서는 harness가 공유되지 않습니다.
    - 프로젝트별로 쌓은 개선이 유실되거나 재설정이 필요할 수 있습니다.
+
+[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 ### 3. Hook registration
@@ -144,12 +152,12 @@ Explain:
 Hook은 선택 사항입니다.
 
 무엇을 하나요?
-- Claude Code `UserPromptSubmit`에 등록되어 일반 사용자 프롬프트를 보고 “/tink:forge를 먼저 쓰면 좋겠다”는 추천만 합니다.
+- Claude Code `UserPromptSubmit`에 등록되어 일반 사용자 프롬프트를 보고 “/tink:cast를 먼저 쓰면 좋겠다”는 추천만 합니다.
 - 작업을 자동 실행하지 않습니다.
 - 메모리 (Memory)나 하네스 (Harness)를 자동 저장하지 않습니다.
 - `/grill-me` 같은 다른 slash skill 명령은 가로채지 않습니다.
 
-지금은 hook 없이 `/tink:forge`를 직접 쓰는 흐름을 권장합니다.
+지금은 hook 없이 `/tink:cast`를 직접 쓰는 흐름을 권장합니다.
 ```
 
 ## Command map after setup
@@ -159,10 +167,10 @@ Explain the five commands:
 사용 가능한 Tink 명령입니다.
 
 - `/tink:setup`: 언어, repo/global 범위 (Scope), git 추적, 훅 (Hook) 정책을 정합니다.
-- `/tink:forge`: 작업에 맞는 하네스 (Harness)를 고르거나 만들고, 적용하고, 재사용 교훈을 저장 제안합니다. 가장 자주 쓰는 명령입니다.
+- `/tink:cast`: 작업에 맞는 하네스 (Harness)를 고르거나 만들고, 적용하고, 재사용 교훈을 저장 제안합니다. 가장 자주 쓰는 명령입니다.
 - `/tink:list`: 사용 가능한 하네스 (Harness)와 최근 사용 신호를 짧게 보여줍니다.
-- `/tink:purge`: 거의 쓰지 않는 하네스 (Harness)를 근거와 함께 제거 후보로 제안합니다. 승인 전 삭제하지 않습니다.
-- `/tink:hone`: 자주 쓰는 하네스 (Harness)를 실제 실패/반복/피드백 기준으로 개선합니다. 승인 전 저장하지 않습니다.
+- `/tink:frog`: 거의 쓰지 않는 하네스 (Harness)를 근거와 함께 제거 후보로 제안합니다. 승인 전 삭제하지 않습니다.
+- `/tink:weave`: 자주 쓰는 하네스 (Harness)를 실제 실패/반복/피드백 기준으로 개선합니다. 승인 전 저장하지 않습니다.
 ```
 
 ## Do not

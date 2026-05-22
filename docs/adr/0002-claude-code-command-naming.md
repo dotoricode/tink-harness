@@ -9,10 +9,10 @@ Accepted
 Tink's intended command surface is namespaced:
 
 - `/tink:setup`
-- `/tink:forge`
+- `/tink:cast`
 - `/tink:list`
-- `/tink:purge`
-- `/tink:hone`
+- `/tink:frog`
+- `/tink:weave`
 
 A previous implementation changed these to flat hyphen commands such as `/tink-forge` because standalone Claude Code commands are filename-based. That solved one portability concern, but it lost the product namespace and made Tink feel like a set of unrelated commands.
 
@@ -23,10 +23,10 @@ Claude Code plugins support namespaced commands. Plugin namespacing also avoids 
 Use a plugin-first command surface under the `tink` namespace:
 
 - `/tink:setup`
-- `/tink:forge`
+- `/tink:cast`
 - `/tink:list`
-- `/tink:purge`
-- `/tink:hone`
+- `/tink:frog`
+- `/tink:weave`
 
 The repository root is a Claude Code plugin with `.claude-plugin/plugin.json`, `commands/*.md`, and `skills/tink/SKILL.md`.
 

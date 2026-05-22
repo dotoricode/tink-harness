@@ -14,3 +14,5 @@ Entry shape:
 ```
 
 ## Entries
+
+- [2026-05-23] kind=mistake; source=run-20260523-1430-knitting-rename; applies_to=global; note=PowerShell WriteAllText(path, content, Encoding.UTF8)는 BOM(0xEF 0xBB 0xBF)을 추가해 JSON 파싱 실패를 유발한다. New-Object System.Text.UTF8Encoding($false)로 BOM 없이 써야 한다.; approval=op-20260523-bom

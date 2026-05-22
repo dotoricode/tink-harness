@@ -2,7 +2,7 @@
 description: Propose unused or redundant harness cleanup without deleting automatically.
 ---
 
-# /tink:purge
+# /tink:frog
 
 Find harnesses that are probably unused or redundant, then ask before removing them.
 
@@ -14,7 +14,7 @@ Keep Tink small. A large harness set defeats the point.
 2. Check compact evidence if available:
    - `.tink/runs/` summaries
    - `.tink/maintenance/ledger.jsonl`
-   - `.tink/maintenance/hone-queue.json`
+   - `.tink/maintenance/weave-queue.json`
    - references in memory files
    - recent git history touching harness files as weak context only
 3. Treat `.tink/current/notes.md` as weak evidence unless it is clearly from the same active conversation. If uncertain, label it `stale current candidate`.
@@ -27,15 +27,15 @@ Keep Tink small. A large harness set defeats the point.
    - not used recently with strong evidence
    - overlaps strongly with another harness
    - too broad to guide behavior
-   - repeatedly ignored during `/tink:forge`
+   - repeatedly ignored during `/tink:cast`
 6. For each candidate, show evidence grade and recommendation:
    - keep
    - merge into another harness
    - delete
-   - rewrite via `/tink:hone`
+   - rewrite via `/tink:weave`
 7. Only strong evidence may recommend `delete`. Medium evidence may recommend `merge` or `hone`. Weak evidence must default to `keep` or `needs evidence`.
 8. For each non-keep action, prepare an operation-specific approval payload with exact files, op ID, evidence handles, and rollback.
-9. If the recommendation is `hone`, write or present a hone handoff packet and, after approval, add it to `.tink/maintenance/hone-queue.json`:
+9. If the recommendation is `weave`, write or present a weave handoff packet and, after approval, add it to `.tink/maintenance/weave-queue.json`:
    - id
    - target harness
    - evidence
@@ -52,12 +52,12 @@ Purge candidates with operation IDs:
 - op-1 ship: hone. Evidence grade=medium. Handoff: target=ship, direction=tighten release checks.
 - old-research: needs evidence. Evidence grade=weak. Static index only, so no delete recommendation.
 
-진행할까요?
-1. 승인: 추천안 적용
-2. 일부만 적용: op ID로 선택
-3. 취소
+? 진행할까요?
+❯ 1. 승인 — 추천안 적용
+  2. 일부만 적용 — op ID로 선택
+  3. 취소
 
-답장: 1, 2, 또는 3
+[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 ## Do not
@@ -65,4 +65,4 @@ Purge candidates with operation IDs:
 - Do not delete built-in harnesses only because usage data is missing.
 - Do not treat missing `.tink/runs/` as proof of non-use.
 - Do not recommend delete from weak evidence.
-- Do not apply a delete, merge, hone handoff, or index update without an operation-specific approval payload.
+- Do not apply a delete, merge, weave handoff, or index update without an operation-specific approval payload.

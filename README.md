@@ -97,27 +97,27 @@ Tink keeps the command surface small.
 
 Tink is plugin-first. Commands are namespaced under `tink`, so the public surface stays `/tink:*` and avoids generic command conflicts.
 
-### `/tink:forge`
+### `/tink:cast`
 
-**forge** means to make something by shaping it with heat and pressure.
+**cast** means to place the first loops on the needle (코잡기, Cast on). In knitting, casting on is the very first step — it sets the foundation for everything that follows.
 
-In Tink, `forge` is the main path. It reads the task, chooses or drafts the right harness, runs Grill Gate as a lightweight internal quality check, creates `.tink/current/` as the visible workbench, and starts the first safe step after approval.
+In Tink, `cast` is the main path. It reads the task, chooses or drafts the right harness, runs Grill Gate (Stitch) as a lightweight internal quality check, creates `.tink/current/` as the visible workbench, and starts the first safe step after approval.
 
 Use it when the task is more than a quick answer.
 
-### `/tink:purge`
+### `/tink:frog`
 
-**purge** means to remove what is unnecessary or harmful.
+**frog** means to rip out stitches (풀시오, Frogging). In knitting, frogging unravels rows that went wrong — the name comes from the sound of pulling out yarn, "rip it, rip it."
 
-In Tink, `purge` looks for harnesses that are unused, overlapping, too broad, or no longer worth their context cost. It proposes cleanup, but does not delete without approval.
+In Tink, `frog` looks for harnesses that are unused, overlapping, too broad, or no longer worth their context cost. It proposes cleanup, but does not delete without approval.
 
 Use it when the harness set starts to feel noisy.
 
-### `/tink:hone`
+### `/tink:weave`
 
-**hone** means to sharpen through small adjustments.
+**weave** means to weave in the ends (실오라기 정리, Weave in). In knitting, weaving in secures the loose threads left after finishing, giving the work its final shape.
 
-In Tink, `hone` improves an existing harness using real use, failures, and corrections. It should make the next run clearer, safer, or easier to verify.
+In Tink, `weave` improves an existing harness using real use, failures, and corrections. It should make the next run clearer, safer, or easier to verify.
 
 Use it when a harness is useful but slightly wrong.
 

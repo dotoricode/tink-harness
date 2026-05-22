@@ -2,11 +2,11 @@
 description: Choose, build, or synthesize the right harness for the current task.
 ---
 
-# /tink:forge
+# /tink:cast
 
-Forge the right harness for the task, run it, and capture reusable learning.
+Cast the right harness for the task, run it, and capture reusable learning.
 
-`forge` is the main Tink command. Use it before non-trivial work.
+`cast` is the main Tink command. Use it before non-trivial work.
 
 ## Product promise
 Tink is not a harness recommendation list. It must leave the user with an active run state and a concrete next action.
@@ -19,17 +19,32 @@ Tink should:
 5. materialize the harness as a run plan,
 6. execute the first safe step after approval,
 7. prevent repeated mistakes while working,
-8. maintain the harness set through approved memory, hone, or purge proposals.
+8. maintain the harness set through approved memory, weave, or frog proposals.
 
 ## Default behavior
 Do not stop after saying which harness might fit.
 
-A valid `/tink:forge` response must do one of these:
+A valid `/tink:cast` response must do one of these:
 - create or update `.tink/current/` and start the harnessed work,
 - ask one blocking question that is required to create `.tink/current/`, or
 - cancel because the user chose not to proceed.
 
 If the task is clear enough to classify, do not ask broad clarification first. Make a best recommendation, ask for approval, then act.
+
+## Interaction policy
+Always render choice prompts using the CLI Select format. Do not ask the user to type a number inline.
+
+```text
+? <질문>
+❯ 1. <옵션 (권장이면 표시)>
+  2. <옵션>
+  3. <옵션>
+
+[↑↓ 화살표로 선택, Enter로 확인]   ← Korean context
+[Use ↑↓ arrow keys to select, Enter to confirm]   ← English context
+```
+
+Use Korean footer when `.tink/config.json` language is `ko` or `auto` with Korean input; use English footer otherwise.
 
 ## Readiness check
 Before normal classification, check whether Tink is fully initialized. If `.tink/harnesses/index.json`, `.tink/config.json`, or `.tink/memory/` is missing, do not fail and do not write anything yet. Show a short recovery prompt:
@@ -37,20 +52,19 @@ Before normal classification, check whether Tink is fully initialized. If `.tink
 ```text
 Tink is not fully initialized.
 
-1. Run /tink:setup to review or repair setup
-2. Create the minimal .tink scaffold for this repo
-3. Continue once with a lightweight one-run harness
-4. Cancel
+? What would you like to do?
+❯ 1. Run /tink:setup to review or repair setup
+  2. Create the minimal .tink scaffold for this repo
+  3. Continue once with a lightweight one-run harness
+  4. Cancel
 
-Reply: 1, 2, 3, or 4
+[Use ↑↓ arrow keys to select, Enter to confirm]
 ```
 
-If legacy Tiny files such as `.tiny/` or `/tiny:use` instructions are present, treat them as old state. Explain that `/tink:forge` replaces `/tiny:use`, and offer to migrate useful `.tiny/harnesses/`, `.tiny/config.json`, and `.tiny/memory/` into `.tink/` only after approval. Never tell the user to run `/tiny:use`.
+If legacy Tiny files such as `.tiny/` or `/tiny:use` instructions are present, treat them as old state. Explain that `/tink:cast` replaces `/tiny:use`, and offer to migrate useful `.tiny/harnesses/`, `.tiny/config.json`, and `.tiny/memory/` into `.tink/` only after approval. Never tell the user to run `/tiny:use`.
 
-Do not advertise Enter as approval unless the host provides a real selectable UI where Enter actually confirms the highlighted option. In plain text prompts, ask for `1`, `2`, `3`, or `4`.
-
-## Grill Gate
-Before committing to `.tink/current/`, run Grill Gate exactly once. Grill Gate is an internal quality gate inside `/tink:forge`, not a separate `/tink:grill` command and not a real subagent in v1.0.0.
+## Grill Gate (Stitch)
+Before committing to `.tink/current/`, run Grill Gate exactly once. Grill Gate is an internal quality gate inside `/tink:cast`, not a separate `/tink:grill` command and not a real subagent in v1.0.0. In the knitting metaphor, the Grill Gate is the Stitch — it pre-casts the first decision loop so the developer needs only to choose an option and keep moving.
 
 Evaluate Grill Gate every time, but show it to the user only when it finds a high-impact quality or safety branch. A clean internal Grill Gate pass is not recorded.
 
@@ -78,7 +92,7 @@ Hard gate choices:
 - English: `Approve`, `Add requirements`, `Cancel`
 - Korean: `승인`, `요구사항 입력`, `취소`
 
-Hard gates apply when at least one of the following is true for the next action: it is difficult or unsafe to reverse (reusable memory or harness saves, harness creation, edits, purge, hone, deleting files, removing configuration); it has external side-effects or visibility (publishing, deploying, tagging, releasing, opening a public PR, changing broad architecture or public contracts); or it involves sensitive data (secrets, credentials, payments, personal data, or destructive/external side-effect commands).
+Hard gates apply when at least one of the following is true for the next action: it is difficult or unsafe to reverse (reusable memory or harness saves, harness creation, edits, frog, weave, deleting files, removing configuration); it has external side-effects or visibility (publishing, deploying, tagging, releasing, opening a public PR, changing broad architecture or public contracts); or it involves sensitive data (secrets, credentials, payments, personal data, or destructive/external side-effect commands).
 
 Hard gates must not offer `Continue as-is` or `이대로 진행`.
 
@@ -110,6 +124,8 @@ Before reusable-state writes, show a separate approval payload:
 - rollback or removal path
 
 Reusable-state approval choices are `Approve`, `Add requirements`, and `Cancel`, localized when appropriate. Never offer `Continue as-is` or `이대로 진행` for reusable-state writes.
+
+Show the payload directly at the point of proposal. Do not add a preliminary "do you want to save?" question before it — the payload IS the question.
 
 ## Run state contract
 After approval, create `.tink/current/` with these files before doing deeper work. `.tink/current/` is the current workbench: the one active task plan Claude should keep updating while it works. It is temporary, local runtime state, not reusable memory and not a knowledge base:
@@ -144,12 +160,13 @@ Recovery prompt format:
 - 열린 질문:
 - 검증 상태:
 
-1. 이어가기
-2. 보관하고 새 작업
-3. 교체
-4. 취소
+? 어떻게 할까요?
+❯ 1. 이어가기
+  2. 보관하고 새 작업
+  3. 교체
+  4. 취소
 
-답장: 1, 2, 3, 또는 4
+[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 
@@ -177,12 +194,12 @@ context_footprint: unknown # tiny | small | large | unknown
 The body should be a short human summary: goal, evidence, negative signals, and next safe action if blocked.
 
 ## Maintenance evidence
-When proposing memory saves, harness edits, index updates, hone, or purge, create an operation ID and cite evidence handles. Evidence handles should be compact paths such as `.tink/runs/<file>.md`, `.tink/current/notes.md`, failed check names, or user correction snippets. Do not use raw logs as evidence.
+When proposing memory saves, harness edits, index updates, weave, or frog, create an operation ID and cite evidence handles. Evidence handles should be compact paths such as `.tink/runs/<file>.md`, `.tink/current/notes.md`, failed check names, or user correction snippets. Do not use raw logs as evidence.
 
 Approved reusable changes should append one JSON line to `.tink/maintenance/ledger.jsonl` with:
 
 ```json
-{ "timestamp": "", "op_id": "op-...", "type": "hone|purge|memory|index-update|harness-create|harness-edit", "files": [], "evidence": [], "approval": "", "result": "applied|rejected|deferred", "rollback": "" }
+{ "timestamp": "", "op_id": "op-...", "type": "weave|frog|memory|index-update|harness-create|harness-edit", "files": [], "evidence": [], "approval": "", "result": "applied|rejected|deferred", "rollback": "" }
 ```
 
 ## Procedure
@@ -206,7 +223,7 @@ Approved reusable changes should append one JSON line to `.tink/maintenance/ledg
 8. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
 9. If lightweight signals show a recurring operating habit, load `context-habit-calibration` only if it earns its context cost; otherwise make one advisory recommendation without loading another body.
 10. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
-11. Run Grill Gate once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Use a selectable UI only when the host really supports it. In plain text, ask the user to reply with a number; do not say Enter approves.
+11. Run Grill Gate once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Use the CLI Select format from the Interaction policy section.
 12. Ask for explicit approval before non-trivial work.
 13. After approval, read only the selected harness files and any approved run-only draft.
 14. Create `.tink/current/` files from the run state contract.
@@ -262,7 +279,7 @@ If the harness list feels heavy, stop and use `harness-curation` before loading 
 ## Approval payload for saves
 This is the Reusable State Save Gate payload. Before saving memory, a new harness, a harness edit, or index metadata, show:
 
-- operation: memory-save | harness-create | harness-edit | index-update | purge | hone
+- operation: memory-save | harness-create | harness-edit | index-update | frog | weave
 - destination files
 - exact entry text or patch summary
 - why it is reusable
@@ -277,49 +294,53 @@ Do not save if the user approved only the current run. Saving reusable state nee
 Use concise, selection-oriented wording. The recommendation must include the first action Tink will perform, not only the harness name.
 
 ```text
-분석했습니다.
+### 🧶 Run: <task name>
 
-추천:
-- 하네스 (Harness): code-change + review
-- synthesis probe: 1 yes, built-in 하네스로 충분
-- 이유: 변경 범위가 좁고, 회귀 확인이 필요합니다.
-- 만들 실행 상태 (Run State): `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`
-- 첫 실행: 관련 파일을 먼저 읽고 검증 명령 후보를 확정합니다.
+**🎯 Goals**
+- <goal>
 
-진행할까요?
-1. 승인 (권장): 실행 상태 (Run State)를 만들고 첫 실행까지 진행
-2. 조정: 다른 하네스 (Harness) 조합 선택
-3. 새 하네스 (Harness) 초안 만들기
-4. 취소
+**🛠️ Harness**: `code-change + review`
+- **Probe:** 1 yes — built-in 하네스로 충분
+- **이유:** 변경 범위가 좁고, 회귀 확인이 필요합니다.
+- **첫 실행:** 관련 파일을 먼저 읽고 검증 명령 후보를 확정합니다.
 
-답장: 1, 2, 3, 또는 4
+? 진행할까요?
+❯ 1. 승인 (권장) — 실행 상태 생성 후 첫 실행까지 진행
+  2. 조정 — 다른 하네스 조합 선택
+  3. 새 하네스 초안 만들기
+  4. 취소
+
+[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 If a run-only draft or new harness is useful:
 
 ```text
-기존 하네스 (Harness)는 쓸 수 있지만 조금 일반적입니다.
+### 🧶 Run: <task name>
 
-synthesis probe: 3 yes
+**🎯 Goals**
+- <goal>
 
-임시 하네스 초안 (이번 작업 전용):
-- name: customer-interview-synthesis
-- why not just built-in: 일반 research보다 인터뷰 단위, 원문 근거, pain point 반복성이 중요합니다.
-- domain rules:
+**🛠️ Harness**: `<built-in>` (probe: 3 yes — generic fit)
+
+**임시 하네스 초안** (이번 작업 전용):
+- **name:** `customer-interview-synthesis`
+- **why not just built-in:** 일반 research보다 인터뷰 단위, 원문 근거, pain point 반복성이 중요합니다.
+- **domain rules:**
   - 인터뷰별 원문 근거를 먼저 분리
   - 반복 pain point와 단발 의견을 구분
   - 제품 기회와 다음 검증 질문을 함께 남김
-- checks: 원문 근거, 추측 분리, 다음 액션
-- save policy: 이번 run에는 적용, 저장은 반복 근거와 별도 승인 후만
+- **checks:** 원문 근거, 추측 분리, 다음 액션
+- **save policy:** 이번 run에는 적용, 저장은 반복 근거와 별도 승인 후만
 
-진행할까요?
-1. 승인 (권장): 기본 하네스 + 임시 초안으로 `.tink/current/` 생성
-2. 저장 후보까지 표시: 이번 작업 후 저장할지 별도 판단
-3. 조정
-4. 기본 하네스만 사용
-5. 취소
+? 진행할까요?
+❯ 1. 승인 (권장) — 기본 하네스 + 임시 초안으로 `.tink/current/` 생성
+  2. 저장 후보 표시 — 이번 작업 후 저장 여부 별도 판단
+  3. 조정
+  4. 기본 하네스만 사용
+  5. 취소
 
-답장: 1, 2, 3, 4, 또는 5
+[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 ## Harness synthesis contract
@@ -419,7 +440,7 @@ context는 이 harness가 Claude 작업 컨텍스트를 얼마나 차지하는�
 ```
 
 ## Other slash skills
-Tink does not automatically wrap `/grill-me`, `/diagnose`, `/tdd`, or other slash skills. That is intentional. If needed, run `/tink:forge` first, then use the other skill output as input.
+Tink does not automatically wrap `/grill-me`, `/diagnose`, `/tdd`, or other slash skills. That is intentional. If needed, run `/tink:cast` first, then use the other skill output as input.
 
 ## Failure behavior
 If a check fails:
@@ -434,3 +455,4 @@ If a check fails:
 - Do not load every harness body up front.
 - Do not create memory entries without separate Reusable State Save Gate approval.
 - Do not store raw logs, full diffs, secrets, or one-off task progress as reusable memory.
+- Do not ask "do you want to save?" before showing the Reusable State Save Gate payload. Show the payload directly.

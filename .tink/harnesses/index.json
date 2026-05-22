@@ -108,7 +108,7 @@
     "name": "harness-curation",
     "kind": "built-in",
     "context": "small",
-    "use_when": "Choose, replace, synthesize, hone, or purge harnesses when too many tools or heavy workflows would hurt the current task.",
+    "use_when": "Choose, replace, synthesize, weave, or frog harnesses when too many tools or heavy workflows would hurt the current task.",
     "asks": [
       "What is the current task and success evidence?",
       "What constraint makes heavy harnesses risky?"
@@ -132,6 +132,21 @@
       "Observed signal, not personality guess",
       "One small calibration proposed",
       "Persisted only after approval"
+    ]
+  },
+  {
+    "name": "tink-feedback-apply",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "User gives feedback about Tink's behavior, interaction pattern, or output quality — classify the feedback layer and apply the minimum fix.",
+    "asks": [
+      "What exactly went wrong or felt wrong?",
+      "Should this fix persist for future sessions?"
+    ],
+    "checks": [
+      "Correct layer identified",
+      "Minimum viable change only",
+      "Triggering scenario verified"
     ]
   }
 ]

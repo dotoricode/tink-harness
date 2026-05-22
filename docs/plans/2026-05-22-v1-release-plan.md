@@ -25,7 +25,7 @@
 Tink v1.0.0 is ready only when all are true:
 
 1. Fresh repo install works from the packaged artifact without relying on the local clone.
-2. `/tink:setup`, `/tink:forge`, `/tink:list`, `/tink:purge`, `/tink:hone` are present and internally consistent.
+2. `/tink:setup`, `/tink:cast`, `/tink:list`, `/tink:frog`, `/tink:weave` are present and internally consistent.
 3. Optional hook registration writes a real Claude Code `UserPromptSubmit` entry and remains advisory-only.
 4. `.tink/current/` lifecycle is documented, tested by contract, and usable for recovery.
 5. `.tink/runs/` record schema is explicit enough for list/purge/hone maintenance commands.
@@ -33,7 +33,7 @@ Tink v1.0.0 is ready only when all are true:
 7. Package metadata, files, bin, license, repository, and keywords are correct.
 8. Release workflow is repeatable: test, pack, install smoke test, tag, publish, verify GitHub/npm.
 9. No CupMargin, prompt-grill, private acorn operating context, raw logs, or unrelated artifacts are part of the public package.
-10. `/tink:forge` includes Grill Gate and Reusable State Save Gate contracts, with static tests covering the core safety and approval rules.
+10. `/tink:cast` includes Grill Gate and Reusable State Save Gate contracts, with static tests covering the core safety and approval rules.
 
 ## Phase 0: Release decision and guardrails
 
@@ -145,8 +145,8 @@ npm test
 
 **Expected behavior:**
 - `/tink:list` reads `.tink/runs/*.md` frontmatter when present and reports selected harnesses, outcomes, checks result, and maintenance suggestions.
-- `/tink:purge` uses run records as evidence, not just file age.
-- `/tink:hone` can consume purge handoff packets and run-record failure evidence.
+- `/tink:frog` uses run records as evidence, not just file age.
+- `/tink:weave` can consume purge handoff packets and run-record failure evidence.
 
 **Verification command:**
 ```bash
@@ -169,7 +169,7 @@ npm test
 
 ### Task 2.3: Add Grill Gate to forge contract
 
-**Objective:** Ensure `/tink:forge` performs a lightweight internal quality gate before committing to a run plan, shows exactly one proposal only when a high-impact branch is detected, follows configured language, and treats reusable-state saves as a separate hard approval gate.
+**Objective:** Ensure `/tink:cast` performs a lightweight internal quality gate before committing to a run plan, shows exactly one proposal only when a high-impact branch is detected, follows configured language, and treats reusable-state saves as a separate hard approval gate.
 
 **Design source:**
 - `docs/adr/0003-add-grill-gate-to-forge.md`
@@ -184,7 +184,7 @@ npm test
 - Modify: `tests/test_templates.py`
 
 **Expected behavior:**
-- Grill Gate is integrated into `/tink:forge`, not added as a separate `/tink:grill` command.
+- Grill Gate is integrated into `/tink:cast`, not added as a separate `/tink:grill` command.
 - In v1.0.0, Grill Gate runs once before `.tink/current/` is committed.
 - Grill Gate is evaluated every time, but user-visible only when it finds a high-impact quality or safety branch.
 - When visible, Grill Gate shows exactly one proposal in this order: proposal, reason, choices.

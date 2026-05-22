@@ -1,11 +1,11 @@
 ---
 name: tink
-description: Self-growing harnesses for Claude Code. Use to forge, apply, purge, and hone task harnesses.
+description: Self-growing harnesses for Claude Code. Use to cast, apply, frog, and weave task harnesses.
 ---
 
 # Tink
 
-Tink helps Claude forge the smallest useful harness, materialize it as run state, and start the work. It keeps the active harness/tool set small because too many tools can hurt performance, and it can suggest small habit-aware calibrations from observed signals.
+Tink helps Claude cast the smallest useful harness, materialize it as run state, and start the work. It keeps the active harness/tool set small because too many tools can hurt performance, and it can suggest small habit-aware calibrations from observed signals.
 
 ## Core philosophy
 Tink is one self-growing skill, not a pile of commands and not a skill recommendation list.
@@ -27,10 +27,10 @@ It should:
 Use only these commands:
 
 - `/tink:setup`: configure language, scope, git tracking, and hook policy.
-- `/tink:forge`: main path. Choose/build/synthesize a harness, create run state, start work, and propose reusable learning.
+- `/tink:cast`: main path. Choose/build/synthesize a harness, create run state, start work, and propose reusable learning.
 - `/tink:list`: inspect harnesses and lightweight usage signals.
-- `/tink:purge`: propose unused or redundant harness removal. Never delete without approval.
-- `/tink:hone`: improve active harnesses based on real use, failures, and corrections.
+- `/tink:frog`: propose unused or redundant harness removal. Never delete without approval.
+- `/tink:weave`: improve active harnesses based on real use, failures, and corrections.
 
 ## Operating rules
 1. Read `.tink/harnesses/index.json` before loading harness bodies.
@@ -50,7 +50,7 @@ Use only these commands:
 15. Use calm, clear, concise language. No jokes.
 
 ## Quality bar
-The user should not have to repeat themselves. If the same mistake appears twice, propose `/tink:hone` or a memory update through `/tink:forge`.
+The user should not have to repeat themselves. If the same mistake appears twice, propose `/tink:weave` or a memory update through `/tink:cast`.
 
 A successful Tink run leaves evidence:
 - current run files exist or were intentionally archived,

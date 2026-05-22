@@ -12,11 +12,11 @@ The trade-off is between stable English identifiers and clear Korean product lan
 
 ## Decision
 
-Keep slash command names in English:
+Keep slash command names in English, drawn from the knitting metaphor (뜨개질):
 
-- `forge`
-- `purge`
-- `hone`
+- `cast` (코잡기, Cast on — the first step that sets the foundation)
+- `frog` (풀시오, Frogging — ripping out to start fresh)
+- `weave` (실오라기 정리, Weave in — securing loose ends to finish the work)
 
 Keep built-in harness IDs and filenames in English for compatibility and stable references.
 

@@ -30,8 +30,8 @@ Do not repeat questions already answered in `.tink/current/answers.md`.
    - use: existing harness fits and is cheap enough,
    - replace: a strong harness is too heavy for this task,
    - synthesize: no narrow harness exists,
-   - hone: repeated mistake or user correction changed the workflow,
-   - purge: harness is unused, duplicate, or too broad to change behavior.
+   - weave: repeated mistake or user correction changed the workflow,
+   - frog: harness is unused, duplicate, or too broad to change behavior.
 4. If a known harness is too heavy, create a lean variant for this run instead of forcing it.
 5. Write the routing decision into `.tink/current/plan.md` and the reason into `.tink/current/notes.md`.
 6. After the run, propose only durable updates:
@@ -49,8 +49,8 @@ Do not repeat questions already answered in `.tink/current/answers.md`.
 ## Done means
 - The current task has an approved minimal harness set.
 - If a new harness was needed, `harness-synthesis` produced a narrow draft.
-- If a repeated mistake was found, Tink proposed memory or `/tink:hone`.
-- If a harness is too broad or unused, Tink proposed `/tink:purge` or a lean replacement.
+- If a repeated mistake was found, Tink proposed memory or `/tink:weave`.
+- If a harness is too broad or unused, Tink proposed `/tink:frog` or a lean replacement.
 
 ## If it fails, Tink back
 If the chosen set is too weak, add one harness only and record why. If it is too heavy, remove the least task-critical harness and continue from the last safe point.

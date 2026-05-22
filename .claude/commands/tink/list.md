@@ -8,7 +8,7 @@ List available Tink harnesses without loading every harness body.
 
 ## Procedure
 1. Read `.tink/harnesses/index.json`.
-2. If present, read only compact usage metadata from `.tink/runs/`, `.tink/maintenance/ledger.jsonl`, `.tink/maintenance/hone-queue.json`, or `.tink/current/notes.md`; do not load raw logs.
+2. If present, read only compact usage metadata from `.tink/runs/`, `.tink/maintenance/ledger.jsonl`, `.tink/maintenance/weave-queue.json`, or `.tink/current/notes.md`; do not load raw logs.
 3. Treat `.tink/current/` as weak evidence unless it is clearly from the same active conversation. If context is uncertain, label it `stale current candidate`, not proof of usage.
 4. Show harnesses in a compact list:
    - name
@@ -30,4 +30,4 @@ Use bullets, not tables.
 ## Do not
 - Do not read every harness body by default.
 - Do not infer non-use from missing evidence.
-- Do not remove anything. Use `/tink:purge` for removal candidates.
+- Do not remove anything. Use `/tink:frog` for removal candidates.

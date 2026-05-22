@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Tink's main path is `/tink:forge`: it chooses or drafts a small harness, creates visible run state, and starts the first safe step after approval.
+Tink's main path is `/tink:cast`: it chooses or drafts a small harness, creates visible run state, and starts the first safe step after approval.
 
 Users often give short or underspecified prompts. If Tink proceeds immediately, it can choose the wrong harness, start without success criteria, or miss a decision that materially changes quality or safety.
 
@@ -14,15 +14,15 @@ At the same time, Tink should not become an interview-heavy workflow. Its comman
 
 ## Decision
 
-Add Grill Gate to `/tink:forge`.
+Add Grill Gate to `/tink:cast`.
 
 Grill Gate is a lightweight internal quality gate that challenges Tink's initial harness or plan decision before `.tink/current/` is committed.
 
 For v1.0.0:
 
-- Grill Gate is integrated into `/tink:forge`, not exposed as a separate command.
+- Grill Gate is integrated into `/tink:cast`, not exposed as a separate command.
 - Grill Gate is a logical internal evaluator role, not a real independent subagent.
-- Grill Gate runs once before `/tink:forge` commits to `.tink/current/`.
+- Grill Gate runs once before `/tink:cast` commits to `.tink/current/`.
 - Grill Gate is evaluated every time, but user-visible only when it finds a high-impact quality or safety branch.
 - When visible, Grill Gate shows exactly one proposal.
 - The visible proposal uses this order: proposal, reason, choices.
@@ -131,6 +131,6 @@ Tink can catch underspecified prompts and high-impact quality branches before co
 
 The user may see one extra proposal before a non-trivial run, but only when the gate finds a meaningful quality or safety risk.
 
-The v1.0.0 release scope grows because `/tink:forge` command docs, skill docs, context glossary, README wording, and static contract tests must include the gate contract.
+The v1.0.0 release scope grows because `/tink:cast` command docs, skill docs, context glossary, README wording, and static contract tests must include the gate contract.
 
 Reusable memory and harness changes remain approval-first and cannot be bundled into current-run approval.
