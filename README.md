@@ -2,10 +2,10 @@
   <strong>Tink</strong>
 </p>
 
-<h1 align="center">Self-growing harnesses for Claude Code</h1>
+<h1 align="center">A small harness layer for Claude Code</h1>
 
 <p align="center">
-  Tink helps Claude Code turn repeated work into small, reviewable project harnesses. It chooses a harness, creates visible run state, and executes the first safe step after approval.
+  Tink helps Claude Code choose the right harness, keep visible run state, and improve the harness set as you work.
 </p>
 
 <p align="center">
@@ -14,283 +14,117 @@
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p align="center">
-  <a href="#30-second-setup">Install</a> ·
-  <a href="#use-with-claude-code">Quickstart</a> ·
-  <a href="#how-tink-works">How it works</a> ·
-  <a href="#philosophy">Philosophy</a>
-</p>
-
 ---
 
-## What is Tink?
+## Why I made this
 
-Tink is a Claude Code skill and command pack. It gives Claude a small operating harness for the current task: pick the right checklist, create a run state, do the first safe action, and keep useful lessons only after approval.
+New coding harnesses show up almost every day. Many of them are genuinely useful.
 
-It is built around one idea: the harness matters as much as the prompt.
+At first, I tried them one by one and kept the ones that fit me. But the more I mixed them, the more my environment got tangled. Resetting everything again and again was tiring, so I ended up falling back to a skill-based workflow that I could understand and control.
 
-A good Claude Code setup should not live only in chat history. It should accumulate into files the project can reuse: commands, checks, conventions, run summaries, and small recovery rules.
+Then I used Hermes Agent for a while. What stayed with me was the way it gets better through use: repeated work turns into reusable skills, mistakes become memory, and the system slowly adapts to the person using it.
 
-Tink is not an agent framework. It does not run agents. It does not replace Claude Code.
+Tink started from a simple question:
 
-## Why Tink?
+> Could Claude Code grow with me in the same way?
 
-Too many tools can make an agent worse.
+Not by adding a big framework. Not by running more agents. Just by helping Claude choose the right harness for the current task, create one when nothing fits, and improve the set over time.
 
-Tink's job is harness curation, not maximum tool use. It keeps the active set small, swaps heavy harnesses out when the task changes, creates a lean harness when nothing fits, and turns repeated mistakes into approved memory or better checks.
+## Install
 
-Use it when you want Claude Code to stop starting from a blank prompt every time.
-
-## 30-second setup
-
-Development install from GitHub:
+Current development install:
 
 ```bash
 npx github:dotoricode/tink-harness
 ```
 
-It opens a deep-blue `TINK` wizard. The first question is language: English, 한국어, or 中文. Then you choose components, repo/global installation scope, git tracking policy, and optional hook registration.
-
-Non-interactive repo-scoped install from GitHub:
+Repo-scoped install:
 
 ```bash
 npx github:dotoricode/tink-harness install --yes
 ```
 
-Global install, useful when you want the same `/tink:*` commands available across projects:
+Global install:
 
 ```bash
 npx github:dotoricode/tink-harness install --global --yes
 ```
 
-Enable the optional Claude Code `UserPromptSubmit` hook:
+Optional Claude Code `UserPromptSubmit` hook:
 
 ```bash
 npx github:dotoricode/tink-harness install --yes --with-hook
 ```
 
-After v1.0.0 is published to npm, the primary install path becomes:
+After v1.0.0 is published to npm:
 
 ```bash
 npx tink-harness@latest
-npx tink-harness@latest install --global --yes
 ```
 
-Then open Claude Code and run:
+## Commands
 
-```text
-/tink:setup
-```
+Tink keeps the command surface small.
 
-During setup, Tink explains what `.tink/harnesses/` contains before asking whether to commit it. The default policy is to commit reusable harnesses and config, while ignoring `.tink/current/`, `.tink/runs/`, and `.tink/cache/`.
+### `/tink:forge`
 
-## Use with Claude Code
+**forge** means to make something by shaping it with heat and pressure.
 
-Available commands:
+In Tink, `forge` is the main path. It reads the task, chooses or drafts the right harness, creates `.tink/current/` as the visible workbench, and starts the first safe step after approval.
 
-- `/tink:setup`: choose language, repo/global scope, git tracking, and hook policy.
-- `/tink:forge`: top-level loop that chooses, replaces, synthesizes, or calibrates the right harness set, creates run state, starts work, and proposes reusable memory or harness updates. This is the main command.
-- `/tink:list`: list available harnesses and lightweight usage signals without loading all bodies.
-- `/tink:purge`: propose unused or redundant harnesses for removal. Deletes only after approval.
-- `/tink:hone`: improve active harnesses using real failures, corrections, and repeated use. Saves only after approval.
+Use it when the task is more than a quick answer.
 
-Tink intentionally keeps one focused command surface: setup, forge, list, purge, hone.
+### `/tink:purge`
 
-For a non-trivial task, run:
+**purge** means to remove what is unnecessary or harmful.
 
-```text
-/tink:forge
-```
+In Tink, `purge` looks for harnesses that are unused, overlapping, too broad, or no longer worth their context cost. It proposes cleanup, but does not delete without approval.
 
-Tink will:
+Use it when the harness set starts to feel noisy.
 
-1. Read the harness index and small approved memory files.
-2. Choose an existing harness set or synthesize a new domain-specific harness if none fits, usually 1-3 harnesses. It can exceed that only when tiny, directly useful harnesses earn their context cost.
-3. When research notes, prior failures, or examples are available, extract behavior-shaping rules from them: triggers, decision rules, checks, stop conditions, recovery, and evidence.
-4. Explain why the chosen or newly drafted harness fits.
-5. Ask for approval with a selection-style prompt where Enter accepts the recommended option when possible.
-6. Create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md` for the task.
-7. Execute the first safe step immediately after approval, such as inspecting files, running a read-only diagnostic, drafting the first artifact, or reproducing the issue.
-8. Propose reusable memory or harness updates only after approval.
+### `/tink:hone`
 
-## How Tink works
+**hone** means to sharpen through small adjustments.
 
-Tink grows a harness in small, reviewable steps:
+In Tink, `hone` improves an existing harness using real use, failures, and corrections. It should make the next run clearer, safer, or easier to verify.
 
-1. Inspect the task and the lightweight harness index.
-2. Pick the smallest useful set for the job.
-3. Create `.tink/current/` so the run has a visible workbench.
-4. Execute the first safe step.
-5. Leave a compact run record in `.tink/runs/`.
-6. Suggest memory, hone, or purge only when the lesson is reusable.
+Use it when a harness is useful but slightly wrong.
 
-## What `.tink/current/` is
+### Other commands
 
-`.tink/current/` is Tink's current workbench. It holds the one active run Claude is working on right now:
+- `/tink:setup`: choose language, install scope, git tracking, and hook policy.
+- `/tink:list`: inspect available harnesses and recent usage signals.
 
-- `plan.md`: what we are trying to do and what is out of scope
-- `checks.md`: what must be true before saying done
-- `steps.json`: the step list and whether each step is pending, active, done, or blocked
-- `notes.md`: short working notes, failures, and last safe point
-- `answers.md`: user answers and assumptions used for this run
+## How it works
 
-It is not long-term memory. It is not a place for raw logs or full diffs. When the run finishes, gets canceled, is blocked, or is replaced, Tink writes a compact record to `.tink/runs/` so `list`, `purge`, and `hone` can use real evidence later.
+Tink uses files you can inspect:
 
-If a new Claude session starts and `.tink/current/` already exists, Tink treats it as a recovery candidate. It reads the current files, summarizes the previous goal and last safe point, then asks whether to resume, archive, replace, or cancel. It should not silently continue just because files exist.
+- `.tink/harnesses/`: reusable task harnesses
+- `.tink/current/`: the current run state
+- `.tink/runs/`: compact records from finished, blocked, canceled, or replaced runs
+- `.tink/memory/`: approved mistakes, preferences, and lessons
 
-## How Tink chooses harnesses
+The important rule is approval.
 
-Tink chooses the smallest useful set. There is no universal hard cap: the right limit depends on the context footprint and risk of each harness.
+Tink may suggest a harness, a memory entry, a cleanup, or an improvement. It should not silently save reusable state or delete anything without you saying yes.
 
-- Primary: the main work type
-- Safety: what prevents mistakes
-- Finish: what proves done
-- Optional: only when clearly useful
-
-Tiny harnesses can exceed the old 3-5 guideline if they stay cheap and useful. Large harnesses should be loaded one at a time. Meta harnesses should reduce or replace the active set, not pile on top by default.
-
-Harness size is not just line count. It also includes number of rules, tools, approvals, checks, recovery branches, and how much attention it takes from the main task.
-
-The `context` column in harness lists means expected prompt/context footprint, called 컨텍스트 사용량 (Context Footprint) in Korean-facing prose:
-
-- `tiny`: very short guidance
-- `small`: normal checklist-sized guidance
-- `large`: load only after explicit approval
-
-It does not mean user profile, project background, or 작업 맥락 (Work Context).
-
-Tink reads `.tink/harnesses/index.json` first, then loads only the selected harness files. This keeps the context clean.
-
-## Built-in harnesses
-
-- `code-change`: scoped code changes with tests and diff evidence
-- `bug-fix`: reproduce, root cause, smallest fix, regression check
-- `research`: sources, facts vs guesses, conclusion with links
-- `review`: changed files, risks, tests, actionable findings
-- `docs`: reader, outline, examples, clarity check
-- `ship`: release, PR, deployment, or public handoff
-- `harness-synthesis`: create a narrow domain-specific harness from research, failures, examples, or repeated work
-- `harness-curation`: choose, replace, synthesize, hone, or purge harnesses when too many tools or heavy workflows would hurt the task
-- `context-habit-calibration`: suggest harnesses or small operating calibrations from observed context, token, input, reset, and output habits
-
-## What kinds of harnesses Tink can create
-
-Tink can create harnesses that are narrower than the built-ins. The built-ins are routing primitives; generated harnesses should encode project or domain knowledge.
-
-Good generated harnesses include:
-
-- `harness-curation`: keep active tools/harnesses small, swap heavy workflows out, and trigger hone/purge when needed
-- `nextjs-rsc-boundary-refactor`: split client/server boundaries with Next.js docs, target files, and build checks
-- `pre-pr-security-gate`: dependency/security review before PR using available audit tools and evidence
-- `customer-interview-synthesis`: extract pain points from interviews with source quotes and assumptions separated
-- `weekly-trend-report-validation`: validate public trend sources before producing a customer-facing note
-- `pricing-copy-experiment`: turn price/value hypotheses into copy variants and verification criteria
-- `accessibility-regression-gate`: check keyboard, labels, contrast, axe/pa11y, and screenshots before shipping UI
-
-Generated harnesses should not be generic names like `coding-helper` or `research-assistant`. They should change the next action, the checks, and the failure recovery for a repeated task.
-
-## 사용 습관 기반 제안 (Habit-aware recommendations)
-
-Tink can make one small recommendation from observed operating habits, not personality guesses. Signals include compact cadence, prompt quality, output length, reset habits, and evidence preferences.
-
-- context-hoarder: waits until compact while old context piles up
-- context-resetter: uses `/new` often and loses useful continuity
-- over-loader: opens too many tools, agents, or harnesses
-- under-specifier: gives a goal but no success criteria
-- over-explainer: needs short evidence but gets long output
-- evidence-seeker: needs files, diffs, logs, tests, or negative signals rather than self-reports
-
-이 제안은 성격 추측이 아니라 관측 신호에 기반해야 한다. 작고 되돌릴 수 있어야 하며, 저장은 승인 후에만 한다.
-
-기본은 `/tink:forge` 안에서 하는 실행 중 보정 (Inline Calibration)이다. 일반 프롬프트 앞에서 나오는 자동 제안 (Hook Recommendation)은 optional hook을 명시적으로 켰을 때만 허용한다. 자동 제안은 참고용이어야 하고, 한 줄 이하여야 하며, 하네스 자동 적용이나 memory 자동 저장을 하면 안 된다. 사용자가 hook을 선택하면 installer가 Claude Code `UserPromptSubmit` hook으로 등록한다.
-
-## How Tink remembers without bloating context
-
-Tink keeps memory small and explicit:
-
-- `.tink/memory/mistakes.md`: repeated mistakes and prevention rules
-- `.tink/memory/preferences.md`: stable user or project preferences
-- `.tink/memory/lessons.md`: reusable lessons for future harnesses
-
-Tink does not store raw logs, full diffs, secrets, private data, or one-off task progress.
-
-Memory changes require user approval.
-
-## How Tink grows
-
-When existing harnesses are not enough, `/tink:forge` loads `harness-synthesis` and proposes a new domain-specific harness instead of forcing a bad fit. If the user provides research notes, prior runs, examples, or failures, Tink extracts behavior-shaping rules from them rather than summarizing them.
-
-A new harness is saved only when:
-
-- it covers a repeated pattern
-- it has distinct questions or checks
-- failure would be costly
-- it is likely to be reused
-- the user approves it
-
-Saved harnesses live in `.tink/harnesses/` and become future candidates.
-
-## Philosophy
-
-Tink is deliberately small.
-
-It borrows from popular developer tools: a short command surface, clear defaults, visible state, and files you can review. It should feel closer to `uv`, `gh`, or `ripgrep` than a giant agent platform.
-
-The goal is not to make Claude Code do more. The goal is to make it repeat the right things with less steering.
-
-## Language behavior
-
-Tink should answer in the selected language from setup. The installer asks first: English, 한국어, or 中文. Built-in harness IDs stay in English for stable filenames, but descriptions, approval prompts, `.tink/current/` run files, and final reports should be localized. In Korean-facing prose, use Korean-first terms with English parentheticals, while command names such as `forge`, `purge`, and `hone` stay English.
-
-If the project has a documented language policy, Tink should follow it. If language is ambiguous, ask once during `/tink:setup` and save the preference only after approval.
-
-## Tone: calm, clear, no jokes
-
-Tink uses calm, clear, concise language.
-
-It should not use AI jokes, memes, or excessive character voice. Readability and trust matter more than personality.
-
-## Works with Matt Pocock skills
-
-Tink pairs well with Matt Pocock's skills because it creates task-specific context before using a deeper skill. It does not automatically intercept other slash skills such as `/grill-me`; that is intentional so Tink does not hijack another skill's workflow.
-
-Example flow:
-
-1. `/tink:forge` chooses `bug-fix` and `code-change`, or drafts a new harness if needed.
-2. Claude proposes the best harness set and asks for approval with reasons.
-3. A focused skill such as TDD, diagnose, grill-me, or review can use that context after approval.
-
-Tink does not overwrite `CLAUDE.md` or force a global project structure.
-
-## What Tink borrows from other harness tools
-
-Tink borrows principles, not implementations:
-
-- Matt Pocock skills: small composable skills, setup flow, shared language, feedback loops
-- grill-me style workflows: ask before committing to a direction
-- Claude workflow projects: commands, skills, hooks, and handoff files
-- OpenAI Agents SDK and Pydantic AI: guardrails, handoffs, and tool contracts expressed as plain markdown
-- SWE-agent and aider: small git-friendly changes and verification loops
-- LangGraph, CrewAI, AutoGen, and OpenHands: state and recovery ideas without becoming a workflow engine
-- evaluation harnesses and acorn Harness v2: human-verifiable evidence before saying done
-
-## Project status
-
-Tink is early and actively evolving. The core idea is stable: help Claude Code users turn repeated guidance into reusable project harnesses.
-
-Expect changes to command details and generated harness structure while the project matures.
-
-## Not a framework
+## What Tink is not
 
 Tink is not:
 
-- a terminal coding agent
+- a coding agent
 - a workflow engine
 - a multi-agent runtime
 - a prompt library
 - a replacement for Claude Code
 
-Tink is a small approval-based harness system for Claude Code.
+It is a small harness layer for Claude Code.
+
+## Status
+
+Tink is pre-v1 and being hardened toward v1.0.0.
+
+The current focus is install reliability, simple docs, visible run state, and a release path that can be verified from a clean repo.
 
 ## License
 

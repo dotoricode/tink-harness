@@ -9,20 +9,12 @@ ROOT = Path(__file__).resolve().parents[1]
 NPM = 'npm.cmd' if os.name == 'nt' else 'npm'
 
 REQUIRED_README = [
-    'What is Tink?',
-    '30-second setup',
-    'Use with Claude Code',
-    'How Tink chooses harnesses',
-    'Built-in harnesses',
-    'What kinds of harnesses Tink can create',
-    '사용 습관 기반 제안',
-    'How Tink remembers without bloating context',
-    'How Tink grows',
-    'Language behavior',
-    'Tone: calm, clear, no jokes',
-    'Works with Matt Pocock skills',
-    'What Tink borrows from other harness tools',
-    'Not a framework',
+    'Why I made this',
+    'Install',
+    'Commands',
+    'How it works',
+    'What Tink is not',
+    'Status',
 ]
 
 HARNESS_SECTIONS = [
@@ -45,9 +37,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('picocolors', pkg['dependencies'])
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
-        self.assertIn('deep-blue', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('A small harness layer for Claude Code', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('colorLine(line, color)', installer)
-        self.assertIn('Language / 언어 / 语言', installer)
+
         self.assertIn('Installation scope', installer)
         self.assertIn('Select components to install', installer)
         self.assertIn('Hook recommendation', installer)
@@ -70,43 +62,28 @@ class TemplateTests(unittest.TestCase):
         text = (ROOT / 'README.md').read_text(encoding='utf-8')
         for section in REQUIRED_README:
             self.assertIn(section, text)
-        self.assertIn('AI jokes', text)
         self.assertIn('img.shields.io', text)
-        self.assertIn('Project status', text)
-        self.assertIn('Philosophy', text)
-        self.assertIn('--global', text)
-        self.assertIn('TINK` wizard', text)
-        self.assertIn('top-level loop', text)
         self.assertIn('npx github:dotoricode/tink-harness', text)
-        self.assertIn('English, 한국어, or 中文', text)
-        self.assertIn('context` column', text)
-        self.assertIn('selected language', text)
-        self.assertIn('/grill-me', text)
-        self.assertIn('selection-style prompt', text)
-        self.assertIn('executes the first safe step', text)
-        self.assertIn('plan.md', text)
-        self.assertIn('harness-synthesis', text)
-        self.assertIn('nextjs-rsc-boundary-refactor', text)
-        self.assertIn('behavior-shaping rules', text)
-        self.assertIn('Too many tools can make an agent worse', text)
-        self.assertIn('harness-curation', text)
-        self.assertIn('context-habit-calibration', text)
-        self.assertIn('compact cadence', text)
-        self.assertIn('context-hoarder', text)
-        self.assertIn('실행 중 보정', text)
-        self.assertIn('Inline Calibration', text)
-        self.assertIn('자동 제안', text)
-        self.assertIn('Hook Recommendation', text)
+        self.assertIn('npx tink-harness@latest', text)
+        self.assertIn('Hermes Agent', text)
+        self.assertIn('Could Claude Code grow with me in the same way?', text)
         self.assertIn('/tink:forge', text)
         self.assertIn('/tink:purge', text)
         self.assertIn('/tink:hone', text)
-        self.assertIn('setup, forge, list, purge, hone', text)
+        self.assertIn('forge** means', text)
+        self.assertIn('purge** means', text)
+        self.assertIn('hone** means', text)
+        self.assertIn('.tink/current/', text)
+        self.assertIn('.tink/runs/', text)
+        self.assertIn('approval', text.lower())
+        self.assertIn('pre-v1', text)
+        self.assertNotIn('30-second', text)
+        self.assertNotIn('AI jokes', text)
         self.assertNotIn('/tink:prime', text)
         self.assertNotIn('/tiny:', text)
         self.assertNotIn('.tiny', text)
         self.assertNotIn('dry-wit', text)
-        self.assertIn('컨텍스트 사용량 (Context Footprint)', text)
-        self.assertIn('작업 맥락 (Work Context)', text)
+
 
     def test_setup_explains_choices_before_asking(self):
         text = (ROOT / 'templates/claude/commands/tink/setup.md').read_text(encoding='utf-8')
