@@ -153,7 +153,9 @@ It is a small harness layer for Claude Code.
 
 ## Status
 
-Tink is pre-v1 and being hardened toward v1.0.0.
+Current version: `0.1.1`.
+
+Tink is pre-v1 and being hardened toward v1.0.0. Version policy and release checks are tracked in [`VERSIONING.md`](VERSIONING.md), and notable changes are tracked in [`CHANGELOG.md`](CHANGELOG.md).
 
 The current focus is install reliability, simple docs, visible run state, and a release path that can be verified from a clean repo.
 

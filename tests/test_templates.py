@@ -33,9 +33,20 @@ EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'forge.md', 'list.md', 'purge.md', 'h
 class TemplateTests(unittest.TestCase):
     def test_package_bin_exists(self):
         pkg = json.loads((ROOT / 'package.json').read_text())
+        lock = json.loads((ROOT / 'package-lock.json').read_text())
+        plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
+
+        self.assertEqual(pkg['version'], '0.1.1')
+        self.assertLess(tuple(map(int, pkg['version'].split('.'))), (1, 0, 0))
+        self.assertEqual(lock['version'], pkg['version'])
+        self.assertEqual(lock['packages']['']['version'], pkg['version'])
+        self.assertEqual(plugin['version'], pkg['version'])
+
         self.assertIn('tink-harness', pkg['bin'])
         self.assertIn('@clack/prompts', pkg['dependencies'])
         self.assertIn('picocolors', pkg['dependencies'])
+        self.assertIn('CHANGELOG.md', pkg['files'])
+        self.assertIn('VERSIONING.md', pkg['files'])
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code', (ROOT / 'README.md').read_text(encoding='utf-8'))
@@ -80,6 +91,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('/plugin install tink@tink-harness', text)
         self.assertIn('/reload-plugins', text)
         self.assertIn('npx github:dotoricode/tink-harness install', text)
+        self.assertIn('Current version: `0.1.1`', text)
+        self.assertIn('VERSIONING.md', text)
+        self.assertIn('CHANGELOG.md', text)
         self.assertNotIn('npx github:dotoricode/tink-harness install --yes', text)
         self.assertNotIn('claude --plugin-dir .', text)
         self.assertIn('Hermes Agent', text)
@@ -103,6 +117,17 @@ class TemplateTests(unittest.TestCase):
         self.assertNotIn('/tiny:', text)
         self.assertNotIn('.tiny', text)
         self.assertNotIn('dry-wit', text)
+
+    def test_versioning_docs_track_current_pre_v1_version(self):
+        pkg = json.loads((ROOT / 'package.json').read_text())
+        changelog = (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8')
+        versioning = (ROOT / 'VERSIONING.md').read_text(encoding='utf-8')
+
+        self.assertIn(f"## [{pkg['version']}]", changelog)
+        self.assertIn(f"Current version: `{pkg['version']}`", versioning)
+        self.assertIn('Do not bump to `1.0.0`', versioning)
+        self.assertIn('.claude-plugin/plugin.json', versioning)
+        self.assertIn('/plugin update tink@tink-harness', versioning)
 
 
     def test_setup_explains_choices_before_asking(self):
