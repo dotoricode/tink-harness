@@ -1,10 +1,12 @@
 from pathlib import Path
 import json
+import os
 import subprocess
 import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+NPM = 'npm.cmd' if os.name == 'nt' else 'npm'
 
 REQUIRED_README = [
     'What is Tink?',
@@ -214,6 +216,53 @@ class TemplateTests(unittest.TestCase):
             cfg = json.loads((base / '.tink/config.json').read_text(encoding='utf-8'))
             self.assertEqual(cfg['hook_scope'], 'repo')
             self.assertTrue((base / '.tink/hooks/user-prompt-submit.mjs').exists())
+
+    def test_package_contents_are_release_ready(self):
+        result = subprocess.run([NPM, 'pack', '--dry-run', '--json'], cwd=ROOT, check=True, capture_output=True, text=True)
+        pack = json.loads(result.stdout)[0]
+        paths = {item['path'] for item in pack['files']}
+
+        for required in [
+            'bin/install.js',
+            'templates/claude/commands/tink/setup.md',
+            'templates/claude/commands/tink/forge.md',
+            'templates/claude/commands/tink/list.md',
+            'templates/claude/commands/tink/purge.md',
+            'templates/claude/commands/tink/hone.md',
+            'templates/claude/skills/tink/SKILL.md',
+            'templates/tink/config.json',
+            'templates/tink/harnesses/index.json',
+            'templates/tink/hooks/user-prompt-submit.mjs',
+            'templates/tink/memory/mistakes.md',
+            'README.md',
+            'LICENSE',
+        ]:
+            self.assertIn(required, paths)
+
+        for forbidden_prefix in ['tests/', 'docs/plans/', '.tink/', '.claude/', '.serena/']:
+            self.assertFalse(any(path.startswith(forbidden_prefix) for path in paths), forbidden_prefix)
+
+    def test_packaged_tarball_installs_in_clean_repo(self):
+        result = subprocess.run([NPM, 'pack', '--json'], cwd=ROOT, check=True, capture_output=True, text=True)
+        tarball = ROOT / json.loads(result.stdout)[0]['filename']
+        try:
+            with tempfile.TemporaryDirectory() as d:
+                base = Path(d)
+                subprocess.run(
+                    [NPM, 'exec', '--yes', '--package', str(tarball), '--', 'tink-harness', 'install', '--lang=ko', '--yes', '--scope=repo'],
+                    cwd=base,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+                installed_commands = {p.name for p in (base / '.claude/commands/tink').glob('*.md')}
+                self.assertEqual(installed_commands, EXPECTED_COMMANDS)
+                self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
+                self.assertTrue((base / '.tink/harnesses/index.json').exists())
+                self.assertTrue((base / '.tink/memory/mistakes.md').exists())
+                self.assertTrue((base / '.tink/config.json').exists())
+        finally:
+            tarball.unlink(missing_ok=True)
 
     def test_harness_synthesis_dogfood_example(self):
         text = (ROOT / 'examples/harness-synthesis-dogfood.md').read_text(encoding='utf-8')

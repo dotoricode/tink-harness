@@ -10,7 +10,6 @@
 
 <p align="center">
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
-  <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?color=111827" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
@@ -44,37 +43,37 @@ Use it when you want Claude Code to stop starting from a blank prompt every time
 
 ## 30-second setup
 
-Interactive installer:
+Development install from GitHub:
 
 ```bash
-npx tink-harness@latest
+npx github:dotoricode/tink-harness
 ```
 
 It opens a deep-blue `TINK` wizard. The first question is language: English, 한국어, or 中文. Then you choose components, repo/global installation scope, git tracking policy, and optional hook registration.
 
-Non-interactive repo-scoped install:
+Non-interactive repo-scoped install from GitHub:
 
 ```bash
-npx tink-harness@latest install --yes
+npx github:dotoricode/tink-harness install --yes
 ```
 
 Global install, useful when you want the same `/tink:*` commands available across projects:
 
 ```bash
-npx tink-harness@latest install --global --yes
+npx github:dotoricode/tink-harness install --global --yes
 ```
 
 Enable the optional Claude Code `UserPromptSubmit` hook:
 
 ```bash
-npx tink-harness@latest install --yes --with-hook
+npx github:dotoricode/tink-harness install --yes --with-hook
 ```
 
-Development install from GitHub:
+After v1.0.0 is published to npm, the primary install path becomes:
 
 ```bash
-npx github:dotoricode/tink-harness
-npx github:dotoricode/tink-harness install --global
+npx tink-harness@latest
+npx tink-harness@latest install --global --yes
 ```
 
 Then open Claude Code and run:
