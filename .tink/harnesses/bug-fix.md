@@ -16,9 +16,11 @@ Something is broken and needs a minimal fix.
 5. Report the evidence.
 
 ## Checks
-- Use only the context needed for this task.
+- Reproduction confirmed, or impossibility is explained.
+- Root cause identified, not just symptom.
+- Fix is minimal — no unrelated changes included.
+- Regression check run, or reason not run is stated.
 - Do not repeat questions already answered in `.tink/current/answers.md`.
-- Do not store raw logs, full diffs, secrets, or one-off state in memory.
 
 ## Done means
 - Bug no longer reproduces or risk is stated.

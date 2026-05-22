@@ -3,6 +3,8 @@
 ## When to use
 Use when Tink should recommend harnesses from the user's environment and operating habits, not only from an explicit task request.
 
+Do not use to select, reduce, or replace the active harness set for a specific task — use `harness-curation` for harness and tool selection decisions.
+
 Use this when signals show:
 - frequent `/new` or context resets,
 - waiting until automatic compact before clearing context,

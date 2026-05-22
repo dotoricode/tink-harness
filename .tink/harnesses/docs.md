@@ -16,9 +16,10 @@ Write or improve README, guides, PRDs, or user-facing docs.
 5. Check for missing next steps.
 
 ## Checks
-- Use only the context needed for this task.
+- Reader and goal are explicitly stated.
+- At least one next action is present.
+- No jargon left undefined for the stated reader.
 - Do not repeat questions already answered in `.tink/current/answers.md`.
-- Do not store raw logs, full diffs, secrets, or one-off state in memory.
 
 ## Done means
 - Reader and action are clear.

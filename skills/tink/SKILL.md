@@ -37,11 +37,11 @@ Use only these commands:
 2. Read small approved memory files when present: `.tink/memory/mistakes.md`, `preferences.md`, `lessons.md`.
 3. Prefer the smallest useful harness set. Use context footprint, not a universal hard cap: tiny harnesses may stack, large harnesses load one at a time after approval, and meta harnesses should reduce or replace context rather than pile on.
 4. If `.tink/current/` exists and continuity is uncertain, read the five current files, summarize goal / last safe point / next step / open questions / verification, then ask resume/archive/replace/cancel before continuing.
-5. If too many tools, skills, agents, or harnesses are available, use `harness-curation` to choose the smallest effective set before loading more context.
+5. Run the synthesis probe on the initial harness choice. The probe produces one of three outcomes: strong fit (0-1 yes), generic fit (2-3 yes), or no fit (4-5 yes or no harness matches). Strong fit keeps the harness; generic fit adds a run-only draft; no fit loads `harness-synthesis`.
 6. If no existing harness fits, use `harness-synthesis` to draft a narrow domain-specific harness instead of forcing a bad fit.
-7. If lightweight signals show recurring context, token, prompt-quality, output-length, reset, or evidence habits, use `context-habit-calibration` to make one advisory recommendation.
-8. When research notes, examples, prior failures, or user corrections are available, extract behavior-shaping rules: triggers, decision rules, checks, stop conditions, recovery, and evidence.
-9. Run the synthesis probe on the initial harness choice. The probe produces one of three outcomes: strong fit (0-1 yes), generic fit (2-3 yes), or no fit (4-5 yes or no harness matches). Strong fit keeps the harness; generic fit adds a run-only draft; no fit loads `harness-synthesis`.
+7. If too many tools, skills, agents, or harnesses are available, use `harness-curation` to choose the smallest effective set before loading more context.
+8. If lightweight signals show recurring context, token, prompt-quality, output-length, reset, or evidence habits, use `context-habit-calibration` to make one advisory recommendation.
+9. When research notes, examples, prior failures, or user corrections are available, extract behavior-shaping rules: triggers, decision rules, checks, stop conditions, recovery, and evidence.
 10. Run Grill Gate once before committing to `.tink/current/`: evaluate every time, show exactly one proposal only for high-impact quality or safety branches, and use configured language.
 11. Use soft Grill Gate choices `Approve`, `Add requirements`, `Continue as-is` or localized equivalents; use hard choices `Approve`, `Add requirements`, `Cancel` only.
 12. Hard gates must not offer `Continue as-is` or `이대로 진행`, and Grill Gate may change method or order but not the user's goal without separate approval.

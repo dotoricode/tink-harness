@@ -10,6 +10,8 @@ Use this when:
 - the task needs a different harness than the previous task,
 - Tink must prevent repeated mistakes and maintain the harness set.
 
+Do not use to observe or adjust operating habits (context resets, prompt quality, output length) — use `context-habit-calibration` for those signals.
+
 ## Ask first
 - What is the current task and success evidence?
 - What is the constraint: token budget, time, model capacity, tool permissions, or MVP stage?

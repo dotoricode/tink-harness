@@ -16,9 +16,10 @@ Add, change, or refactor code with a clear scope.
 5. Report changed files and evidence.
 
 ## Checks
-- Use only the context needed for this task.
+- Only target files modified; no unrelated changes.
+- Tests or build verified, or reason not run is stated.
+- Changed lines match stated scope — no unnoticed behavior shift.
 - Do not repeat questions already answered in `.tink/current/answers.md`.
-- Do not store raw logs, full diffs, secrets, or one-off state in memory.
 
 ## Done means
 - Only related files changed.
