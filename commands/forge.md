@@ -1,4 +1,8 @@
-# /tink-forge
+---
+description: Choose, build, or synthesize the right harness for the current task.
+---
+
+# /tink:forge
 
 Forge the right harness for the task, run it, and capture reusable learning.
 
@@ -20,7 +24,7 @@ Tink should:
 ## Default behavior
 Do not stop after saying which harness might fit.
 
-A valid `/tink-forge` response must do one of these:
+A valid `/tink:forge` response must do one of these:
 - create or update `.tink/current/` and start the harnessed work,
 - ask one blocking question that is required to create `.tink/current/`, or
 - cancel because the user chose not to proceed.
@@ -272,7 +276,7 @@ context는 이 harness가 Claude 작업 컨텍스트를 얼마나 차지하는�
 ```
 
 ## Other slash skills
-Tink does not automatically wrap `/grill-me`, `/diagnose`, `/tdd`, or other slash skills. That is intentional. If needed, run `/tink-forge` first, then use the other skill output as input.
+Tink does not automatically wrap `/grill-me`, `/diagnose`, `/tdd`, or other slash skills. That is intentional. If needed, run `/tink:forge` first, then use the other skill output as input.
 
 ## Failure behavior
 If a check fails:

@@ -1,0 +1,8 @@
+{
+  "name": "tink",
+  "description": "A small harness layer for Claude Code.",
+  "version": "0.1.0",
+  "author": {
+    "name": "dotori"
+  }
+}

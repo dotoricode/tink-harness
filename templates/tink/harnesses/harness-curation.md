@@ -47,8 +47,8 @@ Do not repeat questions already answered in `.tink/current/answers.md`.
 ## Done means
 - The current task has an approved minimal harness set.
 - If a new harness was needed, `harness-synthesis` produced a narrow draft.
-- If a repeated mistake was found, Tink proposed memory or `/tink-hone`.
-- If a harness is too broad or unused, Tink proposed `/tink-purge` or a lean replacement.
+- If a repeated mistake was found, Tink proposed memory or `/tink:hone`.
+- If a harness is too broad or unused, Tink proposed `/tink:purge` or a lean replacement.
 
 ## If it fails, Tink back
 If the chosen set is too weak, add one harness only and record why. If it is too heavy, remove the least task-critical harness and continue from the last safe point.

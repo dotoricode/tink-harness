@@ -6,30 +6,42 @@ Accepted
 
 ## Context
 
-Tink originally documented commands as `/tink:setup`, `/tink:forge`, `/tink:list`, `/tink:purge`, and `/tink:hone`.
+Tink's intended command surface is namespaced:
 
-Claude Code custom commands are created from markdown filenames. A nested file such as `.claude/commands/tink/forge.md` does not reliably create `/tink:forge`; in current Claude Code behavior it can be unavailable under that name or appear as a different command. On Windows, a literal `tink:forge.md` filename is also not portable.
+- `/tink:setup`
+- `/tink:forge`
+- `/tink:list`
+- `/tink:purge`
+- `/tink:hone`
 
-The trade-off is between the nicer namespace-style spelling and commands that are actually recognized across platforms.
+A previous implementation changed these to flat hyphen commands such as `/tink-forge` because standalone Claude Code commands are filename-based. That solved one portability concern, but it lost the product namespace and made Tink feel like a set of unrelated commands.
+
+Claude Code plugins support namespaced commands. Plugin namespacing also avoids collisions with generic command names such as `/setup`, `/list`, `/forge`, `/purge`, or `/hone`.
 
 ## Decision
 
-Use flat, portable command filenames and names:
+Use a plugin-first command surface under the `tink` namespace:
 
-- `/tink-setup`
-- `/tink-forge`
-- `/tink-list`
-- `/tink-purge`
-- `/tink-hone`
+- `/tink:setup`
+- `/tink:forge`
+- `/tink:list`
+- `/tink:purge`
+- `/tink:hone`
 
-The installer copies internal command templates from `templates/claude/commands/tink/*.md` to installed files named `.claude/commands/tink-*.md`.
+The repository root is a Claude Code plugin with `.claude-plugin/plugin.json`, `commands/*.md`, and `skills/tink/SKILL.md`.
 
-The installer also removes the old installed `.claude/commands/tink/` directory so users do not get confusing orphan commands such as `/forge` or missing `/tink:forge` behavior.
+The `npx` installer keeps a standalone compatibility path by copying command templates to `.claude/commands/tink/*.md`. It also removes the earlier flat hyphen files:
+
+- `.claude/commands/tink-setup.md`
+- `.claude/commands/tink-forge.md`
+- `.claude/commands/tink-list.md`
+- `.claude/commands/tink-purge.md`
+- `.claude/commands/tink-hone.md`
 
 ## Consequences
 
-- Commands are less pretty than the colon namespace form.
-- Commands work with Claude Code's filename-based command discovery.
-- Command files remain portable on Windows.
-- Existing users must reinstall Tink once to replace the legacy nested command files.
-- Public docs and hook suggestions must use `/tink-forge`, not `/tink:forge`.
+- Public docs and hook suggestions use `/tink:*`.
+- Tink keeps a clear product namespace in Claude Code.
+- Generic command collisions are avoided.
+- Command files remain portable on Windows because no filename contains `:`.
+- Existing users who installed the flat hyphen commands should reinstall once to clean up old command files.

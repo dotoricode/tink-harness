@@ -1,0 +1,14 @@
+{
+  "name": "tink-harness",
+  "description": "Claude Code harness workflow plugin marketplace.",
+  "owner": {
+    "name": "dotori"
+  },
+  "plugins": [
+    {
+      "name": "tink",
+      "source": "./",
+      "description": "A small harness layer for Claude Code."
+    }
+  ]
+}

@@ -38,23 +38,31 @@ Not by adding a big framework. Not by running more agents. Just by helping Claud
 
 ## Install
 
-Current development install:
+Claude Code plugin install:
 
-```bash
-npx github:dotoricode/tink-harness
+```text
+/plugin marketplace add dotoricode/tink-harness
+/plugin install tink@tink-harness
+/tink:setup
 ```
 
-After v1.0.0 is published to npm:
+Local development:
 
 ```bash
-npx tink-harness@latest
+claude --plugin-dir .
+```
+
+Standalone compatibility installer:
+
+```bash
+npx github:dotoricode/tink-harness install --yes
 ```
 
 ## Commands
 
 Tink keeps the command surface small.
 
-Claude Code discovers custom commands from filenames, so Tink uses portable hyphen commands instead of the earlier colon form.
+Tink is plugin-first. Commands are namespaced under `tink`, so the public surface stays `/tink:*` and avoids generic command conflicts.
 
 ### `/tink:forge`
 

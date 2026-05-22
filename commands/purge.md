@@ -1,4 +1,8 @@
-# /tink-purge
+---
+description: Propose unused or redundant harness cleanup without deleting automatically.
+---
+
+# /tink:purge
 
 Find harnesses that are probably unused or redundant, then ask before removing them.
 
@@ -17,12 +21,12 @@ Keep Tink small. A large harness set defeats the point.
    - not used recently
    - overlaps strongly with another harness
    - too broad to guide behavior
-   - repeatedly ignored during `/tink-forge`
+   - repeatedly ignored during `/tink:forge`
 4. For each candidate, show evidence and a recommendation:
    - keep
    - merge into another harness
    - delete
-   - rewrite via `/tink-hone`
+   - rewrite via `/tink:hone`
 5. For each non-keep action, prepare an approval payload with exact files and operation type.
 6. If the recommendation is `hone`, write or present a hone handoff packet before ending:
    - target harness
