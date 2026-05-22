@@ -257,6 +257,7 @@ function copySelected(scope, components) {
   }
   if (components.includes('harnesses')) {
     copyDir(path.join(templateRoot, 'tink/harnesses'), path.join(target, '.tink/harnesses'), target);
+    copyDir(path.join(templateRoot, 'tink/maintenance'), path.join(target, '.tink/maintenance'), target);
     writeFileFromTemplate(path.join(templateRoot, 'tink/config.json'), path.join(target, '.tink/config.json'), target);
   }
   if (components.includes('memory')) {

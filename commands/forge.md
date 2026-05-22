@@ -96,18 +96,32 @@ Each `.tink/runs/*.md` record starts with YAML frontmatter:
 
 ```yaml
 ---
+run_id: "run-YYYYMMDD-HHMM-slug"
 started_at: "YYYY-MM-DDTHH:MM:SSZ"
 ended_at: "YYYY-MM-DDTHH:MM:SSZ"
 outcome: completed # completed | blocked | canceled | superseded
+task_summary: ""
 selected_harnesses: []
-considered_but_rejected: []
+actually_loaded_harnesses: []
+considered_but_rejected: [] # {name, reason}
 checks_result: pass # pass | fail | blocked | not_run
-maintenance_suggestions: []
-approved_saves: []
+user_corrections: [] # compact handles only
+maintenance_suggestions: [] # {op_id, type, target, evidence}
+approved_saves: [] # approval op IDs from .tink/maintenance/ledger.jsonl
+context_footprint: unknown # tiny | small | large | unknown
 ---
 ```
 
 The body should be a short human summary: goal, evidence, negative signals, and next safe action if blocked.
+
+## Maintenance evidence
+When proposing memory saves, harness edits, index updates, hone, or purge, create an operation ID and cite evidence handles. Evidence handles should be compact paths such as `.tink/runs/<file>.md`, `.tink/current/notes.md`, failed check names, or user correction snippets. Do not use raw logs as evidence.
+
+Approved reusable changes should append one JSON line to `.tink/maintenance/ledger.jsonl` with:
+
+```json
+{ "timestamp": "", "op_id": "op-...", "type": "hone|purge|memory|index-update|harness-create|harness-edit", "files": [], "evidence": [], "approval": "", "result": "applied|rejected|deferred", "rollback": "" }
+```
 
 ## Procedure
 1. Read `.tink/harnesses/index.json` first. Do not read every harness.
@@ -160,7 +174,9 @@ Before saving memory, a new harness, a harness edit, or index metadata, show:
 - exact entry text or patch summary
 - why it is reusable
 - sensitive/private content excluded
+- evidence handles
 - rollback or removal path
+- approval ledger entry path: `.tink/maintenance/ledger.jsonl`
 
 Do not save if the user approved only the current run. Saving reusable state needs separate approval.
 

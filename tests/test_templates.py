@@ -58,6 +58,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('path.join(commandDest, entry.name)', installer)
         self.assertIn('/tink:forge <task> to start', installer)
         self.assertIn('legacyTinyCommands', installer)
+        self.assertIn('tink/maintenance', installer)
         self.assertNotIn("value: 'both'", installer)
         self.assertNotIn("'tiny/harnesses'", installer)
         self.assertTrue((ROOT / pkg['bin']['tink-harness']).exists())
@@ -144,8 +145,13 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Even if the user says', forge)
         self.assertIn('Recovery prompt format', forge)
         self.assertIn('이전 작업 복구', forge)
+        self.assertIn('run_id', forge)
         self.assertIn('selected_harnesses', forge)
+        self.assertIn('actually_loaded_harnesses', forge)
         self.assertIn('considered_but_rejected', forge)
+        self.assertIn('context_footprint', forge)
+        self.assertIn('Maintenance evidence', forge)
+        self.assertIn('.tink/maintenance/ledger.jsonl', forge)
         self.assertIn('answers.md` template', forge)
         self.assertIn('Context budget policy', forge)
         self.assertIn('No hard cap mode', forge)
@@ -169,13 +175,24 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('new harness', forge)
         self.assertIn('/grill-me', forge)
         self.assertIn('Do not delete without approval', purge)
-        self.assertIn('usage signals', purge)
+        self.assertIn('compact evidence', purge)
         self.assertIn('hone handoff packet', purge)
         self.assertIn('operation-specific approval payload', purge)
         self.assertIn('real failures', hone)
         self.assertIn('hone handoff packet', hone)
         self.assertIn('Approval payload', hone)
         self.assertIn('Ask for approval before saving', hone)
+        list_cmd = (ROOT / 'templates/claude/commands/tink/list.md').read_text(encoding='utf-8')
+        self.assertIn('unknown', list_cmd)
+        self.assertIn('Do not infer non-use from missing evidence', list_cmd)
+        self.assertIn('stale current candidate', list_cmd)
+        self.assertIn('Evidence grade', purge)
+        self.assertIn('Only strong evidence may recommend `delete`', purge)
+        self.assertIn('.tink/maintenance/hone-queue.json', purge)
+        self.assertIn('.tink/maintenance/ledger.jsonl', purge)
+        self.assertIn('evidence handles', hone)
+        self.assertIn('context-cost delta', hone)
+        self.assertIn('.tink/maintenance/ledger.jsonl', hone)
         skill = (ROOT / 'templates/claude/skills/tink/SKILL.md').read_text(encoding='utf-8')
         self.assertIn('purge', skill)
         self.assertNotIn('prune', skill.lower())
@@ -195,6 +212,8 @@ class TemplateTests(unittest.TestCase):
         for name in ['mistakes.md', 'preferences.md', 'lessons.md']:
             text = (ROOT / f'templates/tink/memory/{name}').read_text(encoding='utf-8')
             self.assertIn('approval', text.lower())
+            self.assertIn('Entry shape', text)
+            self.assertIn('source=<run-id|user>', text)
             self.assertNotIn('secret=', text.lower())
 
     def test_installer_dry_run_and_install(self):
@@ -222,6 +241,8 @@ class TemplateTests(unittest.TestCase):
             self.assertFalse((base / '.claude/commands/tiny').exists())
             self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
             self.assertTrue((base / '.tink/harnesses/index.json').exists())
+            self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
+            self.assertTrue((base / '.tink/maintenance/hone-queue.json').exists())
             self.assertTrue((base / '.tink/memory/mistakes.md').exists())
             self.assertTrue((base / '.gitignore').exists())
 
@@ -259,6 +280,8 @@ class TemplateTests(unittest.TestCase):
             'templates/claude/skills/tink/SKILL.md',
             'templates/tink/config.json',
             'templates/tink/harnesses/index.json',
+            'templates/tink/maintenance/ledger.jsonl',
+            'templates/tink/maintenance/hone-queue.json',
             'templates/tink/hooks/user-prompt-submit.mjs',
             'templates/tink/memory/mistakes.md',
             'README.md',
@@ -287,6 +310,8 @@ class TemplateTests(unittest.TestCase):
                 self.assertFalse((base / '.claude/commands/tink-forge.md').exists())
                 self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
                 self.assertTrue((base / '.tink/harnesses/index.json').exists())
+                self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
+                self.assertTrue((base / '.tink/maintenance/hone-queue.json').exists())
                 self.assertTrue((base / '.tink/memory/mistakes.md').exists())
                 self.assertTrue((base / '.tink/config.json').exists())
         finally:
