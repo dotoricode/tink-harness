@@ -38,6 +38,8 @@ class TemplateTests(unittest.TestCase):
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('Tinker Bell', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('colorLine(line, color)', installer)
 
         self.assertIn('Installation scope', installer)
@@ -66,6 +68,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('npx github:dotoricode/tink-harness', text)
         self.assertIn('npx tink-harness@latest', text)
         self.assertIn('Hermes Agent', text)
+        self.assertIn('untying tangled workflows', text)
+        self.assertIn('the small helper at your side', text)
         self.assertIn('Could Claude Code grow with me in the same way?', text)
         self.assertIn('/tink:forge', text)
         self.assertIn('/tink:purge', text)
@@ -282,6 +286,8 @@ class TemplateTests(unittest.TestCase):
             '### 메타 하네스 (Meta Harness)',
         ]:
             self.assertIn(term, text)
+        self.assertIn('knit', text)
+        self.assertIn('Tinker Bell', text)
         self.assertIn('대표 명령', text)
         self.assertIn('단순한 하네스 생성 명령이 아니다', text)
         self.assertIn('기본 사용 습관 보정 방식', text)
