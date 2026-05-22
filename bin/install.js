@@ -176,11 +176,26 @@ function copyTinkCommands(templateRoot, target) {
   const commandDest = path.join(target, '.claude/commands/tink');
   const flatCommandDest = path.join(target, '.claude/commands');
   const legacyFlatCommands = ['tink-setup.md', 'tink-forge.md', 'tink-list.md', 'tink-purge.md', 'tink-hone.md'];
+  const legacyTinyCommands = ['tiny-setup.md', 'tiny-use.md', 'tiny-list.md', 'tiny-save.md'];
+  const legacyDirs = [path.join(flatCommandDest, 'tiny'), path.join(target, '.claude/skills/tiny')];
   for (const name of legacyFlatCommands) {
     const legacy = path.join(flatCommandDest, name);
     if (fs.existsSync(legacy)) {
       log.message(`${dryRun ? 'would remove legacy' : 'remove legacy'} ${displayPath(target, legacy)}`);
       if (!dryRun) fs.rmSync(legacy, { force: true });
+    }
+  }
+  for (const name of legacyTinyCommands) {
+    const legacy = path.join(flatCommandDest, name);
+    if (fs.existsSync(legacy)) {
+      log.message(`${dryRun ? 'would remove legacy Tiny' : 'remove legacy Tiny'} ${displayPath(target, legacy)}`);
+      if (!dryRun) fs.rmSync(legacy, { force: true });
+    }
+  }
+  for (const legacyDir of legacyDirs) {
+    if (fs.existsSync(legacyDir)) {
+      log.message(`${dryRun ? 'would remove legacy Tiny' : 'remove legacy Tiny'} ${displayPath(target, legacyDir)}`);
+      if (!dryRun) fs.rmSync(legacyDir, { recursive: true, force: true });
     }
   }
   for (const entry of fs.readdirSync(commandSrc, { withFileTypes: true })) {
@@ -447,7 +462,7 @@ async function main() {
     `Install target: ${targets.installTarget}`,
     `Components: ${components.join(', ')}`,
     `Hook scope: ${hookScope}`,
-    'Next: open Claude Code and run /tink:setup.'
+    'Next: open Claude Code and run /tink:forge <task> to start. Run /tink:setup only to review or change settings.'
   ].join('\n');
 
   if (interactive) {
@@ -455,7 +470,7 @@ async function main() {
     outro(COPY[language].done);
   } else {
     console.log(`\n${summary}`);
-    console.log('\nDone. Open Claude Code and run /tink:setup.');
+    console.log('\nDone. Open Claude Code and run /tink:forge <task> to start.');
   }
 }
 

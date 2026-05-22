@@ -31,6 +31,24 @@ A valid `/tink:forge` response must do one of these:
 
 If the task is clear enough to classify, do not ask broad clarification first. Make a best recommendation, ask for approval, then act.
 
+## Readiness check
+Before normal classification, check whether Tink is fully initialized. If `.tink/harnesses/index.json`, `.tink/config.json`, or `.tink/memory/` is missing, do not fail and do not write anything yet. Show a short recovery prompt:
+
+```text
+Tink is not fully initialized.
+
+1. Run /tink:setup to review or repair setup
+2. Create the minimal .tink scaffold for this repo
+3. Continue once with a lightweight one-run harness
+4. Cancel
+
+Reply: 1, 2, 3, or 4
+```
+
+If legacy Tiny files such as `.tiny/` or `/tiny:use` instructions are present, treat them as old state. Explain that `/tink:forge` replaces `/tiny:use`, and offer to migrate useful `.tiny/harnesses/`, `.tiny/config.json`, and `.tiny/memory/` into `.tink/` only after approval. Never tell the user to run `/tiny:use`.
+
+Do not advertise Enter as approval unless the host provides a real selectable UI where Enter actually confirms the highlighted option. In plain text prompts, ask for `1`, `2`, `3`, or `4`.
+
 ## Run state contract
 After approval, create `.tink/current/` with these files before doing deeper work. `.tink/current/` is the current workbench: the one active task plan Claude should keep updating while it works. It is temporary, local runtime state, not reusable memory and not a knowledge base:
 
@@ -68,6 +86,8 @@ Recovery prompt format:
 2. 보관하고 새 작업
 3. 교체
 4. 취소
+
+답장: 1, 2, 3, 또는 4
 ```
 
 
@@ -108,7 +128,7 @@ The body should be a short human summary: goal, evidence, negative signals, and 
 6. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
 7. If lightweight signals show a recurring operating habit, load `context-habit-calibration` only if it earns its context cost; otherwise make one advisory recommendation without loading another body.
 8. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
-9. Ask for selection-style approval before non-trivial work. Enter should accept the recommended option when the host supports it.
+9. Ask for explicit approval before non-trivial work. Use a selectable UI only when the host really supports it. In plain text, ask the user to reply with a number; do not say Enter approves.
 10. After approval, read only the selected harness files.
 11. Create `.tink/current/` files from the run state contract.
 12. Execute the first safe step immediately:
@@ -153,7 +173,7 @@ Use concise, selection-oriented wording. The recommendation must include the fir
 추천:
 - 하네스 (Harness): code-change + review
 - 이유: 변경 범위가 좁고, 회귀 확인이 필요합니다.
-- 만들 실행 상태 (Run State): `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`
+- 만들 실행 상태 (Run State): `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`
 - 첫 실행: 관련 파일을 먼저 읽고 검증 명령 후보를 확정합니다.
 
 진행할까요?
@@ -161,6 +181,8 @@ Use concise, selection-oriented wording. The recommendation must include the fir
 2. 조정: 다른 하네스 (Harness) 조합 선택
 3. 새 하네스 (Harness) 초안 만들기
 4. 취소
+
+답장: 1, 2, 3, 또는 4
 ```
 
 If a new harness is needed:
@@ -179,6 +201,8 @@ If a new harness is needed:
 2. 저장까지 승인: 이번 작업 후 `.tink/harnesses/`에 저장 후보로 올림
 3. 조정
 4. 취소
+
+답장: 1, 2, 3, 또는 4
 ```
 
 ## Harness synthesis contract

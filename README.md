@@ -4,7 +4,7 @@
 <h1 align="center">A small harness layer for Claude Code</h1>
 
 <p align="center">
-  Tink helps Claude Code choose the right harness, keep visible run state, and improve the harness set as you work.
+  Tink helps Claude Code choose the right harness, keep run state visible, and improve the harness set as you work.
 </p>
 
 <p align="center">
@@ -39,20 +39,24 @@ Claude Code plugin install:
 
 ```text
 /plugin marketplace add dotoricode/tink-harness
-/plugin install tink@tink-harness
-/tink:setup
 ```
 
-Local development:
+```text
+/plugin install tink@tink-harness
+```
 
-```bash
-claude --plugin-dir .
+```text
+/reload-plugins
+```
+
+```text
+/tink:setup
 ```
 
 Standalone compatibility installer:
 
 ```bash
-npx github:dotoricode/tink-harness install --yes
+npx github:dotoricode/tink-harness install
 ```
 
 ## Commands
