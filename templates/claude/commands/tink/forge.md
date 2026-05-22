@@ -82,11 +82,11 @@ Hard gates apply when the next action is difficult or unsafe to reverse: reusabl
 
 Hard gates must not offer `Continue as-is` or `이대로 진행`.
 
-If a soft gate user chooses `Continue as-is` / `이대로 진행`, proceed with explicit assumptions and record them in `.tink/current/answers.md`.
-
-If Grill Gate triggers, record only current-run state by default:
-- `.tink/current/answers.md`: proposal, choice, explicit assumptions
+When Grill Gate is visible and the user responds, record current-run state:
+- `.tink/current/answers.md`: proposal, user choice, explicit assumptions
 - `.tink/current/notes.md`: proposal, risk, reason, follow-up needed
+
+If the user chooses `Continue as-is` / `이대로 진행`, proceed with the explicit assumptions recorded in `answers.md`.
 
 Do not record a clean Grill Gate pass.
 
@@ -200,9 +200,9 @@ Approved reusable changes should append one JSON line to `.tink/maintenance/ledg
    - ship/release
    - new pattern not covered yet
 4. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context.
-5. Always run the synthesis probe before finalizing the harness choice. The probe decides whether the existing harness is a strong fit, a generic fit, or no fit.
-6. If no existing harness fits, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
-7. If an existing harness is only a generic fit and the synthesis probe has at least two yes answers, propose a run-only draft harness or domain rules alongside the built-in harness. Do not save it by default.
+5. Run the synthesis probe on the initial harness choice. The probe produces one of three outcomes: strong fit (0-1 yes), generic fit (2-3 yes), or no fit (4-5 yes or no harness matches).
+6. If the probe finds no fit, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
+7. If the probe finds a generic fit (2-3 yes), propose a run-only draft harness or domain rules alongside the built-in harness. Do not save it by default.
 8. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
 9. If lightweight signals show a recurring operating habit, load `context-habit-calibration` only if it earns its context cost; otherwise make one advisory recommendation without loading another body.
 10. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
