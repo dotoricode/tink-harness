@@ -1,3 +1,5 @@
+<img width="1672" height="941" alt="tink_hero" src="https://github.com/user-attachments/assets/8a495485-a71d-43f1-8461-53328814505d" />
+
 <p align="center">
   <strong>Tink</strong>
 </p>
