@@ -1,8 +1,5 @@
-<img width="1672" height="941" alt="tink_hero" src="https://github.com/user-attachments/assets/8a495485-a71d-43f1-8461-53328814505d" />
+<img width="1672" height="941" alt="tink_hero" src="https://github.com/user-attachments/assets/a82523f5-0d23-4323-a113-bd1b70449f7c" />
 
-<p align="center">
-  <strong>Tink</strong>
-</p>
 
 <h1 align="center">A small harness layer for Claude Code</h1>
 
