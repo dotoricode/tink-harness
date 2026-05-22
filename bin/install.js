@@ -114,8 +114,10 @@ function printBanner() {
     '   ██║   ██║██║ ╚████║██║  ██╗',
     '   ╚═╝   ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝'
   ];
-  const top = [5, 18, 58];
-  const bottom = [56, 149, 255];
+  // Keep the banner readable on dark terminal themes. The previous deep navy
+  // top of the gradient blended into black backgrounds.
+  const top = [96, 165, 250];
+  const bottom = [34, 211, 238];
   console.log('');
   lines.forEach((line, i) => {
     const t = i / Math.max(lines.length - 1, 1);

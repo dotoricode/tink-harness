@@ -36,7 +36,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '0.1.3')
+        self.assertEqual(pkg['version'], '0.1.4')
         self.assertLess(tuple(map(int, pkg['version'].split('.'))), (1, 0, 0))
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
@@ -47,14 +47,15 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('picocolors', pkg['dependencies'])
         self.assertIn('CHANGELOG.md', pkg['files'])
         self.assertIn('VERSIONING.md', pkg['files'])
-        self.assertIn('assets/', pkg['files'])
-        self.assertTrue((ROOT / 'assets/tink_hero.jpg').exists())
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('Tinker Bell', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('colorLine(line, color)', installer)
+        self.assertIn('const top = [96, 165, 250]', installer)
+        self.assertIn('const bottom = [34, 211, 238]', installer)
+        self.assertNotIn('const top = [5, 18, 58]', installer)
 
         self.assertIn('Installation scope', installer)
         self.assertIn('Select components to install', installer)
@@ -93,11 +94,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('/plugin install tink@tink-harness', text)
         self.assertIn('/reload-plugins', text)
         self.assertIn('npx github:dotoricode/tink-harness install', text)
-        self.assertIn('Current version: `0.1.3`', text)
+        self.assertIn('Current version: `0.1.4`', text)
         self.assertIn('VERSIONING.md', text)
         self.assertIn('CHANGELOG.md', text)
-        self.assertIn('assets/tink_hero.jpg', text)
-        self.assertNotIn('user-attachments/assets', text)
         self.assertNotIn('npx github:dotoricode/tink-harness install --yes', text)
         self.assertNotIn('claude --plugin-dir .', text)
         self.assertIn('Hermes Agent', text)
@@ -325,7 +324,6 @@ class TemplateTests(unittest.TestCase):
             'templates/tink/maintenance/hone-queue.json',
             'templates/tink/hooks/user-prompt-submit.mjs',
             'templates/tink/memory/mistakes.md',
-            'assets/tink_hero.jpg',
             'README.md',
             'LICENSE',
         ]:

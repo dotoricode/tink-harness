@@ -1,4 +1,4 @@
-<img width="1672" height="941" alt="Tink terminal hero with readable install command" src="assets/tink_hero.jpg" />
+<img width="1672" height="941" alt="tink_hero" src="https://github.com/user-attachments/assets/a82523f5-0d23-4323-a113-bd1b70449f7c" />
 
 
 <h1 align="center">A small harness layer for Claude Code</h1>
@@ -153,7 +153,7 @@ It is a small harness layer for Claude Code.
 
 ## Status
 
-Current version: `0.1.3`.
+Current version: `0.1.4`.
 
 Tink is pre-v1 and being hardened toward v1.0.0. Version policy and release checks are tracked in [`VERSIONING.md`](VERSIONING.md), and notable changes are tracked in [`CHANGELOG.md`](CHANGELOG.md).
 

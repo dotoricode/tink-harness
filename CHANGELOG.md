@@ -4,12 +4,12 @@ All notable changes to Tink are tracked here.
 
 Tink is pre-v1. Expect small, reviewable changes until the v1.0.0 hardening gates pass.
 
-## [0.1.3] - 2026-05-22
+## [0.1.4] - 2026-05-22
 
-### Changed
+### Fixed
 
-- Replaced the remote README hero image with a repository asset.
-- Increased the top command contrast so it remains readable on dark terminal backgrounds.
+- Restored the README hero image after the previous fix targeted the wrong surface.
+- Increased the installer TINK banner contrast for dark terminal themes.
 
 
 ## [0.1.2] - 2026-05-22

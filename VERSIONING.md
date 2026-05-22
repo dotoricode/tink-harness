@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.1.3`
+Current version: `0.1.4`
 
 Tink is pre-v1. Do not bump to `1.0.0` until the v1 release-hardening gates pass.
 
@@ -19,7 +19,7 @@ Claude Code uses `.claude-plugin/plugin.json` to decide whether plugin users can
 
 Use semver, but keep everything under `1.0.0` for now.
 
-- Patch, for example `0.1.1` to `0.1.2`: docs, tests, installer polish, command wording, small template fixes, non-breaking maintenance structure.
+- Patch, for example `0.1.1` to `0.1.4`: docs, tests, installer polish, command wording, small template fixes, non-breaking maintenance structure.
 - Minor, for example `0.1.x` to `0.2.0`: new command behavior, meaningful installer flow change, new persisted state shape, or anything existing users should deliberately notice.
 - Major `1.0.0`: only after release-hardening tests, docs truthfulness, clean install smoke, plugin validation, CI, and explicit release decision.
 
