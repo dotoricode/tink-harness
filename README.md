@@ -137,7 +137,7 @@ Tink uses files you can inspect:
 
 The important rule is approval.
 
-Tink may suggest a harness, a memory entry, a cleanup, or an improvement. Grill Gate can challenge a plan before run state is committed when there is a high-impact quality or safety branch. Reusable State Save Gate is separate: Tink should not silently save reusable state or delete anything without you saying yes to that specific change.
+Tink may suggest a harness, a memory entry, a cleanup, or an improvement. Grill Gate runs once before run state is committed and surfaces exactly one proposal when there is a high-impact quality or safety branch. Soft gates let you continue with recorded assumptions; hard gates (irreversible or external-side-effect actions) require explicit approval or cancel. Reusable State Save Gate is a separate gate entirely: current-run approval does not authorize saving to `.tink/harnesses/`, `.tink/memory/`, `.claude/`, or any file that affects future installs — those each need their own approval.
 
 ## What Tink is not
 

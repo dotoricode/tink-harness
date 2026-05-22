@@ -78,7 +78,7 @@ Hard gate choices:
 - English: `Approve`, `Add requirements`, `Cancel`
 - Korean: `승인`, `요구사항 입력`, `취소`
 
-Hard gates apply when the next action is difficult or unsafe to reverse: reusable memory or harness saves, harness creation, edits, purge, hone, deleting files, removing configuration, publishing, deploying, tagging, releasing, opening a public PR, changing broad architecture or public contracts, using secrets, credentials, payments, personal data, or running destructive/external side-effect commands.
+Hard gates apply when at least one of the following is true for the next action: it is difficult or unsafe to reverse (reusable memory or harness saves, harness creation, edits, purge, hone, deleting files, removing configuration); it has external side-effects or visibility (publishing, deploying, tagging, releasing, opening a public PR, changing broad architecture or public contracts); or it involves sensitive data (secrets, credentials, payments, personal data, or destructive/external side-effect commands).
 
 Hard gates must not offer `Continue as-is` or `이대로 진행`.
 
@@ -98,7 +98,7 @@ Reusable state includes:
 - `.tink/harnesses/*`
 - `.tink/harnesses/index.json`
 - `.tink/config.json` policy changes
-- `.claude/` commands, skills, settings, or hooks
+- `.claude/` workflow-affecting commands, skills, settings, or hooks (not simple preferences such as theme or model)
 - template/plugin files that affect future installs
 
 Before reusable-state writes, show a separate approval payload:
@@ -127,7 +127,7 @@ Before creating a new `.tink/current/`, check whether one already exists:
 
 1. No current run: create `.tink/current/` and start.
 2. Same task still active in the same conversation: resume it, update `notes.md`, and continue from the next pending step.
-3. `.tink/current/` exists but the conversation context is gone or uncertain: treat it as a recovery candidate, not as active truth. Even if the user says “continue” or “이어서 해”, first read `plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md`, show the five-line recovery summary below, then ask the user to resume, archive, replace, or cancel.
+3. `.tink/current/` exists but the conversation context is gone or uncertain: treat it as a recovery candidate, not as active truth. Even if the user says “continue” or “이어서 해”, first read `plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md`, show the five-line recovery summary below, then ask the user to resume, archive, replace, or cancel. If the user resumes, reuse the prior Grill Gate decision recorded in `answers.md`; do not re-evaluate Grill Gate.
 4. Different task requested: ask whether to archive/replace the old current run. Do not overwrite silently.
 5. Blocked or canceled task: write a compact run record with `outcome: blocked` or `outcome: canceled`, then clear or replace `.tink/current/` after approval.
 6. Superseded task: archive the old state as `outcome: superseded` before creating the new current run.
