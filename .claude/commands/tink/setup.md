@@ -35,6 +35,26 @@ Use this wording in Korean:
 
 If the user chooses `그대로 사용`, summarize available commands and stop. Do not re-ask git tracking.
 
+## Legacy Tiny migration
+If `.tiny/`, `.claude/commands/tiny/`, `.claude/commands/tiny-use.md`, or output that recommends `/tiny:use` is present, treat it as legacy state from the old Tiny/Tink prototype. Do not keep recommending `/tiny:use`.
+
+Show this short explanation before changing files:
+
+```text
+이전 Tiny 설정이 보입니다.
+
+Tink v1에서는 `/tiny:use` 대신 `/tink:forge`를 사용합니다.
+필요하면 기존 `.tiny/`의 harness/config/memory를 `.tink/`로 옮기고, 앞으로의 안내를 `/tink:forge` 기준으로 정리할 수 있습니다.
+
+1. 이전 Tiny 설정을 Tink로 옮기기
+2. 이전 Tiny 설정은 그대로 두고 Tink만 사용하기
+3. 취소
+
+답장: 1, 2, 또는 3
+```
+
+Only migrate after the user chooses option 1. Migration means copying useful `.tiny/harnesses/`, `.tiny/config.json`, and `.tiny/memory/` into `.tink/` without deleting the original unless the user explicitly asks. Update stale guidance so future next steps say `/tink:forge`, not `/tiny:use`.
+
 ## First question: language
 Always ask language first if it is not already clear from `.tink/config.json`.
 
@@ -65,7 +85,7 @@ Tink는 두 종류의 파일을 씁니다.
 ```
 
 ## Setup questions
-Ask these questions in order. Use a selection UI when the host supports it, so Enter confirms the highlighted default.
+Ask these questions in order. Use a selection UI only when the host supports it. In plain text, ask for a number and do not claim Enter confirms a default.
 
 ### 1. Scope
 ```text

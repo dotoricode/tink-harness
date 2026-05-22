@@ -1,0 +1,7 @@
+{
+  "name": "tink-forge-suggestion",
+  "description": "Optional Claude Code hook template. Use only after /tink:setup approval. It should provide short advisory-only automatic suggestions, not auto-apply harnesses.",
+  "event": "UserPromptSubmit",
+  "command": "node .tink/hooks/user-prompt-submit.mjs",
+  "behavior": "Registered as a Claude Code UserPromptSubmit hook only when the user selects the hook component. It reads the prompt from stdin, emits at most one advisory line when /tink:forge would help, and never auto-applies harnesses or saves memory."
+}

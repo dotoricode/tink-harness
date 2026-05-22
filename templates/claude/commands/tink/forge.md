@@ -49,6 +49,68 @@ If legacy Tiny files such as `.tiny/` or `/tiny:use` instructions are present, t
 
 Do not advertise Enter as approval unless the host provides a real selectable UI where Enter actually confirms the highlighted option. In plain text prompts, ask for `1`, `2`, `3`, or `4`.
 
+## Grill Gate
+Before committing to `.tink/current/`, run Grill Gate exactly once. Grill Gate is an internal quality gate inside `/tink:forge`, not a separate `/tink:grill` command and not a real subagent in v1.0.0.
+
+Evaluate Grill Gate every time, but show it to the user only when it finds a high-impact quality or safety branch. A clean internal Grill Gate pass is not recorded.
+
+When Grill Gate is visible, show exactly one proposal in this order: proposal, reason, choices.
+1. proposal
+2. reason
+3. choices
+
+Choose the one proposal by priority:
+1. safety or irreversibility
+2. success criteria or verification
+3. goal or scope ambiguity
+4. harness mismatch
+5. reusable improvement opportunity
+
+Grill Gate may change the order or method of work, but it must not change the user's goal without separate approval.
+
+Follow `.tink/config.json` for language. If language is `auto`, use the current user message language and fall back to English only when unclear.
+
+Soft gate choices:
+- English: `Approve`, `Add requirements`, `Continue as-is`
+- Korean: `승인`, `요구사항 입력`, `이대로 진행`
+
+Hard gate choices:
+- English: `Approve`, `Add requirements`, `Cancel`
+- Korean: `승인`, `요구사항 입력`, `취소`
+
+Hard gates apply when the next action is difficult or unsafe to reverse: reusable memory or harness saves, harness creation, edits, purge, hone, deleting files, removing configuration, publishing, deploying, tagging, releasing, opening a public PR, changing broad architecture or public contracts, using secrets, credentials, payments, personal data, or running destructive/external side-effect commands.
+
+Hard gates must not offer `Continue as-is` or `이대로 진행`.
+
+If a soft gate user chooses `Continue as-is` / `이대로 진행`, proceed with explicit assumptions and record them in `.tink/current/answers.md`.
+
+If Grill Gate triggers, record only current-run state by default:
+- `.tink/current/answers.md`: proposal, choice, explicit assumptions
+- `.tink/current/notes.md`: proposal, risk, reason, follow-up needed
+
+Do not record a clean Grill Gate pass.
+
+## Reusable State Save Gate
+Reusable State Save Gate is a separate absolute hard approval gate, not merely a Grill Gate subtype. Current-run approval does not authorize reusable-state writes.
+
+Reusable state includes:
+- `.tink/memory/*`
+- `.tink/harnesses/*`
+- `.tink/harnesses/index.json`
+- `.tink/config.json` policy changes
+- `.claude/` commands, skills, settings, or hooks
+- template/plugin files that affect future installs
+
+Before reusable-state writes, show a separate approval payload:
+- operation
+- destination files
+- exact entry text or patch summary
+- why it is reusable
+- sensitive/private content excluded
+- rollback or removal path
+
+Reusable-state approval choices are `Approve`, `Add requirements`, and `Cancel`, localized when appropriate. Never offer `Continue as-is` or `이대로 진행` for reusable-state writes.
+
 ## Run state contract
 After approval, create `.tink/current/` with these files before doing deeper work. `.tink/current/` is the current workbench: the one active task plan Claude should keep updating while it works. It is temporary, local runtime state, not reusable memory and not a knowledge base:
 
@@ -144,17 +206,18 @@ Approved reusable changes should append one JSON line to `.tink/maintenance/ledg
 8. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
 9. If lightweight signals show a recurring operating habit, load `context-habit-calibration` only if it earns its context cost; otherwise make one advisory recommendation without loading another body.
 10. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
-11. Ask for explicit approval before non-trivial work. Use a selectable UI only when the host really supports it. In plain text, ask the user to reply with a number; do not say Enter approves.
-12. After approval, read only the selected harness files and any approved run-only draft.
-13. Create `.tink/current/` files from the run state contract.
-14. Execute the first safe step immediately:
+11. Run Grill Gate once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Use a selectable UI only when the host really supports it. In plain text, ask the user to reply with a number; do not say Enter approves.
+12. Ask for explicit approval before non-trivial work.
+13. After approval, read only the selected harness files and any approved run-only draft.
+14. Create `.tink/current/` files from the run state contract.
+15. Execute the first safe step immediately:
    - inspect relevant files,
    - run a read-only diagnostic,
    - draft the first artifact,
    - or reproduce the issue.
-15. Keep `steps.json` and `notes.md` current as work progresses.
-16. Before final, verify `checks.md` and report evidence.
-17. If the task exposed a repeated mistake or reusable improvement, propose a memory or harness update using the approval payload below. Save only after user approval.
+16. Keep `steps.json` and `notes.md` current as work progresses.
+17. Before final, verify `checks.md` and report evidence.
+18. If the task exposed a repeated mistake or reusable improvement, use the Reusable State Save Gate approval payload below. Save only after separate user approval.
 
 
 ## Synthesis probe
@@ -197,7 +260,7 @@ Do not use one universal harness cap. Choose by context footprint and task risk.
 If the harness list feels heavy, stop and use `harness-curation` before loading more bodies.
 
 ## Approval payload for saves
-Before saving memory, a new harness, a harness edit, or index metadata, show:
+This is the Reusable State Save Gate payload. Before saving memory, a new harness, a harness edit, or index metadata, show:
 
 - operation: memory-save | harness-create | harness-edit | index-update | purge | hone
 - destination files
@@ -369,5 +432,5 @@ If a check fails:
 ## Do not
 - Do not end with a harness recommendation only.
 - Do not load every harness body up front.
-- Do not create memory entries without approval.
+- Do not create memory entries without separate Reusable State Save Gate approval.
 - Do not store raw logs, full diffs, secrets, or one-off task progress as reusable memory.

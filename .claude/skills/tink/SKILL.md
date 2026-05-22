@@ -26,11 +26,11 @@ It should:
 ## Command surface
 Use only these commands:
 
-- `/tink-setup`: configure language, scope, git tracking, and hook policy.
-- `/tink-forge`: main path. Choose/build/synthesize a harness, create run state, start work, and propose reusable learning.
-- `/tink-list`: inspect harnesses and lightweight usage signals.
-- `/tink-purge`: propose unused or redundant harness removal. Never delete without approval.
-- `/tink-hone`: improve active harnesses based on real use, failures, and corrections.
+- `/tink:setup`: configure language, scope, git tracking, and hook policy.
+- `/tink:forge`: main path. Choose/build/synthesize a harness, create run state, start work, and propose reusable learning.
+- `/tink:list`: inspect harnesses and lightweight usage signals.
+- `/tink:purge`: propose unused or redundant harness removal. Never delete without approval.
+- `/tink:hone`: improve active harnesses based on real use, failures, and corrections.
 
 ## Operating rules
 1. Read `.tink/harnesses/index.json` before loading harness bodies.
@@ -50,7 +50,7 @@ Use only these commands:
 15. Use calm, clear, concise language. No jokes.
 
 ## Quality bar
-The user should not have to repeat themselves. If the same mistake appears twice, propose `/tink-hone` or a memory update through `/tink-forge`.
+The user should not have to repeat themselves. If the same mistake appears twice, propose `/tink:hone` or a memory update through `/tink:forge`.
 
 A successful Tink run leaves evidence:
 - current run files exist or were intentionally archived,

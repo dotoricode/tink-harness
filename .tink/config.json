@@ -8,7 +8,7 @@
   "humor": "off",
   "language": "ko",
   "install_scope": "repo",
-  "hook_scope": "off",
+  "hook_scope": "repo",
   "default_harnesses_per_task": 4,
   "harness_lines_warning": 100,
   "context_budget": "soft"

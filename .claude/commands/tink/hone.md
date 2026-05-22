@@ -10,7 +10,7 @@ Improve harnesses that are actually being used.
 Tink should get sharper through use, not grow randomly.
 
 ## Procedure
-1. Read `.tink/harnesses/index.json`. If invoked from `/tink:purge`, first read the purge output, `.tink/current/notes.md`, or `.tink/queue/hone.json` for the hone handoff packet.
+1. Read `.tink/harnesses/index.json`. If invoked from `/tink:purge`, first read the purge output, `.tink/current/notes.md`, or `.tink/maintenance/hone-queue.json` for the hone handoff packet.
 2. Identify one or a few active harnesses to improve using real failures and evidence:
    - repeated mistakes
    - user corrections
@@ -18,28 +18,40 @@ Tink should get sharper through use, not grow randomly.
    - confusing approval prompts
    - too much context footprint
    - missing done criteria
-3. Read only the target harness files.
-4. Propose small edits:
+3. Require concrete evidence handles before proposing a save:
+   - run record path or run ID
+   - current notes path when same-conversation certainty exists
+   - failed check name
+   - compact user correction snippet
+   - purge handoff ID from `.tink/maintenance/hone-queue.json`
+4. Classify the evidence as repeated or single-run. Single-run evidence may suggest a trial edit, but should not become broad policy unless the user explicitly approves.
+5. Explain why the change belongs in the harness rather than `.tink/memory/` or `.tink/current/notes.md`.
+6. Read only the target harness files.
+7. Propose small edits:
    - clearer when-to-use trigger
    - better ask-first question
    - tighter checks
    - smaller context footprint
    - explicit failure recovery
-5. Show an approval payload: destination files, exact patch summary, why it is reusable, sensitive content excluded, rollback path.
-6. Ask for approval before saving.
-7. Apply surgical changes and update index metadata if needed.
+8. Show an approval payload: destination files, exact patch summary, evidence handles, repeated vs single-run classification, why reusable, context-cost delta, sensitive content excluded, rollback path.
+9. Ask for approval before saving.
+10. Apply surgical changes, update index metadata if needed, mark the hone queue item status, and append the approval/result to `.tink/maintenance/ledger.jsonl`.
 
 ## Approval format
 ```text
 Hone target:
 - code-change
 
-Why:
-- 자주 쓰이지만 검증 명령을 매번 다시 정리하고 있습니다.
+Evidence:
+- source: `.tink/runs/2026-05-22-code-change.md`
+- classification: repeated
+- observed failure: verification command was unclear in two runs
 
 Approval payload:
 - operation: hone
 - destination files: `.tink/harnesses/code-change.md`, `.tink/harnesses/index.json` if metadata changes
+- context-cost delta: neutral or smaller
+- ledger: append op ID to `.tink/maintenance/ledger.jsonl`
 - rollback: revert this patch or rerun `/tink:hone` with the previous trigger
 
 Proposed improvement:
@@ -49,9 +61,12 @@ Proposed improvement:
 1. 승인: 이 개선 저장
 2. 조정
 3. 취소
+
+답장: 1, 2, 또는 3
 ```
 
 ## Do not
 - Do not rewrite a harness from scratch unless the user asks.
 - Do not add broad principles that do not change behavior.
 - Do not save one-off task progress as harness knowledge.
+- Do not propose a harness edit without evidence handles.

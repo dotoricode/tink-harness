@@ -237,6 +237,47 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('run-only draft by default', synthesis)
         self.assertIn('separate save approval', synthesis)
 
+    def test_grill_gate_contract(self):
+        forge_paths = [
+            ROOT / 'commands/forge.md',
+            ROOT / 'templates/claude/commands/tink/forge.md',
+        ]
+        for path in forge_paths:
+            text = path.read_text(encoding='utf-8')
+            self.assertIn('Grill Gate', text)
+            self.assertIn('Reusable State Save Gate', text)
+            self.assertIn('exactly one proposal', text)
+            self.assertIn('proposal, reason, choices', text)
+            self.assertIn('Hard gates must not offer `Continue as-is` or `이대로 진행`', text)
+            self.assertIn('separate approval payload', text)
+            self.assertIn('Current-run approval does not authorize reusable-state writes', text)
+            self.assertIn('.tink/current/answers.md', text)
+            self.assertIn('.tink/current/notes.md', text)
+
+        for path in [
+            ROOT / 'skills/tink/SKILL.md',
+            ROOT / 'templates/claude/skills/tink/SKILL.md',
+        ]:
+            text = path.read_text(encoding='utf-8')
+            self.assertIn('Run Grill Gate once before committing to `.tink/current/`', text)
+            self.assertIn('Reusable State Save Gate as a separate hard approval gate', text)
+            self.assertIn('Current-run approval never authorizes reusable-state writes', text)
+
+        context = (ROOT / 'CONTEXT.md').read_text(encoding='utf-8')
+        self.assertIn('### Grill Gate', context)
+        self.assertIn('### Reusable State Save Gate', context)
+        self.assertIn('정확히 하나의 제안', context)
+        self.assertIn('현재 실행 승인만으로', context)
+
+        readme = (ROOT / 'README.md').read_text(encoding='utf-8')
+        self.assertIn('Grill Gate', readme)
+        self.assertIn('Reusable State Save Gate', readme)
+        self.assertIn('lightweight internal quality check', readme)
+
+        adr = (ROOT / 'docs/adr/0003-add-grill-gate-to-forge.md').read_text(encoding='utf-8')
+        self.assertIn('## Status', adr)
+        self.assertIn('Accepted', adr)
+
     def test_harness_index_and_files(self):
         index = json.loads((ROOT / 'templates/tink/harnesses/index.json').read_text())
         names = {item['name'] for item in index}

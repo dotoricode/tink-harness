@@ -101,7 +101,7 @@ Tink is plugin-first. Commands are namespaced under `tink`, so the public surfac
 
 **forge** means to make something by shaping it with heat and pressure.
 
-In Tink, `forge` is the main path. It reads the task, chooses or drafts the right harness, creates `.tink/current/` as the visible workbench, and starts the first safe step after approval.
+In Tink, `forge` is the main path. It reads the task, chooses or drafts the right harness, runs Grill Gate as a lightweight internal quality check, creates `.tink/current/` as the visible workbench, and starts the first safe step after approval.
 
 Use it when the task is more than a quick answer.
 
@@ -137,7 +137,7 @@ Tink uses files you can inspect:
 
 The important rule is approval.
 
-Tink may suggest a harness, a memory entry, a cleanup, or an improvement. It should not silently save reusable state or delete anything without you saying yes.
+Tink may suggest a harness, a memory entry, a cleanup, or an improvement. Grill Gate can challenge a plan before run state is committed when there is a high-impact quality or safety branch. Reusable State Save Gate is separate: Tink should not silently save reusable state or delete anything without you saying yes to that specific change.
 
 ## What Tink is not
 
