@@ -1,9 +1,35 @@
-# /tink:setup
+# /tink-setup
 
 Set up Tink for Claude Code.
 
 ## Goal
 Prepare one small self-growing harness system that helps Claude choose/build harnesses, avoid repeated mistakes, and remember reusable lessons only after approval.
+
+## Setup review mode
+If `.tink/config.json` already exists, do not jump straight to git tracking. First show a short current-settings review, then ask what to change.
+
+Use this wording in Korean:
+
+```text
+현재 Tink 설정입니다.
+
+- 언어: {language}
+- 범위 (Scope): {install_scope}
+- 톤 (Tone): calm, clear, concise, no jokes
+- Hook: {hook_scope}
+- Git 추적: {git_policy_or_inferred_policy}
+
+톤은 선택 항목이 아니라 Tink의 고정 정책입니다. 조용하고 명확하게, 농담 없이 답하는 것을 기본으로 합니다.
+
+무엇을 바꿀까요?
+1. 그대로 사용 (권장)
+2. 언어 변경
+3. 범위 변경
+4. Hook 설정 변경
+5. Git 추적 변경
+```
+
+If the user chooses `그대로 사용`, summarize available commands and stop. Do not re-ask git tracking.
 
 ## First question: language
 Always ask language first if it is not already clear from `.tink/config.json`.
@@ -94,12 +120,12 @@ Explain:
 Hook은 선택 사항입니다.
 
 무엇을 하나요?
-- Claude Code `UserPromptSubmit`에 등록되어 일반 사용자 프롬프트를 보고 “/tink:forge를 먼저 쓰면 좋겠다”는 추천만 합니다.
+- Claude Code `UserPromptSubmit`에 등록되어 일반 사용자 프롬프트를 보고 “/tink-forge를 먼저 쓰면 좋겠다”는 추천만 합니다.
 - 작업을 자동 실행하지 않습니다.
 - 메모리 (Memory)나 하네스 (Harness)를 자동 저장하지 않습니다.
 - `/grill-me` 같은 다른 slash skill 명령은 가로채지 않습니다.
 
-지금은 hook 없이 `/tink:forge`를 직접 쓰는 흐름을 권장합니다.
+지금은 hook 없이 `/tink-forge`를 직접 쓰는 흐름을 권장합니다.
 ```
 
 ## Command map after setup
@@ -108,18 +134,19 @@ Explain the five commands:
 ```text
 사용 가능한 Tink 명령입니다.
 
-- `/tink:setup`: 언어, repo/global 범위 (Scope), git 추적, 훅 (Hook) 정책을 정합니다.
-- `/tink:forge`: 작업에 맞는 하네스 (Harness)를 고르거나 만들고, 적용하고, 재사용 교훈을 저장 제안합니다. 가장 자주 쓰는 명령입니다.
-- `/tink:list`: 사용 가능한 하네스 (Harness)와 최근 사용 신호를 짧게 보여줍니다.
-- `/tink:purge`: 거의 쓰지 않는 하네스 (Harness)를 근거와 함께 제거 후보로 제안합니다. 승인 전 삭제하지 않습니다.
-- `/tink:hone`: 자주 쓰는 하네스 (Harness)를 실제 실패/반복/피드백 기준으로 개선합니다. 승인 전 저장하지 않습니다.
+- `/tink-setup`: 언어, repo/global 범위 (Scope), git 추적, 훅 (Hook) 정책을 정합니다.
+- `/tink-forge`: 작업에 맞는 하네스 (Harness)를 고르거나 만들고, 적용하고, 재사용 교훈을 저장 제안합니다. 가장 자주 쓰는 명령입니다.
+- `/tink-list`: 사용 가능한 하네스 (Harness)와 최근 사용 신호를 짧게 보여줍니다.
+- `/tink-purge`: 거의 쓰지 않는 하네스 (Harness)를 근거와 함께 제거 후보로 제안합니다. 승인 전 삭제하지 않습니다.
+- `/tink-hone`: 자주 쓰는 하네스 (Harness)를 실제 실패/반복/피드백 기준으로 개선합니다. 승인 전 저장하지 않습니다.
 ```
 
 ## Do not
 - Do not edit `CLAUDE.md` automatically.
 - Do not ask the user to choose before explaining the consequences.
+- Do not ask for tone selection. Tone is a fixed Tink policy, not a setup choice.
 - Do not use jokes.
 - Do not intercept other slash commands with Tink hooks.
 
 ## Tone
-Calm, clear, concise. No jokes.
+Calm, clear, concise. No jokes. Show this as a fixed policy during setup review; do not turn it into another preference menu.

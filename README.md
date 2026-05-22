@@ -70,7 +70,9 @@ npx tink-harness@latest
 
 Tink keeps the command surface small.
 
-### `/tink:forge`
+Claude Code discovers custom commands from filenames, so Tink uses portable hyphen commands instead of the earlier colon form.
+
+### `/tink-forge`
 
 **forge** means to make something by shaping it with heat and pressure.
 
@@ -78,7 +80,7 @@ In Tink, `forge` is the main path. It reads the task, chooses or drafts the righ
 
 Use it when the task is more than a quick answer.
 
-### `/tink:purge`
+### `/tink-purge`
 
 **purge** means to remove what is unnecessary or harmful.
 
@@ -86,7 +88,7 @@ In Tink, `purge` looks for harnesses that are unused, overlapping, too broad, or
 
 Use it when the harness set starts to feel noisy.
 
-### `/tink:hone`
+### `/tink-hone`
 
 **hone** means to sharpen through small adjustments.
 
@@ -96,8 +98,8 @@ Use it when a harness is useful but slightly wrong.
 
 ### Other commands
 
-- `/tink:setup`: choose language, install scope, git tracking, and hook policy.
-- `/tink:list`: inspect available harnesses and recent usage signals.
+- `/tink-setup`: choose language, install scope, git tracking, and hook policy.
+- `/tink-list`: inspect available harnesses and recent usage signals.
 
 ## How it works
 

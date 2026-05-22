@@ -1,4 +1,4 @@
-# /tink:list
+# /tink-list
 
 List available Tink harnesses without loading every harness body.
 
@@ -22,4 +22,4 @@ Use bullets, not tables.
 
 ## Do not
 - Do not read every harness body by default.
-- Do not remove anything. Use `/tink:purge` for removal candidates.
+- Do not remove anything. Use `/tink-purge` for removal candidates.

@@ -67,21 +67,21 @@ const COPY = {
 
 const COMPONENTS = {
   en: [
-    { value: 'commands', label: 'Claude Code commands', hint: '/tink:setup, forge, list, purge, hone' },
+    { value: 'commands', label: 'Claude Code commands', hint: '/tink-setup, /tink-forge, /tink-list, /tink-purge, /tink-hone' },
     { value: 'skill', label: 'Tink skill', hint: 'Tink operating rules for Claude Code' },
     { value: 'harnesses', label: 'Built-in harnesses', hint: 'Reusable task templates' },
     { value: 'memory', label: 'Memory templates', hint: 'Approved mistakes/preferences/lessons files' },
     { value: 'hook', label: 'Hook recommendation (optional)', hint: 'Registers a safe UserPromptSubmit hook when selected. Off by default.' }
   ],
   ko: [
-    { value: 'commands', label: 'Claude Code 명령', hint: '/tink:setup, forge, list, purge, hone' },
+    { value: 'commands', label: 'Claude Code 명령', hint: '/tink-setup, /tink-forge, /tink-list, /tink-purge, /tink-hone' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code가 읽는 Tink 작업 원칙' },
     { value: 'harnesses', label: '기본 harness', hint: '재사용 작업 템플릿' },
     { value: 'memory', label: 'Memory 템플릿', hint: '승인된 실수/선호/교훈 파일' },
     { value: 'hook', label: 'Hook 추천 (선택)', hint: '선택하면 안전한 UserPromptSubmit hook으로 등록합니다. 기본 off.' }
   ],
   zh: [
-    { value: 'commands', label: 'Claude Code 命令', hint: '/tink:setup, forge, list, purge, hone' },
+    { value: 'commands', label: 'Claude Code 命令', hint: '/tink-setup, /tink-forge, /tink-list, /tink-purge, /tink-hone' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code 读取的 Tink 工作规则' },
     { value: 'harnesses', label: '内置 harness', hint: '可复用任务模板' },
     { value: 'memory', label: 'Memory 模板', hint: '经批准的错误/偏好/经验文件' },
@@ -171,6 +171,21 @@ function copyDir(src, dest, base) {
   }
 }
 
+function copyTinkCommands(templateRoot, target) {
+  const commandSrc = path.join(templateRoot, 'claude/commands/tink');
+  const commandDest = path.join(target, '.claude/commands');
+  const legacyDir = path.join(commandDest, 'tink');
+  if (fs.existsSync(legacyDir)) {
+    log.message(`${dryRun ? 'would remove legacy' : 'remove legacy'} ${displayPath(target, legacyDir)}`);
+    if (!dryRun) fs.rmSync(legacyDir, { recursive: true, force: true });
+  }
+  for (const entry of fs.readdirSync(commandSrc, { withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
+    const name = path.basename(entry.name, '.md');
+    writeFileFromTemplate(path.join(commandSrc, entry.name), path.join(commandDest, `tink-${name}.md`), target);
+  }
+}
+
 
 function readJsonFile(filePath, fallback) {
   if (!fs.existsSync(filePath)) return fallback;
@@ -217,7 +232,7 @@ function copySelected(scope, components) {
   const templateRoot = path.join(root, 'templates');
 
   if (components.includes('commands')) {
-    copyDir(path.join(templateRoot, 'claude/commands'), path.join(target, '.claude/commands'), target);
+    copyTinkCommands(templateRoot, target);
   }
   if (components.includes('skill')) {
     copyDir(path.join(templateRoot, 'claude/skills'), path.join(target, '.claude/skills'), target);
@@ -429,7 +444,7 @@ async function main() {
     `Install target: ${targets.installTarget}`,
     `Components: ${components.join(', ')}`,
     `Hook scope: ${hookScope}`,
-    'Next: open Claude Code and run /tink:setup.'
+    'Next: open Claude Code and run /tink-setup.'
   ].join('\n');
 
   if (interactive) {
@@ -437,7 +452,7 @@ async function main() {
     outro(COPY[language].done);
   } else {
     console.log(`\n${summary}`);
-    console.log('\nDone. Open Claude Code and run /tink:setup.');
+    console.log('\nDone. Open Claude Code and run /tink-setup.');
   }
 }
 

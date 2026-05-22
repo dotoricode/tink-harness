@@ -1,4 +1,4 @@
-# /tink:setup
+# /tink-setup
 
 Set up Tink for Claude Code.
 
@@ -120,12 +120,12 @@ Explain:
 Hook은 선택 사항입니다.
 
 무엇을 하나요?
-- Claude Code `UserPromptSubmit`에 등록되어 일반 사용자 프롬프트를 보고 “/tink:forge를 먼저 쓰면 좋겠다”는 추천만 합니다.
+- Claude Code `UserPromptSubmit`에 등록되어 일반 사용자 프롬프트를 보고 “/tink-forge를 먼저 쓰면 좋겠다”는 추천만 합니다.
 - 작업을 자동 실행하지 않습니다.
 - 메모리 (Memory)나 하네스 (Harness)를 자동 저장하지 않습니다.
 - `/grill-me` 같은 다른 slash skill 명령은 가로채지 않습니다.
 
-지금은 hook 없이 `/tink:forge`를 직접 쓰는 흐름을 권장합니다.
+지금은 hook 없이 `/tink-forge`를 직접 쓰는 흐름을 권장합니다.
 ```
 
 ## Command map after setup
@@ -134,11 +134,11 @@ Explain the five commands:
 ```text
 사용 가능한 Tink 명령입니다.
 
-- `/tink:setup`: 언어, repo/global 범위 (Scope), git 추적, 훅 (Hook) 정책을 정합니다.
-- `/tink:forge`: 작업에 맞는 하네스 (Harness)를 고르거나 만들고, 적용하고, 재사용 교훈을 저장 제안합니다. 가장 자주 쓰는 명령입니다.
-- `/tink:list`: 사용 가능한 하네스 (Harness)와 최근 사용 신호를 짧게 보여줍니다.
-- `/tink:purge`: 거의 쓰지 않는 하네스 (Harness)를 근거와 함께 제거 후보로 제안합니다. 승인 전 삭제하지 않습니다.
-- `/tink:hone`: 자주 쓰는 하네스 (Harness)를 실제 실패/반복/피드백 기준으로 개선합니다. 승인 전 저장하지 않습니다.
+- `/tink-setup`: 언어, repo/global 범위 (Scope), git 추적, 훅 (Hook) 정책을 정합니다.
+- `/tink-forge`: 작업에 맞는 하네스 (Harness)를 고르거나 만들고, 적용하고, 재사용 교훈을 저장 제안합니다. 가장 자주 쓰는 명령입니다.
+- `/tink-list`: 사용 가능한 하네스 (Harness)와 최근 사용 신호를 짧게 보여줍니다.
+- `/tink-purge`: 거의 쓰지 않는 하네스 (Harness)를 근거와 함께 제거 후보로 제안합니다. 승인 전 삭제하지 않습니다.
+- `/tink-hone`: 자주 쓰는 하네스 (Harness)를 실제 실패/반복/피드백 기준으로 개선합니다. 승인 전 저장하지 않습니다.
 ```
 
 ## Do not

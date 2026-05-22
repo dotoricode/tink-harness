@@ -25,7 +25,7 @@
 Tink v1.0.0 is ready only when all are true:
 
 1. Fresh repo install works from the packaged artifact without relying on the local clone.
-2. `/tink:setup`, `/tink:forge`, `/tink:list`, `/tink:purge`, `/tink:hone` are present and internally consistent.
+2. `/tink-setup`, `/tink-forge`, `/tink-list`, `/tink-purge`, `/tink-hone` are present and internally consistent.
 3. Optional hook registration writes a real Claude Code `UserPromptSubmit` entry and remains advisory-only.
 4. `.tink/current/` lifecycle is documented, tested by contract, and usable for recovery.
 5. `.tink/runs/` record schema is explicit enough for list/purge/hone maintenance commands.
@@ -143,9 +143,9 @@ npm test
 - Modify: `tests/test_templates.py`
 
 **Expected behavior:**
-- `/tink:list` reads `.tink/runs/*.md` frontmatter when present and reports selected harnesses, outcomes, checks result, and maintenance suggestions.
-- `/tink:purge` uses run records as evidence, not just file age.
-- `/tink:hone` can consume purge handoff packets and run-record failure evidence.
+- `/tink-list` reads `.tink/runs/*.md` frontmatter when present and reports selected harnesses, outcomes, checks result, and maintenance suggestions.
+- `/tink-purge` uses run records as evidence, not just file age.
+- `/tink-hone` can consume purge handoff packets and run-record failure evidence.
 
 **Verification command:**
 ```bash

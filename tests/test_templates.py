@@ -27,6 +27,7 @@ HARNESS_SECTIONS = [
 ]
 
 EXPECTED_COMMANDS = {'setup.md', 'forge.md', 'list.md', 'purge.md', 'hone.md'}
+EXPECTED_INSTALLED_COMMANDS = {'tink-setup.md', 'tink-forge.md', 'tink-list.md', 'tink-purge.md', 'tink-hone.md'}
 
 
 class TemplateTests(unittest.TestCase):
@@ -48,6 +49,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('UserPromptSubmit', installer)
         self.assertIn('--with-hook', installer)
         self.assertIn("'tink/harnesses'", installer)
+        self.assertIn('copyTinkCommands', installer)
+        self.assertIn('remove legacy', installer)
+        self.assertIn('tink-${name}.md', installer)
         self.assertNotIn("value: 'both'", installer)
         self.assertNotIn("'tiny/harnesses'", installer)
         self.assertTrue((ROOT / pkg['bin']['tink-harness']).exists())
@@ -71,9 +75,10 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('untying tangled workflows', text)
         self.assertIn('the small helper at your side', text)
         self.assertIn('Could Claude Code grow with me in the same way?', text)
-        self.assertIn('/tink:forge', text)
-        self.assertIn('/tink:purge', text)
-        self.assertIn('/tink:hone', text)
+        self.assertIn('/tink-forge', text)
+        self.assertIn('/tink-purge', text)
+        self.assertIn('/tink-hone', text)
+        self.assertIn('portable hyphen commands', text)
         self.assertIn('forge** means', text)
         self.assertIn('purge** means', text)
         self.assertIn('hone** means', text)
@@ -102,7 +107,7 @@ class TemplateTests(unittest.TestCase):
         self.assertNotIn('Hook scope', text)
         self.assertIn('좋은 점', text)
         self.assertIn('다른 팀원, 다른 PC, 새 clone', text)
-        self.assertIn('/tink:forge', text)
+        self.assertIn('/tink-forge', text)
         self.assertIn('Command map after setup', text)
         self.assertIn('selected language', text)
         self.assertIn('Setup review mode', text)
@@ -182,10 +187,14 @@ class TemplateTests(unittest.TestCase):
         subprocess.run(['node', 'bin/install.js', 'install', '--lang=en', '--yes', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
         subprocess.run(['node', 'bin/install.js', 'install', '--lang=zh', '--yes', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
         with tempfile.TemporaryDirectory() as d:
+            legacy = Path(d) / '.claude/commands/tink'
+            legacy.mkdir(parents=True)
+            (legacy / 'forge.md').write_text('legacy command', encoding='utf-8')
             subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'], cwd=d, check=True, capture_output=True, text=True)
             base = Path(d)
-            installed_commands = {p.name for p in (base / '.claude/commands/tink').glob('*.md')}
-            self.assertEqual(installed_commands, EXPECTED_COMMANDS)
+            installed_commands = {p.name for p in (base / '.claude/commands').glob('*.md')}
+            self.assertEqual(installed_commands, EXPECTED_INSTALLED_COMMANDS)
+            self.assertFalse((base / '.claude/commands/tink').exists())
             self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
             self.assertTrue((base / '.tink/harnesses/index.json').exists())
             self.assertTrue((base / '.tink/memory/mistakes.md').exists())
@@ -240,8 +249,9 @@ class TemplateTests(unittest.TestCase):
                     capture_output=True,
                     text=True,
                 )
-                installed_commands = {p.name for p in (base / '.claude/commands/tink').glob('*.md')}
-                self.assertEqual(installed_commands, EXPECTED_COMMANDS)
+                installed_commands = {p.name for p in (base / '.claude/commands').glob('*.md')}
+                self.assertEqual(installed_commands, EXPECTED_INSTALLED_COMMANDS)
+                self.assertFalse((base / '.claude/commands/tink').exists())
                 self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
                 self.assertTrue((base / '.tink/harnesses/index.json').exists())
                 self.assertTrue((base / '.tink/memory/mistakes.md').exists())
@@ -287,6 +297,7 @@ class TemplateTests(unittest.TestCase):
             '### 작업 맥락 (Work Context)',
             '### 실행 상태 복구 (Run State Recovery)',
             '### 설정 리뷰 (Setup Review)',
+            '### 명령 이름 정책 (Command Naming Policy)',
             '### 톤 정책 (Tone Policy)',
             '### 하네스 크기 (Harness Size)',
             '### 메타 하네스 (Meta Harness)',
@@ -303,6 +314,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('실제 실패, 반복 사용, 사용자 피드백', text)
         self.assertIn('사용자가 “이어서 해”라고 해도', text)
         self.assertIn('git 추적 여부만 바로 묻지 않는다', text)
+        self.assertIn('portable flat filename', text)
         self.assertIn('사용자가 고르는 설정값이 아니다', text)
         self.assertNotIn('npm ', text)
         self.assertNotIn('TypeScript', text)
@@ -324,7 +336,7 @@ class TemplateTests(unittest.TestCase):
         script = (ROOT / 'templates/tink/hooks/user-prompt-submit.mjs').read_text(encoding='utf-8')
         self.assertIn('readConfigLanguage', script)
         self.assertIn('startsWith', script)
-        self.assertIn('/tink:forge', script)
+        self.assertIn('/tink-forge', script)
         self.assertIn('console.log', script)
 
     def test_language_command_naming_adr_exists(self):
@@ -334,6 +346,12 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('hone', text)
         self.assertIn('Korean-first', text)
         self.assertIn('English parenthetical', text)
+
+        command_text = (ROOT / 'docs/adr/0002-claude-code-command-naming.md').read_text(encoding='utf-8')
+        self.assertIn('/tink-forge', command_text)
+        self.assertIn('filename-based command discovery', command_text)
+        self.assertIn('removes the old installed `.claude/commands/tink/` directory', command_text)
+        self.assertIn('not `/tink:forge`', command_text)
 
     def test_config_has_scope_and_language_defaults(self):
         cfg = json.loads((ROOT / 'templates/tink/config.json').read_text())
