@@ -31,6 +31,7 @@ Use only these commands:
 - `/tink:list`: inspect harnesses and lightweight usage signals.
 - `/tink:frog`: propose unused or redundant harness removal. Never delete without approval.
 - `/tink:weave`: improve active harnesses based on real use, failures, and corrections.
+- `/tink:update`: detect install source, diagnose user-modified files, and show the safe update command.
 
 ## Operating rules
 1. Read `.tink/harnesses/index.json` before loading harness bodies.

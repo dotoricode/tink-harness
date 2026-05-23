@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const command = args[0] || 'install';
+const isUpdate = command === 'update';
 const dryRun = args.includes('--dry-run');
 const force = args.includes('--force');
 const yes = args.includes('--yes') || args.includes('-y');
@@ -67,21 +68,21 @@ const COPY = {
 
 const COMPONENTS = {
   en: [
-    { value: 'commands', label: 'Claude Code commands', hint: '/tink:setup, /tink:cast, /tink:list, /tink:frog, /tink:weave' },
+    { value: 'commands', label: 'Claude Code commands', hint: '/tink:setup, /tink:cast, /tink:list, /tink:frog, /tink:weave, /tink:update' },
     { value: 'skill', label: 'Tink skill', hint: 'Tink operating rules for Claude Code' },
     { value: 'harnesses', label: 'Built-in harnesses', hint: 'Reusable task templates' },
     { value: 'memory', label: 'Memory templates', hint: 'Approved mistakes/preferences/lessons files' },
     { value: 'hook', label: 'Hook recommendation (optional)', hint: 'Registers a safe UserPromptSubmit hook when selected. Off by default.' }
   ],
   ko: [
-    { value: 'commands', label: 'Claude Code 명령', hint: '/tink:setup, /tink:cast, /tink:list, /tink:frog, /tink:weave' },
+    { value: 'commands', label: 'Claude Code 명령', hint: '/tink:setup, /tink:cast, /tink:list, /tink:frog, /tink:weave, /tink:update' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code가 읽는 Tink 작업 원칙' },
     { value: 'harnesses', label: '기본 harness', hint: '재사용 작업 템플릿' },
     { value: 'memory', label: 'Memory 템플릿', hint: '승인된 실수/선호/교훈 파일' },
     { value: 'hook', label: 'Hook 추천 (선택)', hint: '선택하면 안전한 UserPromptSubmit hook으로 등록합니다. 기본 off.' }
   ],
   zh: [
-    { value: 'commands', label: 'Claude Code 命令', hint: '/tink:setup, /tink:cast, /tink:list, /tink:frog, /tink:weave' },
+    { value: 'commands', label: 'Claude Code 命令', hint: '/tink:setup, /tink:cast, /tink:list, /tink:frog, /tink:weave, /tink:update' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code 读取的 Tink 工作规则' },
     { value: 'harnesses', label: '内置 harness', hint: '可复用任务模板' },
     { value: 'memory', label: 'Memory 模板', hint: '经批准的错误/偏好/经验文件' },
@@ -96,7 +97,7 @@ function argValue(name) {
 }
 
 function usage() {
-  console.log(`Tink installer for Claude Code\n\nUsage:\n  npx tink-harness@latest [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--dry-run] [--force]\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select components\n  4. Select repo/global installation scope\n  5. Select git tracking policy for project state\n\nScopes:\n  repo    Install into the current project.\n  global  Install into your home Claude Code config.\n`);
+  console.log(`Tink installer for Claude Code\n\nUsage:\n  npx tink-harness@latest [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--dry-run] [--force]\n  npx tink-harness@latest update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--dry-run] [--force]\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Keeps user-modified files.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select components\n  4. Select repo/global installation scope\n  5. Select git tracking policy for project state\n\nScopes:\n  repo    Install into the current project.\n  global  Install into your home Claude Code config.\n`);
 }
 
 function colorLine(line, color) {
@@ -149,11 +150,21 @@ function displayPath(base, filePath) {
 }
 
 function writeFileFromTemplate(src, dest, base) {
-  if (fs.existsSync(dest) && !force) {
+  const exists = fs.existsSync(dest);
+  if (exists && !force) {
+    if (isUpdate) {
+      const srcContent = fs.readFileSync(src);
+      const destContent = fs.readFileSync(dest);
+      if (Buffer.compare(srcContent, destContent) === 0) {
+        return;
+      }
+      log.message(`keep user-modified ${displayPath(base, dest)}`);
+      return;
+    }
     log.message(`skip existing ${displayPath(base, dest)}`);
     return;
   }
-  log.message(`${dryRun ? 'would write' : 'write'} ${displayPath(base, dest)}`);
+  log.message(`${dryRun ? 'would write' : (exists ? 'update' : 'write')} ${displayPath(base, dest)}`);
   if (!dryRun) {
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.copyFileSync(src, dest);
@@ -442,7 +453,7 @@ async function main() {
     process.exit(0);
   }
 
-  if (command !== 'install') {
+  if (command !== 'install' && command !== 'update') {
     console.error(`Unknown command: ${command}`);
     usage();
     process.exit(1);

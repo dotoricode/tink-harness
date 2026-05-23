@@ -90,10 +90,10 @@ Standalone compatibility installer:
 npx github:dotoricode/tink-harness install
 ```
 
-To refresh existing installed files with the standalone installer:
+To update an existing standalone install (keeps user-modified files):
 
 ```bash
-npx github:dotoricode/tink-harness install --force
+npx github:dotoricode/tink-harness update
 ```
 
 ## Commands
@@ -130,6 +130,7 @@ Use it when a harness is useful but slightly wrong.
 
 - `/tink:setup`: choose language, install scope, git tracking, and hook policy.
 - `/tink:list`: inspect available harnesses and recent usage signals.
+- `/tink:update`: detect install source and show the safe update command.
 
 ## How it works
 
@@ -163,6 +164,8 @@ Current version: `0.1.4`.
 Tink is pre-v1 and being hardened toward v1.0.0. Version policy and release checks are tracked in [`VERSIONING.md`](VERSIONING.md), and notable changes are tracked in [`CHANGELOG.md`](CHANGELOG.md).
 
 The current focus is install reliability, simple docs, visible run state, and a release path that can be verified from a clean repo.
+
+Scope model in v1.0: `repo` (project `.tink/`) and `global` (`~/.tink/`). Layered merging of `global + repo + local` (following the Claude Code settings pattern) is planned for v1.1.
 
 ## License
 

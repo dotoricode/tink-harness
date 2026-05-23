@@ -4,12 +4,33 @@ All notable changes to Tink are tracked here.
 
 Tink is pre-v1. Expect small, reviewable changes until the v1.0.0 hardening gates pass.
 
+## [Unreleased]
+
+### Added
+
+- `/tink:update` slash command: detects install source, diagnoses user-modified files, and shows the safe update command.
+- `npx tink-harness update` subcommand: data-preserving update that keeps user-modified files. Use `--force` to overwrite everything (data loss risk).
+
+### Changed
+
+- README Update section now recommends `npx ... update` only. The `install --force` path is no longer documented as a user-facing option (the `--force` flag remains in the code for emergency use but is not advertised).
+
+### Planned (v1.1)
+
+- Layered scope model: merge `global` (`~/.tink/`) + `repo` (`.tink/`) + `local` (`.tink/local/` or `.tink/settings.local.json`) following the Claude Code settings pattern. Tracked separately.
+
+
 ## [0.1.4] - 2026-05-22
 
 ### Fixed
 
 - Restored the README hero image after the previous fix targeted the wrong surface.
 - Increased the installer TINK banner contrast for dark terminal themes.
+
+
+## [0.1.3]
+
+Skipped during pre-v1 sequencing.
 
 
 ## [0.1.2] - 2026-05-22

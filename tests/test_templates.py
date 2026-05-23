@@ -1,4 +1,5 @@
 ﻿from pathlib import Path
+import hashlib
 import json
 import os
 import subprocess
@@ -26,8 +27,8 @@ HARNESS_SECTIONS = [
     '## If it fails, Tink back',
 ]
 
-EXPECTED_COMMANDS = {'setup.md', 'cast.md', 'list.md', 'frog.md', 'weave.md'}
-EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'cast.md', 'list.md', 'frog.md', 'weave.md'}
+EXPECTED_COMMANDS = {'setup.md', 'cast.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
+EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'cast.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
 
 
 class TemplateTests(unittest.TestCase):
@@ -85,8 +86,31 @@ class TemplateTests(unittest.TestCase):
             self.assertFalse((command_dir / forbidden).exists())
         self.assertFalse((ROOT / 'templates/claude/commands/tiny').exists())
 
+    def test_dual_format_paths_stay_in_sync(self):
+        pairs = [
+            ('commands/cast.md', 'templates/claude/commands/tink/cast.md'),
+            ('commands/frog.md', 'templates/claude/commands/tink/frog.md'),
+            ('commands/list.md', 'templates/claude/commands/tink/list.md'),
+            ('commands/setup.md', 'templates/claude/commands/tink/setup.md'),
+            ('commands/update.md', 'templates/claude/commands/tink/update.md'),
+            ('commands/weave.md', 'templates/claude/commands/tink/weave.md'),
+            ('skills/tink/SKILL.md', 'templates/claude/skills/tink/SKILL.md'),
+        ]
+        drift = []
+        for root_path, template_path in pairs:
+            h1 = hashlib.sha256((ROOT / root_path).read_bytes()).hexdigest()
+            h2 = hashlib.sha256((ROOT / template_path).read_bytes()).hexdigest()
+            if h1 != h2:
+                drift.append(f'{root_path} <-> {template_path}')
+        self.assertFalse(
+            drift,
+            f'dual format drift detected. Plugin marketplace path (root) and '
+            f'installer template path must stay byte-identical: {drift}',
+        )
+
     def test_readme_required_sections(self):
         text = (ROOT / 'README.md').read_text(encoding='utf-8')
+        pkg = json.loads((ROOT / 'package.json').read_text())
         for section in REQUIRED_README:
             self.assertIn(section, text)
         self.assertIn('img.shields.io', text)
@@ -94,7 +118,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('/plugin install tink@tink-harness', text)
         self.assertIn('/reload-plugins', text)
         self.assertIn('npx github:dotoricode/tink-harness install', text)
-        self.assertIn('Current version: `0.1.4`', text)
+        self.assertIn(f'Current version: `{pkg["version"]}`', text)
         self.assertIn('VERSIONING.md', text)
         self.assertIn('CHANGELOG.md', text)
         self.assertNotIn('npx github:dotoricode/tink-harness install --yes', text)
@@ -352,12 +376,14 @@ class TemplateTests(unittest.TestCase):
             'commands/list.md',
             'commands/frog.md',
             'commands/weave.md',
+            'commands/update.md',
             'skills/tink/SKILL.md',
             'templates/claude/commands/tink/setup.md',
             'templates/claude/commands/tink/cast.md',
             'templates/claude/commands/tink/list.md',
             'templates/claude/commands/tink/frog.md',
             'templates/claude/commands/tink/weave.md',
+            'templates/claude/commands/tink/update.md',
             'templates/claude/skills/tink/SKILL.md',
             'templates/tink/config.json',
             'templates/tink/harnesses/index.json',
@@ -397,6 +423,90 @@ class TemplateTests(unittest.TestCase):
                 self.assertTrue((base / '.tink/config.json').exists())
         finally:
             tarball.unlink(missing_ok=True)
+
+    def test_npx_install_matches_root_dual_format(self):
+        with tempfile.TemporaryDirectory() as d:
+            subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'],
+                cwd=d, check=True, capture_output=True, text=True,
+            )
+            base = Path(d)
+            pairs = [
+                ('commands/cast.md', '.claude/commands/tink/cast.md'),
+                ('commands/frog.md', '.claude/commands/tink/frog.md'),
+                ('commands/list.md', '.claude/commands/tink/list.md'),
+                ('commands/setup.md', '.claude/commands/tink/setup.md'),
+                ('commands/update.md', '.claude/commands/tink/update.md'),
+                ('commands/weave.md', '.claude/commands/tink/weave.md'),
+                ('skills/tink/SKILL.md', '.claude/skills/tink/SKILL.md'),
+            ]
+            mismatches = []
+            for root_path, installed_path in pairs:
+                h1 = hashlib.sha256((ROOT / root_path).read_bytes()).hexdigest()
+                h2 = hashlib.sha256((base / installed_path).read_bytes()).hexdigest()
+                if h1 != h2:
+                    mismatches.append(f'{root_path} != {installed_path}')
+            self.assertFalse(
+                mismatches,
+                f'installer output diverged from plugin root: {mismatches}',
+            )
+
+    def test_force_reinstall_overwrites_modifications(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'],
+                cwd=d, check=True, capture_output=True, text=True,
+            )
+            target = base / '.claude/commands/tink/cast.md'
+            original = target.read_bytes()
+            target.write_text('TAMPERED', encoding='utf-8')
+            subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes', '--force'],
+                cwd=d, check=True, capture_output=True, text=True,
+            )
+            self.assertEqual(
+                target.read_bytes(),
+                original,
+                'force reinstall did not restore modified file',
+            )
+
+    def test_version_consistent_across_surfaces(self):
+        pkg = json.loads((ROOT / 'package.json').read_text())
+        version = pkg['version']
+        lock = json.loads((ROOT / 'package-lock.json').read_text())
+        plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
+
+        self.assertEqual(lock['version'], version)
+        self.assertEqual(lock['packages']['']['version'], version)
+        self.assertEqual(plugin['version'], version)
+
+        readme = (ROOT / 'README.md').read_text(encoding='utf-8')
+        versioning = (ROOT / 'VERSIONING.md').read_text(encoding='utf-8')
+        changelog = (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8')
+
+        self.assertIn(f'Current version: `{version}`', readme)
+        self.assertIn(f'Current version: `{version}`', versioning)
+        self.assertIn(f'## [{version}]', changelog)
+
+    def test_command_surface_consistent_across_surfaces(self):
+        expected_slash_commands = {
+            '/tink:setup', '/tink:cast', '/tink:list', '/tink:frog', '/tink:weave', '/tink:update',
+        }
+        legacy_commands = [
+            '/tink:forge', '/tink:purge', '/tink:hone', '/tink:prime',
+            '/tiny:', '/tink:save', '/tink:remember', '/tink:fix',
+        ]
+        surfaces = {
+            'README.md': ROOT / 'README.md',
+            'skills/tink/SKILL.md': ROOT / 'skills/tink/SKILL.md',
+        }
+        for surface_name, path in surfaces.items():
+            text = path.read_text(encoding='utf-8')
+            for cmd in expected_slash_commands:
+                self.assertIn(cmd, text, f'{surface_name} missing {cmd}')
+            for old_cmd in legacy_commands:
+                self.assertNotIn(old_cmd, text, f'{surface_name} still contains legacy {old_cmd}')
 
     def test_harness_synthesis_dogfood_example(self):
         text = (ROOT / 'examples/harness-synthesis-dogfood.md').read_text(encoding='utf-8')
