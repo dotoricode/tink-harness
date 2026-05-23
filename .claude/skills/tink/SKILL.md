@@ -47,7 +47,7 @@ Use only these commands:
 12. Store reusable memory under `.tink/memory/` only after approval.
 13. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action.
 14. Keep context compact. Do not paste raw logs or full diffs.
-15. Use calm, clear, concise language. No jokes.
+15. Use calm, clear, concise language. Prefer plain everyday words over technical terms — if a simpler word works, use it. No jokes.
 
 ## Quality bar
 The user should not have to repeat themselves. If the same mistake appears twice, propose `/tink:weave` or a memory update through `/tink:cast`.

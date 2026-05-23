@@ -237,14 +237,14 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('run-only draft by default', synthesis)
         self.assertIn('separate save approval', synthesis)
 
-    def test_grill_gate_contract(self):
+    def test_stitch_contract(self):
         forge_paths = [
             ROOT / 'commands/cast.md',
             ROOT / 'templates/claude/commands/tink/cast.md',
         ]
         for path in forge_paths:
             text = path.read_text(encoding='utf-8')
-            self.assertIn('Grill Gate', text)
+            self.assertIn('Stitch', text)
             self.assertIn('Reusable State Save Gate', text)
             self.assertIn('exactly one proposal', text)
             self.assertIn('proposal, reason, choices', text)
@@ -259,22 +259,22 @@ class TemplateTests(unittest.TestCase):
             ROOT / 'templates/claude/skills/tink/SKILL.md',
         ]:
             text = path.read_text(encoding='utf-8')
-            self.assertIn('Run Grill Gate once before committing to `.tink/current/`', text)
+            self.assertIn('Run Stitch once before committing to `.tink/current/`', text)
             self.assertIn('Reusable State Save Gate as a separate hard approval gate', text)
             self.assertIn('Current-run approval never authorizes reusable-state writes', text)
 
         context = (ROOT / 'CONTEXT.md').read_text(encoding='utf-8')
-        self.assertIn('### Grill Gate', context)
+        self.assertIn('### Stitch', context)
         self.assertIn('### Reusable State Save Gate', context)
         self.assertIn('정확히 하나의 제안', context)
         self.assertIn('현재 실행 승인만으로', context)
 
         readme = (ROOT / 'README.md').read_text(encoding='utf-8')
-        self.assertIn('Grill Gate', readme)
+        self.assertIn('Stitch', readme)
         self.assertIn('Reusable State Save Gate', readme)
         self.assertIn('lightweight internal quality check', readme)
 
-        adr = (ROOT / 'docs/adr/0003-add-grill-gate-to-forge.md').read_text(encoding='utf-8')
+        adr = (ROOT / 'docs/adr/0003-add-stitch-to-forge.md').read_text(encoding='utf-8')
         self.assertIn('## Status', adr)
         self.assertIn('Accepted', adr)
 

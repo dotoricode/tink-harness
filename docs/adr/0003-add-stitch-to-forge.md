@@ -1,4 +1,4 @@
-# ADR 0003: Add Grill Gate to Forge
+# ADR 0003: Add Stitch to Forge
 
 ## Status
 
@@ -14,25 +14,25 @@ At the same time, Tink should not become an interview-heavy workflow. Its comman
 
 ## Decision
 
-Add Grill Gate to `/tink:cast`.
+Add Stitch to `/tink:cast`.
 
-Grill Gate is a lightweight internal quality gate that challenges Tink's initial harness or plan decision before `.tink/current/` is committed.
+Stitch is a lightweight internal quality gate that challenges Tink's initial harness or plan decision before `.tink/current/` is committed.
 
 For v1.0.0:
 
-- Grill Gate is integrated into `/tink:cast`, not exposed as a separate command.
-- Grill Gate is a logical internal evaluator role, not a real independent subagent.
-- Grill Gate runs once before `/tink:cast` commits to `.tink/current/`.
-- Grill Gate is evaluated every time, but user-visible only when it finds a high-impact quality or safety branch.
-- When visible, Grill Gate shows exactly one proposal.
+- Stitch is integrated into `/tink:cast`, not exposed as a separate command.
+- Stitch is a logical internal evaluator role, not a real independent subagent.
+- Stitch runs once before `/tink:cast` commits to `.tink/current/`.
+- Stitch is evaluated every time, but user-visible only when it finds a high-impact quality or safety branch.
+- When visible, Stitch shows exactly one proposal.
 - The visible proposal uses this order: proposal, reason, choices.
-- Grill Gate may change the order or method of work, but not the user's goal without separate approval.
-- A clean internal Grill Gate pass is not recorded.
-- A triggered Grill Gate is recorded only in current run state by default.
+- Stitch may change the order or method of work, but not the user's goal without separate approval.
+- A clean internal Stitch pass is not recorded.
+- A triggered Stitch is recorded only in current run state by default.
 
 ## Gate Strength
 
-Grill Gate uses a risk-based gate.
+Stitch uses a risk-based gate.
 
 Default behavior is a soft gate. Tink proposes the quality-improving step, but the user may choose to continue as-is. If the user continues, Tink proceeds with explicit assumptions and records them in `.tink/current/answers.md`.
 
@@ -50,7 +50,7 @@ Hard gates must not offer `Continue as-is` or `이대로 진행`.
 
 ## Proposal Priority
 
-When multiple Grill Gate triggers are present, choose one proposal by this order:
+When multiple Stitch triggers are present, choose one proposal by this order:
 
 1. Safety or irreversibility.
 2. Success criteria or verification.
@@ -60,7 +60,7 @@ When multiple Grill Gate triggers are present, choose one proposal by this order
 
 ## Language
 
-Grill Gate follows `.tink/config.json`.
+Stitch follows `.tink/config.json`.
 
 If language is explicit, use that language for proposal wording and choice labels.
 
@@ -85,9 +85,9 @@ Korean localized choices:
 
 ## Reusable State Save Gate
 
-Reusable State Save Gate is a separate absolute rule, not merely a Grill Gate subtype.
+Reusable State Save Gate is a separate absolute rule, not merely a Stitch subtype.
 
-It applies even if Grill Gate is skipped or passes cleanly.
+It applies even if Stitch is skipped or passes cleanly.
 
 Any attempt to write reusable state requires a separate hard approval gate. Current-run approval does not authorize reusable-state writes.
 

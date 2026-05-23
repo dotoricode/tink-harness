@@ -57,12 +57,12 @@ Tink is not fully initialized.
 
 If legacy Tiny files such as `.tiny/` or `/tiny:use` instructions are present, treat them as old state. Explain that `/tink:cast` replaces `/tiny:use`, and offer to migrate useful `.tiny/harnesses/`, `.tiny/config.json`, and `.tiny/memory/` into `.tink/` only after approval. Never tell the user to run `/tiny:use`.
 
-## Grill Gate (Stitch)
-Before committing to `.tink/current/`, run Grill Gate exactly once. Grill Gate is an internal quality gate inside `/tink:cast`, not a separate `/tink:grill` command and not a real subagent in v1.0.0. In the knitting metaphor, the Grill Gate is the Stitch — it pre-casts the first decision loop so the developer needs only to choose an option and keep moving.
+## Stitch
+Before committing to `.tink/current/`, run Stitch exactly once. Stitch is an internal quality gate inside `/tink:cast`, not a separate `/tink:grill` command and not a real subagent in v1.0.0. In the knitting metaphor, the Stitch is the Stitch — it pre-casts the first decision loop so the developer needs only to choose an option and keep moving.
 
-Evaluate Grill Gate every time, but show it to the user only when it finds a high-impact quality or safety branch. A clean internal Grill Gate pass is not recorded.
+Evaluate Stitch every time, but show it to the user only when it finds a high-impact quality or safety branch. A clean internal Stitch pass is not recorded.
 
-When Grill Gate is visible, show exactly one proposal in this order: proposal, reason, choices.
+When Stitch is visible, show exactly one proposal in this order: proposal, reason, choices.
 1. proposal
 2. reason
 3. choices
@@ -74,7 +74,7 @@ Choose the one proposal by priority:
 4. harness mismatch
 5. reusable improvement opportunity
 
-Grill Gate may change the order or method of work, but it must not change the user's goal without separate approval.
+Stitch may change the order or method of work, but it must not change the user's goal without separate approval.
 
 Follow `.tink/config.json` for language. If language is `auto`, use the current user message language and fall back to English only when unclear.
 
@@ -90,16 +90,18 @@ Hard gates apply when at least one of the following is true for the next action:
 
 Hard gates must not offer `Continue as-is` or `이대로 진행`.
 
-When Grill Gate is visible and the user responds, record current-run state:
+When Stitch triggers as a **soft gate**, do not call a separate `AskUserQuestion` for Stitch. Instead, add a `**🔍 Stitch**` section inside the main approval format and use a single `AskUserQuestion`. Hard gate Stitch remains a separate call.
+
+When Stitch is visible and the user responds, record current-run state:
 - `.tink/current/answers.md`: proposal, user choice, explicit assumptions
 - `.tink/current/notes.md`: proposal, risk, reason, follow-up needed
 
 If the user chooses `Continue as-is` / `이대로 진행`, proceed with the explicit assumptions recorded in `answers.md`.
 
-Do not record a clean Grill Gate pass.
+Do not record a clean Stitch pass.
 
 ## Reusable State Save Gate
-Reusable State Save Gate is a separate absolute hard approval gate, not merely a Grill Gate subtype. Current-run approval does not authorize reusable-state writes.
+Reusable State Save Gate is a separate absolute hard approval gate, not merely a Stitch subtype. Current-run approval does not authorize reusable-state writes.
 
 Reusable state includes:
 - `.tink/memory/*`
@@ -121,6 +123,8 @@ Reusable-state approval choices are `Approve`, `Add requirements`, and `Cancel`,
 
 Show the payload directly at the point of proposal. Do not add a preliminary "do you want to save?" question before it — the payload IS the question.
 
+When the plan's only non-trivial action is a reusable-state write, create run state silently first, then use Save Gate as the sole approval — skip the separate run-approval question.
+
 ## Run state contract
 After approval, create `.tink/current/` with these files before doing deeper work. `.tink/current/` is the current workbench: the one active task plan Claude should keep updating while it works. It is temporary, local runtime state, not reusable memory and not a knowledge base:
 
@@ -137,8 +141,8 @@ Before creating a new `.tink/current/`, check whether one already exists:
 
 1. No current run: create `.tink/current/` and start.
 2. Same task still active in the same conversation: resume it, update `notes.md`, and continue from the next pending step.
-3. `.tink/current/` exists but the conversation context is gone or uncertain: treat it as a recovery candidate, not as active truth. Even if the user says “continue” or “이어서 해”, first read `plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md`, show the five-line recovery summary below, then ask the user to resume, archive, replace, or cancel. If the user resumes, reuse the prior Grill Gate decision recorded in `answers.md`; do not re-evaluate Grill Gate.
-4. Different task requested: ask whether to archive/replace the old current run. Do not overwrite silently.
+3. `.tink/current/` exists but the conversation context is gone or uncertain: treat it as a recovery candidate, not as active truth. Even if the user says “continue” or “이어서 해”, first read `plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md`, show the five-line recovery summary below, then ask the user to resume, archive, replace, or cancel. If the user resumes, reuse the prior Stitch decision recorded in `answers.md`; do not re-evaluate Stitch.
+4. Different task requested: if every step in `steps.json` is `done`, auto-archive to `.tink/runs/` without asking and create the new current run. If any step is not `done`, ask whether to archive/replace the old current run. Do not overwrite silently.
 5. Blocked or canceled task: write a compact run record with `outcome: blocked` or `outcome: canceled`, then clear or replace `.tink/current/` after approval.
 6. Superseded task: archive the old state as `outcome: superseded` before creating the new current run.
 
@@ -196,7 +200,7 @@ Approved reusable changes should append one JSON line to `.tink/maintenance/ledg
 
 ## Procedure
 1. Read `.tink/harnesses/index.json` first. Do not read every harness.
-2. Read small memory files if present:
+2. Read small memory files where `config.json` sets `memory_has_entries.<name>: true`. Skip files set to `false`. After a Save Gate approves a new memory entry, set that file's flag to `true` in `config.json`.
    - `.tink/memory/mistakes.md`
    - `.tink/memory/preferences.md`
    - `.tink/memory/lessons.md`
@@ -215,7 +219,7 @@ Approved reusable changes should append one JSON line to `.tink/maintenance/ledg
 8. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
 9. If lightweight signals show a recurring operating habit, load `context-habit-calibration` only if it earns its context cost; otherwise make one advisory recommendation without loading another body.
 10. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
-11. Run Grill Gate once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Call `AskUserQuestion` as described in the Interaction policy section.
+11. Run Stitch once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Call `AskUserQuestion` as described in the Interaction policy section.
 12. Ask for explicit approval before non-trivial work.
 13. After approval, read only the selected harness files and any approved run-only draft.
 14. Create `.tink/current/` files from the run state contract.
@@ -327,6 +331,31 @@ If a run-only draft or new harness is useful:
 ❯ 1. 승인 (권장) — 기본 하네스 + 임시 초안으로 `.tink/current/` 생성
   2. 조정
   3. 기본 하네스만 사용
+  4. 취소
+```
+
+If Stitch triggers as a soft gate, merge it into the approval format:
+
+```text
+### 🧶 Run: <task name>
+
+**🎯 Goals**
+- <goal>
+
+**🔍 Stitch**
+- 제안: <one proposal>
+- 이유: <reason>
+- 이대로 진행 시 가정: <explicit assumption>
+
+**🛠️ Harness**: `<harness>`
+- **Probe:** ...
+- **이유:** ...
+- **첫 실행:** ...
+
+? 진행할까요?
+❯ 1. 승인 (권장) — Stitch 가정 포함 진행
+  2. 요구사항 입력 — Stitch 제안 또는 계획 조정
+  3. 이대로 진행 — Stitch 무시하고 원래 계획대로
   4. 취소
 ```
 
@@ -443,3 +472,4 @@ If a check fails:
 - Do not create memory entries without separate Reusable State Save Gate approval.
 - Do not store raw logs, full diffs, secrets, or one-off task progress as reusable memory.
 - Do not ask "do you want to save?" before showing the Reusable State Save Gate payload. Show the payload directly.
+- Do not narrate individual .tink/ file writes (current/, runs/, memory/, config.json). Write them silently and report what changed in a single plain sentence at the end.

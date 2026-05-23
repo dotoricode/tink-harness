@@ -11,5 +11,10 @@
   "hook_scope": "off",
   "default_harnesses_per_task": 4,
   "harness_lines_warning": 100,
-  "context_budget": "soft"
+  "context_budget": "soft",
+  "memory_has_entries": {
+    "mistakes": false,
+    "preferences": false,
+    "lessons": false
+  }
 }

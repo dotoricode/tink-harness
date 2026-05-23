@@ -33,7 +33,7 @@ Tink v1.0.0 is ready only when all are true:
 7. Package metadata, files, bin, license, repository, and keywords are correct.
 8. Release workflow is repeatable: test, pack, install smoke test, tag, publish, verify GitHub/npm.
 9. No CupMargin, prompt-grill, private acorn operating context, raw logs, or unrelated artifacts are part of the public package.
-10. `/tink:cast` includes Grill Gate and Reusable State Save Gate contracts, with static tests covering the core safety and approval rules.
+10. `/tink:cast` includes Stitch and Reusable State Save Gate contracts, with static tests covering the core safety and approval rules.
 
 ## Phase 0: Release decision and guardrails
 
@@ -167,7 +167,7 @@ npm test
 
 **Verification:** Static tests confirm required lifecycle wording and schema examples match the fixture fields.
 
-### Task 2.3: Add Grill Gate to forge contract
+### Task 2.3: Add Stitch to forge contract
 
 **Objective:** Ensure `/tink:cast` performs a lightweight internal quality gate before committing to a run plan, shows exactly one proposal only when a high-impact branch is detected, follows configured language, and treats reusable-state saves as a separate hard approval gate.
 
@@ -184,20 +184,20 @@ npm test
 - Modify: `tests/test_templates.py`
 
 **Expected behavior:**
-- Grill Gate is integrated into `/tink:cast`, not added as a separate `/tink:grill` command.
-- In v1.0.0, Grill Gate runs once before `.tink/current/` is committed.
-- Grill Gate is evaluated every time, but user-visible only when it finds a high-impact quality or safety branch.
-- When visible, Grill Gate shows exactly one proposal in this order: proposal, reason, choices.
+- Stitch is integrated into `/tink:cast`, not added as a separate `/tink:grill` command.
+- In v1.0.0, Stitch runs once before `.tink/current/` is committed.
+- Stitch is evaluated every time, but user-visible only when it finds a high-impact quality or safety branch.
+- When visible, Stitch shows exactly one proposal in this order: proposal, reason, choices.
 - Proposal wording follows the configured language from `.tink/config.json`; when language is `auto`, use the current user message language and fall back to English if unclear.
 - Soft gate choices are `Approve`, `Add requirements`, and `Continue as-is`, localized when appropriate.
 - Hard gate choices are `Approve`, `Add requirements`, and `Cancel`, localized when appropriate.
 - Hard gates must not offer `Continue as-is` or `이대로 진행`.
-- Grill Gate may change the order or method of work, but not the user's goal without separate approval.
-- A clean internal Grill Gate pass is not recorded.
-- A triggered Grill Gate is recorded only in current run state by default: proposal, choice, assumptions, and risk in `.tink/current/answers.md` and `.tink/current/notes.md`.
+- Stitch may change the order or method of work, but not the user's goal without separate approval.
+- A clean internal Stitch pass is not recorded.
+- A triggered Stitch is recorded only in current run state by default: proposal, choice, assumptions, and risk in `.tink/current/answers.md` and `.tink/current/notes.md`.
 
 **Reusable State Save Gate:**
-- Treat reusable-state writes as a separate absolute hard gate, not merely a Grill Gate subtype.
+- Treat reusable-state writes as a separate absolute hard gate, not merely a Stitch subtype.
 - Current-run approval does not authorize reusable-state writes.
 - Reusable state includes `.tink/memory/*`, `.tink/harnesses/*`, `.tink/harnesses/index.json`, `.tink/config.json` policy changes, `.claude/` commands, skills, settings, or hooks, and template/plugin files that affect future installs.
 - Before reusable-state writes, show a separate approval payload with operation, destination files, exact entry text or patch summary, why it is reusable, sensitive/private content excluded, and rollback or removal path.
@@ -205,13 +205,13 @@ npm test
 - Never offer `Continue as-is` for reusable-state writes.
 
 **Static contract tests:**
-- Root and template forge commands mention `Grill Gate`.
+- Root and template forge commands mention `Stitch`.
 - Root and template forge commands mention `Reusable State Save Gate`.
 - Root and template forge commands require a single visible proposal when the gate triggers.
 - Root and template forge commands prohibit `Continue as-is` and `이대로 진행` on hard gates.
 - Root and template forge commands require separate approval for reusable-state writes.
-- Tink skill files include compact operating rules for Grill Gate and Reusable State Save Gate.
-- `CONTEXT.md` defines Grill Gate and Reusable State Save Gate.
+- Tink skill files include compact operating rules for Stitch and Reusable State Save Gate.
+- `CONTEXT.md` defines Stitch and Reusable State Save Gate.
 - ADR 0003 exists and has `Status: Accepted`.
 
 **Verification command:**

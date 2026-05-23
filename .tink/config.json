@@ -11,5 +11,10 @@
   "hook_scope": "repo",
   "default_harnesses_per_task": 4,
   "harness_lines_warning": 100,
-  "context_budget": "soft"
+  "context_budget": "soft",
+  "memory_has_entries": {
+    "mistakes": true,
+    "preferences": true,
+    "lessons": false
+  }
 }
