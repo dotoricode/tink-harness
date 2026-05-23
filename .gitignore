@@ -4,3 +4,10 @@ node_modules/
 .tink/current/
 .tink/runs/
 .tink/cache/
+
+# Local tooling state
+.serena/
+
+# Python bytecode
+__pycache__/
+*.pyc
