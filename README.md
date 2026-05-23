@@ -2,18 +2,21 @@
   <img src=".github/assets/hero.gif" alt="Tink Hero Banner" width="100%">
 </p>
 
+<h1>
+  <strong>Tink</strong>
+</h1>
 
-<h1 align="center">A small harness layer for Claude Code</h1>
+<p>A small harness layer for Claude Code</p>
 
-<p align="center">
+<p>
   Tink helps Claude Code choose the right harness, keep run state visible, and improve the harness set as you work.
 </p>
 
-<p align="center">
+<p>
   <em>Tink is <strong>knit</strong> in reverse: untying tangled workflows and knitting better ones back together. It also nods to Tinker Bell, the small helper at your side.</em>
 </p>
 
-<p align="center">
+<p>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
