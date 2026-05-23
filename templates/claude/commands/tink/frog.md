@@ -9,6 +9,17 @@ Find harnesses that are probably unused or redundant, then ask before removing t
 ## Purpose
 Keep Tink small. A large harness set defeats the point.
 
+## Interaction policy
+Always call the `AskUserQuestion` tool for choice prompts. Do not render `❯` text format. Do not ask the user to type a number inline.
+
+Map prompt content to `AskUserQuestion` fields:
+- `question`: the full question text
+- `header`: max 12-character tag (e.g. "진행 방식", "정리 방식")
+- `label`: 1–5 word option name. Add "(권장)" if recommended.
+- `description`: explanatory text for the option
+
+Use Korean field values when `.tink/config.json` language is `ko` or `auto` with Korean input; use English otherwise.
+
 ## Procedure
 1. Read `.tink/harnesses/index.json`.
 2. Check compact evidence if available:
@@ -56,8 +67,6 @@ Purge candidates with operation IDs:
 ❯ 1. 승인 — 추천안 적용
   2. 일부만 적용 — op ID로 선택
   3. 취소
-
-[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 ## Do not

@@ -155,7 +155,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Do not ask for tone selection', text)
         self.assertIn('Legacy Tiny migration', text)
         self.assertIn('/tink:cast` replaces `/tiny:use', (ROOT / 'templates/claude/commands/tink/cast.md').read_text(encoding='utf-8'))
-        self.assertIn('do not claim Enter confirms a default', text)
+        self.assertIn('AskUserQuestion` tool for all choice prompts', text)
 
     def test_cast_frog_weave_behavior(self):
         forge = (ROOT / 'templates/claude/commands/tink/cast.md').read_text(encoding='utf-8')
@@ -202,9 +202,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('explicit approval', forge)
         self.assertIn('Readiness check', forge)
         self.assertIn('Tink is not fully initialized', forge)
-        self.assertIn('do not say Enter approves', forge)
+        self.assertIn('Call `AskUserQuestion` as described in the Interaction policy', forge)
         self.assertIn('answers.md', forge)
-        self.assertIn('`.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`', forge)
+        self.assertIn('first read `plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md`', forge)
         self.assertNotIn('Enter should accept', forge)
         self.assertIn('new harness', forge)
         self.assertIn('/grill-me', forge)
@@ -440,6 +440,7 @@ class TemplateTests(unittest.TestCase):
             '### Tone Policy (톤 정책)',
             '### Harness Size (하네스 크기)',
             '### Meta Harness (메타 하네스)',
+            '### CLI Select Policy (상호작용 정책)',
         ]:
             self.assertIn(term, text)
         self.assertIn('knit', text)

@@ -9,6 +9,17 @@ Improve harnesses that are actually being used.
 ## Purpose
 Tink should get sharper through use, not grow randomly.
 
+## Interaction policy
+Always call the `AskUserQuestion` tool for choice prompts. Do not render `❯` text format. Do not ask the user to type a number inline.
+
+Map prompt content to `AskUserQuestion` fields:
+- `question`: the full question text
+- `header`: max 12-character tag (e.g. "진행 방식", "저장 여부")
+- `label`: 1–5 word option name. Add "(권장)" if recommended.
+- `description`: explanatory text for the option
+
+Use Korean field values when `.tink/config.json` language is `ko` or `auto` with Korean input; use English otherwise.
+
 ## Procedure
 1. Read `.tink/harnesses/index.json`. If invoked from `/tink:frog`, first read the purge output, `.tink/current/notes.md`, or `.tink/maintenance/weave-queue.json` for the weave handoff packet.
 2. Identify one or a few active harnesses to improve using real failures and evidence:
@@ -61,8 +72,6 @@ Proposed improvement:
 ❯ 1. 승인 — 이 개선 저장
   2. 조정
   3. 취소
-
-[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 ## Do not

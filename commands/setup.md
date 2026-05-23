@@ -9,6 +9,17 @@ Set up Tink for Claude Code.
 ## Goal
 Prepare one small self-growing harness system that helps Claude choose/build harnesses, avoid repeated mistakes, and remember reusable lessons only after approval.
 
+## Interaction policy
+Always call the `AskUserQuestion` tool for choice prompts. Do not render `❯` text format. Do not ask the user to type a number inline.
+
+Map prompt content to `AskUserQuestion` fields:
+- `question`: the full question text
+- `header`: max 12-character tag (e.g. "언어 선택", "설치 범위", "Git 설정")
+- `label`: 1–5 word option name. Add "(권장)" if recommended.
+- `description`: explanatory text for the option
+
+Use Korean field values when `.tink/config.json` language is `ko` or `auto` with Korean input; use English otherwise.
+
 ## Setup review mode
 If `.tink/config.json` already exists, do not jump straight to git tracking. First show a short current-settings review, then ask what to change.
 
@@ -29,13 +40,11 @@ Use this wording in Korean:
 ❯ 1. 그대로 사용 (권장)
   2. 언어 변경
   3. 범위 변경
-  4. Hook 설정 변경
-  5. Git 추적 변경
-
-[↑↓ 화살표로 선택, Enter로 확인]
+  4. 훅/Git 변경
 ```
 
 If the user chooses `그대로 사용`, summarize available commands and stop. Do not re-ask git tracking.
+If the user chooses `훅/Git 변경`, first walk through the Git tracking question, then the Hook registration question.
 
 ## Legacy Tiny migration
 If `.tiny/`, `.claude/commands/tiny/`, `.claude/commands/tiny-use.md`, or output that recommends `/tiny:use` is present, treat it as legacy state from the old Tiny/Tink prototype. Do not keep recommending `/tiny:use`.
@@ -52,8 +61,6 @@ Tink v1에서는 `/tiny:use` 대신 `/tink:cast`를 사용합니다.
 ❯ 1. 이전 Tiny 설정을 Tink로 옮기기
   2. 이전 Tiny 설정은 그대로 두고 Tink만 사용하기
   3. 취소
-
-[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 Only migrate after the user chooses option 1. Migration means copying useful `.tiny/harnesses/`, `.tiny/config.json`, and `.tiny/memory/` into `.tink/` without deleting the original unless the user explicitly asks. Update stale guidance so future next steps say `/tink:cast`, not `/tiny:use`.
@@ -66,8 +73,6 @@ Always ask language first if it is not already clear from `.tink/config.json`.
 ❯ 1. 한국어
   2. English
   3. 中文
-
-[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 Use the selected language for setup prompts, run files, approval prompts, and final reports. Keep built-in harness IDs in English for stable filenames.
@@ -90,7 +95,7 @@ Tink는 두 종류의 파일을 씁니다.
 ```
 
 ## Setup questions
-Ask these questions in order. Use the CLI Select format for all choice prompts.
+Ask these questions in order. Use the `AskUserQuestion` tool for all choice prompts (see Interaction policy above).
 
 ### 1. Scope
 ```text
@@ -99,8 +104,6 @@ Ask these questions in order. Use the CLI Select format for all choice prompts.
      이 프로젝트에만 `.claude/`와 `.tink/`를 둡니다. 팀 공유와 프로젝트별 하네스에 적합합니다.
   2. Global 범위 (Global Scope)
      사용자 홈의 Claude Code 설정에 둡니다. 여러 프로젝트에서 같은 명령을 쓰고 싶을 때 적합합니다.
-
-[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 There is no `Both` option by default.
@@ -139,8 +142,6 @@ Ask only after explaining consequences.
    결과:
    - 다른 팀원, 다른 PC, 새 clone에서는 harness가 공유되지 않습니다.
    - 프로젝트별로 쌓은 개선이 유실되거나 재설정이 필요할 수 있습니다.
-
-[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 ### 3. Hook registration

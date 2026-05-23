@@ -32,19 +32,15 @@ A valid `/tink:cast` response must do one of these:
 If the task is clear enough to classify, do not ask broad clarification first. Make a best recommendation, ask for approval, then act.
 
 ## Interaction policy
-Always render choice prompts using the CLI Select format. Do not ask the user to type a number inline.
+Always call the `AskUserQuestion` tool for choice prompts. Do not render `❯` text format. Do not ask the user to type a number inline.
 
-```text
-? <질문>
-❯ 1. <옵션 (권장이면 표시)>
-  2. <옵션>
-  3. <옵션>
+Map prompt content to `AskUserQuestion` fields:
+- `question`: the full question text
+- `header`: max 12-character tag (e.g. "진행 방식", "하네스 선택", "Git 설정")
+- `label`: 1–5 word option name (e.g. "승인", "조정", "취소"). Add "(권장)" to the first option label if it is recommended.
+- `description`: explanatory text for the option
 
-[↑↓ 화살표로 선택, Enter로 확인]   ← Korean context
-[Use ↑↓ arrow keys to select, Enter to confirm]   ← English context
-```
-
-Use Korean footer when `.tink/config.json` language is `ko` or `auto` with Korean input; use English footer otherwise.
+Use Korean field values when `.tink/config.json` language is `ko` or `auto` with Korean input; use English otherwise.
 
 ## Readiness check
 Before normal classification, check whether Tink is fully initialized. If `.tink/harnesses/index.json`, `.tink/config.json`, or `.tink/memory/` is missing, do not fail and do not write anything yet. Show a short recovery prompt:
@@ -57,8 +53,6 @@ Tink is not fully initialized.
   2. Create the minimal .tink scaffold for this repo
   3. Continue once with a lightweight one-run harness
   4. Cancel
-
-[Use ↑↓ arrow keys to select, Enter to confirm]
 ```
 
 If legacy Tiny files such as `.tiny/` or `/tiny:use` instructions are present, treat them as old state. Explain that `/tink:cast` replaces `/tiny:use`, and offer to migrate useful `.tiny/harnesses/`, `.tiny/config.json`, and `.tiny/memory/` into `.tink/` only after approval. Never tell the user to run `/tiny:use`.
@@ -165,8 +159,6 @@ Recovery prompt format:
   2. 보관하고 새 작업
   3. 교체
   4. 취소
-
-[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 
@@ -223,7 +215,7 @@ Approved reusable changes should append one JSON line to `.tink/maintenance/ledg
 8. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
 9. If lightweight signals show a recurring operating habit, load `context-habit-calibration` only if it earns its context cost; otherwise make one advisory recommendation without loading another body.
 10. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
-11. Run Grill Gate once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Use the CLI Select format from the Interaction policy section.
+11. Run Grill Gate once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Call `AskUserQuestion` as described in the Interaction policy section.
 12. Ask for explicit approval before non-trivial work.
 13. After approval, read only the selected harness files and any approved run-only draft.
 14. Create `.tink/current/` files from the run state contract.
@@ -309,8 +301,6 @@ Use concise, selection-oriented wording. The recommendation must include the fir
   2. 조정 — 다른 하네스 조합 선택
   3. 새 하네스 초안 만들기
   4. 취소
-
-[↑↓ 화살표로 선택, Enter로 확인]
 ```
 
 If a run-only draft or new harness is useful:
@@ -335,12 +325,9 @@ If a run-only draft or new harness is useful:
 
 ? 진행할까요?
 ❯ 1. 승인 (권장) — 기본 하네스 + 임시 초안으로 `.tink/current/` 생성
-  2. 저장 후보 표시 — 이번 작업 후 저장 여부 별도 판단
-  3. 조정
-  4. 기본 하네스만 사용
-  5. 취소
-
-[↑↓ 화살표로 선택, Enter로 확인]
+  2. 조정
+  3. 기본 하네스만 사용
+  4. 취소
 ```
 
 ## Harness synthesis contract
