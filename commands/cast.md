@@ -88,6 +88,8 @@ Hard gate choices:
 
 Hard gates apply when at least one of the following is true for the next action: it is difficult or unsafe to reverse (reusable memory or harness saves, harness creation, edits, frog, weave, deleting files, removing configuration); it has external side-effects or visibility (publishing, deploying, tagging, releasing, opening a public PR, changing broad architecture or public contracts); or it involves sensitive data (secrets, credentials, payments, personal data, or destructive/external side-effect commands).
 
+Some harnesses are inherently hard-gate territory regardless of the immediate next action. `ship` covers release/publish/deploy/PR, which are listed above. When such a harness is selected, trigger Stitch as a `safety` hard gate during the initial approval — even if the first action is read-only inspection. The hard gate protects the entire run, not just one step.
+
 Hard gates must not offer `Continue as-is` or `이대로 진행`.
 
 When Stitch triggers as a **soft gate**, do not call a separate `AskUserQuestion` for Stitch. Instead, add a `**🔍 Stitch**` section inside the main approval format and use a single `AskUserQuestion`. Hard gate Stitch remains a separate call.
@@ -212,7 +214,7 @@ Approved reusable changes should append one JSON line to `.tink/maintenance/ledg
    - docs
    - ship/release
    - new pattern not covered yet
-4. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context.
+4. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context. When the task is ambiguous (Stitch goal-ambiguity is expected to trigger), start with a single best-fit harness; add a second only after the user clarifies. Do not bundle 2+ harnesses for ambiguous tasks upfront.
 5. Run the synthesis probe on the initial harness choice. The probe produces one of three outcomes: strong fit (0-1 yes), generic fit (2-3 yes), or no fit (4-5 yes or no harness matches).
 6. If the probe finds no fit, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
 7. If the probe finds a generic fit (2-3 yes), propose a run-only draft harness or domain rules alongside the built-in harness. Do not save it by default.
@@ -288,6 +290,12 @@ Do not save if the user approved only the current run. Saving reusable state nee
 
 ## Approval format
 Use concise, selection-oriented wording. The recommendation must include the first action Tink will perform, not only the harness name.
+
+Approval option counts (always exactly one applies):
+- Default (no Stitch, no run-only draft): 4 options — 승인 / 조정 / 새 하네스 초안 만들기 / 취소
+- Run-only draft offered: 4 options — 승인 / 조정 / 기본 하네스만 사용 / 취소
+- Stitch soft gate: 4 options — 승인 / 요구사항 입력 / 이대로 진행 / 취소
+- Stitch hard gate (or Save Gate): 3 options — 승인 / 요구사항 입력 / 취소. Never offer `이대로 진행` / `Continue as-is`.
 
 ```text
 ### 🧶 Run: <task name>
@@ -472,4 +480,5 @@ If a check fails:
 - Do not create memory entries without separate Reusable State Save Gate approval.
 - Do not store raw logs, full diffs, secrets, or one-off task progress as reusable memory.
 - Do not ask "do you want to save?" before showing the Reusable State Save Gate payload. Show the payload directly.
-- Do not narrate individual .tink/ file writes (current/, runs/, memory/, config.json). Write them silently and report what changed in a single plain sentence at the end.
+- Do not narrate .tink/ file writes (current/, runs/, memory/, config.json) in the response body. Do not show diff summaries, file lists, or "I created X / I updated Y" breakdowns. The tool-use header is sufficient on its own. At the end of the response, add at most one short sentence summarizing what changed across all .tink/ writes.
+- Do not use Tink-internal jargon (Stitch, hard gate, Save Gate, Reusable State, or temporary labels like G1/G2/G3) when writing user-facing responses. Translate to plain language matching `config.json` language. Internal documentation and code keep original terms for consistency.

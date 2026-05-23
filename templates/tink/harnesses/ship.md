@@ -3,6 +3,8 @@
 ## When to use
 Prepare a PR, release, deployment, or public handoff.
 
+Release/publish/deploy/PR are hard-gate territory: cast triggers a Stitch safety hard gate during initial approval when this harness is selected.
+
 ## Ask first
 - What is shipping?
 - What checks are required?
