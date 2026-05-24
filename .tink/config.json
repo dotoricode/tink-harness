@@ -15,6 +15,6 @@
   "memory_has_entries": {
     "mistakes": true,
     "preferences": true,
-    "lessons": false
+    "lessons": true
   }
 }

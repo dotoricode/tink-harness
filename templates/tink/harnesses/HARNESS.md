@@ -17,6 +17,10 @@
 - **[harness-synthesis](./harness-synthesis.md)** — 기존 하네스로 안 풀리는 반복 도메인일 때 좁은 새 하네스 만들기.
 - **[context-habit-calibration](./context-habit-calibration.md)** — 컨텍스트·프롬프트·출력 습관 관찰 후 작은 보정.
 
+## 합성된 도메인 하네스
+
+- **[pre-publish-multi-agent-verify](./pre-publish-multi-agent-verify.md)** (small) — 공개 publish 직전 격리 환경에서 여러 에이전트로 install·UX·docs·leak·slash 표면을 병렬 검증. 시나리오 사전 잠금, evidence-only, blocker/major/minor/nit 분류.
+
 ## 사용 원칙
 
 1. **재사용 우선**: 새 요구사항이 들어오면 기존 하네스의 단계·검증을 *조합*해서 해결할 수 있는지 먼저 봅니다.

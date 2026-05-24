@@ -135,6 +135,26 @@
     ]
   },
   {
+    "name": "pre-publish-multi-agent-verify",
+    "kind": "synthesized",
+    "context": "small",
+    "use_when": "Verify a public publish/release across multiple isolated environments with parallel agents — install matrix, UX walkthrough, doc consistency, leak audit, slash/contract coverage. Use when generic ship checks miss broad surface (npm/PyPI/GitHub Release/Docker Hub).",
+    "asks": [
+      "What package/artifact ships to which medium?",
+      "What 2-4 user-target scenarios should agents share as the verification target?",
+      "What isolation mechanism (git worktree, temp dir, container)?"
+    ],
+    "checks": [
+      "Build artifact produced and recorded",
+      "User-target scenarios locked before agents start",
+      "Each agent owns one concern, ≤300 words, evidence-only",
+      "Findings classified blocker/major/minor/nit",
+      "CHANGELOG [Unreleased] merged into the shipping version",
+      "No secrets, credentials, or private paths in published files",
+      "Advertised commands/API present in shipped artifact (sha 1:1)"
+    ]
+  },
+  {
     "name": "tink-feedback-apply",
     "kind": "built-in",
     "context": "small",
