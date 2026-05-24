@@ -11,14 +11,16 @@ Prepare a PR, release, deployment, or public handoff.
 ## Plan
 1. Summarize changes.
 2. Run or verify required checks.
-3. Prepare notes for humans.
+3. Draft PR or release summary: what changed, what risks, what rollback.
 4. State risks and rollback.
 5. Confirm final handoff.
 
 ## Checks
-- Use only the context needed for this task.
+- All required CI checks pass, or reason for skip is stated.
+- Rollback or revert procedure is documented.
+- Changed artifacts (files, package, version) are listed.
+- Known risks are explicitly stated, not implied.
 - Do not repeat questions already answered in `.tink/current/answers.md`.
-- Do not store raw logs, full diffs, secrets, or one-off state in memory.
 
 ## Done means
 - Checks are complete or clearly blocked.

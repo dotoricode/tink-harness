@@ -13,9 +13,9 @@
 
 ## 관리용 메타 하네스
 
-- **[harness-curation](./harness-curation.md)** — 도구·하네스가 너무 많거나 무거울 때 최소 묶음 고르기.
+- **[harness-curation](./harness-curation.md)** — 도구·하네스가 너무 많거나 무거울 때 최소 묶음 고르기. 컨텍스트·출력 습관 보정도 이 하네스 내 섹션으로 처리.
 - **[harness-synthesis](./harness-synthesis.md)** — 기존 하네스로 안 풀리는 반복 도메인일 때 좁은 새 하네스 만들기.
-- **[context-habit-calibration](./context-habit-calibration.md)** — 컨텍스트·프롬프트·출력 습관 관찰 후 작은 보정.
+- **[tink-feedback-apply](./tink-feedback-apply.md)** — Tink 동작·UX·출력 품질 피드백을 올바른 레이어에 최소 변경으로 적용.
 
 ## 합성된 도메인 하네스
 

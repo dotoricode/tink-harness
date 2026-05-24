@@ -10,7 +10,7 @@ Use this when:
 - the task needs a different harness than the previous task,
 - Tink must prevent repeated mistakes and maintain the harness set.
 
-Do not use to observe or adjust operating habits (context resets, prompt quality, output length) — use `context-habit-calibration` for those signals.
+Use this harness (not a separate tool) when operating habits need calibration across runs — see the section at the bottom.
 
 ## Ask first
 - What is the current task and success evidence?
@@ -54,3 +54,25 @@ Do not repeat questions already answered in `.tink/current/answers.md`.
 
 ## If it fails, Tink back
 If the chosen set is too weak, add one harness only and record why. If it is too heavy, remove the least task-critical harness and continue from the last safe point.
+
+## When context habits also need calibration
+
+Use this section when signals span multiple runs — not just the current task's tool selection.
+
+Signals:
+- frequent `/new` or context resets mid-task
+- waiting until automatic compact before clearing
+- long prompts mixing multiple unrelated goals
+- short prompts missing success criteria
+- long final answers when a concise handoff would work
+- repeated corrections about output length, evidence, routing, or context hygiene
+
+Habit types:
+- **context-hoarder**: waits for compact, accumulates stale context
+- **context-resetter**: uses `/new` often, loses useful continuity
+- **over-loader**: too many tools/harnesses/agents at once
+- **under-specifier**: goals without success criteria or constraints
+- **over-explainer**: asks for or receives too much output
+- **evidence-seeker**: needs raw-state evidence and negative signals
+
+Calibration: recommend one small change — lean harness set, prompt template, output-length rule, reset rule, or memory proposal. If the signal is weak, stay advisory only. Save only after approval.

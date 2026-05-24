@@ -16,9 +16,11 @@ Review changes, risks, or a PR/diff.
 5. Avoid unsupported style noise.
 
 ## Checks
-- Use only the context needed for this task.
+- Correctness, security, data, and UX risk each addressed or noted absent.
+- Each finding has a severity label (blocker / major / minor / nit).
+- No speculative blockers — each is reproducible or evidence-based.
+- No unrelated style or preference noise.
 - Do not repeat questions already answered in `.tink/current/answers.md`.
-- Do not store raw logs, full diffs, secrets, or one-off state in memory.
 
 ## Done means
 - Findings are reproducible or evidence-based.

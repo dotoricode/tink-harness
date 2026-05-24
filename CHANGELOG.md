@@ -11,6 +11,28 @@ Tink is pre-v1. Expect small, reviewable changes until the v1.0.0 hardening gate
 - Layered scope model: merge `global` (`~/.tink/`) + `repo` (`.tink/`) + `local` (`.tink/local/` or `.tink/settings.local.json`) following the Claude Code settings pattern. Tracked separately.
 
 
+## [0.1.5] - 2026-05-24
+
+### Added
+
+- `tink-feedback-apply` harness: classify user feedback about Tink into the correct layer (behavioral, UX, preference, harness procedure, or new harness) and apply the minimum viable change.
+- `/tink:list` output redesign: multi-line per harness, header field description, three categories (작업용 / 메타 / 이 저장소 전용), assessment section, and next-command suggestions.
+
+### Changed
+
+- Built-in harness `## Checks` sections replaced generic boilerplate with domain-specific checks:
+  - `research`: decision named, options compared, facts/guesses labeled, recommendation follows evidence.
+  - `review`: correctness/security/data/UX risk addressed, severity labeled, no speculative blockers.
+  - `ship`: CI checks pass or reason stated, rollback documented, artifacts listed, risks explicit.
+- `ship` Plan step 3: "Prepare notes for humans" → "Draft PR or release summary: what changed, what risks, what rollback."
+- `harness-curation` now includes context habit calibration (signals, 6 habit types, calibration procedure) as an inline section. No separate harness needed.
+- `index.json`: `harness-synthesis` and `harness-curation` classified as `kind: "meta"` to distinguish from work harnesses.
+
+### Removed
+
+- `context-habit-calibration` standalone harness. Its content is now part of `harness-curation`.
+
+
 ## [0.1.4] - 2026-05-23
 
 ### Added

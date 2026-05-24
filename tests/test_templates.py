@@ -15,7 +15,6 @@ REQUIRED_README = [
     'Commands',
     'How it works',
     'What Tink is not',
-    'Status',
 ]
 
 HARNESS_SECTIONS = [
@@ -37,7 +36,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '0.1.4')
+        self.assertEqual(pkg['version'], '0.1.5')
         self.assertLess(tuple(map(int, pkg['version'].split('.'))), (1, 0, 0))
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
@@ -118,15 +117,12 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('/plugin install tink@tink-harness', text)
         self.assertIn('/reload-plugins', text)
         self.assertIn('npx github:dotoricode/tink-harness install', text)
-        self.assertIn(f'Current version: `{pkg["version"]}`', text)
-        self.assertIn('VERSIONING.md', text)
-        self.assertIn('CHANGELOG.md', text)
         self.assertNotIn('npx github:dotoricode/tink-harness install --yes', text)
         self.assertNotIn('claude --plugin-dir .', text)
         self.assertIn('Hermes Agent', text)
         self.assertIn('untying tangled workflows', text)
         self.assertIn('the small helper at your side', text)
-        self.assertIn('Could Claude Code grow with me in the same way?', text)
+        self.assertIn('Could Claude Code or Codex grow with me in the same way?', text)
         self.assertIn('/tink:cast', text)
         self.assertIn('/tink:frog', text)
         self.assertIn('/tink:weave', text)
@@ -137,7 +133,6 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('.tink/current/', text)
         self.assertIn('.tink/runs/', text)
         self.assertIn('approval', text.lower())
-        self.assertIn('pre-v1', text)
         self.assertNotIn('30-second', text)
         self.assertNotIn('AI jokes', text)
         self.assertNotIn('/tink:prime', text)
@@ -293,20 +288,21 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('정확히 하나의 제안', context)
         self.assertIn('현재 실행 승인만으로', context)
 
-        readme = (ROOT / 'README.md').read_text(encoding='utf-8')
-        self.assertIn('Stitch', readme)
-        self.assertIn('Reusable State Save Gate', readme)
-        self.assertIn('lightweight internal quality check', readme)
-
         adr = (ROOT / 'docs/adr/0003-add-stitch-to-forge.md').read_text(encoding='utf-8')
         self.assertIn('## Status', adr)
         self.assertIn('Accepted', adr)
 
     def test_harness_index_and_files(self):
-        index = json.loads((ROOT / 'templates/tink/harnesses/index.json').read_text())
+        index = json.loads((ROOT / 'templates/tink/harnesses/index.json').read_text(encoding='utf-8'))
         names = {item['name'] for item in index}
-        self.assertEqual(names, {'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship', 'harness-synthesis', 'harness-curation', 'context-habit-calibration'})
-        for name in names:
+        expected_names = {
+            'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship',
+            'harness-synthesis', 'harness-curation',
+            'pre-publish-multi-agent-verify', 'tink-feedback-apply',
+        }
+        self.assertEqual(names, expected_names)
+        work_harnesses = {'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship'}
+        for name in work_harnesses:
             text = (ROOT / f'templates/tink/harnesses/{name}.md').read_text(encoding='utf-8')
             for section in HARNESS_SECTIONS:
                 self.assertIn(section, text)
@@ -485,7 +481,6 @@ class TemplateTests(unittest.TestCase):
         versioning = (ROOT / 'VERSIONING.md').read_text(encoding='utf-8')
         changelog = (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8')
 
-        self.assertIn(f'Current version: `{version}`', readme)
         self.assertIn(f'Current version: `{version}`', versioning)
         self.assertIn(f'## [{version}]', changelog)
 

@@ -16,9 +16,11 @@ Compare options, read docs, or collect grounded facts.
 5. Recommend the next action.
 
 ## Checks
-- Use only the context needed for this task.
+- Decision this research supports is named.
+- At least two options or sources are compared.
+- Facts and guesses are explicitly labeled.
+- Recommendation follows from evidence, not preference.
 - Do not repeat questions already answered in `.tink/current/answers.md`.
-- Do not store raw logs, full diffs, secrets, or one-off state in memory.
 
 ## Done means
 - Sources are linked.

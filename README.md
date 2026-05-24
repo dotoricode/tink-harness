@@ -161,16 +161,6 @@ Tink is not:
 
 It is a small harness layer for Claude Code or Codex.
 
-## Status
-
-Current version: `0.1.4`.
-
-Tink is pre-v1 and being hardened toward v1.0.0. Version policy and release checks are tracked in [`VERSIONING.md`](VERSIONING.md), and notable changes are tracked in [`CHANGELOG.md`](CHANGELOG.md).
-
-The current focus is install reliability, simple docs, visible run state, and a release path that can be verified from a clean repo.
-
-Scope model in v1.0: `repo` (project `.tink/`) and `global` (`~/.tink/`). Layered merging of `global + repo + local` (following the Claude Code settings pattern) is planned for v1.1.
-
 ## License
 
 MIT

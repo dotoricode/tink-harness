@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.1.4`
+Current version: `0.1.5`
 
 Tink is pre-v1. Do not bump to `1.0.0` until the v1 release-hardening gates pass.
 
