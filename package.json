@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "tink-harness": "./bin/install.js"
+    "tink-harness": "bin/install.js"
   },
   "files": [
     "bin/",
