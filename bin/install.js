@@ -149,6 +149,13 @@ function displayPath(base, filePath) {
   return path.relative(base, filePath) || '.';
 }
 
+function isAlwaysUpdatePath(src) {
+  const rel = path.relative(root, src).replace(/\\/g, '/');
+  return rel.startsWith('templates/claude/commands/') ||
+    rel.startsWith('templates/claude/skills/') ||
+    rel.startsWith('templates/tink/maintenance/');
+}
+
 function writeFileFromTemplate(src, dest, base) {
   const exists = fs.existsSync(dest);
   if (exists && !force) {
@@ -158,11 +165,15 @@ function writeFileFromTemplate(src, dest, base) {
       if (Buffer.compare(srcContent, destContent) === 0) {
         return;
       }
-      log.message(`keep user-modified ${displayPath(base, dest)}`);
+      if (!isAlwaysUpdatePath(src)) {
+        log.message(`keep user-modified ${displayPath(base, dest)}`);
+        return;
+      }
+      // commands/skills/maintenance: always update to new version
+    } else {
+      log.message(`skip existing ${displayPath(base, dest)}`);
       return;
     }
-    log.message(`skip existing ${displayPath(base, dest)}`);
-    return;
   }
   log.message(`${dryRun ? 'would write' : (exists ? 'update' : 'write')} ${displayPath(base, dest)}`);
   if (!dryRun) {

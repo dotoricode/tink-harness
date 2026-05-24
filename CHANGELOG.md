@@ -2,13 +2,29 @@
 
 All notable changes to Tink are tracked here.
 
-Tink is pre-v1. Expect small, reviewable changes until the v1.0.0 hardening gates pass.
-
 ## [Unreleased]
 
 ### Planned (v1.1)
 
 - Layered scope model: merge `global` (`~/.tink/`) + `repo` (`.tink/`) + `local` (`.tink/local/` or `.tink/settings.local.json`) following the Claude Code settings pattern. Tracked separately.
+
+
+## [1.0.0] - 2026-05-25
+
+First stable release. All hardening gates passed.
+
+### Added
+
+- `pre-publish-multi-agent-verify` harness: 5-agent parallel verification harness for npm publish readiness. Agents cover install matrix, UX walkthrough, doc consistency, secret leak audit, and slash/contract coverage.
+
+### Fixed
+
+- `update` subcommand never propagated template changes to existing installs. Commands, skills, and maintenance files now always overwrite on update; harnesses, hooks, memory, and config are preserved when user-modified (respects `weave` customizations).
+- `VERSIONING.md` update command used `npx tink-harness@latest update` (npm registry form, fails before first publish). Changed to `npx github:dotoricode/tink-harness update` (GitHub form, always works).
+
+### Removed
+
+- Remaining phantom references to `context-habit-calibration` in `cast.md`, `list.md`, and `SKILL.md` (harness was merged into `harness-curation` in v0.1.5).
 
 
 ## [0.1.5] - 2026-05-24

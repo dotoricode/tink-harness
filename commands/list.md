@@ -12,7 +12,7 @@ List available Tink harnesses without loading every harness body.
 3. Treat `.tink/current/` as weak evidence unless it is clearly from the same active conversation. If context is uncertain, label it `stale current candidate`, not proof of usage.
 4. Classify every harness into exactly one of three categories:
    - **working** — directly performs tasks (e.g. `code-change`, `bug-fix`, `research`, `review`, `docs`, `ship`).
-   - **meta** — manages other harnesses or Tink itself. Treat these names as meta regardless of `kind`: `harness-synthesis`, `harness-curation`, `context-habit-calibration`, `tink-feedback-apply`.
+   - **meta** — manages other harnesses or Tink itself. Treat these names as meta regardless of `kind`: `harness-synthesis`, `harness-curation`, `tink-feedback-apply`.
    - **custom (this repo)** — `kind: synthesized` in `index.json` (created in this repo, not part of the default set). If a synthesized harness also matches a meta name, prefer meta.
 5. Compute the signal per harness:
    - 🟢 **active** — appears in any `.tink/runs/*.md` frontmatter or `.tink/maintenance/ledger.jsonl` entry.

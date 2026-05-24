@@ -14,8 +14,10 @@ This command does not run the update itself. It detects how Tink was installed i
 2. Detect install source:
    - If the project root (or `cwd`) has `.claude-plugin/plugin.json` and a top-level `commands/` directory, Tink was installed via Claude Code plugin marketplace.
    - Otherwise, treat it as an `npx tink-harness install` (standalone) installation.
-3. Scan `.tink/harnesses/`, `.tink/memory/`, and `.tink/config.json` for files that have diverged from the latest installed templates (read-only inspection only).
-4. Show the appropriate update path and a short list of files that the safe update would keep as-is.
+3. Scan for files that have diverged from the latest installed templates (read-only inspection only):
+   - **Always updated**: `.claude/commands/tink/`, `.claude/skills/tink/`, `.tink/maintenance/` — template changes always propagate here.
+   - **Preserved if user-modified**: `.tink/harnesses/`, `.tink/hooks/`, `.tink/memory/`, `.tink/config.json` — respects `weave` customizations and local configuration.
+4. Show the appropriate update path and a short list of files in the "preserved" category that have diverged.
 
 ## Update path: Claude Code plugin
 ```text
@@ -39,7 +41,9 @@ Before v1.0.0 publish:
 npx github:dotoricode/tink-harness update
 ```
 
-The `update` subcommand keeps user-modified files (harnesses you've changed via `weave`, memory entries you've added, edited `.tink/config.json`).
+The `update` subcommand:
+- **Always overwrites**: commands, skills, and maintenance files (`.claude/commands/tink/`, `.claude/skills/tink/`, `.tink/maintenance/`) — so you get the latest harness runner and command behavior automatically.
+- **Preserves if modified**: harnesses, hooks, memory, and config (`.tink/harnesses/`, `.tink/hooks/`, `.tink/memory/`, `.tink/config.json`) — respects your `weave` customizations and local settings.
 
 ## Output format (source repo)
 
@@ -61,10 +65,12 @@ If the source-repo guard triggers, print only this and stop — do not present p
 
 **설치 경로**: <plugin marketplace | npx standalone>
 
+**항상 업데이트됨**: commands, skills, maintenance (최신 버전으로 자동 반영)
+
 **사용자 수정 파일** (업데이트 시 보존):
 - <path1>
 - <path2>
-- (none if no diverged files)
+- (보존할 파일 없음)
 
 **업데이트 명령**:
 <command lines>

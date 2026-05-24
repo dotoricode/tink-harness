@@ -215,7 +215,6 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('behavior-shaping rules', forge)
         self.assertIn('pre-pr-security-gate', forge)
         self.assertIn('harness-curation', forge)
-        self.assertIn('context-habit-calibration', forge)
         self.assertIn('recurring operating habit', forge)
         self.assertIn('smallest effective set', forge)
         self.assertIn('explicit approval', forge)

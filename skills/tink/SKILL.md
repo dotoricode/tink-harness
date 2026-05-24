@@ -41,7 +41,7 @@ Use only these commands:
 5. Run the synthesis probe on the initial harness choice. The probe produces one of three outcomes: strong fit (0-1 yes), generic fit (2-3 yes), or no fit (4-5 yes or no harness matches). Strong fit keeps the harness; generic fit adds a run-only draft; no fit loads `harness-synthesis`.
 6. If no existing harness fits, use `harness-synthesis` to draft a narrow domain-specific harness instead of forcing a bad fit.
 7. If too many tools, skills, agents, or harnesses are available, use `harness-curation` to choose the smallest effective set before loading more context.
-8. If lightweight signals show recurring context, token, prompt-quality, output-length, reset, or evidence habits, use `context-habit-calibration` to make one advisory recommendation.
+8. If lightweight signals show recurring context, token, prompt-quality, output-length, reset, or evidence habits, use `harness-curation` to make one advisory recommendation.
 9. When research notes, examples, prior failures, or user corrections are available, extract behavior-shaping rules: triggers, decision rules, checks, stop conditions, recovery, and evidence.
 10. Run Stitch once before committing to `.tink/current/`: evaluate every time, show exactly one proposal only for high-impact quality or safety branches, and use configured language.
 11. Use soft Stitch choices `Approve`, `Add requirements`, `Continue as-is` or localized equivalents; use hard choices `Approve`, `Add requirements`, `Cancel` only.
