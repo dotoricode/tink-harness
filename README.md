@@ -63,7 +63,7 @@ Claude Code plugin install:
 Standalone compatibility installer:
 
 ```bash
-npx github:dotoricode/tink-harness install
+npx tink-harness@latest install
 ```
 
 Standalone installer auto-detects `LANG` (English fallback). Pass `--lang=en|ko|zh` to override.
@@ -97,7 +97,7 @@ If update does not find the latest version, uninstall and install again:
 To update an existing standalone install (keeps user-modified files):
 
 ```bash
-npx github:dotoricode/tink-harness update
+npx tink-harness@latest update
 ```
 
 ## Commands

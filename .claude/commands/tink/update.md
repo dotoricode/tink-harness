@@ -34,11 +34,7 @@ The plugin path is handled by Claude Code and does not touch the local `.tink/` 
 
 ## Update path: npx (standalone)
 ```text
-npx tink-harness update
-```
-Before v1.0.0 publish:
-```text
-npx github:dotoricode/tink-harness update
+npx tink-harness@latest update
 ```
 
 The `update` subcommand:

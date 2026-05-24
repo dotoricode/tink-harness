@@ -63,7 +63,7 @@ Claude Code 플러그인 설치:
 독립형(Standalone) 호환 설치 프로그램:
 
 ```bash
-npx github:dotoricode/tink-harness install
+npx tink-harness@latest install
 ```
 
 독립형 설치 프로그램은 `LANG` 환경 변수를 자동으로 감지합니다(감지 실패 시 영어 기본값). 강제로 지정하려면 `--lang=en|ko|zh`를 넘기세요.
@@ -97,7 +97,7 @@ Claude Code 플러그인 사용자:
 기존 독립형 설치를 업데이트하려면(사용자 수정 파일은 유지됩니다):
 
 ```bash
-npx github:dotoricode/tink-harness update
+npx tink-harness@latest update
 ```
 
 ## 명령
