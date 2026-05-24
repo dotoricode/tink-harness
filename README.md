@@ -22,6 +22,8 @@
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
+**English** · [한국어](README.ko.md)
+
 ---
 
 ## Why I made this
@@ -34,9 +36,9 @@ Then I used Hermes Agent for a while. What stayed with me was the way it gets be
 
 Tink started from a simple question:
 
-> Could Claude Code grow with me in the same way?
+> Could Claude Code or Codex grow with me in the same way?
 
-Not by adding a big framework. Not by running more agents. Just by helping Claude choose the right harness for the current task, create one when nothing fits, and improve the set over time.
+Not by adding a big framework. Not by running more agents. Just by helping Claude or Codex choose the right harness for the current task, create one when nothing fits, and improve the set over time.
 
 ## Install
 
@@ -57,6 +59,14 @@ Claude Code plugin install:
 ```text
 /tink:setup
 ```
+
+Standalone compatibility installer:
+
+```bash
+npx github:dotoricode/tink-harness install
+```
+
+Standalone installer auto-detects `LANG` (English fallback). Pass `--lang=en|ko|zh` to override.
 
 ## Update
 
@@ -84,12 +94,6 @@ If update does not find the latest version, uninstall and install again:
 /plugin install tink@tink-harness
 ```
 
-Standalone compatibility installer:
-
-```bash
-npx github:dotoricode/tink-harness install
-```
-
 To update an existing standalone install (keeps user-modified files):
 
 ```bash
@@ -106,7 +110,7 @@ Tink is plugin-first. Commands are namespaced under `tink`, so the public surfac
 
 **cast** means to place the first loops on the needle (코잡기, Cast on). In knitting, casting on is the very first step — it sets the foundation for everything that follows.
 
-In Tink, `cast` is the main path. It reads the task, chooses or drafts the right harness, runs Stitch (Stitch) as a lightweight internal quality check, creates `.tink/current/` as the visible workbench, and starts the first safe step after approval.
+In Tink, `cast` is the main path. It reads the task, chooses or drafts the right harness, runs a quick internal sanity check, creates `.tink/current/` as the visible workbench, and starts the first safe step after approval.
 
 Use it when the task is more than a quick answer.
 
@@ -143,7 +147,7 @@ Tink uses files you can inspect:
 
 The important rule is approval.
 
-Tink may suggest a harness, a memory entry, a cleanup, or an improvement. Stitch runs once before run state is committed and surfaces exactly one proposal when there is a high-impact quality or safety branch. Soft gates let you continue with recorded assumptions; hard gates (irreversible or external-side-effect actions) require explicit approval or cancel. Reusable State Save Gate is a separate gate entirely: current-run approval does not authorize saving to `.tink/harnesses/`, `.tink/memory/`, `.claude/`, or any file that affects future installs — those each need their own approval.
+Tink may suggest a harness, a memory entry, a cleanup, or an improvement. Before each run is committed, Tink runs one quick sanity check and surfaces a proposal only when something important is at stake. Low-risk steps let you continue with recorded assumptions; irreversible or externally visible actions (publish, deploy, deletions, broad changes) require explicit approval. Saving anything reusable — a new harness, a memory entry, a `.claude/` workflow file — always needs its own separate approval; approving the current run does not authorize saves that future installs would inherit.
 
 ## What Tink is not
 
@@ -153,9 +157,9 @@ Tink is not:
 - a workflow engine
 - a multi-agent runtime
 - a prompt library
-- a replacement for Claude Code
+- a replacement for Claude Code or Codex
 
-It is a small harness layer for Claude Code.
+It is a small harness layer for Claude Code or Codex.
 
 ## Status
 
