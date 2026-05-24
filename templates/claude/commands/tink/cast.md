@@ -57,6 +57,11 @@ Tink is not fully initialized.
 
 If legacy Tiny files such as `.tiny/` or `/tiny:use` instructions are present, treat them as old state. Explain that `/tink:cast` replaces `/tiny:use`, and offer to migrate useful `.tiny/harnesses/`, `.tiny/config.json`, and `.tiny/memory/` into `.tink/` only after approval. Never tell the user to run `/tiny:use`.
 
+After the initialization check, count files in `.tink/runs/`. If the count exceeds `config.runs_ttl_count` (default: 20), show one advisory line before proceeding:
+- Korean: `💡 runs/에 N개 파일이 쌓여 있습니다. /tink:frog로 정리를 권장합니다.`
+- English: `💡 N run records accumulated. Consider /tink:frog to clean up.`
+This is advisory only — do not block or pause the task.
+
 ## Stitch
 Before committing to `.tink/current/`, run Stitch exactly once. Stitch is an internal quality gate inside `/tink:cast`, not a separate `/tink:grill` command and not a real subagent in v1.0.0.
 
@@ -138,6 +143,12 @@ After approval, create `.tink/current/` with these files before doing deeper wor
 
 Also append a compact run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>.md` when the task completes, is canceled, is blocked, or is superseded. Do not store secrets, raw logs, full diffs, or one-off private context.
 
+When appending a run record, also append a signal to `.tink/maintenance/weave-queue.json` if it exists:
+```json
+{ "id": "signal-<run_id>", "harness": "<primary_selected_harness>", "run": ".tink/runs/<slug>.md", "signal": "<outcome>", "auto": true, "timestamp": "<ISO>" }
+```
+Use `check_failed` as the signal when any check in `checks.md` did not pass; otherwise use the run outcome (`completed`, `blocked`, `canceled`, or `superseded`). Do not create `.tink/maintenance/weave-queue.json` if it does not exist — only append when it is already present.
+
 ## Current run lifecycle
 Before creating a new `.tink/current/`, check whether one already exists:
 
@@ -200,6 +211,30 @@ Approved reusable changes should append one JSON line to `.tink/maintenance/ledg
 { "timestamp": "", "op_id": "op-...", "type": "weave|frog|memory|index-update|harness-create|harness-edit", "files": [], "evidence": [], "approval": "", "result": "applied|rejected|deferred", "rollback": "" }
 ```
 
+## Trivial task check
+Before normal harness classification, check whether the task is trivial. Evaluate in this exact order:
+
+**Step 1 — Hard-gate override (runs first, no exceptions):**
+If any of the following is true, the task is NOT trivial:
+- Irreversible or hard-to-reverse action (delete, reset, overwrite uncommitted work)
+- External visibility (publish, deploy, tag, push to remote, open a PR, post to a public system)
+- Sensitive data (secrets, credentials, payments, personal data)
+- The task description mentions any of the above concepts
+
+**Step 2 — Trivial criteria (only evaluated if step 1 finds no hard-gate):**
+A task is trivial only when ALL of the following are true:
+1. Single file target explicitly stated
+2. Goal expressed completely in 1–2 sentences
+3. No external effects (confirmed by step 1)
+
+**If trivial:**
+- Skip Stitch evaluation
+- Create minimal run state: `steps.json` only
+- Replace the approval question with a single inline confirmation: `진행할까요? (y/n)` or `Proceed? (y/n)`
+- Begin work immediately after confirmation
+
+**If not trivial:** proceed to normal classification below.
+
 ## Procedure
 1. Read `.tink/harnesses/index.json` first. Do not read every harness.
 2. Read small memory files where `config.json` sets `memory_has_entries.<name>: true`. Skip files set to `false`. After a Save Gate approves a new memory entry, set that file's flag to `true` in `config.json`.
@@ -215,6 +250,13 @@ Approved reusable changes should append one JSON line to `.tink/maintenance/ledg
    - ship/release
    - new pattern not covered yet
 4. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context. When the task is ambiguous (Stitch goal-ambiguity is expected to trigger), start with a single best-fit harness; add a second only after the user clarifies. Do not bundle 2+ harnesses for ambiguous tasks upfront.
+
+   After selecting, run a quick quality check using the index metadata for each chosen harness:
+   - If fewer than 2 words in `use_when` match the current task description (case-insensitive) → treat as a Stitch harness-mismatch signal
+   - If `checks` is empty or missing → treat as a Stitch harness-mismatch signal
+   - If `asks` is empty or missing and the task goal is not self-evident → treat as a Stitch goal-ambiguity signal
+   Feed any signals into the Stitch evaluation at step 11.
+
 5. Run the synthesis probe on the initial harness choice. The probe produces one of three outcomes: strong fit (0-1 yes), generic fit (2-3 yes), or no fit (4-5 yes or no harness matches).
 6. If the probe finds no fit, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
 7. If the probe finds a generic fit (2-3 yes), propose a run-only draft harness or domain rules alongside the built-in harness. Do not save it by default.

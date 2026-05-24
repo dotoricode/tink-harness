@@ -28,6 +28,15 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - `.tink/maintenance/weave-queue.json`
    - references in memory files
    - recent git history touching harness files as weak context only
+2b. Check `.tink/runs/` accumulation against TTL config:
+   - Count files in `.tink/runs/`
+   - Find the oldest file by its date prefix
+   - If count exceeds `config.runs_ttl_count` (default: 20) OR oldest file is more than `config.runs_ttl_days` (default: 30) days before today:
+     → Include a "runs/ 정리 후보" section in the frog output alongside harness candidates
+     → Propose moving files outside the TTL window to `.tink/archive/` (not deletion)
+     → Apply the same approval rules: show an operation-specific payload with op ID, files, and rollback path
+     → If `.tink/archive/` does not exist, include creating it in the operation payload
+   - Do not recommend archiving the most recent `runs_ttl_count` files regardless of age.
 3. Treat `.tink/current/notes.md` as weak evidence unless it is clearly from the same active conversation. If uncertain, label it `stale current candidate`.
 4. Grade evidence before recommending action:
    - strong: multiple run or ledger records show non-use, repeated rejection, replacement, or accepted alternative
