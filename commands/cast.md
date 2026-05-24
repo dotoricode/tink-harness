@@ -342,7 +342,7 @@ If a run-only draft or new harness is useful:
   4. 취소
 ```
 
-If Stitch triggers as a soft gate, merge it into the approval format:
+If Stitch triggers as a soft gate, merge it into the approval format. The user-facing block uses plain language — never the word `Stitch`. The Korean default uses `점검 사항`; English uses `Review note`:
 
 ```text
 ### 🧶 Run: <task name>
@@ -350,7 +350,7 @@ If Stitch triggers as a soft gate, merge it into the approval format:
 **🎯 Goals**
 - <goal>
 
-**🔍 Stitch**
+**🔍 점검 사항**
 - 제안: <one proposal>
 - 이유: <reason>
 - 이대로 진행 시 가정: <explicit assumption>
@@ -361,9 +361,9 @@ If Stitch triggers as a soft gate, merge it into the approval format:
 - **첫 실행:** ...
 
 ? 진행할까요?
-❯ 1. 승인 (권장) — Stitch 가정 포함 진행
-  2. 요구사항 입력 — Stitch 제안 또는 계획 조정
-  3. 이대로 진행 — Stitch 무시하고 원래 계획대로
+❯ 1. 승인 (권장) — 점검 가정 포함 진행
+  2. 요구사항 입력 — 점검 제안 또는 계획 조정
+  3. 이대로 진행 — 점검 무시하고 원래 계획대로
   4. 취소
 ```
 

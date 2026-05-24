@@ -67,5 +67,7 @@ Claude Code plugin users:
 Standalone compatibility installer users:
 
 ```bash
-npx github:dotoricode/tink-harness install --force
+npx tink-harness@latest update
 ```
+
+`update` preserves user-modified files. The `--force` flag is reserved for emergency repair and is not the recommended path.

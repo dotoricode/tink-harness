@@ -325,15 +325,22 @@ function patchConfig(target, scope, hookScope, language) {
   fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
 }
 
+function detectLanguage() {
+  const envLang = (process.env.LANG || process.env.LANGUAGE || process.env.LC_ALL || '').toLowerCase();
+  if (envLang.startsWith('ko') || envLang.includes('.ko') || envLang.includes('_kr')) return 'ko';
+  if (envLang.startsWith('zh') || envLang.includes('_cn') || envLang.includes('_tw') || envLang.includes('_hk')) return 'zh';
+  return 'en';
+}
+
 async function resolveChoices() {
   let scope = args.includes('--global') ? 'global' : (argValue('--scope') || undefined);
-  let language = argValue('--lang') || argValue('--language') || 'ko';
+  let language = argValue('--lang') || argValue('--language') || detectLanguage();
   if (scope && !['repo', 'global'].includes(scope)) {
     console.error(`Invalid scope: ${scope}`);
     usage();
     process.exit(1);
   }
-  if (!['en', 'ko', 'zh'].includes(language)) language = 'ko';
+  if (!['en', 'ko', 'zh'].includes(language)) language = 'en';
 
   let components = COMPONENTS[language].map((item) => item.value).filter((value) => value !== 'hook');
   if (args.includes('--with-hook')) components.push('hook');
@@ -347,7 +354,7 @@ async function resolveChoices() {
   }
 
   language = handleCancel(await select({
-    message: COPY.ko.language,
+    message: COPY[language].language,
     options: [
       { value: 'ko', label: '한국어', hint: '설치 안내와 Tink 기본 문구를 한국어로 설정' },
       { value: 'en', label: 'English', hint: 'Use English setup copy' },

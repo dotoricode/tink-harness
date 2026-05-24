@@ -6,21 +6,26 @@ Tink is pre-v1. Expect small, reviewable changes until the v1.0.0 hardening gate
 
 ## [Unreleased]
 
-### Added
-
-- `/tink:update` slash command: detects install source, diagnoses user-modified files, and shows the safe update command.
-- `npx tink-harness update` subcommand: data-preserving update that keeps user-modified files. Use `--force` to overwrite everything (data loss risk).
-
-### Changed
-
-- README Update section now recommends `npx ... update` only. The `install --force` path is no longer documented as a user-facing option (the `--force` flag remains in the code for emergency use but is not advertised).
-
 ### Planned (v1.1)
 
 - Layered scope model: merge `global` (`~/.tink/`) + `repo` (`.tink/`) + `local` (`.tink/local/` or `.tink/settings.local.json`) following the Claude Code settings pattern. Tracked separately.
 
 
-## [0.1.4] - 2026-05-22
+## [0.1.4] - 2026-05-23
+
+### Added
+
+- `/tink:update` slash command: detects install source, diagnoses user-modified files, and shows the safe update command.
+- `npx tink-harness update` subcommand: data-preserving update that keeps user-modified files. Use `--force` to overwrite everything (data loss risk).
+- HARNESS.md harness catalog for fast human scanning.
+- Hard-gate behavior for `ship` harness (release/publish/deploy/PR) — runs the safety gate at initial approval, not just at the first risky step.
+
+### Changed
+
+- Default installer language now auto-detects from `LANG`/`LANGUAGE`/`LC_ALL`, falling back to English; previously hardcoded to Korean.
+- README Update section recommends `npx ... update` only. The `install --force` path is no longer documented as a user-facing option (the `--force` flag remains in the code for emergency use but is not advertised).
+- `/tink:cast` approval format uses plain language for the soft-gate review block; internal labels are kept in code/docs but not shown to the user.
+- `/tink:cast` UX overhauls: shorter prompts, fewer approval gates for trivial tasks, single consolidated approval for soft-gate cases.
 
 ### Fixed
 
