@@ -140,6 +140,23 @@
     ]
   },
   {
+    "name": "pr-merge",
+    "kind": "synthesized",
+    "context": "small",
+    "use_when": "Merge a GitHub PR after verifying CI, diff, and conflicts. Use when a PR is ready to merge.",
+    "asks": [
+      "Which PR? (number, URL, or current branch)",
+      "Merge strategy: squash, merge, or rebase?",
+      "Any known risks or rollback plan?"
+    ],
+    "checks": [
+      "CI all green or skip reason approved",
+      "No conflicts (mergeable: MERGEABLE)",
+      "Diff scope matches PR description",
+      "Rollback base SHA recorded"
+    ]
+  },
+  {
     "name": "tink-feedback-apply",
     "kind": "built-in",
     "context": "small",

@@ -21,7 +21,10 @@ Map prompt content to `AskUserQuestion` fields:
 Use Korean field values when `.tink/config.json` language is `ko` or `auto` with Korean input; use English otherwise.
 
 ## Procedure
-1. Read `.tink/harnesses/index.json`. If invoked from `/tink:frog`, first read the purge output, `.tink/current/notes.md`, or `.tink/maintenance/weave-queue.json` for the weave handoff packet.
+1. Read `.tink/harnesses/index.json`. If `.tink/maintenance/weave-queue.json` exists, read it to find:
+   - Handoff packets from `/tink:frog` (entries where `auto` is absent or false)
+   - Auto signals from completed runs (entries where `auto: true`)
+   Count auto signals per harness: `check_failed` signals count as 2, all other outcomes count as 1. Use this frequency to rank improvement candidates — harnesses with the highest signal count should be improved first. If invoked from `/tink:frog`, also read the purge output and `.tink/current/notes.md` for the weave handoff packet.
 2. Identify one or a few active harnesses to improve using real failures and evidence:
    - repeated mistakes
    - user corrections

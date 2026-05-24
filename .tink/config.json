@@ -12,6 +12,8 @@
   "default_harnesses_per_task": 4,
   "harness_lines_warning": 100,
   "context_budget": "soft",
+  "runs_ttl_days": 30,
+  "runs_ttl_count": 20,
   "memory_has_entries": {
     "mistakes": true,
     "preferences": true,

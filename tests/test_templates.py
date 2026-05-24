@@ -297,6 +297,7 @@ class TemplateTests(unittest.TestCase):
             'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship',
             'harness-synthesis', 'harness-curation',
             'pre-publish-multi-agent-verify', 'tink-feedback-apply',
+            'pr-merge',
         }
         self.assertEqual(names, expected_names)
         work_harnesses = {'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship'}
