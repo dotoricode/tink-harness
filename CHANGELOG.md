@@ -4,7 +4,39 @@ All notable changes to Tink are tracked here.
 
 ## [Unreleased]
 
-### Planned (v1.1)
+No unreleased changes yet.
+
+
+## [1.1.1] - 2026-05-26
+
+### Added
+
+- Small Writ-inspired rule selection: rule graph nodes now distinguish `mandatory` and `retrievable` guidance with phase, budget cost, and keyword metadata.
+- Current-run `session.json` schema so Tink can record `loaded_rule_ids_by_phase` and avoid repeating the same rule guidance during a run.
+- Verification evidence and friction templates: `/tink:verify` now documents `.tink/current/verification.json` evidence and `.tink/maintenance/friction.jsonl` failure signals.
+
+### Changed
+
+- `/tink:cast`, `/tink:verify`, and `/tink:weave` now describe the smaller rule-loading path: mandatory first, keyword retrieval second, phase dedupe, compact evidence, then repeated-friction promotion through weave.
+- README and graph docs now explain the compact rule graph, verification evidence, and friction signal flow.
+
+
+## [1.1.0] - 2026-05-26
+
+### Added
+
+- Contract-first run model: `/tink:cast` now writes `.tink/current/contract.json` for non-trivial runs so task type, risks, success conditions, forbidden actions, verification, and evidence are structured before harness bodies are loaded.
+- `/tink:verify` command: runs the checks promised in the current contract, records compact evidence, and feeds failed checks into weave as `check_failed` signals.
+- Repo-local rule graph templates in `.tink/rules/index.json`, plus `contract.schema.json`, so Tink can select relevant harnesses, checks, and opt-in guard candidates without loading large Markdown by default.
+- Opt-in guard templates for repeated failures that should become real Claude Code hook boundaries after explicit approval.
+- Documentation for graph contracts, verification, and guard promotion.
+
+### Changed
+
+- `/tink:weave` can now classify improvements as harness edits, rule graph updates, or opt-in hook guard candidates.
+- Hook recommendation script now uses readable multilingual messages and keeps the default hook advisory-only.
+
+### Planned
 
 - Layered scope model: merge `global` (`~/.tink/`) + `repo` (`.tink/`) + `local` (`.tink/local/` or `.tink/settings.local.json`) following the Claude Code settings pattern. Tracked separately.
 

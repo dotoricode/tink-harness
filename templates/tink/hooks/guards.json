@@ -1,0 +1,32 @@
+{
+  "name": "tink-opt-in-guards",
+  "description": "Guard templates promoted from repeated verification failures. These are examples only until the user explicitly opts in.",
+  "guards": [
+    {
+      "id": "release-verification-stop",
+      "event": "Stop",
+      "purpose": "Block finishing a release/publish/deploy run when required contract checks are missing or failed.",
+      "opt_in": true,
+      "inputs": [
+        ".tink/current/contract.json",
+        ".tink/current/notes.md"
+      ],
+      "blocks_when": [
+        "contract.task_type is release, publish, or deploy",
+        "a required verification command is missing, failed, or manually skipped without approval"
+      ]
+    },
+    {
+      "id": "forbidden-path-write",
+      "event": "PreToolUse",
+      "purpose": "Block writes to paths listed in contract.forbidden after a project opts in.",
+      "opt_in": true,
+      "inputs": [
+        ".tink/current/contract.json"
+      ],
+      "blocks_when": [
+        "tool action writes a path matched by contract.forbidden"
+      ]
+    }
+  ]
+}

@@ -12,6 +12,13 @@
   "default_harnesses_per_task": 4,
   "harness_lines_warning": 100,
   "context_budget": "soft",
+  "rule_selection": {
+    "mode": "small-writ",
+    "mandatory_first": true,
+    "dedupe_by_phase": true,
+    "retrieval_method": "keyword",
+    "max_retrievable_rules_per_phase": 5
+  },
   "runs_ttl_days": 30,
   "runs_ttl_count": 20,
   "memory_has_entries": {

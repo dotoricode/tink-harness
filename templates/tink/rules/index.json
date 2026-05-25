@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "description": "Repo-local rule graph for choosing only the harnesses, checks, and guard candidates that fit the current contract.",
+  "selection_policy": {
+    "load_order": ["mandatory", "retrievable"],
+    "phase_dedupe_key": "loaded_rule_ids_by_phase",
+    "default_context_budget": "compact",
+    "retrieval": {
+      "method": "keyword",
+      "max_retrievable_per_phase": 5
+    }
+  },
+  "nodes": [
+    {
+      "id": "harness:code-change",
+      "type": "harness",
+      "target": "code-change",
+      "load": "retrievable",
+      "phase": "classification",
+      "budget_cost": 2,
+      "keywords": ["code", "refactor", "implementation", "change"],
+      "when": { "task_type": ["code_change"] }
+    },
+    {
+      "id": "harness:bug-fix",
+      "type": "harness",
+      "target": "bug-fix",
+      "load": "retrievable",
+      "phase": "classification",
+      "budget_cost": 2,
+      "keywords": ["bug", "repro", "failure", "regression"],
+      "when": { "task_type": ["bug_fix"], "has_repro": [true] }
+    },
+    {
+      "id": "harness:ship",
+      "type": "harness",
+      "target": "ship",
+      "load": "mandatory",
+      "phase": "approval",
+      "budget_cost": 2,
+      "keywords": ["release", "deploy", "publish", "ship"],
+      "when": { "task_type": ["release", "deploy", "publish"] }
+    },
+    {
+      "id": "harness:pre-publish-multi-agent-verify",
+      "type": "harness",
+      "target": "pre-publish-multi-agent-verify",
+      "load": "retrievable",
+      "phase": "verification",
+      "budget_cost": 3,
+      "keywords": ["npm", "package", "public", "publish", "release"],
+      "when": {
+        "task_type": ["release", "publish"],
+        "risk": ["public_publish"]
+      }
+    },
+    {
+      "id": "check:package-dry-run",
+      "type": "check",
+      "target": "npm pack --dry-run",
+      "load": "mandatory",
+      "phase": "verification",
+      "budget_cost": 1,
+      "keywords": ["npm", "package", "tarball", "dry-run"],
+      "when": {
+        "task_type": ["release", "publish"],
+        "package_manager": ["npm"]
+      }
+    },
+    {
+      "id": "check:readme-cli-match",
+      "type": "check",
+      "target": "README commands match shipped CLI/help",
+      "load": "mandatory",
+      "phase": "verification",
+      "budget_cost": 1,
+      "keywords": ["readme", "commands", "cli", "docs"],
+      "when": {
+        "task_type": ["release", "publish"],
+        "risk": ["public_publish"]
+      }
+    },
+    {
+      "id": "guard:release-verification-stop",
+      "type": "guard-candidate",
+      "target": "Stop hook blocks release completion when required contract checks are missing",
+      "load": "retrievable",
+      "phase": "guard-promotion",
+      "budget_cost": 1,
+      "keywords": ["release", "verification", "missing", "stop"],
+      "when": {
+        "task_type": ["release", "deploy", "publish"],
+        "risk": ["external_visibility", "public_publish"]
+      },
+      "opt_in": true
+    },
+    {
+      "id": "guard:forbidden-path-write",
+      "type": "guard-candidate",
+      "target": "PreToolUse hook blocks writes to contract.forbidden paths",
+      "load": "retrievable",
+      "phase": "guard-promotion",
+      "budget_cost": 1,
+      "keywords": ["forbidden", "path", "write", "pretooluse"],
+      "when": {
+        "forbidden": ["path_write"]
+      },
+      "opt_in": true
+    }
+  ],
+  "edges": [
+    {
+      "from": "harness:ship",
+      "to": "check:readme-cli-match",
+      "relation": "requires_check"
+    },
+    {
+      "from": "harness:pre-publish-multi-agent-verify",
+      "to": "check:package-dry-run",
+      "relation": "requires_check"
+    },
+    {
+      "from": "check:package-dry-run",
+      "to": "guard:release-verification-stop",
+      "relation": "can_promote_failure_to_guard"
+    }
+  ]
+}

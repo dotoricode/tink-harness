@@ -17,6 +17,7 @@ const force = args.includes('--force');
 const yes = args.includes('--yes') || args.includes('-y');
 const interactive = process.stdin.isTTY && process.stdout.isTTY && !yes && !dryRun;
 const source = 'https://github.com/dotoricode/tink-harness.git';
+const validSurfaces = new Set(['claude', 'codex']);
 
 const COPY = {
   en: {
@@ -68,25 +69,40 @@ const COPY = {
 
 const COMPONENTS = {
   en: [
-    { value: 'commands', label: 'Claude Code commands', hint: '/tink:setup, /tink:cast, /tink:list, /tink:frog, /tink:weave, /tink:update' },
+    { value: 'commands', label: 'Claude Code commands', hint: '/tink:setup, /tink:cast, /tink:verify, /tink:list, /tink:frog, /tink:weave, /tink:update' },
     { value: 'skill', label: 'Tink skill', hint: 'Tink operating rules for Claude Code' },
     { value: 'harnesses', label: 'Built-in harnesses', hint: 'Reusable task templates' },
     { value: 'memory', label: 'Memory templates', hint: 'Approved mistakes/preferences/lessons files' },
     { value: 'hook', label: 'Hook recommendation (optional)', hint: 'Registers a safe UserPromptSubmit hook when selected. Off by default.' }
   ],
   ko: [
-    { value: 'commands', label: 'Claude Code 명령', hint: '/tink:setup, /tink:cast, /tink:list, /tink:frog, /tink:weave, /tink:update' },
+    { value: 'commands', label: 'Claude Code 명령', hint: '/tink:setup, /tink:cast, /tink:verify, /tink:list, /tink:frog, /tink:weave, /tink:update' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code가 읽는 Tink 작업 원칙' },
     { value: 'harnesses', label: '기본 harness', hint: '재사용 작업 템플릿' },
     { value: 'memory', label: 'Memory 템플릿', hint: '승인된 실수/선호/교훈 파일' },
     { value: 'hook', label: 'Hook 추천 (선택)', hint: '선택하면 안전한 UserPromptSubmit hook으로 등록합니다. 기본 off.' }
   ],
   zh: [
-    { value: 'commands', label: 'Claude Code 命令', hint: '/tink:setup, /tink:cast, /tink:list, /tink:frog, /tink:weave, /tink:update' },
+    { value: 'commands', label: 'Claude Code 命令', hint: '/tink:setup, /tink:cast, /tink:verify, /tink:list, /tink:frog, /tink:weave, /tink:update' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code 读取的 Tink 工作规则' },
     { value: 'harnesses', label: '内置 harness', hint: '可复用任务模板' },
     { value: 'memory', label: 'Memory 模板', hint: '经批准的错误/偏好/经验文件' },
     { value: 'hook', label: 'Hook 推荐（可选）', hint: '选择后注册安全的 UserPromptSubmit hook。默认关闭。' }
+  ]
+};
+
+const SURFACE_OPTIONS = {
+  en: [
+    { value: 'claude', label: 'Claude Code', hint: 'Install /tink:* commands, Claude skill, and optional hook support' },
+    { value: 'codex', label: 'Codex', hint: 'Install the $tink skill into CODEX_HOME or ~/.codex' }
+  ],
+  ko: [
+    { value: 'claude', label: 'Claude Code', hint: '/tink:* 명령, Claude skill, 선택 hook 지원 설치' },
+    { value: 'codex', label: 'Codex', hint: '$tink skill을 CODEX_HOME 또는 ~/.codex에 설치' }
+  ],
+  zh: [
+    { value: 'claude', label: 'Claude Code', hint: 'Install /tink:* commands, Claude skill, and optional hook support' },
+    { value: 'codex', label: 'Codex', hint: 'Install the $tink skill into CODEX_HOME or ~/.codex' }
   ]
 };
 
@@ -97,7 +113,77 @@ function argValue(name) {
 }
 
 function usage() {
-  console.log(`Tink installer for Claude Code\n\nUsage:\n  npx tink-harness@latest [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--dry-run] [--force]\n  npx tink-harness@latest update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--dry-run] [--force]\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Keeps user-modified files.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select components\n  4. Select repo/global installation scope\n  5. Select git tracking policy for project state\n\nScopes:\n  repo    Install into the current project.\n  global  Install into your home Claude Code config.\n`);
+  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  npx tink-harness@latest [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--dry-run] [--force]\n  npx tink-harness@latest update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--dry-run] [--force]\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Keeps user-modified files.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select git tracking policy for project state\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
+}
+
+function normalizeSurfaces(surfaces) {
+  const values = [...new Set(surfaces)];
+  if (values.some((value) => !validSurfaces.has(value))) {
+    console.error(`Invalid install surface: ${values.find((value) => !validSurfaces.has(value))}`);
+    usage();
+    process.exit(1);
+  }
+  if (values.includes('claude') && values.includes('codex')) return 'all';
+  return values[0] || 'claude';
+}
+
+function resolveDefaultSurfaces() {
+  if (argValue('--agent')) {
+    console.error('--agent is no longer supported. Run the interactive installer and select Claude Code, Codex, or both during setup.');
+    usage();
+    process.exit(1);
+  }
+
+  const envValue = process.env.TINK_INSTALL_SURFACES;
+  if (!envValue) return 'claude';
+  if (envValue.trim().toLowerCase() === 'all') return 'all';
+  return normalizeSurfaces(envValue.split(',').map((value) => value.trim().toLowerCase()).filter(Boolean));
+}
+
+function includesClaude(agent) {
+  return agent === 'claude' || agent === 'all';
+}
+
+function includesCodex(agent) {
+  return agent === 'codex' || agent === 'all';
+}
+
+function codexHome() {
+  return process.env.CODEX_HOME || path.join(os.homedir(), '.codex');
+}
+
+function componentOptionsFor(agent, language) {
+  const options = COMPONENTS[language].filter((item) => {
+    if (item.value === 'commands') return includesClaude(agent);
+    if (item.value === 'hook') return includesClaude(agent);
+    return true;
+  });
+  return options.map((item) => {
+    if (item.value !== 'skill') return item;
+    if (agent === 'codex') {
+      return {
+        value: 'skill',
+        label: language === 'ko' ? 'Codex Tink skill' : language === 'zh' ? 'Codex Tink skill' : 'Codex Tink skill',
+        hint: language === 'ko'
+          ? 'Codex가 $tink로 읽는 Tink 작업 원칙'
+          : language === 'zh'
+            ? 'Codex 通过 $tink 读取的 Tink 工作规则'
+            : 'Tink operating rules for Codex through $tink'
+      };
+    }
+    if (agent === 'all') {
+      return {
+        value: 'skill',
+        label: language === 'ko' ? 'Tink skills' : language === 'zh' ? 'Tink skills' : 'Tink skills',
+        hint: language === 'ko'
+          ? 'Claude Code와 Codex가 읽는 Tink 작업 원칙'
+          : language === 'zh'
+            ? 'Claude Code 和 Codex 读取的 Tink 工作规则'
+            : 'Tink operating rules for Claude Code and Codex'
+      };
+    }
+    return item;
+  });
 }
 
 function colorLine(line, color) {
@@ -153,6 +239,7 @@ function isAlwaysUpdatePath(src) {
   const rel = path.relative(root, src).replace(/\\/g, '/');
   return rel.startsWith('templates/claude/commands/') ||
     rel.startsWith('templates/claude/skills/') ||
+    rel.startsWith('templates/codex/skills/') ||
     rel.startsWith('templates/tink/maintenance/');
 }
 
@@ -275,32 +362,40 @@ function registerClaudeHook(target, scope, base) {
   writeJsonFile(settingsPath, settings, base);
 }
 
-function copySelected(scope, components) {
+function copySelected(scope, components, agent) {
   const repoTarget = process.cwd();
   const globalTarget = os.homedir();
+  const codexTarget = codexHome();
   const target = scope === 'global' ? globalTarget : repoTarget;
   const templateRoot = path.join(root, 'templates');
 
-  if (components.includes('commands')) {
+  if (includesClaude(agent) && components.includes('commands')) {
     copyTinkCommands(templateRoot, target);
   }
   if (components.includes('skill')) {
-    copyDir(path.join(templateRoot, 'claude/skills'), path.join(target, '.claude/skills'), target);
+    if (includesClaude(agent)) {
+      copyDir(path.join(templateRoot, 'claude/skills'), path.join(target, '.claude/skills'), target);
+    }
+    if (includesCodex(agent)) {
+      copyDir(path.join(templateRoot, 'codex/skills'), path.join(codexTarget, 'skills'), codexTarget);
+    }
   }
   if (components.includes('harnesses')) {
     copyDir(path.join(templateRoot, 'tink/harnesses'), path.join(target, '.tink/harnesses'), target);
+    copyDir(path.join(templateRoot, 'tink/rules'), path.join(target, '.tink/rules'), target);
+    copyDir(path.join(templateRoot, 'tink/schemas'), path.join(target, '.tink/schemas'), target);
     copyDir(path.join(templateRoot, 'tink/maintenance'), path.join(target, '.tink/maintenance'), target);
     writeFileFromTemplate(path.join(templateRoot, 'tink/config.json'), path.join(target, '.tink/config.json'), target);
   }
   if (components.includes('memory')) {
     copyDir(path.join(templateRoot, 'tink/memory'), path.join(target, '.tink/memory'), target);
   }
-  if (components.includes('hook')) {
+  if (includesClaude(agent) && components.includes('hook')) {
     copyDir(path.join(templateRoot, 'tink/hooks'), path.join(target, '.tink/hooks'), target);
     registerClaudeHook(target, scope, target);
   }
 
-  return { repoTarget, globalTarget, installTarget: target };
+  return { repoTarget, globalTarget, codexTarget, installTarget: target };
 }
 
 function updateGitignore(target, policy) {
@@ -336,6 +431,22 @@ function patchConfig(target, scope, hookScope, language) {
   fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
 }
 
+function nextStepFor(agent) {
+  if (agent === 'codex') {
+    return 'Next: open Codex and use $tink cast <task> to start. Use $tink setup only to review or change settings.';
+  }
+  if (agent === 'all') {
+    return 'Next: in Claude Code run /tink:cast <task>, or in Codex use $tink cast <task>.';
+  }
+  return 'Next: open Claude Code and run /tink:cast <task> to start. Run /tink:setup only to review or change settings.';
+}
+
+function doneLineFor(agent) {
+  if (agent === 'codex') return '\nDone. Open Codex and use $tink cast <task> to start.';
+  if (agent === 'all') return '\nDone. Use /tink:cast <task> in Claude Code or $tink cast <task> in Codex to start.';
+  return '\nDone. Open Claude Code and run /tink:cast <task> to start.';
+}
+
 function detectLanguage() {
   const envLang = (process.env.LANG || process.env.LANGUAGE || process.env.LC_ALL || '').toLowerCase();
   if (envLang.startsWith('ko') || envLang.includes('.ko') || envLang.includes('_kr')) return 'ko';
@@ -344,6 +455,7 @@ function detectLanguage() {
 }
 
 async function resolveChoices() {
+  let agent = resolveDefaultSurfaces();
   let scope = args.includes('--global') ? 'global' : (argValue('--scope') || undefined);
   let language = argValue('--lang') || argValue('--language') || detectLanguage();
   if (scope && !['repo', 'global'].includes(scope)) {
@@ -353,15 +465,15 @@ async function resolveChoices() {
   }
   if (!['en', 'ko', 'zh'].includes(language)) language = 'en';
 
-  let components = COMPONENTS[language].map((item) => item.value).filter((value) => value !== 'hook');
-  if (args.includes('--with-hook')) components.push('hook');
+  let components = componentOptionsFor(agent, language).map((item) => item.value).filter((value) => value !== 'hook');
+  if (includesClaude(agent) && args.includes('--with-hook')) components.push('hook');
   let gitPolicy = 'harnesses';
   let hookScope = 'off';
 
   if (!interactive) {
     scope = scope || 'repo';
     if (components.includes('hook')) hookScope = scope;
-    return { scope, components, gitPolicy, hookScope, language };
+    return { agent, scope, components, gitPolicy, hookScope, language };
   }
 
   language = handleCancel(await select({
@@ -393,9 +505,20 @@ async function resolveChoices() {
     language === 'ko' ? '항목 설명' : language === 'zh' ? '项目说明' : 'Component notes'
   );
 
+  agent = normalizeSurfaces(handleCancel(await multiselect({
+    message: language === 'ko'
+      ? '설치할 agent surface를 선택하세요 (space로 토글)'
+      : 'Select agent surfaces to install (space to toggle)',
+    options: SURFACE_OPTIONS[language],
+    initialValues: agent === 'all' ? ['claude', 'codex'] : [agent],
+    required: true
+  })));
+  components = componentOptionsFor(agent, language).map((item) => item.value).filter((value) => value !== 'hook');
+  if (includesClaude(agent) && args.includes('--with-hook')) components.push('hook');
+
   components = handleCancel(await multiselect({
     message: copy.components,
-    options: COMPONENTS[language],
+    options: componentOptionsFor(agent, language),
     initialValues: components,
     required: true
   }));
@@ -450,7 +573,7 @@ async function resolveChoices() {
     }));
   }
 
-  if (components.includes('hook')) {
+  if (includesClaude(agent) && components.includes('hook')) {
     hookScope = scope;
     note(
       language === 'ko'
@@ -462,7 +585,7 @@ async function resolveChoices() {
     );
   }
 
-  return { scope, components, gitPolicy, hookScope, language };
+  return { agent, scope, components, gitPolicy, hookScope, language };
 }
 
 async function main() {
@@ -477,17 +600,18 @@ async function main() {
     process.exit(1);
   }
 
-  const { scope, components, gitPolicy, hookScope, language } = await resolveChoices();
+  const { agent, scope, components, gitPolicy, hookScope, language } = await resolveChoices();
 
   if (!interactive) {
-    console.log('Installing Tink for Claude Code');
+    console.log(`Installing Tink for ${agent === 'claude' ? 'Claude Code' : agent === 'codex' ? 'Codex' : 'Claude Code and Codex'}`);
     console.log(`Source: ${source}`);
+    console.log(`surfaces ${agent}`);
     console.log(`language ${language}`);
     console.log(`scope ${scope}`);
     console.log(`components ${components.join(', ')}`);
   }
 
-  const targets = copySelected(scope, components);
+  const targets = copySelected(scope, components, agent);
 
   if (scope === 'repo' && components.some((item) => ['harnesses', 'memory', 'hook'].includes(item))) {
     updateGitignore(targets.repoTarget, gitPolicy);
@@ -498,19 +622,21 @@ async function main() {
 
   const summary = [
     `Language: ${language}`,
+    `Surfaces: ${agent}`,
     `Scope: ${scope}`,
     `Install target: ${targets.installTarget}`,
+    includesCodex(agent) ? `Codex target: ${targets.codexTarget}` : null,
     `Components: ${components.join(', ')}`,
     `Hook scope: ${hookScope}`,
-    'Next: open Claude Code and run /tink:cast <task> to start. Run /tink:setup only to review or change settings.'
-  ].join('\n');
+    nextStepFor(agent)
+  ].filter(Boolean).join('\n');
 
   if (interactive) {
     note(summary, COPY[language].installed);
     outro(COPY[language].done);
   } else {
     console.log(`\n${summary}`);
-    console.log('\nDone. Open Claude Code and run /tink:cast <task> to start.');
+    console.log(doneLineFor(agent));
   }
 }
 

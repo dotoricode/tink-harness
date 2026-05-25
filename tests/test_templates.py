@@ -26,8 +26,8 @@ HARNESS_SECTIONS = [
     '## If it fails, Tink back',
 ]
 
-EXPECTED_COMMANDS = {'setup.md', 'cast.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
-EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'cast.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
+EXPECTED_COMMANDS = {'setup.md', 'cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
+EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
 
 
 class TemplateTests(unittest.TestCase):
@@ -36,7 +36,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.0.0')
+        self.assertEqual(pkg['version'], '1.1.1')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -48,7 +48,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('VERSIONING.md', pkg['files'])
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
-        self.assertIn('A small harness layer for Claude Code', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('A small harness layer for Claude Code and Codex', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('Tinker Bell', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('colorLine(line, color)', installer)
@@ -61,6 +61,10 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Hook recommendation', installer)
         self.assertIn('UserPromptSubmit', installer)
         self.assertIn('--with-hook', installer)
+        self.assertIn('Select Claude Code, Codex, or both', installer)
+        self.assertIn('Select agent surfaces to install', installer)
+        self.assertIn('--agent is no longer supported', installer)
+        self.assertIn('codexHome', installer)
         self.assertIn("'tink/harnesses'", installer)
         self.assertIn('copyTinkCommands', installer)
         self.assertTrue((ROOT / '.claude-plugin/plugin.json').exists())
@@ -70,6 +74,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('remove legacy', installer)
         self.assertIn('path.join(commandDest, entry.name)', installer)
         self.assertIn('/tink:cast <task> to start', installer)
+        self.assertIn('$tink cast <task>', installer)
         self.assertIn('legacyTinyCommands', installer)
         self.assertIn('tink/maintenance', installer)
         self.assertNotIn("value: 'both'", installer)
@@ -84,9 +89,23 @@ class TemplateTests(unittest.TestCase):
             self.assertFalse((command_dir / forbidden).exists())
         self.assertFalse((ROOT / 'templates/claude/commands/tiny').exists())
 
+    def test_codex_skill_surface_is_focused(self):
+        skill = (ROOT / 'templates/codex/skills/tink/SKILL.md').read_text(encoding='utf-8')
+        self.assertIn('Self-growing harnesses for Codex', skill)
+        self.assertIn('$tink cast <task>', skill)
+        self.assertIn('$tink setup', skill)
+        self.assertIn('$tink update', skill)
+        self.assertIn('request_user_input', skill)
+        self.assertIn('.tink/current/plan.md', skill)
+        self.assertIn('.tink/current/session.json', skill)
+        self.assertIn('Codex skill files', skill)
+        self.assertNotIn('AskUserQuestion', skill)
+        self.assertNotIn('UserPromptSubmit', skill)
+
     def test_dual_format_paths_stay_in_sync(self):
         pairs = [
             ('commands/cast.md', 'templates/claude/commands/tink/cast.md'),
+            ('commands/verify.md', 'templates/claude/commands/tink/verify.md'),
             ('commands/frog.md', 'templates/claude/commands/tink/frog.md'),
             ('commands/list.md', 'templates/claude/commands/tink/list.md'),
             ('commands/setup.md', 'templates/claude/commands/tink/setup.md'),
@@ -130,6 +149,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('frog** means', text)
         self.assertIn('weave** means', text)
         self.assertIn('.tink/current/', text)
+        self.assertIn('.tink/rules/', text)
         self.assertIn('.tink/runs/', text)
         self.assertIn('approval', text.lower())
         self.assertNotIn('30-second', text)
@@ -317,12 +337,17 @@ class TemplateTests(unittest.TestCase):
             self.assertNotIn('secret=', text.lower())
 
     def test_installer_dry_run_and_install(self):
-        subprocess.run(['node', 'bin/install.js', 'install', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
-        subprocess.run(['node', 'bin/install.js', 'install', '--global', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
-        bad = subprocess.run(['node', 'bin/install.js', 'install', '--scope=both', '--dry-run'], cwd=ROOT, capture_output=True, text=True)
+        subprocess.run(['node', 'bin/install.js', 'install', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True, encoding='utf-8')
+        subprocess.run(['node', 'bin/install.js', 'install', '--global', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True, encoding='utf-8')
+        bad = subprocess.run(['node', 'bin/install.js', 'install', '--scope=both', '--dry-run'], cwd=ROOT, capture_output=True, text=True, encoding='utf-8')
         self.assertNotEqual(bad.returncode, 0)
-        subprocess.run(['node', 'bin/install.js', 'install', '--lang=en', '--yes', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
-        subprocess.run(['node', 'bin/install.js', 'install', '--lang=zh', '--yes', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True)
+        bad_agent = subprocess.run(['node', 'bin/install.js', 'install', '--agent=other', '--dry-run'], cwd=ROOT, capture_output=True, text=True, encoding='utf-8')
+        self.assertNotEqual(bad_agent.returncode, 0)
+        subprocess.run(['node', 'bin/install.js', 'install', '--lang=en', '--yes', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True, encoding='utf-8')
+        subprocess.run(['node', 'bin/install.js', 'install', '--lang=zh', '--yes', '--dry-run'], cwd=ROOT, check=True, capture_output=True, text=True, encoding='utf-8')
+        env = os.environ.copy()
+        env['TINK_INSTALL_SURFACES'] = 'codex'
+        subprocess.run(['node', 'bin/install.js', 'install', '--lang=ko', '--yes', '--dry-run'], cwd=ROOT, env=env, check=True, capture_output=True, text=True, encoding='utf-8')
         with tempfile.TemporaryDirectory() as d:
             legacy = Path(d) / '.claude/commands/tink-forge.md'
             legacy.parent.mkdir(parents=True)
@@ -332,7 +357,7 @@ class TemplateTests(unittest.TestCase):
             legacy_tiny_dir = Path(d) / '.claude/commands/tiny'
             legacy_tiny_dir.mkdir(parents=True)
             (legacy_tiny_dir / 'use.md').write_text('legacy nested tiny command', encoding='utf-8')
-            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'], cwd=d, check=True, capture_output=True, text=True)
+            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'], cwd=d, check=True, capture_output=True, text=True, encoding='utf-8')
             base = Path(d)
             installed_commands = {p.name for p in (base / '.claude/commands/tink').glob('*.md')}
             self.assertEqual(installed_commands, EXPECTED_INSTALLED_COMMANDS)
@@ -341,13 +366,17 @@ class TemplateTests(unittest.TestCase):
             self.assertFalse((base / '.claude/commands/tiny').exists())
             self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
             self.assertTrue((base / '.tink/harnesses/index.json').exists())
+            self.assertTrue((base / '.tink/rules/index.json').exists())
+            self.assertTrue((base / '.tink/schemas/contract.schema.json').exists())
+            self.assertTrue((base / '.tink/schemas/session.schema.json').exists())
             self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
             self.assertTrue((base / '.tink/maintenance/weave-queue.json').exists())
+            self.assertTrue((base / '.tink/maintenance/friction.jsonl').exists())
             self.assertTrue((base / '.tink/memory/mistakes.md').exists())
             self.assertTrue((base / '.gitignore').exists())
 
         with tempfile.TemporaryDirectory() as d:
-            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes', '--with-hook'], cwd=d, check=True, capture_output=True, text=True)
+            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes', '--with-hook'], cwd=d, check=True, capture_output=True, text=True, encoding='utf-8')
             base = Path(d)
             settings = json.loads((base / '.claude/settings.json').read_text(encoding='utf-8'))
             hooks = settings['hooks']['UserPromptSubmit']
@@ -357,8 +386,33 @@ class TemplateTests(unittest.TestCase):
             self.assertEqual(cfg['hook_scope'], 'repo')
             self.assertTrue((base / '.tink/hooks/user-prompt-submit.mjs').exists())
 
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            codex_home = base / '.codex-home'
+            env = os.environ.copy()
+            env['CODEX_HOME'] = str(codex_home)
+            env['TINK_INSTALL_SURFACES'] = 'codex'
+            subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'],
+                cwd=base,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+            )
+            self.assertTrue((codex_home / 'skills/tink/SKILL.md').exists())
+            self.assertTrue((base / '.tink/harnesses/index.json').exists())
+            self.assertTrue((base / '.tink/rules/index.json').exists())
+            self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
+            self.assertTrue((base / '.tink/maintenance/friction.jsonl').exists())
+            self.assertTrue((base / '.tink/memory/mistakes.md').exists())
+            self.assertTrue((base / '.tink/config.json').exists())
+            self.assertFalse((base / '.claude/commands').exists())
+            self.assertFalse((base / '.claude/skills').exists())
+
     def test_package_contents_are_release_ready(self):
-        result = subprocess.run([NPM, 'pack', '--dry-run', '--json'], cwd=ROOT, check=True, capture_output=True, text=True)
+        result = subprocess.run([NPM, 'pack', '--dry-run', '--json'], cwd=ROOT, check=True, capture_output=True, text=True, encoding='utf-8')
         pack = json.loads(result.stdout)[0]
         paths = {item['path'] for item in pack['files']}
 
@@ -368,6 +422,7 @@ class TemplateTests(unittest.TestCase):
             '.claude-plugin/marketplace.json',
             'commands/setup.md',
             'commands/cast.md',
+            'commands/verify.md',
             'commands/list.md',
             'commands/frog.md',
             'commands/weave.md',
@@ -375,15 +430,21 @@ class TemplateTests(unittest.TestCase):
             'skills/tink/SKILL.md',
             'templates/claude/commands/tink/setup.md',
             'templates/claude/commands/tink/cast.md',
+            'templates/claude/commands/tink/verify.md',
             'templates/claude/commands/tink/list.md',
             'templates/claude/commands/tink/frog.md',
             'templates/claude/commands/tink/weave.md',
             'templates/claude/commands/tink/update.md',
             'templates/claude/skills/tink/SKILL.md',
+            'templates/codex/skills/tink/SKILL.md',
             'templates/tink/config.json',
+            'templates/tink/rules/index.json',
+            'templates/tink/schemas/contract.schema.json',
+            'templates/tink/schemas/session.schema.json',
             'templates/tink/harnesses/index.json',
             'templates/tink/maintenance/ledger.jsonl',
             'templates/tink/maintenance/weave-queue.json',
+            'templates/tink/maintenance/friction.jsonl',
             'templates/tink/hooks/user-prompt-submit.mjs',
             'templates/tink/memory/mistakes.md',
             'README.md',
@@ -395,7 +456,7 @@ class TemplateTests(unittest.TestCase):
             self.assertFalse(any(path.startswith(forbidden_prefix) for path in paths), forbidden_prefix)
 
     def test_packaged_tarball_installs_in_clean_repo(self):
-        result = subprocess.run([NPM, 'pack', '--json'], cwd=ROOT, check=True, capture_output=True, text=True)
+        result = subprocess.run([NPM, 'pack', '--json'], cwd=ROOT, check=True, capture_output=True, text=True, encoding='utf-8')
         tarball = ROOT / json.loads(result.stdout)[0]['filename']
         try:
             with tempfile.TemporaryDirectory() as d:
@@ -406,14 +467,17 @@ class TemplateTests(unittest.TestCase):
                     check=True,
                     capture_output=True,
                     text=True,
+                    encoding='utf-8',
                 )
                 installed_commands = {p.name for p in (base / '.claude/commands/tink').glob('*.md')}
                 self.assertEqual(installed_commands, EXPECTED_INSTALLED_COMMANDS)
                 self.assertFalse((base / '.claude/commands/tink-forge.md').exists())
                 self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
                 self.assertTrue((base / '.tink/harnesses/index.json').exists())
+                self.assertTrue((base / '.tink/rules/index.json').exists())
                 self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
                 self.assertTrue((base / '.tink/maintenance/weave-queue.json').exists())
+                self.assertTrue((base / '.tink/maintenance/friction.jsonl').exists())
                 self.assertTrue((base / '.tink/memory/mistakes.md').exists())
                 self.assertTrue((base / '.tink/config.json').exists())
         finally:
@@ -423,11 +487,12 @@ class TemplateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             subprocess.run(
                 ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'],
-                cwd=d, check=True, capture_output=True, text=True,
+                cwd=d, check=True, capture_output=True, text=True, encoding='utf-8',
             )
             base = Path(d)
             pairs = [
                 ('commands/cast.md', '.claude/commands/tink/cast.md'),
+                ('commands/verify.md', '.claude/commands/tink/verify.md'),
                 ('commands/frog.md', '.claude/commands/tink/frog.md'),
                 ('commands/list.md', '.claude/commands/tink/list.md'),
                 ('commands/setup.md', '.claude/commands/tink/setup.md'),
@@ -451,14 +516,14 @@ class TemplateTests(unittest.TestCase):
             base = Path(d)
             subprocess.run(
                 ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'],
-                cwd=d, check=True, capture_output=True, text=True,
+                cwd=d, check=True, capture_output=True, text=True, encoding='utf-8',
             )
             target = base / '.claude/commands/tink/cast.md'
             original = target.read_bytes()
             target.write_text('TAMPERED', encoding='utf-8')
             subprocess.run(
                 ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes', '--force'],
-                cwd=d, check=True, capture_output=True, text=True,
+                cwd=d, check=True, capture_output=True, text=True, encoding='utf-8',
             )
             self.assertEqual(
                 target.read_bytes(),
@@ -486,6 +551,7 @@ class TemplateTests(unittest.TestCase):
     def test_command_surface_consistent_across_surfaces(self):
         expected_slash_commands = {
             '/tink:setup', '/tink:cast', '/tink:list', '/tink:frog', '/tink:weave', '/tink:update',
+            '/tink:verify',
         }
         legacy_commands = [
             '/tink:forge', '/tink:purge', '/tink:hone', '/tink:prime',
@@ -583,6 +649,31 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('/tink:cast', script)
         self.assertIn('console.log', script)
 
+    def test_contract_rule_graph_and_verify_templates_exist(self):
+        schema = json.loads((ROOT / 'templates/tink/schemas/contract.schema.json').read_text(encoding='utf-8'))
+        rules = json.loads((ROOT / 'templates/tink/rules/index.json').read_text(encoding='utf-8'))
+        verify = (ROOT / 'templates/claude/commands/tink/verify.md').read_text(encoding='utf-8')
+        cast = (ROOT / 'templates/claude/commands/tink/cast.md').read_text(encoding='utf-8')
+        weave = (ROOT / 'templates/claude/commands/tink/weave.md').read_text(encoding='utf-8')
+
+        self.assertIn('task_type', schema['required'])
+        self.assertIn('verification', schema['properties'])
+        self.assertTrue(any(node['type'] == 'guard-candidate' for node in rules['nodes']))
+        self.assertIn('mandatory', rules['selection_policy']['load_order'])
+        self.assertTrue(all('load' in node for node in rules['nodes']))
+        self.assertTrue(all('budget_cost' in node for node in rules['nodes']))
+        self.assertIn('/tink:verify', verify)
+        self.assertIn('.tink/current/contract.json', verify)
+        self.assertIn('.tink/current/verification.json', verify)
+        self.assertIn('.tink/maintenance/friction.jsonl', verify)
+        self.assertIn('check_failed', verify)
+        self.assertIn('.tink/rules/index.json', cast)
+        self.assertIn('contract.json', cast)
+        self.assertIn('session.json', cast)
+        self.assertIn('loaded_rule_ids_by_phase', cast)
+        self.assertIn('rule graph update', weave)
+        self.assertIn('friction.jsonl', weave)
+
     def test_language_command_naming_adr_exists(self):
         text = (ROOT / 'docs/adr/0001-language-and-command-naming-policy.md').read_text(encoding='utf-8')
         self.assertIn('cast', text)
@@ -605,6 +696,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('harness_lines_warning', cfg)
         self.assertEqual(cfg['install_scope'], 'repo')
         self.assertEqual(cfg['hook_scope'], 'off')
+        self.assertIn('rule_selection', cfg)
+        self.assertEqual(cfg['rule_selection']['mode'], 'small-writ')
 
 
 if __name__ == '__main__':

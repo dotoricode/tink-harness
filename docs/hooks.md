@@ -21,6 +21,28 @@ The hook should not:
 
 Default recommendation: keep hooks off and use `/tink:cast` directly until the hook behavior is clearly useful. If the user turns the hook on, it must be actually registered, not only copied as a template.
 
+## Opt-in enforcement guards
+
+Tink separates suggestions from enforcement.
+
+The default `UserPromptSubmit` hook is advisory-only. It can suggest `/tink:cast`, but it must not block tools, run checks, save memory, or edit files.
+
+When repeated verification failures show that advice is not enough, `/tink:weave` may propose an opt-in guard candidate. Guard candidates live in templates such as `.tink/hooks/guards.json` and are not active until the user explicitly approves installation.
+
+Expected guard examples:
+
+- `Stop`: block finishing a release/publish/deploy run when `.tink/current/contract.json` still has missing required checks.
+- `PreToolUse`: block writes to paths listed in `contract.forbidden`.
+- `PostToolUse`: record a compact check signal after a risky command, without pasting raw logs.
+
+Guard rules:
+
+- install only after explicit approval;
+- explain what event is hooked and what it blocks;
+- keep rollback clear;
+- do not use hooks to bypass the current-run approval flow;
+- do not create broad always-block rules from one failed run.
+
 ## Terms
 
 - 실행 중 보정 (Inline Calibration): `/tink:cast` 안에서 하는 사용 습관 기반 제안. 기본 방식이다.

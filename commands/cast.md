@@ -140,6 +140,47 @@ After approval, create `.tink/current/` with these files before doing deeper wor
 - `steps.json`: machine-readable step list with `pending`, `in_progress`, `done`, or `blocked`
 - `notes.md`: short working notes, failures, last safe point, recovery actions
 - `answers.md`: user answers or inferred defaults used for this run
+- `contract.json`: structured task contract used by rule selection and `/tink:verify`
+- `session.json`: lightweight session metadata, especially rule ids already loaded by phase
+
+Create `contract.json` before loading harness bodies. It should be short, factual, and based on the user request plus visible project context:
+
+```json
+{
+  "task_type": "code_change",
+  "surface": "claude",
+  "risk": [],
+  "success_conditions": [],
+  "forbidden": [],
+  "verification": {
+    "commands": [],
+    "manual_checks": []
+  },
+  "evidence": {
+    "required": []
+  }
+}
+```
+
+For release, publish, deploy, public PR, deletion, migration, security, or broad contract work, include the relevant risk tags and required verification before asking for approval. Use risk tags such as `public_publish`, `external_visibility`, `destructive`, `secrets`, and `broad_contract`.
+
+If `.tink/schemas/contract.schema.json` exists, use it as the contract shape. Do not paste the schema into the user response.
+
+Create `session.json` before loading harness bodies. Keep it compact:
+
+```json
+{
+  "loaded_rule_ids_by_phase": {},
+  "context_budget": "compact",
+  "retrieval": {
+    "method": "keyword",
+    "query": "",
+    "selected_rule_ids": []
+  }
+}
+```
+
+If `.tink/schemas/session.schema.json` exists, use it as the session shape. Do not paste the schema into the user response.
 
 Also append a compact run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>.md` when the task completes, is canceled, is blocked, or is superseded. Do not store secrets, raw logs, full diffs, or one-off private context.
 
@@ -236,12 +277,19 @@ A task is trivial only when ALL of the following are true:
 **If not trivial:** proceed to normal classification below.
 
 ## Procedure
-1. Read `.tink/harnesses/index.json` first. Do not read every harness.
-2. Read small memory files where `config.json` sets `memory_has_entries.<name>: true`. Skip files set to `false`. After a Save Gate approves a new memory entry, set that file's flag to `true` in `config.json`.
+1. Build a draft `.tink/current/contract.json` from the request. If `.tink/schemas/contract.schema.json` exists, follow that shape.
+2. Read `.tink/rules/index.json` if present. Use it as a small rule graph to choose candidate harnesses, checks, and opt-in guard candidates from contract facts. Do not read every harness.
+   - Load `mandatory` nodes first when their `when` facts match the contract.
+   - Retrieve `retrievable` nodes only when their `when` facts or `keywords` fit the task.
+   - Respect `budget_cost` and `selection_policy.retrieval.max_retrievable_per_phase` when present.
+   - Record every loaded rule id in `.tink/current/session.json` under `loaded_rule_ids_by_phase.<phase>`.
+   - If a rule id is already listed for the same phase, do not repeat its guidance; cite the existing session entry instead.
+3. Read `.tink/harnesses/index.json`. Use it to validate the candidates from the rule graph and to fall back when no rule node matches.
+4. Read small memory files where `config.json` sets `memory_has_entries.<name>: true`. Skip files set to `false`. After a Save Gate approves a new memory entry, set that file's flag to `true` in `config.json`.
    - `.tink/memory/mistakes.md`
    - `.tink/memory/preferences.md`
    - `.tink/memory/lessons.md`
-3. Classify the task:
+5. Classify the task:
    - code change
    - bug fix
    - research
@@ -249,7 +297,7 @@ A task is trivial only when ALL of the following are true:
    - docs
    - ship/release
    - new pattern not covered yet
-4. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context. When the task is ambiguous (Stitch goal-ambiguity is expected to trigger), start with a single best-fit harness; add a second only after the user clarifies. Do not bundle 2+ harnesses for ambiguous tasks upfront.
+6. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context. When the task is ambiguous (Stitch goal-ambiguity is expected to trigger), start with a single best-fit harness; add a second only after the user clarifies. Do not bundle 2+ harnesses for ambiguous tasks upfront.
 
    After selecting, run a quick quality check using the index metadata for each chosen harness:
    - If fewer than 2 words in `use_when` match the current task description (case-insensitive) → treat as a Stitch harness-mismatch signal
@@ -257,24 +305,26 @@ A task is trivial only when ALL of the following are true:
    - If `asks` is empty or missing and the task goal is not self-evident → treat as a Stitch goal-ambiguity signal
    Feed any signals into the Stitch evaluation at step 11.
 
-5. Run the synthesis probe on the initial harness choice. The probe produces one of three outcomes: strong fit (0-1 yes), generic fit (2-3 yes), or no fit (4-5 yes or no harness matches).
-6. If the probe finds no fit, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
-7. If the probe finds a generic fit (2-3 yes), propose a run-only draft harness or domain rules alongside the built-in harness. Do not save it by default.
-8. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
-9. If lightweight signals show a recurring operating habit, use `harness-curation` (its habit calibration section) to make one advisory recommendation without loading a separate body.
-10. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
-11. Run Stitch once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Call `AskUserQuestion` as described in the Interaction policy section.
-12. Ask for explicit approval before non-trivial work.
-13. After approval, read only the selected harness files and any approved run-only draft.
-14. Create `.tink/current/` files from the run state contract.
-15. Execute the first safe step immediately:
+7. Add any rule graph check candidates to `contract.json` verification if they are relevant and cheap. For risky commands, set `approval_required: true`.
+8. Add opt-in guard candidates to `notes.md` only as suggestions. Do not register enforcement hooks unless the user separately approves.
+9. Run the synthesis probe on the initial harness choice. The probe produces one of three outcomes: strong fit (0-1 yes), generic fit (2-3 yes), or no fit (4-5 yes or no harness matches).
+10. If the probe finds no fit, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
+11. If the probe finds a generic fit (2-3 yes), propose a run-only draft harness or domain rules alongside the built-in harness. Do not save it by default.
+12. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
+13. If lightweight signals show a recurring operating habit, use `harness-curation` (its habit calibration section) to make one advisory recommendation without loading a separate body.
+14. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
+15. Run Stitch once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Call `AskUserQuestion` as described in the Interaction policy section.
+16. Ask for explicit approval before non-trivial work.
+17. After approval, read only the selected harness files and any approved run-only draft.
+18. Create `.tink/current/` files from the run state contract, including `contract.json` and `session.json`.
+19. Execute the first safe step immediately:
    - inspect relevant files,
    - run a read-only diagnostic,
    - draft the first artifact,
    - or reproduce the issue.
-16. Keep `steps.json` and `notes.md` current as work progresses.
-17. Before final, verify `checks.md` and report evidence.
-18. If the task exposed a repeated mistake or reusable improvement, use the Reusable State Save Gate approval payload below. Save only after separate user approval.
+20. Keep `steps.json`, `notes.md`, `contract.json`, and `session.json` current as work progresses.
+21. Before final, run `/tink:verify` behavior for required contract checks or state why verification is blocked.
+22. If the task exposed a repeated mistake or reusable improvement, use the Reusable State Save Gate approval payload below. Save only after separate user approval.
 
 
 ## Synthesis probe
@@ -511,6 +561,7 @@ Tink does not automatically wrap `/grill-me`, `/diagnose`, `/tdd`, or other slas
 ## Failure behavior
 If a check fails:
 - write the failure to `.tink/current/notes.md`,
+- append a compact friction entry to `.tink/maintenance/friction.jsonl` when it exists,
 - identify the last safe point,
 - take one recovery action,
 - update `steps.json`,

@@ -6,10 +6,10 @@
   <strong>Tink</strong>
 </h1>
 
-<p>A small harness layer for Claude Code</p>
+<p>A small harness layer for Claude Code and Codex</p>
 
 <p>
-  Tink helps Claude Code choose the right harness, keep run state visible, and improve the harness set as you work.
+  Tink helps Claude Code or Codex choose the right harness, keep run state visible, and improve the harness set as you work.
 </p>
 
 <p>
@@ -69,6 +69,14 @@ npx tink-harness@latest install
 
 Standalone installer auto-detects `LANG` (English fallback). Pass `--lang=en|ko|zh` to override.
 
+Codex skill install:
+
+```bash
+npx tink-harness@latest install
+```
+
+During install, select `Codex` when asked which agent surface to install. You can select both `Claude Code` and `Codex` in the same run. Then open Codex and use `$tink cast <task>`.
+
 ## Update
 
 Claude Code plugin users:
@@ -101,11 +109,19 @@ To update an existing standalone install (keeps user-modified files):
 npx tink-harness@latest update
 ```
 
+For Codex:
+
+```bash
+npx tink-harness@latest update
+```
+
+During update, select the installed agent surface you want to refresh.
+
 ## Commands
 
 Tink keeps the command surface small.
 
-Tink is plugin-first. Commands are namespaced under `tink`, so the public surface stays `/tink:*` and avoids generic command conflicts.
+Tink is plugin-first in Claude Code. Commands are namespaced under `tink`, so the public surface stays `/tink:*` and avoids generic command conflicts. In Codex, use the `$tink` skill with the same action names: `cast`, `verify`, `list`, `frog`, `weave`, `setup`, and `update`.
 
 ### `/tink:cast`
 
@@ -114,6 +130,14 @@ Tink is plugin-first. Commands are namespaced under `tink`, so the public surfac
 In Tink, `cast` is the main path. It reads the task, chooses or drafts the right harness, runs a quick internal sanity check, creates `.tink/current/` as the visible workbench, and starts the first safe step after approval.
 
 Use it when the task is more than a quick answer.
+
+### `/tink:verify`
+
+`verify` runs the checks promised in `.tink/current/contract.json`.
+
+Tink now writes a small task contract for non-trivial runs: what kind of work this is, what must be true when it is done, what is forbidden, and which commands or manual checks prove it. `/tink:verify` uses that contract instead of relying on a vague "looks done" claim.
+
+Use it before release, publish, deploy, public PR, or any task where evidence matters.
 
 ### `/tink:frog`
 
@@ -142,9 +166,14 @@ Use it when a harness is useful but slightly wrong.
 Tink uses files you can inspect:
 
 - `.tink/harnesses/`: reusable task harnesses
+- `.tink/rules/`: a small rule graph that chooses only relevant harnesses, checks, and opt-in guard candidates
+- `.tink/schemas/`: structured file schemas, including the current run contract
 - `.tink/current/`: the current run state
 - `.tink/runs/`: compact records from finished, blocked, canceled, or replaced runs
+- `.tink/maintenance/`: verification, friction, and weave signals that help repeated failures become approved improvements
 - `.tink/memory/`: approved mistakes, preferences, and lessons
+
+The rule graph stays small on purpose. Tink loads matching mandatory rules first, retrieves only relevant optional rules by task facts or keywords, and records loaded rule ids by phase so the same guidance is not repeated in one run.
 
 The important rule is approval.
 

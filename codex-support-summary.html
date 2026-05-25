@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tink Codex 지원 변경 요약</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --line: #d8dee7;
+      --accent: #0f766e;
+      --accent-soft: #dff4ef;
+      --code: #111827;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+
+    header {
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    section,
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    section {
+      margin-top: 16px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li + li {
+      margin-top: 6px;
+    }
+
+    code {
+      color: var(--code);
+      background: #eef2f7;
+      border: 1px solid #dfe5ee;
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 650;
+      font-size: 13px;
+    }
+
+    .stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .file-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .file {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+    }
+
+    .file span:last-child {
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .ok {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100% - 20px, 1040px);
+        padding-top: 24px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .file {
+        display: block;
+      }
+
+      .file span:last-child {
+        display: block;
+        margin-top: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="pill">Codex 지원 구현 완료</span>
+      <h1>Tink Harness 변경 요약</h1>
+      <p class="subtitle">Claude Code 기존 동작은 유지하면서, Codex에서는 <code>$tink</code> skill로 사용할 수 있게 확장했습니다.</p>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2>핵심 변경</h2>
+        <ul>
+          <li><code>--agent=claude|codex|all</code> 옵션을 설치기에 추가했습니다.</li>
+          <li>기본값은 기존 호환성을 위해 <code>claude</code>로 유지했습니다.</li>
+          <li>Codex 설치는 <code>.claude/</code>를 만들지 않고 Codex skill만 설치합니다.</li>
+          <li>공용 실행 상태와 하네스는 기존처럼 <code>.tink/</code>를 사용합니다.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Codex 사용법</h2>
+        <ul>
+          <li>설치: <code>npx tink-harness@latest install --agent=codex</code></li>
+          <li>업데이트: <code>npx tink-harness@latest update --agent=codex</code></li>
+          <li>시작: <code>$tink cast &lt;task&gt;</code></li>
+          <li>지원 action: <code>setup</code>, <code>cast</code>, <code>list</code>, <code>frog</code>, <code>weave</code>, <code>update</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <section>
+      <h2>변경 파일</h2>
+      <div class="file-list">
+        <div class="file"><span><code>bin/install.js</code></span><span>agent 분기, Codex 설치 경로, 요약 문구 추가</span></div>
+        <div class="file"><span><code>templates/codex/skills/tink/SKILL.md</code></span><span>Codex 전용 $tink skill 신규 추가</span></div>
+        <div class="file"><span><code>README.md</code>, <code>README.ko.md</code></span><span>Codex 설치/업데이트/사용법 문서화</span></div>
+        <div class="file"><span><code>package.json</code></span><span>설명과 keyword에 Codex 반영</span></div>
+        <div class="file"><span><code>tests/test_templates.py</code></span><span>Codex 설치, 패키징, 회귀 테스트 추가</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>설치 동작</h2>
+      <div class="grid">
+        <div>
+          <h3>Claude Code</h3>
+          <ul>
+            <li><code>.claude/commands/tink/*.md</code> 설치</li>
+            <li><code>.claude/skills/tink/SKILL.md</code> 설치</li>
+            <li>선택 시 <code>UserPromptSubmit</code> hook 등록</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Codex</h3>
+          <ul>
+            <li><code>$CODEX_HOME/skills/tink/SKILL.md</code> 설치</li>
+            <li><code>CODEX_HOME</code> 미설정 시 <code>~/.codex</code> 사용</li>
+            <li>hook이나 Claude command는 설치하지 않음</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li><span class="ok">통과</span> <code>npm test</code> - 24 tests OK</li>
+        <li><span class="ok">통과</span> <code>node bin/install.js install --agent=codex --lang=ko --yes --dry-run</code></li>
+        <li>테스트의 subprocess 캡처 인코딩을 <code>utf-8</code>로 고정해 Windows cp949 로그 예외를 제거했습니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>주의 사항</h2>
+      <ul>
+        <li><code>ROADMAP.md</code>는 기존 untracked 파일이라 건드리지 않았습니다.</li>
+        <li>이번 변경은 <code>npx + skill</code> 방식의 Codex 지원이며, Codex plugin/marketplace 지원은 포함하지 않았습니다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

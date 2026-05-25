@@ -1,7 +1,7 @@
 {
   "name": "tink-harness",
-  "version": "1.0.0",
-  "description": "Self-growing harnesses for Claude Code.",
+  "version": "1.1.1",
+  "description": "Self-growing harnesses for Claude Code and Codex.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -25,6 +25,7 @@
   },
   "keywords": [
     "claude-code",
+    "codex",
     "ai-agents",
     "agent-harness",
     "developer-tools",
