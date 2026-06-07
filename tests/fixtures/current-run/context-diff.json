@@ -20,18 +20,40 @@
     {
       "kind": "included_path_added",
       "value": "templates/claude/commands/tink/cast.md",
-      "reason": "The command sync rule made the installable command copy relevant after the root command changed."
+      "reason": "The command sync rule made the installable command copy relevant after the root command changed.",
+      "role": "supporting",
+      "cost": "medium",
+      "reuse_signal": "always",
+      "verification_link": "verification_hints.command-template-sync"
     },
     {
       "kind": "verification_hint_added",
       "value": "verification_hints.command-template-sync",
-      "reason": "A selected graph rule connected the changed command path to the sync check."
+      "reason": "A selected graph rule connected the changed command path to the sync check.",
+      "role": "verification_target",
+      "cost": "low",
+      "reuse_signal": "always",
+      "verification_link": "contract.verification.manual_checks.command/template sync"
+    }
+  ],
+  "metric_impacts": [
+    {
+      "metric": "review_evidence_lookup_time_reduction",
+      "direction": "improves",
+      "reason": "The added verification_link lets reviewers jump from selected context to the check that proves it matters."
+    },
+    {
+      "metric": "verification_omission_detection",
+      "direction": "improves",
+      "reason": "A verification_target role without a matching check can now be detected as an omission."
     }
   ],
   "excluded": [
     {
       "value": "public graph indexing",
-      "reason": "Context changes are recorded as run evidence, not as a new command or generated index."
+      "reason": "Context changes are recorded as run evidence, not as a new command or generated index.",
+      "role": "avoid_next_time",
+      "reuse_signal": "avoid_next_time"
     }
   ]
 }

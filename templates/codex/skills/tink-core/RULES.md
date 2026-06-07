@@ -104,9 +104,11 @@ Create run state before deeper work:
 - `.tink/current/context-map.json`: machine-readable included/excluded context and reasons
 - `.tink/current/excluded-context.md`: notable omitted context and why it was left out
 
+When useful, enrich `context-map.json.included[]` and `context-map.json.excluded[]` entries with Context Budget Ledger fields: `role`, `cost`, `reuse_signal`, `verification_link`, `staleness`, and `evidence_kind`. Use them to keep the first context pack small, mark stale or avoid-next-time context, and connect `verification_target` entries to command checks, manual checks, evidence refs, or verification hints. Do not claim any 90% efficiency score without measurement evidence.
+
 When external context is needed for `$tink:cast`, write it through the MCP Safe Profile shape in `context-map.json.external_context[]`. Record `source`, `source_ref`, `kind`, `included`, `excluded`, `reason`, `confidence`, `sensitivity`, and `verification_hint` when useful. Treat Figma, GitHub, and official docs as representative examples, not the only supported sources; Linear, Jira, Supabase, dashboards, API responses, screenshots, attachments, and runbooks can follow the same shape.
 
-When repo signal fixtures contain `context_graph_lite.rules[]`, use those rules inside `$tink:cast` to choose the first related context candidates. Match changed paths against `when_paths`, consider `include_paths`, cite selected rules as `context_graph_rule` signals with `source_ref: "context_graph_lite.rules.<name>"`, and connect `signal_refs` to verification hints where relevant. Do not create a public `tink index` command, watch process, generated cache, or hidden runtime index.
+When repo signal fixtures contain `context_graph_lite.rules[]`, use those rules inside `$tink:cast` to choose the first related context candidates. Match changed paths against `when_paths`, consider `include_paths`, cite selected rules as `context_graph_rule` signals with `source_ref: "context_graph_lite.rules.<name>"`, and connect `signal_refs` to verification hints where relevant. If the fixture provides `context_budget_policy`, use it to assign roles, costs, reuse signals, verification links, staleness, and evidence kinds. Do not create a public `tink index` command, watch process, generated cache, or hidden runtime index.
 
 External context safety checklist:
 - Select the smallest useful `source_ref`; avoid whole files, boards, dashboards, logs, or design systems when one issue, frame, section, screenshot, or attachment is enough.

@@ -9,37 +9,73 @@
       "path": "commands/cast.md",
       "kind": "command",
       "reason": "Root cast command defines run-state behavior.",
-      "confidence": "high"
+      "confidence": "high",
+      "role": "primary",
+      "cost": "medium",
+      "reuse_signal": "always",
+      "verification_link": "verification_hints.command-template-sync",
+      "staleness": "fresh",
+      "evidence_kind": "command"
     },
     {
       "path": "templates/claude/commands/tink/cast.md",
       "kind": "command",
       "reason": "Installable cast command must stay in sync with the root command.",
-      "confidence": "high"
+      "confidence": "high",
+      "role": "supporting",
+      "cost": "medium",
+      "reuse_signal": "always",
+      "verification_link": "verification_hints.command-template-sync",
+      "staleness": "fresh",
+      "evidence_kind": "command"
     },
     {
       "path": "templates/codex/skills/tink-cast/SKILL.md",
       "kind": "skill",
       "reason": "Visible Codex cast alias should point at the shared Tink rules without duplicated display names.",
-      "confidence": "high"
+      "confidence": "high",
+      "role": "supporting",
+      "cost": "low",
+      "reuse_signal": "often",
+      "verification_link": "verification_hints.command-surface",
+      "staleness": "fresh",
+      "evidence_kind": "file"
     },
     {
       "path": "templates/codex/skills/tink-core/RULES.md",
       "kind": "skill-rules",
       "reason": "Shared Codex Tink operating rules should stay available without becoming a visible skill.",
-      "confidence": "high"
+      "confidence": "high",
+      "role": "primary",
+      "cost": "high",
+      "reuse_signal": "often",
+      "verification_link": "verification_hints.command-surface",
+      "staleness": "fresh",
+      "evidence_kind": "file"
     },
     {
       "path": "templates/tink/schemas/context-map.schema.json",
       "kind": "schema",
       "reason": "Defines the machine-readable context-map shape.",
-      "confidence": "high"
+      "confidence": "high",
+      "role": "verification_target",
+      "cost": "medium",
+      "reuse_signal": "always",
+      "verification_link": "verification_hints.schema-shape",
+      "staleness": "fresh",
+      "evidence_kind": "schema"
     },
     {
       "path": "tests/test_templates.py",
       "kind": "test",
       "reason": "Verifies package, install, sync, and schema expectations.",
-      "confidence": "high"
+      "confidence": "high",
+      "role": "verification_target",
+      "cost": "high",
+      "reuse_signal": "always",
+      "verification_link": "verification_commands.test suite",
+      "staleness": "fresh",
+      "evidence_kind": "test"
     }
   ],
   "excluded": [
@@ -47,13 +83,23 @@
       "path": "bin/install.js",
       "kind": "code",
       "reason": "The installer already copies template schema directories generically.",
-      "confidence": "medium"
+      "confidence": "medium",
+      "role": "exclusion_candidate",
+      "cost": "high",
+      "reuse_signal": "rare",
+      "staleness": "fresh",
+      "evidence_kind": "file"
     },
     {
       "source": "external research links",
       "kind": "external",
       "reason": "This slice is based on local repo behavior, so external claims are not needed.",
-      "confidence": "high"
+      "confidence": "high",
+      "role": "avoid_next_time",
+      "cost": "high",
+      "reuse_signal": "avoid_next_time",
+      "staleness": "unknown",
+      "evidence_kind": "external"
     }
   ],
   "signals": [
@@ -141,5 +187,60 @@
       "verification_hint": "cite the exact docs section and verify the current version"
     }
   ],
+  "efficiency_metrics": {
+    "target_threshold_percent": 90,
+    "measurement_status": "estimated",
+    "notes": "Baseline example for context engineering scoring. Scores are conservative estimates until runtime telemetry exists.",
+    "scores": [
+      {
+        "name": "unnecessary_context_reduction",
+        "score_percent": 62,
+        "basis": "Excluded entries now carry role, cost, reuse_signal, and staleness, but the fixture is not runtime telemetry.",
+        "confidence": "medium",
+        "evidence_refs": ["context-map.excluded", "context-diff.excluded"],
+        "limit": "Needs repeated run data before claiming 90 percent."
+      },
+      {
+        "name": "initial_context_pack_size_reduction",
+        "score_percent": 58,
+        "basis": "Context entries can be sorted by role and cost, but no automated pack-size comparison is measured yet.",
+        "confidence": "medium",
+        "evidence_refs": ["context-map.included", "repo-signals.context_budget_policy"],
+        "limit": "Needs before/after context footprint measurements."
+      },
+      {
+        "name": "review_evidence_lookup_time_reduction",
+        "score_percent": 70,
+        "basis": "Included entries connect role to verification_link, reducing reviewer lookup work in fixture examples.",
+        "confidence": "medium",
+        "evidence_refs": ["context-map.included[*].verification_link"],
+        "limit": "Needs reviewer timing or repeated PR review observations."
+      },
+      {
+        "name": "verification_omission_detection",
+        "score_percent": 66,
+        "basis": "verification_target entries point to checks, making missing check links detectable in tests.",
+        "confidence": "medium",
+        "evidence_refs": ["context-map.included[*].role", "contract.verification.manual_checks"],
+        "limit": "Needs runtime enforcement across generated current-run files."
+      },
+      {
+        "name": "repeated_context_reuse_accuracy",
+        "score_percent": 60,
+        "basis": "reuse_signal distinguishes always, often, rare, and avoid_next_time for repeated run selection.",
+        "confidence": "medium",
+        "evidence_refs": ["context-map.included[*].reuse_signal", "context-map.excluded[*].reuse_signal"],
+        "limit": "Needs accumulated run records to prove reuse accuracy."
+      },
+      {
+        "name": "rework_probability_reduction",
+        "score_percent": 55,
+        "basis": "Context is now linked to verification, but rework outcomes are not yet measured.",
+        "confidence": "low",
+        "evidence_refs": ["context-map.efficiency_metrics", "context-diff.metric_impacts"],
+        "limit": "Needs follow-up tracking of late-added required context and missed checks."
+      }
+    ]
+  },
   "generated_at": "2026-06-07T16:03:28+09:00"
 }

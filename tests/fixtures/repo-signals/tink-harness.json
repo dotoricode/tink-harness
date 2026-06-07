@@ -101,6 +101,42 @@
     "templates/tink/schemas/mcp-policy.schema.json",
     "templates/tink/schemas/harness-lifecycle.schema.json"
   ],
+  "context_budget_policy": {
+    "target_threshold_percent": 90,
+    "entry_fields": [
+      "role",
+      "cost",
+      "reuse_signal",
+      "verification_link",
+      "staleness",
+      "evidence_kind"
+    ],
+    "role_defaults": [
+      {
+        "role": "primary",
+        "meaning": "Required to understand or implement the active task."
+      },
+      {
+        "role": "supporting",
+        "meaning": "Useful because a repo signal links it to the active task."
+      },
+      {
+        "role": "verification_target",
+        "meaning": "Must connect to a command, manual check, or evidence ref."
+      },
+      {
+        "role": "avoid_next_time",
+        "meaning": "Should be excluded faster in similar future runs unless the task changes."
+      }
+    ],
+    "scoring_basis": [
+      "included entries with role and verification_link",
+      "excluded entries with reuse_signal avoid_next_time",
+      "verification_target entries with matching checks",
+      "context-diff late additions and exclusions"
+    ],
+    "reason": "Context entries need stable roles and verification links before efficiency can be measured toward the 90 percent target."
+  },
   "verification_hints": [
     {
       "name": "command-template-sync",

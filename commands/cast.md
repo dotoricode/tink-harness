@@ -188,6 +188,7 @@ If `.tink/schemas/session.schema.json` exists, use it as the session shape. Do n
 Create context artifacts before deeper implementation work:
 - `context-pack.md` should name the user task, selected harnesses, contract summary, loaded rules, selected files/docs, selected external sources, and verification implications.
 - `context-map.json` should contain `task`, `included`, `excluded`, `signals`, and `generated_at`. Each included or excluded entry should include `path` or `source`, `kind`, `reason`, and `confidence`. When external context is selected, also write `external_context[]`.
+- When useful, enrich each context entry with Context Budget Ledger fields: `role`, `cost`, `reuse_signal`, `verification_link`, `staleness`, and `evidence_kind`. Use them to explain why the first context pack is small enough, why excluded context should stay out, and which checks prove selected context matters.
 - `excluded-context.md` should make important omissions visible, especially files skipped because they are out of scope, stale, risky, too broad, or unverified external claims.
 
 If `.tink/schemas/context-map.schema.json` exists, use it for `context-map.json`. Do not paste the schema into the user response.
@@ -227,6 +228,7 @@ When a repo signal fixture exists, such as `tests/fixtures/repo-signals/*.json` 
 - set `signal.source` to the fixture path and `signal.source_ref` to the relevant entry name or JSON path when useful;
 - do not include every fixture entry by default; select only entries that explain the current task, verification, or safety boundary;
 - if the fixture conflicts with live repo state, prefer live repo state and record the fixture mismatch as a medium-confidence signal.
+- if the fixture provides `context_budget_policy`, use it to assign entry roles, cost, reuse signals, verification links, staleness, and evidence kinds; do not treat the policy as telemetry or claim a 90% score without evidence.
 
 Context Graph Lite rules may appear in the same fixture under `context_graph_lite.rules[]`. Use them only inside cast:
 - match changed paths against `when_paths`;
@@ -258,6 +260,7 @@ Exclusion rules:
 - Exclude product phases that are explicitly deferred, and name the deferral in `excluded-context.md`.
 - Prefer a short high-confidence context pack over a broad low-confidence one.
 - When unsure, include the uncertainty in `reason` and set `confidence` to `low` or `medium` rather than silently expanding scope.
+- For repeated false starts, mark the entry with `reuse_signal: "avoid_next_time"` or `role: "stale"` instead of deleting the evidence. This lets later runs skip it faster while preserving the reason.
 
 Candidate limits:
 - Start with 5-12 included entries for normal code/doc work.

@@ -37,6 +37,17 @@ Use `context-map.json` when you need traceability:
 - `signals`: repo signals, `context_graph_rule` selections, verification hints, unmatched paths, or other selection evidence.
 - `external_context`: outside sources such as Figma, GitHub, official docs, dashboards, API responses, screenshots, attachments, or runbooks.
 
+When context entries include Context Budget Ledger fields, read them this way:
+
+- `role`: whether the context is primary, supporting, a verification target, or something to avoid next time.
+- `cost`: relative cost for putting the entry in the first context pack.
+- `reuse_signal`: whether similar future runs should reuse, treat as an example, or avoid the entry.
+- `verification_link`: the check, evidence ref, or verification hint connected to the entry.
+- `staleness`: a quick freshness signal.
+- `evidence_kind`: whether the evidence is a file, doc, schema, test, external source, or another kind.
+
+See `docs/context-budget-ledger.md` for the detailed rules.
+
 When `signals[]` includes `kind: "context_graph_rule"`, read it as a small changed-path clue selected by `/tink:cast` or `$tink:cast`. It should point to a stable `source_ref` such as `context_graph_lite.rules.claude-command-sync`, explain why related files were included, and stay internal to cast. It must not imply a public `tink index` command, watcher, generated cache, or hidden runtime index.
 
 For external context, check:

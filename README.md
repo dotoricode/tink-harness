@@ -17,14 +17,14 @@
 </p>
 
 <p>
-  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.2.2"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.3.0"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest release:</strong> v1.2.2 — update confidence, planned work units, evidence details, and memory policy scaffolding.</p>
+<p><strong>Latest release:</strong> v1.3.0 — Context Budget Ledger fields for scoring context efficiency and linking selected context to verification.</p>
 
 **English** · [한국어](README.ko.md)
 
@@ -131,6 +131,7 @@ This release makes Tink work as one harness layer across Claude Code and Codex.
 - Codex now installs focused `$tink:*` action skills instead of one broad visible `tink` skill, so the picker shows commands like `$tink:cast` and `$tink:verify` cleanly.
 - Non-trivial runs now create context artifacts: `context-pack.md`, `context-map.json`, and `excluded-context.md`.
 - Repo Signals and Context Graph Lite help `/tink:cast` and `$tink:cast` choose relevant tests, schemas, sync partners, and verification hints without adding a new `tink index` command.
+- Context Budget Ledger fields are documented in `docs/context-budget-ledger.md` and `docs/context-budget-ledger.ko.md` for scoring context efficiency without adding a new command.
 - `/tink:verify` and `$tink:verify` share one portable Verify Runner model and write compact evidence to `.tink/current/verification.json`.
 - External context now follows the MCP Safe Profile: include only the smallest useful source handle, mark confidence and sensitivity, exclude unsafe context visibly, and connect important claims to verification.
 

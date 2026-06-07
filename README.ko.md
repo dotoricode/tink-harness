@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 릴리스:** v1.2.2 — 업데이트 신뢰도, 작업 단위 계획, 검증 증거 세분화, memory 정책 기반.
+**최신 릴리스:** v1.3.0 — context 효율을 점수화하고 선택한 context를 검증과 연결하는 Context Budget Ledger 기반.
 
 [English](README.md) · **한국어**
 
@@ -66,6 +66,7 @@ npx tink-harness@latest update
 - Codex에는 하나의 넓은 `tink` 스킬 대신 `$tink:cast`, `$tink:verify` 같은 action skill만 보이도록 설치됩니다.
 - 비단순 작업은 `context-pack.md`, `context-map.json`, `excluded-context.md`로 어떤 context를 썼고 뺐는지 남깁니다.
 - Repo Signal과 Context Graph Lite는 새 `tink index` 명령을 만들지 않고도 관련 테스트, 스키마, 동기화 파일, 검증 힌트를 고르는 데 쓰입니다.
+- context 효율 점수화를 위한 Context Budget Ledger는 `docs/context-budget-ledger.ko.md`와 `docs/context-budget-ledger.md`에서 확인할 수 있습니다.
 - `/tink:verify`와 `$tink:verify`는 같은 Verify Runner 모델을 쓰며 `.tink/current/verification.json`에 검증 증거를 남깁니다.
 - 외부 context는 MCP Safe Profile을 따릅니다. 가장 작은 source handle만 남기고, 신뢰도와 민감도를 표시하며, 위험하거나 너무 넓은 context는 `excluded-context.md`에 따로 기록합니다.
 
