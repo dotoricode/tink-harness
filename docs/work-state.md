@@ -19,11 +19,13 @@ Start here when resuming, reviewing, or handing off a run:
    - Read the short human summary of selected files, docs, rules, and external sources.
 3. `.tink/current/context-map.json`
    - Inspect the structured `included`, `excluded`, `signals`, and `external_context` entries.
-4. `.tink/current/excluded-context.md`
+4. `.tink/current/context-metrics-evaluation.json`
+   - Check context-efficiency scores, formulas, numerators, denominators, evidence refs, measurement scope, and limits.
+5. `.tink/current/excluded-context.md`
    - Check what was skipped because it was stale, unsafe, too broad, unavailable, or outside scope.
-5. `.tink/current/verification.json`
+6. `.tink/current/verification.json`
    - Confirm pass, fail, blocked, or skipped checks and the final report.
-6. `.tink/current/notes.md`
+7. `.tink/current/notes.md`
    - Read the last safe point, recovery notes, and compact verification summaries.
 
 ## How To Read Context
@@ -47,6 +49,8 @@ When context entries include Context Budget Ledger fields, read them this way:
 - `evidence_kind`: whether the evidence is a file, doc, schema, test, external source, or another kind.
 
 See `docs/context-budget-ledger.md` for the detailed rules.
+
+`context-metrics-evaluation.json` explains how the score was produced. If `scope` is `fixture` or `current_run`, the value is measured only inside that boundary. Do not claim all user work has reached 90% without run-history or production telemetry evidence.
 
 When `signals[]` includes `kind: "context_graph_rule"`, read it as a small changed-path clue selected by `/tink:cast` or `$tink:cast`. It should point to a stable `source_ref` such as `context_graph_lite.rules.claude-command-sync`, explain why related files were included, and stay internal to cast. It must not imply a public `tink index` command, watcher, generated cache, or hidden runtime index.
 

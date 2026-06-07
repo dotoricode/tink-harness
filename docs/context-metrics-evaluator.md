@@ -2,7 +2,7 @@
 
 Context Metrics Evaluator is a test-backed way to calculate the ratios recorded by Context Budget Ledger.
 
-It is not a new public command. It must not add a `tink index` command, watcher, generated cache, or hidden runtime index. At this stage, `tests/fixtures/current-run/context-metrics-evaluation.json` and `tests/test_templates.py` must calculate the same scores.
+It is not a new public command. It must not add a `tink index` command, watcher, generated cache, or hidden runtime index. `/tink:cast` and `$tink:cast` write `.tink/current/context-metrics-evaluation.json` as a run-state artifact, and `tests/fixtures/current-run/context-metrics-evaluation.json` plus `tests/test_templates.py` must calculate the same scores.
 
 Korean companion: `docs/context-metrics-evaluator.ko.md`.
 
@@ -29,6 +29,7 @@ It does not mean that every real user run has reached 90% efficiency. Until prod
 - `context-map.json.efficiency_metrics.scores[]` matches `context-metrics-evaluation.json`.
 - Each score has `formula`, `numerator`, `denominator`, `evidence_refs`, and `limit`.
 - `measurement_status` may be `measured` for fixture calculations, but the docs must state the limit.
+- The installed schema is `.tink/schemas/context-metrics-evaluation.schema.json`.
 
 ## Compatibility
 

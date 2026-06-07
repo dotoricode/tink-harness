@@ -7,6 +7,22 @@ All notable changes to Tink are tracked here.
 No unreleased changes yet.
 
 
+## [1.4.0] - 2026-06-08
+
+### Added
+
+- `context-metrics-evaluation.schema.json` for `.tink/current/context-metrics-evaluation.json`.
+- Context Metrics Evaluator run-state artifact guidance for `/tink:cast` and `$tink:cast`.
+- Fixture-ratio evaluation docs in Korean and English, explaining measured fixture scope versus production telemetry.
+- Test-backed context metrics evaluation fixture that calculates all six context-efficiency metrics at or above the 90% target within fixture scope.
+- Korean PR history draft for the Context Metrics Artifact work in `docs/pr/2026-06-08-context-metrics-artifact.ko.md`.
+
+### Changed
+
+- Work State Guide now includes `context-metrics-evaluation.json` in the reading order.
+- README and Korean README now link to the Context Metrics Evaluator docs without adding a new command.
+
+
 ## [1.3.0] - 2026-06-08
 
 ### Added

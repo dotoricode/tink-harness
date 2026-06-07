@@ -31,7 +31,7 @@ Accept legacy `$tink <action>` spelling for compatibility, but present `$tink:<a
 11. Use `request_user_input` for choice prompts when available. Otherwise stop and ask one concise blocking approval question directly in chat. Do not continue until the user answers.
 12. Treat reusable saves as a separate hard approval gate for `.tink/memory/*`, `.tink/harnesses/*`, `.tink/rules/*`, `.tink/config.json`, Codex skill files, and template/plugin files that affect future installs.
 13. Current-run approval never authorizes reusable-state writes. Before saving reusable state, show operation, destination files, exact entry or patch summary, reusable reason, sensitive content excluded, and rollback/removal path.
-14. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, and `excluded-context.md`.
+14. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`.
 15. Do not stop at recommendation. Execute the first safe step after run state exists.
 16. Run `$tink:verify` behavior before final when `contract.json` lists required checks.
 17. Store reusable memory or rule updates under `.tink/` only after separate approval.
@@ -102,9 +102,12 @@ Create run state before deeper work:
 - `session.json`: loaded rule ids by phase and lightweight retrieval metadata
 - `.tink/current/context-pack.md`: human-readable selected context and why it matters
 - `.tink/current/context-map.json`: machine-readable included/excluded context and reasons
+- `.tink/current/context-metrics-evaluation.json`: measured or estimated context-efficiency scores, formulas, evidence refs, and limits
 - `.tink/current/excluded-context.md`: notable omitted context and why it was left out
 
 When useful, enrich `context-map.json.included[]` and `context-map.json.excluded[]` entries with Context Budget Ledger fields: `role`, `cost`, `reuse_signal`, `verification_link`, `staleness`, and `evidence_kind`. Use them to keep the first context pack small, mark stale or avoid-next-time context, and connect `verification_target` entries to command checks, manual checks, evidence refs, or verification hints. Do not claim any 90% efficiency score without measurement evidence.
+
+When writing `context-metrics-evaluation.json`, include `run`, `evaluator`, `target_threshold_percent`, `measurement_status`, `scope`, `limits`, and `scores[]`. Each score should include `name`, `score_percent`, `formula`, `numerator`, `denominator`, and `evidence_refs`. If the score comes only from fixture or current-run evidence, record that scope and do not claim production-wide 90% without run-history or telemetry evidence.
 
 When external context is needed for `$tink:cast`, write it through the MCP Safe Profile shape in `context-map.json.external_context[]`. Record `source`, `source_ref`, `kind`, `included`, `excluded`, `reason`, `confidence`, `sensitivity`, and `verification_hint` when useful. Treat Figma, GitHub, and official docs as representative examples, not the only supported sources; Linear, Jira, Supabase, dashboards, API responses, screenshots, attachments, and runbooks can follow the same shape.
 
