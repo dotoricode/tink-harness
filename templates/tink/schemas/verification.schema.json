@@ -68,6 +68,19 @@
         "target": { "type": "string" },
         "exit_code": { "type": "integer" },
         "evidence": { "type": "string" },
+        "evidence_kind": {
+          "type": "string",
+          "enum": ["command", "manual", "diff", "coverage", "security", "external", "package", "unknown"],
+          "description": "What kind of proof this check produced. This is separate from check kind so manual checks can still cite diff, external, or package evidence."
+        },
+        "evidence_ref": {
+          "type": "string",
+          "description": "A compact pointer to the proof, such as a command name, file path, source_ref, or PR check URL."
+        },
+        "observed": {
+          "type": "string",
+          "description": "Short human-readable observation from the evidence. Do not paste raw logs."
+        },
         "failure_type": {
           "type": "string",
           "enum": [

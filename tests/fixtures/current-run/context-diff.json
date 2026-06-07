@@ -1,0 +1,37 @@
+{
+  "run": ".tink/current",
+  "changed_at": "2026-06-08T00:25:00+09:00",
+  "before": {
+    "included_paths": ["commands/cast.md"],
+    "signal_refs": ["context_graph_lite.rules.claude-command-sync"]
+  },
+  "after": {
+    "included_paths": [
+      "commands/cast.md",
+      "templates/claude/commands/tink/cast.md",
+      "tests/test_templates.py"
+    ],
+    "signal_refs": [
+      "context_graph_lite.rules.claude-command-sync",
+      "verification_hints.command-template-sync"
+    ]
+  },
+  "changes": [
+    {
+      "kind": "included_path_added",
+      "value": "templates/claude/commands/tink/cast.md",
+      "reason": "The command sync rule made the installable command copy relevant after the root command changed."
+    },
+    {
+      "kind": "verification_hint_added",
+      "value": "verification_hints.command-template-sync",
+      "reason": "A selected graph rule connected the changed command path to the sync check."
+    }
+  ],
+  "excluded": [
+    {
+      "value": "public graph indexing",
+      "reason": "Context changes are recorded as run evidence, not as a new command or generated index."
+    }
+  ]
+}
