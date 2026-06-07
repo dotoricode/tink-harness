@@ -1,0 +1,81 @@
+{
+  "policy": ".tink/maintenance/context-run-record-policy.json",
+  "scope": "future_runtime_records",
+  "measurement_status": "policy_only",
+  "target_threshold_percent": 90,
+  "public_command": false,
+  "automatic_collection": false,
+  "watcher": false,
+  "hidden_runtime_index": false,
+  "generated_cache": false,
+  "excluded_integrations": ["Sentry"],
+  "purpose": "Define which approved .tink/runs records can later be rolled up before claiming production-wide context efficiency.",
+  "included_records": [
+    {
+      "kind": "approved_current_run_record",
+      "required_fields": ["run", "completed_at", "surface", "platform", "context_metrics", "verification", "evidence_refs", "limits"],
+      "reason": "A rollup needs a completed run, the agent surface, platform, metric scores, verification evidence, and explicit limits."
+    },
+    {
+      "kind": "context_metrics_artifact",
+      "required_fields": ["evaluator", "target_threshold_percent", "measurement_status", "scope", "scores"],
+      "reason": "The six context efficiency metrics must be calculated from the same artifact shape."
+    },
+    {
+      "kind": "verification_evidence",
+      "required_fields": ["result", "checks", "report"],
+      "reason": "Metrics should stay connected to the checks that proved the run was complete."
+    }
+  ],
+  "excluded_records": [
+    {
+      "kind": "secret_or_private_payload",
+      "examples": ["tokens", "raw logs with credentials", "private issue text copied in full"],
+      "reason": "Run-history rollup only needs stable evidence handles and summaries."
+    },
+    {
+      "kind": "unapproved_reusable_state",
+      "examples": [".tink/memory/*", ".tink/rules/*", ".tink/harnesses/*"],
+      "reason": "Reusable state needs a separate approval gate and must not be inferred from a metric rollup."
+    },
+    {
+      "kind": "broad_external_context",
+      "examples": ["whole dashboards", "entire Figma files", "full GitHub discussions"],
+      "reason": "External context must use the smallest useful source handle."
+    }
+  ],
+  "rollup_readiness_checks": [
+    {
+      "name": "all_metrics_present",
+      "required": true,
+      "covers": [
+        "unnecessary_context_reduction",
+        "initial_context_pack_size_reduction",
+        "review_evidence_lookup_time_reduction",
+        "verification_omission_detection",
+        "repeated_context_reuse_accuracy",
+        "rework_probability_reduction"
+      ]
+    },
+    {
+      "name": "verification_linked",
+      "required": true,
+      "covers": ["verification.result", "verification.checks", "context_metrics.scores[*].evidence_refs"]
+    },
+    {
+      "name": "limits_declared",
+      "required": true,
+      "covers": ["production telemetry boundary", "fixture versus real run distinction"]
+    },
+    {
+      "name": "privacy_boundary_kept",
+      "required": true,
+      "covers": ["no secrets", "no raw private payloads", "stable evidence handles only"]
+    }
+  ],
+  "compatibility": {
+    "surfaces": ["Claude Code", "Codex"],
+    "platforms": ["macOS", "Windows"],
+    "verification_command": "npm test"
+  }
+}
