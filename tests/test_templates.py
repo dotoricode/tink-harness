@@ -670,6 +670,8 @@ class TemplateTests(unittest.TestCase):
             'docs/context-run-history-rollup.ko.md',
             'docs/context-threshold-status.md',
             'docs/context-threshold-status.ko.md',
+            'docs/context-run-record-policy.md',
+            'docs/context-run-record-policy.ko.md',
             'docs/update-diagnosis.md',
             'docs/update-diagnosis.ko.md',
             'docs/phase-5-update-confidence.md',
@@ -691,6 +693,7 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-08-context-metrics-evaluator.ko.md',
             'docs/pr/2026-06-08-context-run-history-rollup.ko.md',
             'docs/pr/2026-06-08-context-threshold-status.ko.md',
+            'docs/pr/2026-06-08-context-run-record-policy.ko.md',
             'README.md',
             'LICENSE',
         ]:
@@ -817,6 +820,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('docs/context-run-history-rollup.ko.md', readme)
         self.assertIn('docs/context-threshold-status.md', readme)
         self.assertIn('docs/context-threshold-status.ko.md', readme)
+        self.assertIn('docs/context-run-record-policy.md', readme)
+        self.assertIn('docs/context-run-record-policy.ko.md', readme)
 
     def test_work_state_phase5_and_idea_plan_docs_exist(self):
         work_state = (ROOT / 'docs/work-state.md').read_text(encoding='utf-8')
@@ -848,6 +853,9 @@ class TemplateTests(unittest.TestCase):
         context_rollup_ko = (ROOT / 'docs/context-run-history-rollup.ko.md').read_text(encoding='utf-8')
         context_threshold = (ROOT / 'docs/context-threshold-status.md').read_text(encoding='utf-8')
         context_threshold_ko = (ROOT / 'docs/context-threshold-status.ko.md').read_text(encoding='utf-8')
+        context_run_record = (ROOT / 'docs/context-run-record-policy.md').read_text(encoding='utf-8')
+        context_run_record_ko = (ROOT / 'docs/context-run-record-policy.ko.md').read_text(encoding='utf-8')
+        context_summary_html = (ROOT / 'docs/context-work-summary.ko.html').read_text(encoding='utf-8')
         context_efficiency_html = (ROOT / 'docs/context-engineering-efficiency.ko.html').read_text(encoding='utf-8')
         update_diagnosis = (ROOT / 'docs/update-diagnosis.md').read_text(encoding='utf-8')
         update_diagnosis_ko = (ROOT / 'docs/update-diagnosis.ko.md').read_text(encoding='utf-8')
@@ -1000,6 +1008,9 @@ class TemplateTests(unittest.TestCase):
             (context_rollup_ko, ['Context Run History Rollup', 'run_history', '새 public command가 아니다', 'production telemetry']),
             (context_threshold, ['Context Threshold Status', '90 percent', 'not a new public command', 'production telemetry']),
             (context_threshold_ko, ['Context Threshold Status', '90% 목표', '새 public command가 아니다', 'production telemetry']),
+            (context_run_record, ['Context Run Record Policy', 'not a new public command', 'automatic', 'Sentry integration']),
+            (context_run_record_ko, ['Context Run Record Policy', '새 public command가 아니다', '자동 수집', 'Sentry 연동']),
+            (context_summary_html, ['Tink 컨텍스트 엔지니어링 작업 요약', 'PR #12', '다음 작업 방향']),
             (context_efficiency_html, ['Tink 컨텍스트 엔지니어링', 'role', 'reuse_signal', 'verification_link', '예상 개선 효과']),
             (update_diagnosis, ['without adding a new command', 'Update Result Summary']),
             (update_diagnosis_ko, ['새 command를 추가하지 않고', 'Update Result Summary']),
@@ -1499,6 +1510,53 @@ class TemplateTests(unittest.TestCase):
             self.assertGreaterEqual(item['rollup_minimum_percent'], status['target_threshold_percent'], name)
             self.assertEqual(item['status'], 'meets_threshold')
             self.assertEqual(item['evidence_strength'], 'fixture_and_representative_rollup')
+
+    def test_context_run_record_policy_keeps_real_rollup_boundary_safe(self):
+        policy = json.loads((ROOT / 'tests/fixtures/maintenance/context-run-record-policy.json').read_text(encoding='utf-8'))
+
+        self.assertEqual(policy['policy'], '.tink/maintenance/context-run-record-policy.json')
+        self.assertEqual(policy['scope'], 'future_runtime_records')
+        self.assertEqual(policy['measurement_status'], 'policy_only')
+        self.assertEqual(policy['target_threshold_percent'], 90)
+        self.assertFalse(policy['public_command'])
+        self.assertFalse(policy['automatic_collection'])
+        self.assertFalse(policy['watcher'])
+        self.assertFalse(policy['hidden_runtime_index'])
+        self.assertFalse(policy['generated_cache'])
+        self.assertIn('Sentry', policy['excluded_integrations'])
+
+        included_kinds = {item['kind']: item for item in policy['included_records']}
+        self.assertEqual(set(included_kinds), {
+            'approved_current_run_record',
+            'context_metrics_artifact',
+            'verification_evidence',
+        })
+        approved_fields = set(included_kinds['approved_current_run_record']['required_fields'])
+        for field in ['run', 'completed_at', 'surface', 'platform', 'context_metrics', 'verification', 'evidence_refs', 'limits']:
+            self.assertIn(field, approved_fields)
+
+        metric_fields = set(included_kinds['context_metrics_artifact']['required_fields'])
+        for field in ['evaluator', 'target_threshold_percent', 'measurement_status', 'scope', 'scores']:
+            self.assertIn(field, metric_fields)
+
+        excluded_kinds = {item['kind'] for item in policy['excluded_records']}
+        self.assertIn('secret_or_private_payload', excluded_kinds)
+        self.assertIn('unapproved_reusable_state', excluded_kinds)
+        self.assertIn('broad_external_context', excluded_kinds)
+
+        readiness = {item['name']: item for item in policy['rollup_readiness_checks']}
+        self.assertIn('all_metrics_present', readiness)
+        self.assertIn('verification_linked', readiness)
+        self.assertIn('limits_declared', readiness)
+        self.assertIn('privacy_boundary_kept', readiness)
+        for check in readiness.values():
+            self.assertTrue(check['required'])
+            self.assertGreaterEqual(len(check['covers']), 1)
+        self.assertEqual(set(readiness['all_metrics_present']['covers']), CONTEXT_EFFICIENCY_METRICS)
+
+        self.assertEqual(set(policy['compatibility']['surfaces']), {'Claude Code', 'Codex'})
+        self.assertEqual(set(policy['compatibility']['platforms']), {'macOS', 'Windows'})
+        self.assertEqual(policy['compatibility']['verification_command'], 'npm test')
 
     def test_repo_signal_fixture_matches_repo(self):
         fixture = json.loads((ROOT / 'tests/fixtures/repo-signals/tink-harness.json').read_text(encoding='utf-8'))
