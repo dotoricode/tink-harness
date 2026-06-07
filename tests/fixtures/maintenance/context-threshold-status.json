@@ -1,0 +1,65 @@
+{
+  "status": ".tink/maintenance/context-threshold-status.json",
+  "target_threshold_percent": 90,
+  "measurement_status": "measured",
+  "scope": "representative_run_history",
+  "claim": "All six context efficiency metrics meet the 90 percent target in the current-run fixture and representative run-history rollup fixture.",
+  "limits": [
+    "This status compares repository fixtures, not production telemetry.",
+    "Do not claim project-wide production performance until real .tink/runs data is accumulated and rolled up with the same formulas."
+  ],
+  "evidence_sources": [
+    "tests/fixtures/current-run/context-metrics-evaluation.json",
+    "tests/fixtures/maintenance/context-metrics-rollup.json"
+  ],
+  "scores": [
+    {
+      "name": "unnecessary_context_reduction",
+      "current_run_percent": 100,
+      "rollup_average_percent": 97,
+      "rollup_minimum_percent": 94,
+      "status": "meets_threshold",
+      "evidence_strength": "fixture_and_representative_rollup"
+    },
+    {
+      "name": "initial_context_pack_size_reduction",
+      "current_run_percent": 100,
+      "rollup_average_percent": 95,
+      "rollup_minimum_percent": 92,
+      "status": "meets_threshold",
+      "evidence_strength": "fixture_and_representative_rollup"
+    },
+    {
+      "name": "review_evidence_lookup_time_reduction",
+      "current_run_percent": 100,
+      "rollup_average_percent": 98,
+      "rollup_minimum_percent": 96,
+      "status": "meets_threshold",
+      "evidence_strength": "fixture_and_representative_rollup"
+    },
+    {
+      "name": "verification_omission_detection",
+      "current_run_percent": 100,
+      "rollup_average_percent": 99,
+      "rollup_minimum_percent": 98,
+      "status": "meets_threshold",
+      "evidence_strength": "fixture_and_representative_rollup"
+    },
+    {
+      "name": "repeated_context_reuse_accuracy",
+      "current_run_percent": 100,
+      "rollup_average_percent": 96,
+      "rollup_minimum_percent": 94,
+      "status": "meets_threshold",
+      "evidence_strength": "fixture_and_representative_rollup"
+    },
+    {
+      "name": "rework_probability_reduction",
+      "current_run_percent": 100,
+      "rollup_average_percent": 95,
+      "rollup_minimum_percent": 91,
+      "status": "meets_threshold",
+      "evidence_strength": "fixture_and_representative_rollup"
+    }
+  ]
+}

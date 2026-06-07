@@ -668,6 +668,8 @@ class TemplateTests(unittest.TestCase):
             'docs/context-metrics-evaluator.ko.md',
             'docs/context-run-history-rollup.md',
             'docs/context-run-history-rollup.ko.md',
+            'docs/context-threshold-status.md',
+            'docs/context-threshold-status.ko.md',
             'docs/update-diagnosis.md',
             'docs/update-diagnosis.ko.md',
             'docs/phase-5-update-confidence.md',
@@ -688,6 +690,7 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-08-context-metrics-artifact.ko.md',
             'docs/pr/2026-06-08-context-metrics-evaluator.ko.md',
             'docs/pr/2026-06-08-context-run-history-rollup.ko.md',
+            'docs/pr/2026-06-08-context-threshold-status.ko.md',
             'README.md',
             'LICENSE',
         ]:
@@ -812,6 +815,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('docs/context-metrics-evaluator.ko.md', readme)
         self.assertIn('docs/context-run-history-rollup.md', readme)
         self.assertIn('docs/context-run-history-rollup.ko.md', readme)
+        self.assertIn('docs/context-threshold-status.md', readme)
+        self.assertIn('docs/context-threshold-status.ko.md', readme)
 
     def test_work_state_phase5_and_idea_plan_docs_exist(self):
         work_state = (ROOT / 'docs/work-state.md').read_text(encoding='utf-8')
@@ -841,6 +846,8 @@ class TemplateTests(unittest.TestCase):
         context_metrics_ko = (ROOT / 'docs/context-metrics-evaluator.ko.md').read_text(encoding='utf-8')
         context_rollup = (ROOT / 'docs/context-run-history-rollup.md').read_text(encoding='utf-8')
         context_rollup_ko = (ROOT / 'docs/context-run-history-rollup.ko.md').read_text(encoding='utf-8')
+        context_threshold = (ROOT / 'docs/context-threshold-status.md').read_text(encoding='utf-8')
+        context_threshold_ko = (ROOT / 'docs/context-threshold-status.ko.md').read_text(encoding='utf-8')
         context_efficiency_html = (ROOT / 'docs/context-engineering-efficiency.ko.html').read_text(encoding='utf-8')
         update_diagnosis = (ROOT / 'docs/update-diagnosis.md').read_text(encoding='utf-8')
         update_diagnosis_ko = (ROOT / 'docs/update-diagnosis.ko.md').read_text(encoding='utf-8')
@@ -991,6 +998,8 @@ class TemplateTests(unittest.TestCase):
             (context_metrics_ko, ['Context Metrics Evaluator', 'fixture-ratio-v1', '새 public command가 아니다', 'production telemetry']),
             (context_rollup, ['Context Run History Rollup', 'run_history', 'not a new public command', 'production telemetry']),
             (context_rollup_ko, ['Context Run History Rollup', 'run_history', '새 public command가 아니다', 'production telemetry']),
+            (context_threshold, ['Context Threshold Status', '90 percent', 'not a new public command', 'production telemetry']),
+            (context_threshold_ko, ['Context Threshold Status', '90% 목표', '새 public command가 아니다', 'production telemetry']),
             (context_efficiency_html, ['Tink 컨텍스트 엔지니어링', 'role', 'reuse_signal', 'verification_link', '예상 개선 효과']),
             (update_diagnosis, ['without adding a new command', 'Update Result Summary']),
             (update_diagnosis_ko, ['새 command를 추가하지 않고', 'Update Result Summary']),
@@ -1459,6 +1468,37 @@ class TemplateTests(unittest.TestCase):
             self.assertGreaterEqual(score['minimum_percent'], rollup['target_threshold_percent'], name)
             self.assertIn('average(run_scores.', score['formula'])
             self.assertGreaterEqual(len(score['evidence_refs']), len(rollup['runs']))
+
+    def test_context_threshold_status_matches_metric_fixtures(self):
+        current = json.loads((ROOT / 'tests/fixtures/current-run/context-metrics-evaluation.json').read_text(encoding='utf-8'))
+        rollup = json.loads((ROOT / 'tests/fixtures/maintenance/context-metrics-rollup.json').read_text(encoding='utf-8'))
+        status = json.loads((ROOT / 'tests/fixtures/maintenance/context-threshold-status.json').read_text(encoding='utf-8'))
+
+        self.assertEqual(status['status'], '.tink/maintenance/context-threshold-status.json')
+        self.assertEqual(status['target_threshold_percent'], 90)
+        self.assertEqual(status['measurement_status'], 'measured')
+        self.assertEqual(status['scope'], 'representative_run_history')
+        self.assertIn('not production telemetry', ' '.join(status['limits']))
+        self.assertEqual(set(status['evidence_sources']), {
+            'tests/fixtures/current-run/context-metrics-evaluation.json',
+            'tests/fixtures/maintenance/context-metrics-rollup.json',
+        })
+
+        current_scores = {item['name']: item for item in current['scores']}
+        rollup_scores = {item['name']: item for item in rollup['scores']}
+        status_scores = {item['name']: item for item in status['scores']}
+        self.assertEqual(set(status_scores), CONTEXT_EFFICIENCY_METRICS)
+
+        for name in CONTEXT_EFFICIENCY_METRICS:
+            item = status_scores[name]
+            self.assertEqual(item['current_run_percent'], current_scores[name]['score_percent'], name)
+            self.assertEqual(item['rollup_average_percent'], rollup_scores[name]['score_percent'], name)
+            self.assertEqual(item['rollup_minimum_percent'], rollup_scores[name]['minimum_percent'], name)
+            self.assertGreaterEqual(item['current_run_percent'], status['target_threshold_percent'], name)
+            self.assertGreaterEqual(item['rollup_average_percent'], status['target_threshold_percent'], name)
+            self.assertGreaterEqual(item['rollup_minimum_percent'], status['target_threshold_percent'], name)
+            self.assertEqual(item['status'], 'meets_threshold')
+            self.assertEqual(item['evidence_strength'], 'fixture_and_representative_rollup')
 
     def test_repo_signal_fixture_matches_repo(self):
         fixture = json.loads((ROOT / 'tests/fixtures/repo-signals/tink-harness.json').read_text(encoding='utf-8'))
