@@ -20,6 +20,11 @@
 - `templates/tink/schemas/context-map.schema.json`: context map schema.
 - `tests/test_templates.py`: static package and install verification.
 
+## Repo Signals
+- `context_graph_lite.rules.claude-command-sync`: selected the three cast command copies and `tests/test_templates.py` after a cast command path changed.
+- `verification_hints.command-template-sync`: adds a required sync check for command/template copies.
+- `verification_hints.schema-shape`: adds a required schema shape check when context artifact schemas change.
+
 ## Excluded Context
 - `bin/install.js`: already copies schema directories generically.
 - external research links: not needed for this local contract slice.

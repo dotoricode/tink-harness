@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tink v1.2.0 개선 요약</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #5f6b7a;
+      --line: #d7dee8;
+      --paper: #f7f9fc;
+      --panel: #ffffff;
+      --green: #167a46;
+      --blue: #235fc6;
+      --violet: #6b45b8;
+      --amber: #946200;
+      --red: #b23333;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 48px 0 72px;
+    }
+
+    header {
+      padding: 28px 0 30px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 860px;
+      font-size: clamp(34px, 6vw, 64px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 800px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    section {
+      margin-top: 42px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 26px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      min-height: 100%;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .card p {
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      background: #edf3ff;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .tag.green {
+      background: #e9f7ef;
+      color: var(--green);
+    }
+
+    .tag.violet {
+      background: #f0ebff;
+      color: var(--violet);
+    }
+
+    .tag.amber {
+      background: #fff4d8;
+      color: var(--amber);
+    }
+
+    .tag.red {
+      background: #ffecec;
+      color: var(--red);
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .before,
+    .after {
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .before {
+      border-top: 5px solid var(--red);
+    }
+
+    .after {
+      border-top: 5px solid var(--green);
+    }
+
+    ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    li + li {
+      margin-top: 7px;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #eef2f7;
+      color: #223049;
+      font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      font-size: 0.95em;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 112px minmax(0, 1fr);
+      gap: 16px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .step strong {
+      color: var(--blue);
+    }
+
+    .evidence {
+      border-left: 4px solid var(--green);
+    }
+
+    .note {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 46px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 800px) {
+      main {
+        width: min(100% - 28px, 1120px);
+        padding-top: 28px;
+      }
+
+      .grid.two,
+      .grid.three,
+      .compare {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Tink release note</p>
+      <h1>v1.2.0은 Tink를 “실행 전 선택”에서 “근거가 남는 실행”으로 끌어올린 패치입니다.</h1>
+      <p class="lead">
+        이번 작업의 핵심은 Claude Code와 Codex를 같은 기준으로 지원하면서, 큰 작업을 시작할 때
+        어떤 context를 쓰고 뺐는지, 무엇으로 검증했는지, 외부 정보를 얼마나 신뢰할 수 있는지 남기는 것입니다.
+      </p>
+      <div class="meta" aria-label="release metadata">
+        <span class="pill">npm feature release: v1.2.0</span>
+        <span class="pill">latest display patch: v1.2.1</span>
+        <span class="pill">verified: npm test 31 tests</span>
+        <span class="pill">surfaces: Claude Code + Codex</span>
+        <span class="pill">platforms: macOS + Windows</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>한눈에 보기</h2>
+      <div class="compare">
+        <div class="before">
+          <span class="tag red">Before</span>
+          <h3>작업은 진행됐지만 근거가 흩어졌습니다.</h3>
+          <ul>
+            <li>Codex 스킬 목록에 넓은 <code>tink</code> 스킬이 보여서 action이 흐릿했습니다.</li>
+            <li>큰 작업에서 어떤 파일과 외부 정보를 기준으로 삼았는지 추적하기 어려웠습니다.</li>
+            <li>검증 결과가 pass/fail/blocked/skipped로 구조화되어 있지 않았습니다.</li>
+            <li>Figma, GitHub, docs 같은 외부 context를 안전하게 다루는 기준이 부족했습니다.</li>
+          </ul>
+        </div>
+        <div class="after">
+          <span class="tag green">After</span>
+          <h3>이제 선택, 실행, 검증의 흔적이 남습니다.</h3>
+          <ul>
+            <li>Codex는 <code>$tink:cast</code>, <code>$tink:verify</code> 같은 action skill 중심으로 정리됐습니다.</li>
+            <li><code>context-pack.md</code>, <code>context-map.json</code>, <code>excluded-context.md</code>로 context 근거를 남깁니다.</li>
+            <li><code>verification.json</code>이 검증 evidence를 구조화합니다.</li>
+            <li>MCP Safe Profile이 외부 context의 source, confidence, sensitivity, verification hint를 기록합니다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>개선된 점</h2>
+      <div class="grid three">
+        <article class="card">
+          <span class="tag">Codex surface</span>
+          <h3>스킬 목록이 action 중심으로 정리됨</h3>
+          <p>
+            넓은 <code>tink</code> 스킬을 없애고, 사용자가 바로 고를 수 있는
+            <code>$tink:cast</code>, <code>$tink:verify</code>, <code>$tink:list</code> 같은 alias를 전면에 둡니다.
+            공유 규칙은 보이지 않는 <code>tink-core/RULES.md</code>로 이동했습니다.
+          </p>
+        </article>
+        <article class="card">
+          <span class="tag green">Context artifacts</span>
+          <h3>작업 context가 눈에 보이게 됨</h3>
+          <p>
+            <code>context-pack.md</code>는 사람이 읽는 요약, <code>context-map.json</code>은 기계가 읽는 근거,
+            <code>excluded-context.md</code>는 의도적으로 뺀 것을 기록합니다.
+          </p>
+        </article>
+        <article class="card">
+          <span class="tag violet">Repo Signals</span>
+          <h3>새 명령 없이 관련 검증을 고름</h3>
+          <p>
+            새 <code>tink index</code> 명령을 만들지 않고, fixture 기반 repo signal로 테스트, 스키마,
+            동기화 파일, verification hint를 선택하는 근거를 남깁니다.
+          </p>
+        </article>
+        <article class="card">
+          <span class="tag amber">Verify Runner</span>
+          <h3>검증 결과가 구조화됨</h3>
+          <p>
+            <code>.tink/current/verification.json</code>이 pass, fail, blocked, skipped를 구분하고,
+            final report, notes summary, maintenance signal 흐름까지 테스트 fixture로 고정합니다.
+          </p>
+        </article>
+        <article class="card">
+          <span class="tag">MCP Safe Profile</span>
+          <h3>외부 context를 안전하게 다룸</h3>
+          <p>
+            Figma, GitHub, official docs, dashboards, attachments 같은 외부 source를 source_ref, confidence,
+            sensitivity, verification_hint와 함께 기록합니다. Sentry는 이번 active source set에서 제외했습니다.
+          </p>
+        </article>
+        <article class="card">
+          <span class="tag green">Compatibility</span>
+          <h3>Claude Code + Codex, macOS + Windows 기준</h3>
+          <p>
+            새 작업은 두 agent surface와 두 OS 계열을 함께 고려해야 한다는 compatibility policy를 문서화했습니다.
+            명령도 <code>npm</code>, <code>node</code>, <code>python</code> 중심의 portable check를 선호합니다.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>사용할 때 무엇이 좋아지나</h2>
+      <div class="grid two">
+        <article class="card">
+          <h3>큰 작업을 시작할 때</h3>
+          <p>
+            Tink가 어떤 파일, 스키마, 문서, 외부 source를 기준으로 삼았는지 먼저 남기므로,
+            중간에 방향이 흔들려도 “처음에 무엇을 믿고 시작했는지” 되짚을 수 있습니다.
+          </p>
+        </article>
+        <article class="card">
+          <h3>릴리스나 PR을 준비할 때</h3>
+          <p>
+            검증 evidence가 명령 출력 하나에 묻히지 않고, checked items, remaining work, next action으로 남습니다.
+            PR 설명에도 문제, 해결, 검증, 참고 흐름을 그대로 옮기기 쉬워졌습니다.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>검증 근거</h2>
+      <div class="grid two">
+        <article class="card evidence">
+          <h3>로컬 소스 검증</h3>
+          <ul>
+            <li><code>npm test</code> 통과: 31 tests OK</li>
+            <li>Claude command 3-copy sync 확인</li>
+            <li>Codex visible action skill set 확인</li>
+            <li>Sentry가 active external context set에 없음을 테스트로 보증</li>
+          </ul>
+        </article>
+        <article class="card evidence">
+          <h3>published package 검증</h3>
+          <ul>
+            <li><code>tink-harness@1.2.0</code> npm tarball 존재</li>
+            <li>v1.2.0 tarball에 핵심 docs, schemas, commands, Codex skills 포함</li>
+            <li>legacy <code>templates/codex/skills/tink/SKILL.md</code>는 tarball에 없음</li>
+            <li>v1.2.1은 README/GitHub Release 표시 정합성 패치로 분리</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>다음 계획 제안</h2>
+      <div class="timeline">
+        <div class="step">
+          <strong>Slice 1</strong>
+          <div>
+            <h3>릴리스 후 정리</h3>
+            <p>로컬에 남은 <code>.agents/</code>, <code>AGENTS.md</code>, <code>.tink/maintenance/ledger.jsonl</code>을 커밋할지, ignore할지, 로컬 전용으로 둘지 결정합니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <strong>Slice 2</strong>
+          <div>
+            <h3>업데이트 사용자 시나리오 검증</h3>
+            <p>기존 v1.1.x 또는 v1.2.0 설치 사용자가 <code>npx tink-harness@latest update</code>를 실행했을 때 Codex legacy skill cleanup과 새 schemas가 기대대로 들어오는지 smoke test를 추가합니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <strong>Slice 3</strong>
+          <div>
+            <h3>작업 상태 UX 개선</h3>
+            <p><code>.tink/current/verification.json</code>, <code>context-map.json</code>, <code>excluded-context.md</code>를 사람이 더 쉽게 읽도록 짧은 summary command 또는 README guide를 설계합니다. 새 command를 만들지는 않고 기존 <code>list</code>나 docs에서 시작합니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <strong>Slice 4</strong>
+          <div>
+            <h3>Phase 5 후보: update confidence</h3>
+            <p>설치/update/publish 이후 실제 사용자가 가장 먼저 만나는 흐름을 단단하게 만듭니다. 목표는 “설치 후 어떤 명령을 쓰면 되는지, 업데이트로 무엇이 바뀌는지, 문제가 생기면 어디를 보면 되는지”를 줄이는 것입니다.</p>
+          </div>
+        </div>
+      </div>
+      <p class="note">
+        추천 순서는 Slice 1 → Slice 2입니다. 지금은 릴리스 직후라 기능을 더 늘리기보다, 설치된 사용자가 안전하게 최신 구조로 넘어오는지 확인하는 쪽이 효과가 큽니다.
+      </p>
+    </section>
+
+    <footer>
+      Source: CHANGELOG.md, docs/pr/2026-06-07-v1.2.0.md, .tink/current/verification.json.
+      Generated for Tink v1.2.0 planning discussion.
+    </footer>
+  </main>
+</body>
+</html>

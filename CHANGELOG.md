@@ -4,7 +4,27 @@ All notable changes to Tink are tracked here.
 
 ## [Unreleased]
 
-No unreleased changes yet.
+### Added
+
+- Work State Guide explaining how to read `.tink/current/contract.json`, `context-pack.md`, `context-map.json`, `excluded-context.md`, `verification.json`, and `notes.md`.
+- Phase 5 Update Confidence plan for safer existing-user update flows.
+- Korean companion docs for the Work State Guide and Phase 5 Update Confidence plan.
+- Korean implementation audit and roadmap for the larger Tink idea set in `docs/tink-idea-implementation-plan.ko.md`.
+- HTML summary of v1.2.0 improvements in `docs/pr/2026-06-07-v1.2.0-improvements.html`.
+- Existing-user Codex update smoke test covering legacy `skills/tink/SKILL.md` cleanup, refreshed action skills, new schemas, and preserved user-modified schema files.
+- Codex `$tink:cast` approval protocol and compact approval request examples so non-trivial runs ask before creating run state, loading harnesses, editing files, or running commands.
+- Update Result Summary output for `tink-harness update`, including changed paths, preserved user-modified files, removed legacy paths, install locations, and the next command.
+- Existing user-modified `.tink/config.json` is now fully preserved during update unless `--force` is used.
+- Update troubleshooting docs in English and Korean, linked from README without expanding the README body.
+- Update verification recipe docs in English and Korean, linked from README as a short post-update checklist.
+- Context Graph Lite fixture rules for cast context selection, including changed-path-to-context coverage without adding a public `tink index` command.
+- Korean companion doc for Repo Signals and Context Graph Lite.
+- Current-run context artifact examples now show how `context_graph_rule` signals explain selected related files and excluded public graph indexing.
+- Korean PR history draft for the Phase 5/6 follow-up work in `docs/pr/2026-06-07-phase-5-6-follow-up.ko.md`.
+
+### Changed
+
+- README and Korean README now link to the work-state guide, Phase 5 update-confidence plan, update verification recipe, and update troubleshooting docs.
 
 
 ## [1.2.1] - 2026-06-07

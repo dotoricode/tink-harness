@@ -55,13 +55,17 @@ Standalone / Codex:
 npx tink-harness@latest update
 ```
 
+업데이트가 정상인지 빠르게 확인하려면 `docs/update-verification-recipe.ko.md` 또는 `docs/update-verification-recipe.md`를 확인하세요.
+
+업데이트 후 Codex skill, schema, Windows 경고가 이상해 보이면 `docs/update-troubleshooting.ko.md` 또는 `docs/update-troubleshooting.md`를 확인하세요.
+
 ## 1.2.0에서 달라진 점
 
 이번 릴리스는 Tink를 Claude Code와 Codex에서 같은 하네스 레이어로 쓰기 쉽게 정리합니다.
 
 - Codex에는 하나의 넓은 `tink` 스킬 대신 `$tink:cast`, `$tink:verify` 같은 action skill만 보이도록 설치됩니다.
 - 비단순 작업은 `context-pack.md`, `context-map.json`, `excluded-context.md`로 어떤 context를 썼고 뺐는지 남깁니다.
-- Repo Signal은 새 `tink index` 명령을 만들지 않고도 관련 테스트, 스키마, 동기화 파일, 검증 힌트를 고르는 데 쓰입니다.
+- Repo Signal과 Context Graph Lite는 새 `tink index` 명령을 만들지 않고도 관련 테스트, 스키마, 동기화 파일, 검증 힌트를 고르는 데 쓰입니다.
 - `/tink:verify`와 `$tink:verify`는 같은 Verify Runner 모델을 쓰며 `.tink/current/verification.json`에 검증 증거를 남깁니다.
 - 외부 context는 MCP Safe Profile을 따릅니다. 가장 작은 source handle만 남기고, 신뢰도와 민감도를 표시하며, 위험하거나 너무 넓은 context는 `excluded-context.md`에 따로 기록합니다.
 
@@ -109,7 +113,7 @@ Tink는 직접 볼 수 있는 파일을 씁니다.
 
 Rule graph는 작게 유지합니다. Tink는 먼저 필수 규칙을 고르고, 작업 사실이나 keyword에 맞는 선택 규칙만 가져오며, phase별로 이미 읽은 rule id를 기록해 같은 안내를 반복하지 않습니다.
 
-설계 메모는 `docs/`에 둡니다. 기본 호환성 기준은 `docs/compatibility-policy.md`에 있으며, 새 작업은 Claude Code와 Codex, macOS와 Windows를 함께 고려해야 합니다. Repo Signal 동작은 `docs/repo-signals.md`에 정리되어 있고, 외부 context 안전 기준은 `docs/mcp-safe-profile.md`에 정리되어 있습니다.
+설계 메모는 `docs/`에 둡니다. 기본 호환성 기준은 `docs/compatibility-policy.md`에 있으며, 새 작업은 Claude Code와 Codex, macOS와 Windows를 함께 고려해야 합니다. Repo Signal 동작은 `docs/repo-signals.ko.md` 또는 `docs/repo-signals.md`에 정리되어 있고, 외부 context 안전 기준은 `docs/mcp-safe-profile.md`에 정리되어 있습니다. `.tink/current/` 상태를 읽거나 검토할 때는 `docs/work-state.ko.md` 또는 `docs/work-state.md`부터 보면 됩니다. 다음 업데이트 안정화 계획은 `docs/phase-5-update-confidence.ko.md`와 `docs/phase-5-update-confidence.md`에 정리되어 있습니다. 더 큰 아이디어 구현 점검과 로드맵은 `docs/tink-idea-implementation-plan.ko.md`에 정리되어 있습니다.
 
 중요한 원칙은 승인입니다. 현재 작업을 진행하는 승인과, 미래에도 재사용될 상태를 저장하는 승인은 별개입니다. 새 하네스, 메모리, rule graph, hook guard 저장은 항상 별도 승인이 필요합니다.
 

@@ -27,20 +27,69 @@ Accept legacy `$tink <action>` spelling for compatibility, but present `$tink:<a
 7. Run the synthesis probe before committing to `.tink/current/`. Strong fit keeps the harness; generic fit adds a run-only draft; no fit loads `harness-synthesis`.
 8. If too many tools, skills, agents, or harnesses are available, use `harness-curation` to choose the smallest effective set before loading more context.
 9. Run Stitch once before committing to `.tink/current/`: evaluate every time, show exactly one proposal only for high-impact quality or safety branches, and use the configured language.
-10. Use `request_user_input` for choice prompts when available. Otherwise ask one concise blocking question directly.
-11. Treat reusable saves as a separate hard approval gate for `.tink/memory/*`, `.tink/harnesses/*`, `.tink/rules/*`, `.tink/config.json`, Codex skill files, and template/plugin files that affect future installs.
-12. Current-run approval never authorizes reusable-state writes. Before saving reusable state, show operation, destination files, exact entry or patch summary, reusable reason, sensitive content excluded, and rollback/removal path.
-13. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, and `excluded-context.md`.
-14. Do not stop at recommendation. Execute the first safe step after run state exists.
-15. Run `$tink:verify` behavior before final when `contract.json` lists required checks.
-16. Store reusable memory or rule updates under `.tink/` only after separate approval.
-17. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `$tink:weave`.
-18. Keep context compact. Do not paste raw logs or full diffs.
-19. Use calm, clear, concise language. Prefer plain everyday words over technical terms. No jokes.
+10. For non-trivial `$tink:cast` runs, ask for current-run approval before creating `.tink/current/`, loading harness bodies, editing files, or executing the first step. Codex must not silently treat a command invocation as approval.
+11. Use `request_user_input` for choice prompts when available. Otherwise stop and ask one concise blocking approval question directly in chat. Do not continue until the user answers.
+12. Treat reusable saves as a separate hard approval gate for `.tink/memory/*`, `.tink/harnesses/*`, `.tink/rules/*`, `.tink/config.json`, Codex skill files, and template/plugin files that affect future installs.
+13. Current-run approval never authorizes reusable-state writes. Before saving reusable state, show operation, destination files, exact entry or patch summary, reusable reason, sensitive content excluded, and rollback/removal path.
+14. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, and `excluded-context.md`.
+15. Do not stop at recommendation. Execute the first safe step after run state exists.
+16. Run `$tink:verify` behavior before final when `contract.json` lists required checks.
+17. Store reusable memory or rule updates under `.tink/` only after separate approval.
+18. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `$tink:weave`.
+19. Keep context compact. Do not paste raw logs or full diffs.
+20. Use calm, clear, concise language. Prefer plain everyday words over technical terms. No jokes.
+
+## Codex Approval Protocol
+
+Codex `$tink:cast` must show a visible approval step for every non-trivial run. The approval request should be short and concrete:
+
+- selected harnesses
+- scope and out-of-scope
+- first safe step after approval
+- checks that will prove completion
+- whether any reusable state might be proposed later
+
+Default Korean options are `승인`, `조정`, `취소`. If a run-only draft is proposed, use `승인`, `조정`, `기본 하네스만 사용`, `취소`. If a high-impact safety or quality branch is visible, use `승인`, `요구사항 입력`, `이대로 진행`, `취소`. For hard gates or reusable-state saves, use only `승인`, `요구사항 입력`, `취소`.
+
+When `request_user_input` is unavailable, write the same approval request as a normal assistant message and wait for the user's answer. Do not create run state, load harness bodies, edit files, run commands, or continue the task before the answer. A user's `$tink:cast` invocation means "prepare and ask for approval", not "start immediately".
+
+Use this compact approval request shape. Keep it short; do not expose internal terms such as Stitch or hard gate in user-facing text.
+
+Korean:
+
+```md
+이 작업은 Tink run으로 잡고 진행하겠습니다.
+
+- 선택 하네스: `code-change`
+- 범위: Codex 승인 UX 문구와 테스트만 수정
+- 제외: release, publish, unrelated refactor
+- 승인 후 첫 단계: Codex core rules에 승인 요청 형식 추가
+- 완료 확인: `npm test`, `git diff --check`
+- 재사용 상태 저장: 이번 작업에서는 저장하지 않음
+
+진행해도 될까요?
+```
+
+English:
+
+```md
+I will handle this as a Tink run.
+
+- selected harnesses: `code-change`
+- scope: update Codex approval UX text and tests only
+- out of scope: release, publish, unrelated refactors
+- first step after approval: add the approval request format to Codex core rules
+- completion checks: `npm test`, `git diff --check`
+- reusable state: no reusable save planned for this run
+
+May I proceed?
+```
+
+If `request_user_input` is available, map this content into the prompt and use option labels instead of asking the user to type free-form text. If it is unavailable, show the Markdown block and stop.
 
 ## Harness Procedure
 
-For `$tink:cast`, classify the task as code change, bug fix, research, review, docs, ship/release, or new pattern. Load only selected harness bodies after approval. If no built-in harness fits, use `harness-synthesis` to draft a narrow run-only harness instead of forcing a generic fit.
+For `$tink:cast`, classify the task as code change, bug fix, research, review, docs, ship/release, or new pattern. Ask for current-run approval using the Codex Approval Protocol, then load only selected harness bodies after approval. If no built-in harness fits, use `harness-synthesis` to draft a narrow run-only harness instead of forcing a generic fit.
 
 Create run state before deeper work:
 
@@ -56,6 +105,8 @@ Create run state before deeper work:
 - `.tink/current/excluded-context.md`: notable omitted context and why it was left out
 
 When external context is needed for `$tink:cast`, write it through the MCP Safe Profile shape in `context-map.json.external_context[]`. Record `source`, `source_ref`, `kind`, `included`, `excluded`, `reason`, `confidence`, `sensitivity`, and `verification_hint` when useful. Treat Figma, GitHub, and official docs as representative examples, not the only supported sources; Linear, Jira, Supabase, dashboards, API responses, screenshots, attachments, and runbooks can follow the same shape.
+
+When repo signal fixtures contain `context_graph_lite.rules[]`, use those rules inside `$tink:cast` to choose the first related context candidates. Match changed paths against `when_paths`, consider `include_paths`, cite selected rules as `context_graph_rule` signals with `source_ref: "context_graph_lite.rules.<name>"`, and connect `signal_refs` to verification hints where relevant. Do not create a public `tink index` command, watch process, generated cache, or hidden runtime index.
 
 External context safety checklist:
 - Select the smallest useful `source_ref`; avoid whole files, boards, dashboards, logs, or design systems when one issue, frame, section, screenshot, or attachment is enough.

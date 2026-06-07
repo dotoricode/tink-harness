@@ -8,13 +8,27 @@ Repo signals follow the project compatibility baseline in `docs/compatibility-po
 
 ## Purpose
 
-Repo signals answer three questions:
+Repo signals answer four questions:
 
 1. Which files usually move together?
 2. Which checks prove those files stayed consistent?
 3. Which changed paths are unknown to the current signal set?
+4. Which small set of related context should cast inspect first?
 
 This lets Tink explain why a file was included in `context-map.json`, why a verification check was selected in `contract.json`, and when no check should be invented.
+
+## Context Graph Lite
+
+Phase 6 adds `context_graph_lite` to the static fixture. It is a small set of changed-path rules for cast. It is internal to `/tink:cast` and `$tink:cast`; it is not a new command, not a file watcher, and not a runtime indexer.
+
+Each rule has:
+
+- `when_paths`: changed path patterns that activate the rule.
+- `include_paths`: related files cast should consider first.
+- `signal_refs`: sync groups, verification commands, or verification hints that explain the selection.
+- `reason` and `confidence`: human-readable traceability for `context-map.json signals`.
+
+Context Graph Lite should prefer a small high-confidence context pack over a broad list. If no graph rule matches, Tink should record `unmatched_path` instead of inventing a relationship.
 
 ## Current Fixtures
 
@@ -29,6 +43,8 @@ The intended cast flow is:
 
 ```text
 changed path
+-> matching context_graph_lite rules
+-> small related context set
 -> matching repo signal verification_hints
 -> contract.verification.manual_checks[]
 -> context-map.json signals
@@ -38,6 +54,8 @@ For example:
 
 ```text
 commands/cast.md
+-> context_graph_lite.rules.claude-command-sync
+-> include matching command copies and tests/test_templates.py
 -> verification_hints.command-template-sync
 -> manual check: test_dual_format_paths_stay_in_sync
 -> context-map signal: verification_hint

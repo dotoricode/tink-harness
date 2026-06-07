@@ -120,13 +120,17 @@ npx tink-harness@latest update
 
 During update, select the installed agent surface you want to refresh.
 
+To quickly verify the updated install, see `docs/update-verification-recipe.md` or `docs/update-verification-recipe.ko.md`.
+
+If an update looks stale or incomplete, see `docs/update-troubleshooting.md` or `docs/update-troubleshooting.ko.md`.
+
 ## What's new in 1.2.0
 
 This release makes Tink work as one harness layer across Claude Code and Codex.
 
 - Codex now installs focused `$tink:*` action skills instead of one broad visible `tink` skill, so the picker shows commands like `$tink:cast` and `$tink:verify` cleanly.
 - Non-trivial runs now create context artifacts: `context-pack.md`, `context-map.json`, and `excluded-context.md`.
-- Repo Signals help `/tink:cast` choose relevant tests, schemas, sync partners, and verification hints without adding a new `tink index` command.
+- Repo Signals and Context Graph Lite help `/tink:cast` and `$tink:cast` choose relevant tests, schemas, sync partners, and verification hints without adding a new `tink index` command.
 - `/tink:verify` and `$tink:verify` share one portable Verify Runner model and write compact evidence to `.tink/current/verification.json`.
 - External context now follows the MCP Safe Profile: include only the smallest useful source handle, mark confidence and sensitivity, exclude unsafe context visibly, and connect important claims to verification.
 
@@ -188,7 +192,7 @@ Tink uses files you can inspect:
 
 The rule graph stays small on purpose. Tink loads matching mandatory rules first, retrieves only relevant optional rules by task facts or keywords, and records loaded rule ids by phase so the same guidance is not repeated in one run.
 
-Design notes live in `docs/`. The compatibility baseline is `docs/compatibility-policy.md`: every new slice should consider Claude Code and Codex, plus macOS and Windows. Repo signal behavior is described in `docs/repo-signals.md`. External context safety is described in `docs/mcp-safe-profile.md`.
+Design notes live in `docs/`. The compatibility baseline is `docs/compatibility-policy.md`: every new slice should consider Claude Code and Codex, plus macOS and Windows. Repo signal behavior is described in `docs/repo-signals.md` or `docs/repo-signals.ko.md`. External context safety is described in `docs/mcp-safe-profile.md`. To read or review `.tink/current/` state, start with `docs/work-state.md` or `docs/work-state.ko.md`. The next update-focused planning track is `docs/phase-5-update-confidence.md` or `docs/phase-5-update-confidence.ko.md`. The broader Korean idea audit and roadmap is `docs/tink-idea-implementation-plan.ko.md`.
 
 The important rule is approval.
 

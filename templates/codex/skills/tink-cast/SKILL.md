@@ -11,3 +11,4 @@ This is the Codex alias for `$tink:cast <task>`.
 2. Treat this invocation as `$tink:cast <task>`.
 3. Follow the canonical Tink operating rules, approval gates, run state, and verification policy.
 4. Accept legacy `$tink cast <task>` wording as the same action, but present `$tink:cast <task>` in guidance.
+5. For non-trivial tasks, `$tink:cast` prepares the run and asks for approval first; it does not silently start implementation.

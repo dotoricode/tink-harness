@@ -12,5 +12,5 @@
 - Deployment dashboard evidence is blocked when access is unavailable; keep a short evidence handle instead of inventing certainty.
 
 ## Deferred Work
-- Graph indexing is deferred to a later phase.
+- Public graph indexing is intentionally excluded. Context Graph Lite stays inside `/tink:cast` and `$tink:cast`; it does not create a `tink index` command, watcher, generated cache, or hidden runtime index.
 - Broad external connector automation is deferred until the MCP Safe Profile is represented by fixtures and tests.
