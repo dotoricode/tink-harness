@@ -1,0 +1,61 @@
+{
+  "run": ".tink/current",
+  "evaluator": "fixture-ratio-v1",
+  "target_threshold_percent": 90,
+  "measurement_status": "measured",
+  "scope": "fixture",
+  "limits": [
+    "This measures fixture completeness, not production telemetry.",
+    "Runtime-generated current-run files must be checked with the same ratios before claiming project-wide 90 percent."
+  ],
+  "scores": [
+    {
+      "name": "unnecessary_context_reduction",
+      "score_percent": 100,
+      "formula": "excluded_entries_with_budget_fields / excluded_entries",
+      "numerator": 2,
+      "denominator": 2,
+      "evidence_refs": ["context-map.excluded", "context-diff.excluded"]
+    },
+    {
+      "name": "initial_context_pack_size_reduction",
+      "score_percent": 100,
+      "formula": "included_entries_with_role_cost_and_high_cost_justification / included_entries",
+      "numerator": 6,
+      "denominator": 6,
+      "evidence_refs": ["context-map.included", "repo-signals.context_budget_policy"]
+    },
+    {
+      "name": "review_evidence_lookup_time_reduction",
+      "score_percent": 100,
+      "formula": "included_entries_with_role_and_verification_link / included_entries",
+      "numerator": 6,
+      "denominator": 6,
+      "evidence_refs": ["context-map.included[*].verification_link"]
+    },
+    {
+      "name": "verification_omission_detection",
+      "score_percent": 100,
+      "formula": "verification_target_entries_with_known_verification_link / verification_target_entries",
+      "numerator": 2,
+      "denominator": 2,
+      "evidence_refs": ["context-map.included[*].role", "contract.verification.manual_checks"]
+    },
+    {
+      "name": "repeated_context_reuse_accuracy",
+      "score_percent": 100,
+      "formula": "(context_entries_with_reuse_signal + graph_path_cases_with_expected_roles) / (context_entries + graph_path_cases)",
+      "numerator": 15,
+      "denominator": 15,
+      "evidence_refs": ["context-map.*.reuse_signal", "path-cases.expected_context_roles"]
+    },
+    {
+      "name": "rework_probability_reduction",
+      "score_percent": 100,
+      "formula": "(context_diff_changes_with_verification_link + metric_impacts_with_direction + avoid_next_time_exclusions) / tracked_rework_risk_items",
+      "numerator": 5,
+      "denominator": 5,
+      "evidence_refs": ["context-diff.changes", "context-diff.metric_impacts", "context-diff.excluded"]
+    }
+  ]
+}

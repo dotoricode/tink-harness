@@ -39,6 +39,20 @@ EXPECTED_CODEX_SKILLS = {
     'tink-update',
 }
 FORBIDDEN_INDEX_SURFACES = {'index.md', 'tink-index.md'}
+CONTEXT_EFFICIENCY_METRICS = {
+    'unnecessary_context_reduction',
+    'initial_context_pack_size_reduction',
+    'review_evidence_lookup_time_reduction',
+    'verification_omission_detection',
+    'repeated_context_reuse_accuracy',
+    'rework_probability_reduction',
+}
+
+
+def pct(numerator, denominator):
+    if denominator == 0:
+        return 100
+    return round((numerator / denominator) * 100)
 
 
 class TemplateTests(unittest.TestCase):
@@ -643,6 +657,8 @@ class TemplateTests(unittest.TestCase):
             'docs/context-change-review.ko.md',
             'docs/context-budget-ledger.md',
             'docs/context-budget-ledger.ko.md',
+            'docs/context-metrics-evaluator.md',
+            'docs/context-metrics-evaluator.ko.md',
             'docs/update-diagnosis.md',
             'docs/update-diagnosis.ko.md',
             'docs/phase-5-update-confidence.md',
@@ -660,6 +676,7 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-07-v1.2.0.md',
             'docs/pr/2026-06-07-v1.2.1.md',
             'docs/pr/2026-06-08-context-budget-ledger.ko.md',
+            'docs/pr/2026-06-08-context-metrics-evaluator.ko.md',
             'README.md',
             'LICENSE',
         ]:
@@ -779,6 +796,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('docs/planned-work-units.md', readme)
         self.assertIn('docs/planned-work-units.ko.md', readme)
         self.assertIn('docs/external-context-policy.md', readme)
+        self.assertIn('docs/context-metrics-evaluator.md', readme)
+        self.assertIn('docs/context-metrics-evaluator.ko.md', readme)
 
     def test_work_state_phase5_and_idea_plan_docs_exist(self):
         work_state = (ROOT / 'docs/work-state.md').read_text(encoding='utf-8')
@@ -804,6 +823,8 @@ class TemplateTests(unittest.TestCase):
         context_change_ko = (ROOT / 'docs/context-change-review.ko.md').read_text(encoding='utf-8')
         context_budget = (ROOT / 'docs/context-budget-ledger.md').read_text(encoding='utf-8')
         context_budget_ko = (ROOT / 'docs/context-budget-ledger.ko.md').read_text(encoding='utf-8')
+        context_metrics = (ROOT / 'docs/context-metrics-evaluator.md').read_text(encoding='utf-8')
+        context_metrics_ko = (ROOT / 'docs/context-metrics-evaluator.ko.md').read_text(encoding='utf-8')
         context_efficiency_html = (ROOT / 'docs/context-engineering-efficiency.ko.html').read_text(encoding='utf-8')
         update_diagnosis = (ROOT / 'docs/update-diagnosis.md').read_text(encoding='utf-8')
         update_diagnosis_ko = (ROOT / 'docs/update-diagnosis.ko.md').read_text(encoding='utf-8')
@@ -945,8 +966,10 @@ class TemplateTests(unittest.TestCase):
             (memory_layers_ko, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
             (context_change, ['context-diff.json', 'not a new command', 'not a hidden runtime cache']),
             (context_change_ko, ['context-diff.json', '새 command도 아니고', 'hidden runtime cache도 아니다']),
-            (context_budget, ['Context Budget Ledger', 'verification_link', 'measurement_status: "estimated"', 'Do not claim 90% without evidence']),
-            (context_budget_ko, ['Context Budget Ledger', 'verification_link', 'measurement_status: "estimated"', '근거 없이 90% 달성으로 표시하지 않는다']),
+            (context_budget, ['Context Budget Ledger', 'verification_link', 'measurement_status: "estimated"', 'measurement_status: "measured"', 'Do not claim 90% without evidence']),
+            (context_budget_ko, ['Context Budget Ledger', 'verification_link', 'measurement_status: "estimated"', 'measurement_status: "measured"', '근거 없이 90% 달성으로 표시하지 않는다']),
+            (context_metrics, ['Context Metrics Evaluator', 'fixture-ratio-v1', 'not a new public command', 'production telemetry']),
+            (context_metrics_ko, ['Context Metrics Evaluator', 'fixture-ratio-v1', '새 public command가 아니다', 'production telemetry']),
             (context_efficiency_html, ['Tink 컨텍스트 엔지니어링', 'role', 'reuse_signal', 'verification_link', '예상 개선 효과']),
             (update_diagnosis, ['without adding a new command', 'Update Result Summary']),
             (update_diagnosis_ko, ['새 command를 추가하지 않고', 'Update Result Summary']),
@@ -1061,6 +1084,8 @@ class TemplateTests(unittest.TestCase):
         maintenance_weave = json.loads((fixture_dir / 'maintenance-weave-queue.json').read_text(encoding='utf-8'))
         contract = json.loads((fixture_dir / 'contract.json').read_text(encoding='utf-8'))
         context_map = json.loads((fixture_dir / 'context-map.json').read_text(encoding='utf-8'))
+        context_metrics = json.loads((fixture_dir / 'context-metrics-evaluation.json').read_text(encoding='utf-8'))
+        context_diff = json.loads((fixture_dir / 'context-diff.json').read_text(encoding='utf-8'))
         external_profile = json.loads((fixture_dir / 'external-context-profile.json').read_text(encoding='utf-8'))
         verification = json.loads((fixture_dir / 'verification.json').read_text(encoding='utf-8'))
         verification_failure = json.loads((fixture_dir / 'verification-failure.json').read_text(encoding='utf-8'))
@@ -1069,6 +1094,7 @@ class TemplateTests(unittest.TestCase):
         schema = json.loads((ROOT / 'templates/tink/schemas/context-map.schema.json').read_text(encoding='utf-8'))
         verification_schema = json.loads((ROOT / 'templates/tink/schemas/verification.schema.json').read_text(encoding='utf-8'))
         repo_signals = json.loads((ROOT / 'tests/fixtures/repo-signals/tink-harness.json').read_text(encoding='utf-8'))
+        path_cases = json.loads((ROOT / 'tests/fixtures/repo-signals/path-cases.json').read_text(encoding='utf-8'))
 
         for required in schema['required']:
             self.assertIn(required, context_map)
@@ -1227,24 +1253,107 @@ class TemplateTests(unittest.TestCase):
 
         metrics = context_map['efficiency_metrics']
         self.assertEqual(metrics['target_threshold_percent'], 90)
-        self.assertEqual(metrics['measurement_status'], 'estimated')
+        self.assertEqual(metrics['measurement_status'], 'measured')
+        self.assertEqual(metrics['evaluator'], 'fixture-ratio-v1')
         metric_names = {item['name'] for item in metrics['scores']}
-        self.assertEqual(
-            metric_names,
-            {
-                'unnecessary_context_reduction',
-                'initial_context_pack_size_reduction',
-                'review_evidence_lookup_time_reduction',
-                'verification_omission_detection',
-                'repeated_context_reuse_accuracy',
-                'rework_probability_reduction',
-            },
-        )
+        self.assertEqual(metric_names, CONTEXT_EFFICIENCY_METRICS)
         for metric in metrics['scores']:
             self.assertGreaterEqual(metric['score_percent'], 0)
             self.assertLessEqual(metric['score_percent'], 100)
             self.assertIn(metric['confidence'], {'low', 'medium', 'high'})
             self.assertIn('limit', metric)
+            self.assertIn('formula', metric)
+            self.assertIn('numerator', metric)
+            self.assertIn('denominator', metric)
+
+        self.assertEqual(context_metrics['evaluator'], metrics['evaluator'])
+        self.assertEqual(context_metrics['measurement_status'], 'measured')
+        self.assertEqual(context_metrics['scope'], 'fixture')
+        self.assertIn('not production telemetry', ' '.join(context_metrics['limits']))
+        expected_metric_scores = {item['name']: item for item in context_metrics['scores']}
+        self.assertEqual(set(expected_metric_scores), CONTEXT_EFFICIENCY_METRICS)
+
+        budget_fields = ['role', 'cost', 'reuse_signal', 'staleness', 'reason']
+        excluded_budget_ready = [
+            entry
+            for entry in context_map['excluded']
+            if all(field in entry for field in budget_fields)
+        ]
+        included_pack_ready = [
+            entry
+            for entry in context_map['included']
+            if 'role' in entry
+            and 'cost' in entry
+            and (entry['cost'] != 'high' or 'verification_link' in entry)
+        ]
+        included_review_ready = [
+            entry
+            for entry in context_map['included']
+            if 'role' in entry and 'verification_link' in entry
+        ]
+        known_verification_links = {
+            'verification_commands.test suite',
+            *{f"verification_hints.{hint['name']}" for hint in repo_signals['verification_hints']},
+            *{check['source_ref'] for check in contract['verification']['manual_checks'] if 'source_ref' in check},
+        }
+        verification_targets = [
+            entry for entry in context_map['included'] if entry.get('role') == 'verification_target'
+        ]
+        verification_targets_linked = [
+            entry for entry in verification_targets if entry.get('verification_link') in known_verification_links
+        ]
+        context_entries = [*context_map['included'], *context_map['excluded']]
+        context_entries_with_reuse = [entry for entry in context_entries if 'reuse_signal' in entry]
+        graph_path_cases = [
+            case for case in path_cases['cases'] if case.get('expected_context_rules')
+        ]
+        graph_path_cases_with_roles = [
+            case for case in graph_path_cases if case.get('expected_context_roles')
+        ]
+        diff_changes_linked = [
+            item for item in context_diff['changes'] if 'verification_link' in item
+        ]
+        metric_impacts_with_direction = [
+            item for item in context_diff['metric_impacts'] if 'direction' in item and 'metric' in item
+        ]
+        avoid_next_time_exclusions = [
+            item for item in context_diff['excluded'] if item.get('reuse_signal') == 'avoid_next_time'
+        ]
+        calculated_scores = {
+            'unnecessary_context_reduction': (
+                len(excluded_budget_ready),
+                len(context_map['excluded']),
+            ),
+            'initial_context_pack_size_reduction': (
+                len(included_pack_ready),
+                len(context_map['included']),
+            ),
+            'review_evidence_lookup_time_reduction': (
+                len(included_review_ready),
+                len(context_map['included']),
+            ),
+            'verification_omission_detection': (
+                len(verification_targets_linked),
+                len(verification_targets),
+            ),
+            'repeated_context_reuse_accuracy': (
+                len(context_entries_with_reuse) + len(graph_path_cases_with_roles),
+                len(context_entries) + len(graph_path_cases),
+            ),
+            'rework_probability_reduction': (
+                len(diff_changes_linked) + len(metric_impacts_with_direction) + len(avoid_next_time_exclusions),
+                len(context_diff['changes']) + len(context_diff['metric_impacts']) + len(context_diff['excluded']),
+            ),
+        }
+        context_map_scores = {item['name']: item for item in metrics['scores']}
+        for name, (numerator, denominator) in calculated_scores.items():
+            expected = expected_metric_scores[name]
+            self.assertEqual(expected['numerator'], numerator, name)
+            self.assertEqual(expected['denominator'], denominator, name)
+            self.assertEqual(expected['score_percent'], pct(numerator, denominator), name)
+            self.assertGreaterEqual(expected['score_percent'], context_metrics['target_threshold_percent'], name)
+            self.assertEqual(context_map_scores[name]['score_percent'], expected['score_percent'], name)
+            self.assertEqual(context_map_scores[name]['formula'], expected['formula'], name)
 
         for signal in context_map['signals']:
             for required in ['kind', 'value', 'reason']:
