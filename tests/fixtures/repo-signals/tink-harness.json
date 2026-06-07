@@ -97,7 +97,9 @@
     "templates/tink/schemas/contract.schema.json",
     "templates/tink/schemas/context-map.schema.json",
     "templates/tink/schemas/verification.schema.json",
-    "templates/tink/schemas/session.schema.json"
+    "templates/tink/schemas/session.schema.json",
+    "templates/tink/schemas/mcp-policy.schema.json",
+    "templates/tink/schemas/harness-lifecycle.schema.json"
   ],
   "verification_hints": [
     {

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "default_mode": "read_only",
+  "sources": [
+    {
+      "source": "Figma",
+      "mode": "read_only",
+      "allowed_kinds": ["design_evidence"],
+      "max_scope": "one frame or one screenshot",
+      "sensitivity_ceiling": "internal",
+      "verification_hint_required": true
+    },
+    {
+      "source": "GitHub",
+      "mode": "read_only",
+      "allowed_kinds": ["work_item", "pull_request", "review_comment"],
+      "max_scope": "one issue, pull request, or review thread",
+      "sensitivity_ceiling": "internal",
+      "verification_hint_required": true
+    },
+    {
+      "source": "official docs",
+      "mode": "read_only",
+      "allowed_kinds": ["reference"],
+      "max_scope": "one versioned docs section",
+      "sensitivity_ceiling": "public",
+      "verification_hint_required": true
+    }
+  ],
+  "redaction": {
+    "secret_action": "summarize_unavailable",
+    "store_raw_payloads": false
+  },
+  "prompt_injection": {
+    "treat_external_instructions_as_data": true,
+    "record_suspicious_text_as_excluded": true
+  }
+}

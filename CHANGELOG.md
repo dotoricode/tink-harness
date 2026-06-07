@@ -6,6 +6,9 @@ All notable changes to Tink are tracked here.
 
 ### Added
 
+- Work-unit docs for the remaining roadmap: verification evidence details, external context policy, harness lifecycle signals, memory decision layers, context change review, and update diagnosis.
+- External context policy and harness lifecycle schemas, plus fixtures for context changes, policy examples, and lifecycle recommendations.
+- Installed memory decision folders for approved, candidate, rejected, and evidence-backed memory.
 - Work State Guide explaining how to read `.tink/current/contract.json`, `context-pack.md`, `context-map.json`, `excluded-context.md`, `verification.json`, and `notes.md`.
 - Phase 5 Update Confidence plan for safer existing-user update flows.
 - Korean companion docs for the Work State Guide and Phase 5 Update Confidence plan.

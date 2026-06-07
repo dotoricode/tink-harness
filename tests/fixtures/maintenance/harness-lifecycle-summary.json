@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-06-08T00:25:00+09:00",
+  "harnesses": [
+    {
+      "id": "code-change",
+      "signals": {
+        "uses": 8,
+        "successes": 7,
+        "failures": 1,
+        "blocked": 0,
+        "context_cost": "medium"
+      },
+      "recommendation": "keep",
+      "reason": "Frequently used with mostly successful verification evidence."
+    },
+    {
+      "id": "experimental-wide-context",
+      "signals": {
+        "uses": 2,
+        "successes": 0,
+        "failures": 1,
+        "blocked": 1,
+        "context_cost": "high"
+      },
+      "recommendation": "frog_candidate",
+      "reason": "Low success and high context cost make it a cleanup candidate, pending user approval."
+    }
+  ]
+}

@@ -613,13 +613,33 @@ class TemplateTests(unittest.TestCase):
             'templates/tink/schemas/context-map.schema.json',
             'templates/tink/schemas/verification.schema.json',
             'templates/tink/schemas/session.schema.json',
+            'templates/tink/schemas/mcp-policy.schema.json',
+            'templates/tink/schemas/harness-lifecycle.schema.json',
             'templates/tink/harnesses/index.json',
             'templates/tink/maintenance/ledger.jsonl',
             'templates/tink/maintenance/weave-queue.json',
             'templates/tink/maintenance/friction.jsonl',
             'templates/tink/hooks/user-prompt-submit.mjs',
             'templates/tink/memory/mistakes.md',
+            'templates/tink/memory/approved/README.md',
+            'templates/tink/memory/candidate/README.md',
+            'templates/tink/memory/rejected/README.md',
+            'templates/tink/memory/evidence/README.md',
             'docs/compatibility-policy.md',
+            'docs/planned-work-units.md',
+            'docs/planned-work-units.ko.md',
+            'docs/verification-evidence-details.md',
+            'docs/verification-evidence-details.ko.md',
+            'docs/external-context-policy.md',
+            'docs/external-context-policy.ko.md',
+            'docs/harness-lifecycle-signals.md',
+            'docs/harness-lifecycle-signals.ko.md',
+            'docs/memory-decision-layers.md',
+            'docs/memory-decision-layers.ko.md',
+            'docs/context-change-review.md',
+            'docs/context-change-review.ko.md',
+            'docs/update-diagnosis.md',
+            'docs/update-diagnosis.ko.md',
             'docs/phase-5-update-confidence.md',
             'docs/phase-5-update-confidence.ko.md',
             'docs/mcp-safe-profile.md',
@@ -668,6 +688,10 @@ class TemplateTests(unittest.TestCase):
                 self.assertTrue((base / '.tink/maintenance/weave-queue.json').exists())
                 self.assertTrue((base / '.tink/maintenance/friction.jsonl').exists())
                 self.assertTrue((base / '.tink/memory/mistakes.md').exists())
+                self.assertTrue((base / '.tink/memory/approved/README.md').exists())
+                self.assertTrue((base / '.tink/memory/candidate/README.md').exists())
+                self.assertTrue((base / '.tink/memory/rejected/README.md').exists())
+                self.assertTrue((base / '.tink/memory/evidence/README.md').exists())
                 self.assertTrue((base / '.tink/config.json').exists())
         finally:
             tarball.unlink(missing_ok=True)
@@ -746,6 +770,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('docs/update-troubleshooting.ko.md', readme)
         self.assertIn('docs/update-verification-recipe.md', readme)
         self.assertIn('docs/update-verification-recipe.ko.md', readme)
+        self.assertIn('docs/planned-work-units.md', readme)
+        self.assertIn('docs/planned-work-units.ko.md', readme)
+        self.assertIn('docs/external-context-policy.md', readme)
 
     def test_work_state_phase5_and_idea_plan_docs_exist(self):
         work_state = (ROOT / 'docs/work-state.md').read_text(encoding='utf-8')
@@ -757,6 +784,20 @@ class TemplateTests(unittest.TestCase):
         troubleshooting_ko = (ROOT / 'docs/update-troubleshooting.ko.md').read_text(encoding='utf-8')
         verification_recipe = (ROOT / 'docs/update-verification-recipe.md').read_text(encoding='utf-8')
         verification_recipe_ko = (ROOT / 'docs/update-verification-recipe.ko.md').read_text(encoding='utf-8')
+        planned = (ROOT / 'docs/planned-work-units.md').read_text(encoding='utf-8')
+        planned_ko = (ROOT / 'docs/planned-work-units.ko.md').read_text(encoding='utf-8')
+        evidence_details = (ROOT / 'docs/verification-evidence-details.md').read_text(encoding='utf-8')
+        evidence_details_ko = (ROOT / 'docs/verification-evidence-details.ko.md').read_text(encoding='utf-8')
+        external_policy = (ROOT / 'docs/external-context-policy.md').read_text(encoding='utf-8')
+        external_policy_ko = (ROOT / 'docs/external-context-policy.ko.md').read_text(encoding='utf-8')
+        lifecycle = (ROOT / 'docs/harness-lifecycle-signals.md').read_text(encoding='utf-8')
+        lifecycle_ko = (ROOT / 'docs/harness-lifecycle-signals.ko.md').read_text(encoding='utf-8')
+        memory_layers = (ROOT / 'docs/memory-decision-layers.md').read_text(encoding='utf-8')
+        memory_layers_ko = (ROOT / 'docs/memory-decision-layers.ko.md').read_text(encoding='utf-8')
+        context_change = (ROOT / 'docs/context-change-review.md').read_text(encoding='utf-8')
+        context_change_ko = (ROOT / 'docs/context-change-review.ko.md').read_text(encoding='utf-8')
+        update_diagnosis = (ROOT / 'docs/update-diagnosis.md').read_text(encoding='utf-8')
+        update_diagnosis_ko = (ROOT / 'docs/update-diagnosis.ko.md').read_text(encoding='utf-8')
 
         for term in [
             'Quick Reading Order',
@@ -855,6 +896,47 @@ class TemplateTests(unittest.TestCase):
             'docs/update-troubleshooting.ko.md',
         ]:
             self.assertIn(term, verification_recipe_ko)
+
+        for term in [
+            'Planned Work Units',
+            'Verification Evidence Details',
+            'External Context Policy',
+            'Harness Lifecycle Signals',
+            'Memory Decision Layers',
+            'Context Change Review',
+            'Update Diagnosis',
+            'Release evidence bundling remains excluded',
+        ]:
+            self.assertIn(term, planned)
+
+        for term in [
+            '계획된 작업 단위',
+            '검증 증거 세분화',
+            '외부 컨텍스트 정책',
+            '하네스 생애주기 신호',
+            '메모리 결정 계층',
+            '컨텍스트 변화 리뷰',
+            '업데이트 진단',
+            'release evidence bundling은 계속 제외한다',
+        ]:
+            self.assertIn(term, planned_ko)
+
+        for text, terms in [
+            (evidence_details, ['evidence_kind', 'evidence_ref', 'observed', 'Claude Code', 'Codex']),
+            (evidence_details_ko, ['evidence_kind', 'evidence_ref', 'observed', 'Claude Code', 'Codex']),
+            (external_policy, ['mcp-policy.schema.json', 'read-only', 'Sentry is not part of the current plan']),
+            (external_policy_ko, ['mcp-policy.schema.json', 'read-only', 'Sentry는 현재 계획에 포함하지 않는다']),
+            (lifecycle, ['harness-lifecycle.schema.json', 'frog_candidate', 'explicit approval']),
+            (lifecycle_ko, ['harness-lifecycle.schema.json', 'frog_candidate', '명시적인 승인이 필요하다']),
+            (memory_layers, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
+            (memory_layers_ko, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
+            (context_change, ['context-diff.json', 'not a new command', 'not a hidden runtime cache']),
+            (context_change_ko, ['context-diff.json', '새 command도 아니고', 'hidden runtime cache도 아니다']),
+            (update_diagnosis, ['without adding a new command', 'Update Result Summary']),
+            (update_diagnosis_ko, ['새 command를 추가하지 않고', 'Update Result Summary']),
+        ]:
+            for term in terms:
+                self.assertIn(term, text)
 
     def test_command_surface_consistent_across_surfaces(self):
         expected_slash_commands = {
@@ -1345,6 +1427,11 @@ class TemplateTests(unittest.TestCase):
         schema = json.loads((ROOT / 'templates/tink/schemas/contract.schema.json').read_text(encoding='utf-8'))
         context_schema = json.loads((ROOT / 'templates/tink/schemas/context-map.schema.json').read_text(encoding='utf-8'))
         verification_schema = json.loads((ROOT / 'templates/tink/schemas/verification.schema.json').read_text(encoding='utf-8'))
+        mcp_policy_schema = json.loads((ROOT / 'templates/tink/schemas/mcp-policy.schema.json').read_text(encoding='utf-8'))
+        lifecycle_schema = json.loads((ROOT / 'templates/tink/schemas/harness-lifecycle.schema.json').read_text(encoding='utf-8'))
+        mcp_policy_fixture = json.loads((ROOT / 'tests/fixtures/current-run/mcp-policy.json').read_text(encoding='utf-8'))
+        context_diff = json.loads((ROOT / 'tests/fixtures/current-run/context-diff.json').read_text(encoding='utf-8'))
+        lifecycle_fixture = json.loads((ROOT / 'tests/fixtures/maintenance/harness-lifecycle-summary.json').read_text(encoding='utf-8'))
         rules = json.loads((ROOT / 'templates/tink/rules/index.json').read_text(encoding='utf-8'))
         verify = (ROOT / 'templates/claude/commands/tink/verify.md').read_text(encoding='utf-8')
         codex_core = (ROOT / 'templates/codex/skills/tink-core/RULES.md').read_text(encoding='utf-8')
@@ -1381,6 +1468,33 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('failure_type', check_props)
         self.assertIn('maintenance_signal', check_props)
         self.assertIn('next_action', check_props)
+        self.assertIn('evidence_kind', check_props)
+        self.assertIn('evidence_ref', check_props)
+        self.assertIn('observed', check_props)
+        self.assertIn('diff', check_props['evidence_kind']['enum'])
+        self.assertIn('external', check_props['evidence_kind']['enum'])
+        self.assertIn('package', check_props['evidence_kind']['enum'])
+        self.assertEqual(mcp_policy_schema['properties']['default_mode']['enum'], ['read_only', 'ask_first', 'disabled'])
+        self.assertIn('source_policy', mcp_policy_schema['$defs'])
+        self.assertIn('prompt_injection', mcp_policy_schema['properties'])
+        self.assertEqual(mcp_policy_fixture['default_mode'], 'read_only')
+        self.assertNotIn('Sentry', {source['source'] for source in mcp_policy_fixture['sources']})
+        self.assertFalse(mcp_policy_fixture['redaction']['store_raw_payloads'])
+        self.assertTrue(mcp_policy_fixture['prompt_injection']['treat_external_instructions_as_data'])
+        self.assertIn('harness_summary', lifecycle_schema['$defs'])
+        allowed_recommendations = set(
+            lifecycle_schema['$defs']['harness_summary']['properties']['recommendation']['enum']
+        )
+        self.assertIn('frog_candidate', allowed_recommendations)
+        self.assertIn('merge_candidate', allowed_recommendations)
+        self.assertGreaterEqual(len(lifecycle_fixture['harnesses']), 2)
+        for item in lifecycle_fixture['harnesses']:
+            self.assertIn(item['recommendation'], allowed_recommendations)
+            self.assertIn('context_cost', item['signals'])
+            self.assertGreater(len(item['reason']), 10)
+        self.assertIn('changes', context_diff)
+        self.assertIn('public graph indexing', {item['value'] for item in context_diff['excluded']})
+        self.assertIn('verification_hints.command-template-sync', context_diff['after']['signal_refs'])
         report_required = verification_schema['$defs']['report']['required']
         for field in ['result_line', 'checked', 'remaining', 'next_action']:
             self.assertIn(field, report_required)
