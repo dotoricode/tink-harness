@@ -144,6 +144,7 @@ After approval, create `.tink/current/` with these files before doing deeper wor
 - `session.json`: lightweight session metadata, especially rule ids already loaded by phase
 - `context-pack.md`: human-readable selected context, including why each item is relevant
 - `context-map.json`: machine-readable included and excluded context with reasons
+- `context-metrics-evaluation.json`: measured or estimated context-efficiency scores, formulas, evidence refs, and limits
 - `excluded-context.md`: notable omitted files, tools, sources, or claims and why they were excluded
 
 Create `contract.json` before loading harness bodies. It should be short, factual, and based on the user request plus visible project context:
@@ -189,9 +190,11 @@ Create context artifacts before deeper implementation work:
 - `context-pack.md` should name the user task, selected harnesses, contract summary, loaded rules, selected files/docs, selected external sources, and verification implications.
 - `context-map.json` should contain `task`, `included`, `excluded`, `signals`, and `generated_at`. Each included or excluded entry should include `path` or `source`, `kind`, `reason`, and `confidence`. When external context is selected, also write `external_context[]`.
 - When useful, enrich each context entry with Context Budget Ledger fields: `role`, `cost`, `reuse_signal`, `verification_link`, `staleness`, and `evidence_kind`. Use them to explain why the first context pack is small enough, why excluded context should stay out, and which checks prove selected context matters.
+- `context-metrics-evaluation.json` should contain `run`, `evaluator`, `target_threshold_percent`, `measurement_status`, `scope`, `limits`, and `scores[]`. Each score should include `name`, `score_percent`, `formula`, `numerator`, `denominator`, and `evidence_refs`. If the score is based only on fixtures or the current run, say so in `scope` and `limits`; do not claim production-wide 90% without run-history or telemetry evidence.
 - `excluded-context.md` should make important omissions visible, especially files skipped because they are out of scope, stale, risky, too broad, or unverified external claims.
 
 If `.tink/schemas/context-map.schema.json` exists, use it for `context-map.json`. Do not paste the schema into the user response.
+If `.tink/schemas/context-metrics-evaluation.schema.json` exists, use it for `context-metrics-evaluation.json`. Do not paste the schema into the user response.
 
 Use deterministic context selection inside cast. Do not create or require a separate `tink index` command for this phase.
 
@@ -401,7 +404,7 @@ A task is trivial only when ALL of the following are true:
 15. Run Stitch once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Call `AskUserQuestion` as described in the Interaction policy section.
 16. Ask for explicit approval before non-trivial work.
 17. After approval, read only the selected harness files and any approved run-only draft.
-18. Create `.tink/current/` files from the run state contract, including `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, and `excluded-context.md`.
+18. Create `.tink/current/` files from the run state contract, including `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`.
 19. Execute the first safe step immediately:
    - inspect relevant files,
    - run a read-only diagnostic,

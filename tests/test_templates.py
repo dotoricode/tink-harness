@@ -61,7 +61,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.3.0')
+        self.assertEqual(pkg['version'], '1.4.0')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -74,7 +74,7 @@ class TemplateTests(unittest.TestCase):
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code and Codex', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn('Latest release:</strong> v1.3.0', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('Latest release:</strong> v1.4.0', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn("What's new in 1.2.0", (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('Tinker Bell', (ROOT / 'README.md').read_text(encoding='utf-8'))
@@ -152,6 +152,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('.tink/current/plan.md', core)
         self.assertIn('.tink/current/context-pack.md', core)
         self.assertIn('.tink/current/context-map.json', core)
+        self.assertIn('.tink/current/context-metrics-evaluation.json', core)
         self.assertIn('.tink/current/excluded-context.md', core)
         self.assertIn('.tink/current/session.json', core)
         self.assertIn('Codex skill files', core)
@@ -283,6 +284,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Run state contract', forge)
         self.assertIn('context-pack.md', forge)
         self.assertIn('context-map.json', forge)
+        self.assertIn('context-metrics-evaluation.json', forge)
         self.assertIn('external_context[]', forge)
         self.assertIn('External context profile rules', forge)
         self.assertIn('External context safety checklist', forge)
@@ -292,6 +294,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('contract.verification.manual_checks[]', forge)
         self.assertIn('excluded-context.md', forge)
         self.assertIn('context-map.schema.json', forge)
+        self.assertIn('context-metrics-evaluation.schema.json', forge)
         self.assertIn('deterministic context selection', forge)
         self.assertIn('Selection order', forge)
         self.assertIn('Context Graph Lite rules', forge)
@@ -473,6 +476,7 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue((base / '.tink/rules/index.json').exists())
             self.assertTrue((base / '.tink/schemas/contract.schema.json').exists())
             self.assertTrue((base / '.tink/schemas/context-map.schema.json').exists())
+            self.assertTrue((base / '.tink/schemas/context-metrics-evaluation.schema.json').exists())
             self.assertTrue((base / '.tink/schemas/verification.schema.json').exists())
             self.assertTrue((base / '.tink/schemas/session.schema.json').exists())
             self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
@@ -522,6 +526,7 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue((base / '.tink/harnesses/index.json').exists())
             self.assertTrue((base / '.tink/rules/index.json').exists())
             self.assertTrue((base / '.tink/schemas/context-map.schema.json').exists())
+            self.assertTrue((base / '.tink/schemas/context-metrics-evaluation.schema.json').exists())
             self.assertTrue((base / '.tink/schemas/verification.schema.json').exists())
             self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
             self.assertTrue((base / '.tink/maintenance/friction.jsonl').exists())
@@ -570,6 +575,7 @@ class TemplateTests(unittest.TestCase):
             }
             self.assertEqual(installed_codex_skills, EXPECTED_CODEX_SKILLS)
             self.assertTrue((base / '.tink/schemas/context-map.schema.json').exists())
+            self.assertTrue((base / '.tink/schemas/context-metrics-evaluation.schema.json').exists())
             self.assertTrue((base / '.tink/schemas/verification.schema.json').exists())
             self.assertIn('"old": true', stale_contract.read_text(encoding='utf-8'))
             config_after_update = json.loads(stale_config.read_text(encoding='utf-8'))
@@ -628,6 +634,7 @@ class TemplateTests(unittest.TestCase):
             'templates/tink/rules/index.json',
             'templates/tink/schemas/contract.schema.json',
             'templates/tink/schemas/context-map.schema.json',
+            'templates/tink/schemas/context-metrics-evaluation.schema.json',
             'templates/tink/schemas/verification.schema.json',
             'templates/tink/schemas/session.schema.json',
             'templates/tink/schemas/mcp-policy.schema.json',
@@ -676,6 +683,7 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-07-v1.2.0.md',
             'docs/pr/2026-06-07-v1.2.1.md',
             'docs/pr/2026-06-08-context-budget-ledger.ko.md',
+            'docs/pr/2026-06-08-context-metrics-artifact.ko.md',
             'docs/pr/2026-06-08-context-metrics-evaluator.ko.md',
             'README.md',
             'LICENSE',
@@ -706,6 +714,7 @@ class TemplateTests(unittest.TestCase):
                 self.assertTrue((base / '.tink/harnesses/index.json').exists())
                 self.assertTrue((base / '.tink/rules/index.json').exists())
                 self.assertTrue((base / '.tink/schemas/context-map.schema.json').exists())
+                self.assertTrue((base / '.tink/schemas/context-metrics-evaluation.schema.json').exists())
                 self.assertTrue((base / '.tink/schemas/verification.schema.json').exists())
                 self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
                 self.assertTrue((base / '.tink/maintenance/weave-queue.json').exists())
@@ -832,12 +841,14 @@ class TemplateTests(unittest.TestCase):
         for term in [
             'Quick Reading Order',
             '.tink/current/context-map.json',
+            '.tink/current/context-metrics-evaluation.json',
             '.tink/current/excluded-context.md',
             '.tink/current/verification.json',
             'Do not create a new command surface',
             'Claude Code and Codex',
             'macOS and Windows',
             'Context Budget Ledger',
+            'context-metrics-evaluation.json',
             'verification_link',
         ]:
             self.assertIn(term, work_state)
@@ -876,6 +887,7 @@ class TemplateTests(unittest.TestCase):
             'Claude Code와 Codex',
             'macOS와 Windows',
             'Context Budget Ledger',
+            'context-metrics-evaluation.json',
             'verification_link',
         ]:
             self.assertIn(term, work_state_ko)
@@ -1612,6 +1624,7 @@ class TemplateTests(unittest.TestCase):
     def test_contract_rule_graph_and_verify_templates_exist(self):
         schema = json.loads((ROOT / 'templates/tink/schemas/contract.schema.json').read_text(encoding='utf-8'))
         context_schema = json.loads((ROOT / 'templates/tink/schemas/context-map.schema.json').read_text(encoding='utf-8'))
+        context_metrics_schema = json.loads((ROOT / 'templates/tink/schemas/context-metrics-evaluation.schema.json').read_text(encoding='utf-8'))
         verification_schema = json.loads((ROOT / 'templates/tink/schemas/verification.schema.json').read_text(encoding='utf-8'))
         mcp_policy_schema = json.loads((ROOT / 'templates/tink/schemas/mcp-policy.schema.json').read_text(encoding='utf-8'))
         lifecycle_schema = json.loads((ROOT / 'templates/tink/schemas/harness-lifecycle.schema.json').read_text(encoding='utf-8'))
@@ -1643,6 +1656,13 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('target_threshold_percent', metric_props)
         self.assertIn('measurement_status', metric_props)
         self.assertIn('scores', metric_props)
+        for field in ['run', 'evaluator', 'target_threshold_percent', 'measurement_status', 'scope', 'scores']:
+            self.assertIn(field, context_metrics_schema['required'])
+        context_metric_score = context_metrics_schema['$defs']['metric_score']
+        for field in ['name', 'score_percent', 'formula', 'numerator', 'denominator', 'evidence_refs']:
+            self.assertIn(field, context_metric_score['required'])
+        for metric_name in CONTEXT_EFFICIENCY_METRICS:
+            self.assertIn(metric_name, context_metric_score['properties']['name']['enum'])
         external_props = context_schema['$defs']['external_context_profile']['properties']
         for field in ['source', 'source_ref', 'included', 'excluded', 'confidence', 'sensitivity', 'verification_hint']:
             self.assertIn(field, external_props)
@@ -1738,6 +1758,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('context_graph_lite.rules[]', codex_core)
         self.assertIn('context_graph_rule', codex_core)
         self.assertIn('Context Budget Ledger fields', codex_core)
+        self.assertIn('context-metrics-evaluation.json', codex_core)
         self.assertIn('verification_target', codex_core)
         self.assertIn('Do not create a public `tink index` command', codex_core)
         self.assertIn('Treat Figma, GitHub, and official docs as representative examples', codex_core)

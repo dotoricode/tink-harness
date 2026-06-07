@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 릴리스:** v1.3.0 — context 효율을 점수화하고 선택한 context를 검증과 연결하는 Context Budget Ledger 기반.
+**최신 릴리스:** v1.4.0 — context 효율 점수를 계산식, evidence ref, 측정 scope와 함께 남기는 Context Metrics Evaluator artifact.
 
 [English](README.md) · **한국어**
 
