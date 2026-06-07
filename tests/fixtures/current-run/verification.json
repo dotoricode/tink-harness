@@ -1,0 +1,85 @@
+{
+  "timestamp": "2026-06-07T18:40:00+09:00",
+  "contract": ".tink/current/contract.json",
+  "surface": "codex",
+  "platform": "windows",
+  "result": "pass",
+  "summary": "Required command and manual checks passed.",
+  "checks": [
+    {
+      "name": "test suite",
+      "kind": "command",
+      "status": "pass",
+      "required": true,
+      "command": "npm test",
+      "exit_code": 0,
+      "evidence": "npm test"
+    },
+    {
+      "name": "command/template sync",
+      "kind": "manual",
+      "status": "pass",
+      "required": true,
+      "target": "test_dual_format_paths_stay_in_sync",
+      "evidence": "test target exists and passed in npm test",
+      "source": "tests/fixtures/repo-signals/tink-harness.json",
+      "source_ref": "verification_hints.command-template-sync"
+    },
+    {
+      "name": "schema shape",
+      "kind": "manual",
+      "status": "pass",
+      "required": true,
+      "target": "test_contract_rule_graph_and_verify_templates_exist",
+      "evidence": "test target exists and passed in npm test",
+      "source": "tests/fixtures/repo-signals/tink-harness.json",
+      "source_ref": "verification_hints.schema-shape"
+    },
+    {
+      "name": "Figma selected frame visual QA",
+      "kind": "manual",
+      "status": "skipped",
+      "required": false,
+      "target": "frame:Checkout/ErrorState",
+      "evidence": "optional visual comparison deferred because this fixture has no rendered UI",
+      "source": "tests/fixtures/current-run/external-context-profile.json",
+      "source_ref": "sources.Figma.verification_hint",
+      "notes": "External design evidence remains traceable without blocking this code/docs fixture."
+    },
+    {
+      "name": "GitHub acceptance criteria coverage",
+      "kind": "manual",
+      "status": "pass",
+      "required": true,
+      "target": "issue:#42 acceptance criteria",
+      "evidence": "acceptance criteria are represented by fixture tests",
+      "source": "tests/fixtures/current-run/external-context-profile.json",
+      "source_ref": "sources.GitHub.verification_hint"
+    },
+    {
+      "name": "official docs version check",
+      "kind": "manual",
+      "status": "pass",
+      "required": false,
+      "target": "docs:provider-api#error-codes",
+      "evidence": "docs section and version label are cited as an external evidence handle",
+      "source": "tests/fixtures/current-run/external-context-profile.json",
+      "source_ref": "sources.official docs.verification_hint"
+    }
+  ],
+  "blocked": [],
+  "report": {
+    "result_line": "Verification passed: all required checks passed.",
+    "checked": [
+      "npm test",
+      "command/template sync",
+      "schema shape",
+      "GitHub acceptance criteria coverage",
+      "official docs version check"
+    ],
+    "problems": [],
+    "remaining": [],
+    "next_action": "Report verification evidence in the final answer."
+  },
+  "next_action": "Report verification evidence in the final answer."
+}

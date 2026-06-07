@@ -1,0 +1,3 @@
+{"timestamp":"2026-06-07T19:09:00+09:00","source":"verify","type":"check_failed","check":"test suite","reason":"Required command returned a non-zero exit code.","contract":".tink/current/contract.json","evidence":".tink/current/verification.json"}
+{"timestamp":"2026-06-07T19:10:00+09:00","source":"verify","type":"check_blocked","check":"external dashboard review","reason":"Required manual target was not available.","contract":".tink/current/contract.json","evidence":".tink/current/verification.json"}
+{"timestamp":"2026-06-07T19:10:00+09:00","source":"verify","type":"check_skipped","check":"macOS smoke note","reason":"Optional check did not apply to the current platform.","contract":".tink/current/contract.json","evidence":".tink/current/verification.json"}

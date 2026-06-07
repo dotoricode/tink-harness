@@ -1,0 +1,200 @@
+{
+  "repo": "tink-harness",
+  "version": 1,
+  "purpose": "Static repo signal fixture for cast context selection. This is not a generated index and does not require a `tink index` command.",
+  "verification_commands": [
+    {
+      "name": "test suite",
+      "command": "npm test",
+      "covers": [
+        "template sync",
+        "package contents",
+        "installer output",
+        "schema shape",
+        "command surface"
+      ]
+    }
+  ],
+  "instruction_files": [
+    {
+      "path": "AGENTS.md",
+      "reason": "Project instructions, including command sync rules and version bump policy."
+    },
+    {
+      "path": "CONTEXT.md",
+      "reason": "Tink domain glossary and operating concepts."
+    },
+    {
+      "path": "docs/graph-contracts-and-guards.md",
+      "reason": "Existing design note for contract, rule graph, verify, and guard behavior."
+    },
+    {
+      "path": "docs/hooks.md",
+      "reason": "Hook recommendation and opt-in guard policy."
+    },
+    {
+      "path": "docs/memory.md",
+      "reason": "Memory save boundaries and approved-memory policy."
+    }
+  ],
+  "sync_groups": [
+    {
+      "name": "cast-command",
+      "kind": "claude-command",
+      "rule": "byte-identical",
+      "files": [
+        "commands/cast.md",
+        "templates/claude/commands/tink/cast.md",
+        ".claude/commands/tink/cast.md"
+      ],
+      "verified_by": "test_dual_format_paths_stay_in_sync"
+    },
+    {
+      "name": "verify-command",
+      "kind": "claude-command",
+      "rule": "byte-identical",
+      "files": [
+        "commands/verify.md",
+        "templates/claude/commands/tink/verify.md",
+        ".claude/commands/tink/verify.md"
+      ],
+      "verified_by": "test_dual_format_paths_stay_in_sync"
+    },
+    {
+      "name": "frog-command",
+      "kind": "claude-command",
+      "rule": "byte-identical",
+      "files": [
+        "commands/frog.md",
+        "templates/claude/commands/tink/frog.md",
+        ".claude/commands/tink/frog.md"
+      ],
+      "verified_by": "test_dual_format_paths_stay_in_sync"
+    },
+    {
+      "name": "weave-command",
+      "kind": "claude-command",
+      "rule": "byte-identical",
+      "files": [
+        "commands/weave.md",
+        "templates/claude/commands/tink/weave.md",
+        ".claude/commands/tink/weave.md"
+      ],
+      "verified_by": "test_dual_format_paths_stay_in_sync"
+    },
+    {
+      "name": "tink-claude-skill",
+      "kind": "claude-skill",
+      "rule": "byte-identical",
+      "files": [
+        "skills/tink/SKILL.md",
+        "templates/claude/skills/tink/SKILL.md"
+      ],
+      "verified_by": "test_dual_format_paths_stay_in_sync"
+    }
+  ],
+  "schema_files": [
+    "templates/tink/schemas/contract.schema.json",
+    "templates/tink/schemas/context-map.schema.json",
+    "templates/tink/schemas/verification.schema.json",
+    "templates/tink/schemas/session.schema.json"
+  ],
+  "verification_hints": [
+    {
+      "name": "command-template-sync",
+      "when": {
+        "paths": [
+          "commands/*.md",
+          "templates/claude/commands/tink/*.md",
+          ".claude/commands/tink/*.md"
+        ],
+        "signal_refs": [
+          "sync_groups.*-command"
+        ]
+      },
+      "add_manual_check": {
+        "name": "command/template sync",
+        "target": "test_dual_format_paths_stay_in_sync",
+        "required": true
+      },
+      "reason": "Command copies must stay byte-identical across root and installer template surfaces."
+    },
+    {
+      "name": "claude-skill-sync",
+      "when": {
+        "paths": [
+          "skills/tink/SKILL.md",
+          "templates/claude/skills/tink/SKILL.md"
+        ],
+        "signal_refs": [
+          "sync_groups.tink-claude-skill"
+        ]
+      },
+      "add_manual_check": {
+        "name": "Claude skill sync",
+        "target": "test_dual_format_paths_stay_in_sync",
+        "required": true
+      },
+      "reason": "Root and installable Claude Tink skill files must stay byte-identical."
+    },
+    {
+      "name": "schema-shape",
+      "when": {
+        "paths": [
+          "templates/tink/schemas/*.json"
+        ],
+        "signal_refs": [
+          "schema_files"
+        ]
+      },
+      "add_manual_check": {
+        "name": "schema shape",
+        "target": "test_contract_rule_graph_and_verify_templates_exist",
+        "required": true
+      },
+      "reason": "Schema changes should be checked for required fields and JSON shape."
+    },
+    {
+      "name": "command-surface",
+      "when": {
+        "paths": [
+          "commands/*.md",
+          "templates/claude/commands/tink/*.md",
+          ".claude/commands/tink/*.md",
+          "templates/codex/skills/tink-*/SKILL.md"
+        ],
+        "signal_refs": [
+          "command_surface"
+        ]
+      },
+      "add_manual_check": {
+        "name": "command surface stays focused",
+        "target": "test_command_surface_is_focused",
+        "required": true
+      },
+      "reason": "Command additions and aliases should not expand the public surface by accident."
+    }
+  ],
+  "fixture_dirs": [
+    {
+      "path": "tests/fixtures/current-run",
+      "reason": "Dogfood fixtures for current-run context artifacts."
+    }
+  ],
+  "command_surface": {
+    "allowed": [
+      "setup.md",
+      "cast.md",
+      "verify.md",
+      "list.md",
+      "frog.md",
+      "weave.md",
+      "update.md"
+    ],
+    "forbidden": [
+      "index.md",
+      "tink-index.md"
+    ],
+    "verified_by": "test_command_surface_is_focused"
+  }
+}

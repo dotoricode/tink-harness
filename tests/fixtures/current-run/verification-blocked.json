@@ -1,0 +1,70 @@
+{
+  "timestamp": "2026-06-07T18:46:00+09:00",
+  "contract": ".tink/current/contract.json",
+  "surface": "claude",
+  "platform": "windows",
+  "result": "blocked",
+  "summary": "A required manual check could not be inspected.",
+  "checks": [
+    {
+      "name": "external dashboard review",
+      "kind": "manual",
+      "status": "blocked",
+      "required": true,
+      "target": "deployment dashboard",
+      "evidence": "dashboard was not available in the current context",
+      "failure_type": "missing_target",
+      "maintenance_signal": "check_blocked",
+      "next_action": "Open or attach the dashboard evidence, then rerun verification."
+    },
+    {
+      "name": "macOS smoke note",
+      "kind": "command",
+      "status": "skipped",
+      "required": false,
+      "command": "npm test",
+      "evidence": "optional macOS-only smoke check skipped on Windows",
+      "failure_type": "platform_excluded",
+      "maintenance_signal": "check_skipped",
+      "next_action": "Run on macOS only when this optional smoke check matters."
+    }
+  ],
+  "blocked": [
+    {
+      "check": "external dashboard review",
+      "reason": "Required manual target was not available.",
+      "next_action": "Provide the dashboard evidence or mark the check out of scope in the contract."
+    }
+  ],
+  "maintenance_signals": [
+    {
+      "type": "check_blocked",
+      "check": "external dashboard review",
+      "reason": "Required manual target was not available.",
+      "evidence": ".tink/current/verification.json",
+      "next_action": "Provide the missing evidence before completion."
+    },
+    {
+      "type": "check_skipped",
+      "check": "macOS smoke note",
+      "reason": "Optional check did not apply to the current platform.",
+      "evidence": ".tink/current/verification.json",
+      "next_action": "No action required unless macOS coverage is needed."
+    }
+  ],
+  "report": {
+    "result_line": "Verification blocked: required manual evidence is missing.",
+    "checked": [
+      "external dashboard review",
+      "macOS smoke note"
+    ],
+    "problems": [
+      "external dashboard review could not be inspected"
+    ],
+    "remaining": [
+      "Provide the dashboard evidence or mark the check out of scope"
+    ],
+    "next_action": "Unblock the required manual check before marking the run done."
+  },
+  "next_action": "Unblock the required manual check before marking the run done."
+}

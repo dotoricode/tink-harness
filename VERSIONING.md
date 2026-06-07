@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `1.1.1`
+Current version: `1.2.1`
 
 Tink follows semver from `1.0.0` onward.
 
@@ -19,7 +19,7 @@ Claude Code uses `.claude-plugin/plugin.json` to decide whether plugin users can
 
 Use semver.
 
-- Patch, for example `1.0.1`: docs, tests, installer polish, command wording, small template fixes, non-breaking maintenance structure.
+- Patch, for example `1.1.2`: docs, tests, installer polish, command wording, small template fixes, non-breaking maintenance structure. Prefer a patch release for each user-visible improvement instead of letting many small changes pile up in `[Unreleased]`.
 - Minor, for example `1.1.0`: new command behavior, meaningful installer flow change, new persisted state shape, or anything existing users should deliberately notice — all backwards compatible.
 - Major, for example `2.0.0`: breaking change to the command surface, plugin contract, persisted state shape, or installer flow that existing users must migrate for.
 

@@ -94,15 +94,15 @@ const COMPONENTS = {
 const SURFACE_OPTIONS = {
   en: [
     { value: 'claude', label: 'Claude Code', hint: 'Install /tink:* commands, Claude skill, and optional hook support' },
-    { value: 'codex', label: 'Codex', hint: 'Install the $tink skill into CODEX_HOME or ~/.codex' }
+    { value: 'codex', label: 'Codex', hint: 'Install $tink:* skills into CODEX_HOME or ~/.codex' }
   ],
   ko: [
     { value: 'claude', label: 'Claude Code', hint: '/tink:* 명령, Claude skill, 선택 hook 지원 설치' },
-    { value: 'codex', label: 'Codex', hint: '$tink skill을 CODEX_HOME 또는 ~/.codex에 설치' }
+    { value: 'codex', label: 'Codex', hint: '$tink:* skills를 CODEX_HOME 또는 ~/.codex에 설치' }
   ],
   zh: [
     { value: 'claude', label: 'Claude Code', hint: 'Install /tink:* commands, Claude skill, and optional hook support' },
-    { value: 'codex', label: 'Codex', hint: 'Install the $tink skill into CODEX_HOME or ~/.codex' }
+    { value: 'codex', label: 'Codex', hint: 'Install $tink:* skills into CODEX_HOME or ~/.codex' }
   ]
 };
 
@@ -163,12 +163,12 @@ function componentOptionsFor(agent, language) {
     if (agent === 'codex') {
       return {
         value: 'skill',
-        label: language === 'ko' ? 'Codex Tink skill' : language === 'zh' ? 'Codex Tink skill' : 'Codex Tink skill',
+        label: language === 'ko' ? 'Codex Tink skills' : language === 'zh' ? 'Codex Tink skills' : 'Codex Tink skills',
         hint: language === 'ko'
           ? 'Codex가 $tink로 읽는 Tink 작업 원칙'
           : language === 'zh'
             ? 'Codex 通过 $tink 读取的 Tink 工作规则'
-            : 'Tink operating rules for Codex through $tink'
+            : 'Tink operating rules for Codex through $tink:*'
       };
     }
     if (agent === 'all') {
@@ -323,6 +323,25 @@ function copyTinkCommands(templateRoot, target) {
   }
 }
 
+function removeLegacyCodexSkill(codexTarget) {
+  const legacyDir = path.join(codexTarget, 'skills/tink');
+  const legacySkill = path.join(legacyDir, 'SKILL.md');
+  if (!fs.existsSync(legacyDir)) return;
+
+  let shouldRemove = false;
+  if (fs.existsSync(legacySkill)) {
+    const text = fs.readFileSync(legacySkill, 'utf8');
+    shouldRemove = text.includes('name: tink') && text.includes('Tink');
+  }
+
+  if (!shouldRemove) {
+    log.message(`keep unknown ${displayPath(codexTarget, legacyDir)}`);
+    return;
+  }
+
+  log.message(`${dryRun ? 'would remove legacy' : 'remove legacy'} ${displayPath(codexTarget, legacyDir)}`);
+  if (!dryRun) fs.rmSync(legacyDir, { recursive: true, force: true });
+}
 
 function readJsonFile(filePath, fallback) {
   if (!fs.existsSync(filePath)) return fallback;
@@ -377,6 +396,7 @@ function copySelected(scope, components, agent) {
       copyDir(path.join(templateRoot, 'claude/skills'), path.join(target, '.claude/skills'), target);
     }
     if (includesCodex(agent)) {
+      removeLegacyCodexSkill(codexTarget);
       copyDir(path.join(templateRoot, 'codex/skills'), path.join(codexTarget, 'skills'), codexTarget);
     }
   }
@@ -433,17 +453,17 @@ function patchConfig(target, scope, hookScope, language) {
 
 function nextStepFor(agent) {
   if (agent === 'codex') {
-    return 'Next: open Codex and use $tink cast <task> to start. Use $tink setup only to review or change settings.';
+    return 'Next: open Codex and use $tink:cast <task> to start. Use $tink:setup only to review or change settings.';
   }
   if (agent === 'all') {
-    return 'Next: in Claude Code run /tink:cast <task>, or in Codex use $tink cast <task>.';
+    return 'Next: in Claude Code run /tink:cast <task>, or in Codex use $tink:cast <task>.';
   }
   return 'Next: open Claude Code and run /tink:cast <task> to start. Run /tink:setup only to review or change settings.';
 }
 
 function doneLineFor(agent) {
-  if (agent === 'codex') return '\nDone. Open Codex and use $tink cast <task> to start.';
-  if (agent === 'all') return '\nDone. Use /tink:cast <task> in Claude Code or $tink cast <task> in Codex to start.';
+  if (agent === 'codex') return '\nDone. Open Codex and use $tink:cast <task> to start.';
+  if (agent === 'all') return '\nDone. Use /tink:cast <task> in Claude Code or $tink:cast <task> in Codex to start.';
   return '\nDone. Open Claude Code and run /tink:cast <task> to start.';
 }
 

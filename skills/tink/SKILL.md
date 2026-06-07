@@ -53,7 +53,7 @@ Use only these commands:
 15. Treat Reusable State Save Gate as a separate hard approval gate for `.tink/memory/*`, `.tink/harnesses/*`, `.tink/rules/*`, `.tink/config.json`, `.claude/`, and template/plugin files that affect future installs.
 16. Current-run approval never authorizes reusable-state writes; before saving reusable state, show operation, destination files, exact entry or patch summary, reusable reason, sensitive content excluded, and rollback/removal path.
 17. Ask for approval before applying, saving, purging, honing, or installing enforcement hooks.
-18. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, and `session.json`.
+18. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, and `excluded-context.md`.
 19. Do not stop at recommendation. Execute the first safe step after run state exists.
 20. Run `/tink:verify` behavior before final when `contract.json` lists required checks.
 21. Store reusable memory or rule updates only after separate Reusable State Save Gate approval.
@@ -67,6 +67,7 @@ The user should not have to repeat themselves. If the same mistake appears twice
 A successful Tink run leaves evidence:
 - current run files exist or were intentionally archived,
 - `contract.json` states what must be true,
+- context artifacts explain what was included and excluded,
 - checks were verified or explicitly blocked,
 - the final answer reports changed files and evidence,
 - reusable learning is proposed only when it will matter again.

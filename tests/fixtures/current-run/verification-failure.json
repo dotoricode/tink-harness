@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-06-07T18:45:00+09:00",
+  "contract": ".tink/current/contract.json",
+  "surface": "codex",
+  "platform": "windows",
+  "result": "fail",
+  "summary": "A required command check ran and failed.",
+  "checks": [
+    {
+      "name": "test suite",
+      "kind": "command",
+      "status": "fail",
+      "required": true,
+      "command": "npm test",
+      "exit_code": 1,
+      "evidence": "npm test exit code 1",
+      "failure_type": "command_failed",
+      "maintenance_signal": "check_failed",
+      "next_action": "Fix the failing test target, then rerun verification."
+    }
+  ],
+  "blocked": [],
+  "maintenance_signals": [
+    {
+      "type": "check_failed",
+      "check": "test suite",
+      "reason": "Required command returned a non-zero exit code.",
+      "evidence": ".tink/current/verification.json",
+      "next_action": "Fix the command failure before marking the run done."
+    }
+  ],
+  "report": {
+    "result_line": "Verification failed: a required command check failed.",
+    "checked": [
+      "npm test"
+    ],
+    "problems": [
+      "test suite failed with exit code 1"
+    ],
+    "remaining": [
+      "Fix the failing test target"
+    ],
+    "next_action": "Fix the failing check and rerun `$tink:verify`."
+  },
+  "next_action": "Fix the failing check and rerun `$tink:verify`."
+}

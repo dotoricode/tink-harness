@@ -1,0 +1,72 @@
+{
+  "task": "Document MCP Safe Profile external context examples",
+  "sources": [
+    {
+      "source": "Figma",
+      "source_ref": "frame:Checkout/ErrorState",
+      "kind": "design_evidence",
+      "included": [
+        "selected frame id",
+        "component names",
+        "layout constraints",
+        "interaction notes"
+      ],
+      "excluded": [
+        "unrelated pages",
+        "hidden draft layers",
+        "comments outside requested scope"
+      ],
+      "reason": "A focused design frame can guide UI implementation without importing the whole design file.",
+      "confidence": "medium",
+      "sensitivity": "internal",
+      "verification_hint": "compare implemented screen against the selected frame"
+    },
+    {
+      "source": "GitHub",
+      "source_ref": "issue:#42",
+      "kind": "work_item",
+      "included": [
+        "issue title",
+        "acceptance criteria",
+        "linked failing test name"
+      ],
+      "excluded": [
+        "unrelated discussion",
+        "stale workaround comments"
+      ],
+      "reason": "A work item can clarify scope and acceptance checks.",
+      "confidence": "medium",
+      "sensitivity": "internal",
+      "verification_hint": "confirm acceptance criteria are covered by tests or manual checks"
+    },
+    {
+      "source": "official docs",
+      "source_ref": "docs:provider-api#error-codes",
+      "kind": "reference",
+      "included": [
+        "relevant error-code section",
+        "version label"
+      ],
+      "excluded": [
+        "unrelated API pages",
+        "examples from older versions"
+      ],
+      "reason": "Official reference material can disambiguate behavior when the repo does not define it.",
+      "confidence": "medium",
+      "sensitivity": "public",
+      "verification_hint": "cite the exact docs section and verify the current version"
+    }
+  ],
+  "blocked_sources": [
+    {
+      "source": "deployment dashboard",
+      "source_ref": "dashboard:prod-release",
+      "kind": "runtime_evidence",
+      "reason": "The dashboard was unavailable in the current context.",
+      "confidence": "low",
+      "sensitivity": "internal",
+      "blocked_reason": "missing access",
+      "next_action": "Ask the user to attach a screenshot or provide a narrow evidence handle."
+    }
+  ]
+}

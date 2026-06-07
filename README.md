@@ -17,11 +17,14 @@
 </p>
 
 <p>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.2.1"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
+
+<p><strong>Latest release:</strong> v1.2.1 — focused Codex skills, visible context artifacts, portable verification, and safer external context.</p>
 
 **English** · [한국어](README.ko.md)
 
@@ -75,7 +78,7 @@ Codex skill install:
 npx tink-harness@latest install
 ```
 
-During install, select `Codex` when asked which agent surface to install. You can select both `Claude Code` and `Codex` in the same run. Then open Codex and use `$tink cast <task>`.
+During install, select `Codex` when asked which agent surface to install. You can select both `Claude Code` and `Codex` in the same run. Then open Codex and use `$tink:cast <task>`.
 
 ## Update
 
@@ -117,13 +120,23 @@ npx tink-harness@latest update
 
 During update, select the installed agent surface you want to refresh.
 
+## What's new in 1.2.0
+
+This release makes Tink work as one harness layer across Claude Code and Codex.
+
+- Codex now installs focused `$tink:*` action skills instead of one broad visible `tink` skill, so the picker shows commands like `$tink:cast` and `$tink:verify` cleanly.
+- Non-trivial runs now create context artifacts: `context-pack.md`, `context-map.json`, and `excluded-context.md`.
+- Repo Signals help `/tink:cast` choose relevant tests, schemas, sync partners, and verification hints without adding a new `tink index` command.
+- `/tink:verify` and `$tink:verify` share one portable Verify Runner model and write compact evidence to `.tink/current/verification.json`.
+- External context now follows the MCP Safe Profile: include only the smallest useful source handle, mark confidence and sensitivity, exclude unsafe context visibly, and connect important claims to verification.
+
 ## Commands
 
 Tink keeps the command surface small.
 
-Tink is plugin-first in Claude Code. Commands are namespaced under `tink`, so the public surface stays `/tink:*` and avoids generic command conflicts. In Codex, use the `$tink` skill with the same action names: `cast`, `verify`, `list`, `frog`, `weave`, `setup`, and `update`.
+Tink is plugin-first in Claude Code. Commands are namespaced under `tink`, so the public surface stays `/tink:*` and avoids generic command conflicts. In Codex, Tink installs matching `$tink:*` skills for autocomplete: `$tink:cast`, `$tink:verify`, `$tink:list`, `$tink:frog`, `$tink:weave`, `$tink:setup`, and `$tink:update`. Legacy `$tink cast` style prompts still work, but `$tink:*` is the preferred spelling.
 
-### `/tink:cast`
+### `/tink:cast` / `$tink:cast`
 
 **cast** means to place the first loops on the needle (코잡기, Cast on). In knitting, casting on is the very first step — it sets the foundation for everything that follows.
 
@@ -131,7 +144,7 @@ In Tink, `cast` is the main path. It reads the task, chooses or drafts the right
 
 Use it when the task is more than a quick answer.
 
-### `/tink:verify`
+### `/tink:verify` / `$tink:verify`
 
 `verify` runs the checks promised in `.tink/current/contract.json`.
 
@@ -139,7 +152,7 @@ Tink now writes a small task contract for non-trivial runs: what kind of work th
 
 Use it before release, publish, deploy, public PR, or any task where evidence matters.
 
-### `/tink:frog`
+### `/tink:frog` / `$tink:frog`
 
 **frog** means to rip out stitches (풀시오, Frogging). In knitting, frogging unravels rows that went wrong — the name comes from the sound of pulling out yarn, "rip it, rip it."
 
@@ -147,7 +160,7 @@ In Tink, `frog` looks for harnesses that are unused, overlapping, too broad, or 
 
 Use it when the harness set starts to feel noisy.
 
-### `/tink:weave`
+### `/tink:weave` / `$tink:weave`
 
 **weave** means to weave in the ends (실오라기 정리, Weave in). In knitting, weaving in secures the loose threads left after finishing, giving the work its final shape.
 
@@ -157,9 +170,9 @@ Use it when a harness is useful but slightly wrong.
 
 ### Other commands
 
-- `/tink:setup`: choose language, install scope, git tracking, and hook policy.
-- `/tink:list`: inspect available harnesses and recent usage signals.
-- `/tink:update`: detect install source and show the safe update command.
+- `/tink:setup` / `$tink:setup`: choose language, install scope, git tracking, and hook policy.
+- `/tink:list` / `$tink:list`: inspect available harnesses and recent usage signals.
+- `/tink:update` / `$tink:update`: detect install source and show the safe update command.
 
 ## How it works
 
@@ -174,6 +187,8 @@ Tink uses files you can inspect:
 - `.tink/memory/`: approved mistakes, preferences, and lessons
 
 The rule graph stays small on purpose. Tink loads matching mandatory rules first, retrieves only relevant optional rules by task facts or keywords, and records loaded rule ids by phase so the same guidance is not repeated in one run.
+
+Design notes live in `docs/`. The compatibility baseline is `docs/compatibility-policy.md`: every new slice should consider Claude Code and Codex, plus macOS and Windows. Repo signal behavior is described in `docs/repo-signals.md`. External context safety is described in `docs/mcp-safe-profile.md`.
 
 The important rule is approval.
 

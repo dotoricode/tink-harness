@@ -1,0 +1,83 @@
+{
+  "task_type": "code_change",
+  "surface": "claude",
+  "risk": [],
+  "success_conditions": [
+    "cast guidance includes context artifacts",
+    "command/template sync stays intact"
+  ],
+  "forbidden": [
+    "add tink index command"
+  ],
+  "verification": {
+    "commands": [
+      {
+        "name": "test suite",
+        "command": "npm test",
+        "required": true,
+        "approval_required": false,
+        "cwd": ".",
+        "timeout_ms": 120000,
+        "platforms": ["windows", "macos"],
+        "safe": true,
+        "evidence": "npm test output summary"
+      }
+    ],
+    "manual_checks": [
+      {
+        "name": "command/template sync",
+        "target": "test_dual_format_paths_stay_in_sync",
+        "required": true,
+        "method": "test-target",
+        "source": "tests/fixtures/repo-signals/tink-harness.json",
+        "source_ref": "verification_hints.command-template-sync",
+        "evidence": "test target passes in npm test"
+      },
+      {
+        "name": "schema shape",
+        "target": "test_contract_rule_graph_and_verify_templates_exist",
+        "required": true,
+        "method": "test-target",
+        "source": "tests/fixtures/repo-signals/tink-harness.json",
+        "source_ref": "verification_hints.schema-shape",
+        "evidence": "test target passes in npm test"
+      },
+      {
+        "name": "Figma selected frame visual QA",
+        "target": "frame:Checkout/ErrorState",
+        "required": false,
+        "method": "human-review",
+        "source": "tests/fixtures/current-run/external-context-profile.json",
+        "source_ref": "sources.Figma.verification_hint",
+        "evidence": "selected frame comparison is recorded as a manual verification handle"
+      },
+      {
+        "name": "GitHub acceptance criteria coverage",
+        "target": "issue:#42 acceptance criteria",
+        "required": true,
+        "method": "test-target",
+        "source": "tests/fixtures/current-run/external-context-profile.json",
+        "source_ref": "sources.GitHub.verification_hint",
+        "evidence": "acceptance criteria are covered by tests or manual checks"
+      },
+      {
+        "name": "official docs version check",
+        "target": "docs:provider-api#error-codes",
+        "required": false,
+        "method": "doc-contains",
+        "source": "tests/fixtures/current-run/external-context-profile.json",
+        "source_ref": "sources.official docs.verification_hint",
+        "evidence": "docs section and version label are cited before relying on the claim"
+      }
+    ]
+  },
+  "evidence": {
+    "required": [
+      "npm test result",
+      "manual check targets"
+    ],
+    "report": [
+      "verification hints selected from repo signals"
+    ]
+  }
+}

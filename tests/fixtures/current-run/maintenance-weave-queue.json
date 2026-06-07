@@ -1,0 +1,34 @@
+{
+  "items": [
+    {
+      "id": "signal-verify-2026-06-07-1909-test-suite",
+      "harness": "code-change",
+      "run": ".tink/current",
+      "signal": "check_failed",
+      "check": "test suite",
+      "reason": "Required command returned a non-zero exit code.",
+      "auto": true,
+      "timestamp": "2026-06-07T19:09:00+09:00"
+    },
+    {
+      "id": "signal-verify-2026-06-07-1910-dashboard",
+      "harness": "review",
+      "run": ".tink/current",
+      "signal": "check_blocked",
+      "check": "external dashboard review",
+      "reason": "Required manual target was not available.",
+      "auto": true,
+      "timestamp": "2026-06-07T19:10:00+09:00"
+    },
+    {
+      "id": "signal-verify-2026-06-07-1910-macos-smoke",
+      "harness": "code-change",
+      "run": ".tink/current",
+      "signal": "check_skipped",
+      "check": "macOS smoke note",
+      "reason": "Optional check did not apply to the current platform.",
+      "auto": true,
+      "timestamp": "2026-06-07T19:10:00+09:00"
+    }
+  ]
+}

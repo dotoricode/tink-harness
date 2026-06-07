@@ -8,6 +8,8 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
+**최신 릴리스:** v1.2.1 — Codex 스킬 표면 정리, context 기록, portable verification, 외부 context 안전 기준.
+
 [English](README.md) · **한국어**
 
 ---
@@ -35,7 +37,7 @@ Standalone / Codex 호환 설치:
 npx tink-harness@latest install
 ```
 
-설치 중 `Claude Code`, `Codex`, 또는 둘 다를 선택할 수 있습니다. Codex에서는 `$tink cast <task>`로 시작합니다.
+설치 중 `Claude Code`, `Codex`, 또는 둘 다를 선택할 수 있습니다. Codex에서는 `$tink:cast <task>`로 시작합니다.
 
 ## 업데이트
 
@@ -53,35 +55,45 @@ Standalone / Codex:
 npx tink-harness@latest update
 ```
 
+## 1.2.0에서 달라진 점
+
+이번 릴리스는 Tink를 Claude Code와 Codex에서 같은 하네스 레이어로 쓰기 쉽게 정리합니다.
+
+- Codex에는 하나의 넓은 `tink` 스킬 대신 `$tink:cast`, `$tink:verify` 같은 action skill만 보이도록 설치됩니다.
+- 비단순 작업은 `context-pack.md`, `context-map.json`, `excluded-context.md`로 어떤 context를 썼고 뺐는지 남깁니다.
+- Repo Signal은 새 `tink index` 명령을 만들지 않고도 관련 테스트, 스키마, 동기화 파일, 검증 힌트를 고르는 데 쓰입니다.
+- `/tink:verify`와 `$tink:verify`는 같은 Verify Runner 모델을 쓰며 `.tink/current/verification.json`에 검증 증거를 남깁니다.
+- 외부 context는 MCP Safe Profile을 따릅니다. 가장 작은 source handle만 남기고, 신뢰도와 민감도를 표시하며, 위험하거나 너무 넓은 context는 `excluded-context.md`에 따로 기록합니다.
+
 ## 명령
 
-Claude Code에서는 `/tink:*`, Codex에서는 `$tink <action>`을 씁니다.
+Claude Code에서는 `/tink:*`, Codex에서는 `$tink:*`을 씁니다. 예전 `$tink cast` 형식도 호환되지만, 기본 안내와 자동완성 표면은 `$tink:*`입니다.
 
-### `/tink:cast`
+### `/tink:cast` / `$tink:cast`
 
 작업을 읽고, 필요한 하네스만 고르고, `.tink/current/` 실행 상태를 만든 뒤 첫 번째 안전한 단계를 시작합니다.
 
 Tink는 이제 비단순 작업에 대해 `.tink/current/contract.json`도 만듭니다. 이 파일에는 작업 종류, 위험, 성공 조건, 금지 사항, 검증 명령이 들어갑니다.
 
-### `/tink:verify`
+### `/tink:verify` / `$tink:verify`
 
 `contract.json`에 적힌 검증을 실제로 실행하고 증거를 남깁니다.
 
 릴리스, 배포, 공개 PR처럼 "된 것 같다"가 아니라 "확인했다"가 필요한 작업에서 씁니다.
 
-### `/tink:frog`
+### `/tink:frog` / `$tink:frog`
 
 거의 쓰지 않거나 겹치거나 너무 무거운 하네스를 정리 후보로 제안합니다. 사용자 승인 없이는 삭제하지 않습니다.
 
-### `/tink:weave`
+### `/tink:weave` / `$tink:weave`
 
 실제 실패, 반복 사용, 사용자 수정 내용을 바탕으로 하네스를 조금 더 정확하게 고칩니다. 필요한 경우 `.tink/rules/`의 rule graph나 opt-in hook guard 후보로 승격합니다.
 
 ### 기타
 
-- `/tink:setup`: 언어, 설치 범위, git 추적, hook 정책 설정
-- `/tink:list`: 사용 가능한 하네스와 사용 신호 확인
-- `/tink:update`: 설치 출처를 확인하고 안전한 업데이트 안내
+- `/tink:setup` / `$tink:setup`: 언어, 설치 범위, git 추적, hook 정책 설정
+- `/tink:list` / `$tink:list`: 사용 가능한 하네스와 사용 신호 확인
+- `/tink:update` / `$tink:update`: 설치 출처를 확인하고 안전한 업데이트 안내
 
 ## 작동 방식
 
@@ -96,6 +108,8 @@ Tink는 직접 볼 수 있는 파일을 씁니다.
 - `.tink/memory/`: 승인된 실수, 선호, 교훈
 
 Rule graph는 작게 유지합니다. Tink는 먼저 필수 규칙을 고르고, 작업 사실이나 keyword에 맞는 선택 규칙만 가져오며, phase별로 이미 읽은 rule id를 기록해 같은 안내를 반복하지 않습니다.
+
+설계 메모는 `docs/`에 둡니다. 기본 호환성 기준은 `docs/compatibility-policy.md`에 있으며, 새 작업은 Claude Code와 Codex, macOS와 Windows를 함께 고려해야 합니다. Repo Signal 동작은 `docs/repo-signals.md`에 정리되어 있고, 외부 context 안전 기준은 `docs/mcp-safe-profile.md`에 정리되어 있습니다.
 
 중요한 원칙은 승인입니다. 현재 작업을 진행하는 승인과, 미래에도 재사용될 상태를 저장하는 승인은 별개입니다. 새 하네스, 메모리, rule graph, hook guard 저장은 항상 별도 승인이 필요합니다.
 

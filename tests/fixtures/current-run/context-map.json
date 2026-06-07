@@ -1,0 +1,137 @@
+{
+  "task": {
+    "summary": "Add context artifacts to Tink cast run state",
+    "type": "code_change",
+    "harnesses": ["code-change", "docs"]
+  },
+  "included": [
+    {
+      "path": "commands/cast.md",
+      "kind": "command",
+      "reason": "Root cast command defines run-state behavior.",
+      "confidence": "high"
+    },
+    {
+      "path": "templates/claude/commands/tink/cast.md",
+      "kind": "command",
+      "reason": "Installable cast command must stay in sync with the root command.",
+      "confidence": "high"
+    },
+    {
+      "path": "templates/codex/skills/tink-cast/SKILL.md",
+      "kind": "skill",
+      "reason": "Visible Codex cast alias should point at the shared Tink rules without duplicated display names.",
+      "confidence": "high"
+    },
+    {
+      "path": "templates/codex/skills/tink-core/RULES.md",
+      "kind": "skill-rules",
+      "reason": "Shared Codex Tink operating rules should stay available without becoming a visible skill.",
+      "confidence": "high"
+    },
+    {
+      "path": "templates/tink/schemas/context-map.schema.json",
+      "kind": "schema",
+      "reason": "Defines the machine-readable context-map shape.",
+      "confidence": "high"
+    },
+    {
+      "path": "tests/test_templates.py",
+      "kind": "test",
+      "reason": "Verifies package, install, sync, and schema expectations.",
+      "confidence": "high"
+    }
+  ],
+  "excluded": [
+    {
+      "path": "bin/install.js",
+      "kind": "code",
+      "reason": "The installer already copies template schema directories generically.",
+      "confidence": "medium"
+    },
+    {
+      "source": "external research links",
+      "kind": "external",
+      "reason": "This slice is based on local repo behavior, so external claims are not needed.",
+      "confidence": "high"
+    }
+  ],
+  "signals": [
+    {
+      "kind": "sync_rule",
+      "value": "commands/cast.md <-> templates/claude/commands/tink/cast.md",
+      "reason": "AGENTS.md requires command copies to stay aligned.",
+      "source": "tests/fixtures/repo-signals/tink-harness.json",
+      "source_ref": "sync_groups.cast-command",
+      "confidence": "high"
+    },
+    {
+      "kind": "test_command",
+      "value": "npm test",
+      "reason": "Project verification command covers template and package checks.",
+      "source": "tests/fixtures/repo-signals/tink-harness.json",
+      "source_ref": "verification_commands.test suite",
+      "confidence": "high"
+    },
+    {
+      "kind": "verification_hint",
+      "value": "command/template sync",
+      "reason": "The selected cast command sync group requires a manual verification check in the contract.",
+      "source": "tests/fixtures/repo-signals/tink-harness.json",
+      "source_ref": "verification_hints.command-template-sync",
+      "confidence": "high"
+    },
+    {
+      "kind": "verification_hint",
+      "value": "schema shape",
+      "reason": "The selected context-map schema file requires a schema shape check in the contract.",
+      "source": "tests/fixtures/repo-signals/tink-harness.json",
+      "source_ref": "verification_hints.schema-shape",
+      "confidence": "high"
+    },
+    {
+      "kind": "unmatched_path",
+      "value": "docs/memory.md",
+      "reason": "This changed path did not match any verification hint, so no check was invented.",
+      "source": "tests/fixtures/repo-signals/path-cases.json",
+      "source_ref": "cases.memory docs note",
+      "confidence": "medium"
+    }
+  ],
+  "external_context": [
+    {
+      "source": "Figma",
+      "source_ref": "frame:Checkout/ErrorState",
+      "kind": "design_evidence",
+      "included": ["selected frame id", "component names", "layout constraints"],
+      "excluded": ["unrelated pages", "hidden draft layers"],
+      "reason": "A focused design frame can guide UI implementation without importing the whole design file.",
+      "confidence": "medium",
+      "sensitivity": "internal",
+      "verification_hint": "compare implemented screen against the selected frame"
+    },
+    {
+      "source": "GitHub",
+      "source_ref": "issue:#42",
+      "kind": "work_item",
+      "included": ["issue title", "acceptance criteria"],
+      "excluded": ["unrelated discussion", "stale workaround comments"],
+      "reason": "A work item can clarify scope and acceptance checks beyond design-only context.",
+      "confidence": "medium",
+      "sensitivity": "internal",
+      "verification_hint": "confirm acceptance criteria are covered by tests or manual checks"
+    },
+    {
+      "source": "official docs",
+      "source_ref": "docs:provider-api#error-codes",
+      "kind": "reference",
+      "included": ["relevant error-code section", "version label"],
+      "excluded": ["unrelated API pages", "examples from older versions"],
+      "reason": "Official reference material can disambiguate behavior when the repo does not define it.",
+      "confidence": "medium",
+      "sensitivity": "public",
+      "verification_hint": "cite the exact docs section and verify the current version"
+    }
+  ],
+  "generated_at": "2026-06-07T16:03:28+09:00"
+}

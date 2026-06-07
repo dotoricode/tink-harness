@@ -1,0 +1,90 @@
+{
+  "repo": "tink-harness",
+  "version": 1,
+  "purpose": "Representative changed-path cases for selecting verification hints from repo signals.",
+  "cases": [
+    {
+      "name": "root cast command",
+      "changed_paths": [
+        "commands/cast.md"
+      ],
+      "expected_hints": [
+        "command-template-sync",
+        "command-surface"
+      ],
+      "reason": "Root command changes require sync and command-surface checks."
+    },
+    {
+      "name": "installable cast command",
+      "changed_paths": [
+        "templates/claude/commands/tink/cast.md"
+      ],
+      "expected_hints": [
+        "command-template-sync",
+        "command-surface"
+      ],
+      "reason": "Installable command changes require sync and command-surface checks."
+    },
+    {
+      "name": "repo-local cast command",
+      "changed_paths": [
+        ".claude/commands/tink/cast.md"
+      ],
+      "expected_hints": [
+        "command-template-sync",
+        "command-surface"
+      ],
+      "reason": "Repo-local Claude command changes require the same sync and command-surface checks."
+    },
+    {
+      "name": "claude skill pair",
+      "changed_paths": [
+        "skills/tink/SKILL.md",
+        "templates/claude/skills/tink/SKILL.md"
+      ],
+      "expected_hints": [
+        "claude-skill-sync"
+      ],
+      "reason": "Root and installable Claude skill changes require byte-identical sync."
+    },
+    {
+      "name": "context map schema",
+      "changed_paths": [
+        "templates/tink/schemas/context-map.schema.json"
+      ],
+      "expected_hints": [
+        "schema-shape"
+      ],
+      "reason": "Schema changes require schema shape checks."
+    },
+    {
+      "name": "verification evidence schema",
+      "changed_paths": [
+        "templates/tink/schemas/verification.schema.json"
+      ],
+      "expected_hints": [
+        "schema-shape"
+      ],
+      "reason": "Verification evidence schema changes require schema shape checks."
+    },
+    {
+      "name": "codex alias skill",
+      "changed_paths": [
+        "templates/codex/skills/tink-cast/SKILL.md"
+      ],
+      "expected_hints": [
+        "command-surface"
+      ],
+      "reason": "Codex alias skill changes can affect the public command surface."
+    },
+    {
+      "name": "memory docs note",
+      "changed_paths": [
+        "docs/memory.md"
+      ],
+      "expected_hints": [],
+      "expected_signal": "unmatched_path",
+      "reason": "Memory documentation does not match any current verification hint, so Tink should record that instead of inventing a check."
+    }
+  ]
+}

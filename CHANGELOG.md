@@ -7,6 +7,44 @@ All notable changes to Tink are tracked here.
 No unreleased changes yet.
 
 
+## [1.2.1] - 2026-06-07
+
+### Changed
+
+- README now shows a GitHub Release badge and an explicit latest release line so the repository front page reflects the current release even when badge caches lag.
+- Published the README/release-display patch so GitHub source and the npm package stay aligned after the v1.2.0 publish.
+
+
+## [1.2.0] - 2026-06-07
+
+### Added
+
+- Codex autocomplete aliases matching the Claude Code command surface: `$tink:cast`, `$tink:verify`, `$tink:list`, `$tink:frog`, `$tink:weave`, `$tink:setup`, and `$tink:update`.
+- Contract-first context artifacts for non-trivial runs: `context-pack.md`, `context-map.json`, and `excluded-context.md`.
+- Repo Signal fixtures and documentation so `/tink:cast` can select relevant tests, schemas, sync partners, and verification hints without adding a new `tink index` command.
+- Verify Runner schema and fixtures for `.tink/current/verification.json`, including pass, fail, blocked, skipped, final report, notes summary, and maintenance signal behavior.
+- MCP Safe Profile documentation and external-context profile schema support for sources such as Figma, GitHub, official docs, dashboards, API responses, screenshots, attachments, and runbooks.
+- Compatibility policy documenting that new Tink work must support Claude Code and Codex, plus macOS and Windows.
+- PR history draft for this release in `docs/pr/2026-06-07-v1.2.0.md`.
+
+### Changed
+
+- Codex documentation and installer next-step guidance now prefer `$tink:*` spelling while keeping legacy `$tink <action>` prompts compatible.
+- Project guidance now uses lower-case `templates/codex/skills/` and the actual `.claude/` / `.claude-plugin/` paths so Mac/Linux case-sensitive filesystems match the documented structure.
+- Codex skill display is focused on action aliases only; shared Codex rules now live in non-visible `tink-core/RULES.md`.
+- `/tink:cast` records included, excluded, and external context more explicitly, including sensitivity, confidence, source handles, and verification hints.
+- `/tink:verify` now uses one portable runner model for Claude Code `/tink:verify` and Codex `$tink:verify`.
+- README and Korean README now explain the 1.2.0 release highlights and point to compatibility, repo signal, and MCP Safe Profile docs.
+
+### Fixed
+
+- Existing Codex installs that still have the old visible `skills/tink/SKILL.md` directory are cleaned up during install/update when it is recognized as the legacy Tink skill.
+
+### Removed
+
+- Removed the old installable Codex `tink` skill surface so the picker no longer shows duplicate or awkward `Tink: Tink` entries.
+
+
 ## [1.1.1] - 2026-05-26
 
 ### Added

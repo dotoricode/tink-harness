@@ -1,5 +1,6 @@
 ﻿from pathlib import Path
 import hashlib
+import fnmatch
 import json
 import os
 import subprocess
@@ -28,6 +29,16 @@ HARNESS_SECTIONS = [
 
 EXPECTED_COMMANDS = {'setup.md', 'cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
 EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
+EXPECTED_CODEX_SKILLS = {
+    'tink-cast',
+    'tink-verify',
+    'tink-list',
+    'tink-setup',
+    'tink-frog',
+    'tink-weave',
+    'tink-update',
+}
+FORBIDDEN_INDEX_SURFACES = {'index.md', 'tink-index.md'}
 
 
 class TemplateTests(unittest.TestCase):
@@ -36,7 +47,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.1.1')
+        self.assertEqual(pkg['version'], '1.2.1')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -49,6 +60,8 @@ class TemplateTests(unittest.TestCase):
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code and Codex', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('Latest release:</strong> v1.2.1', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn("What's new in 1.2.0", (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('Tinker Bell', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('colorLine(line, color)', installer)
@@ -74,9 +87,10 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('remove legacy', installer)
         self.assertIn('path.join(commandDest, entry.name)', installer)
         self.assertIn('/tink:cast <task> to start', installer)
-        self.assertIn('$tink cast <task>', installer)
+        self.assertIn('$tink:cast <task>', installer)
         self.assertIn('legacyTinyCommands', installer)
         self.assertIn('tink/maintenance', installer)
+        self.assertIn('removeLegacyCodexSkill', installer)
         self.assertNotIn("value: 'both'", installer)
         self.assertNotIn("'tiny/harnesses'", installer)
         self.assertTrue((ROOT / pkg['bin']['tink-harness']).exists())
@@ -85,32 +99,64 @@ class TemplateTests(unittest.TestCase):
         command_dir = ROOT / 'templates/claude/commands/tink'
         names = {p.name for p in command_dir.glob('*.md')}
         self.assertEqual(names, EXPECTED_COMMANDS)
+        self.assertFalse(names & FORBIDDEN_INDEX_SURFACES)
+        local_command_dir = ROOT / '.claude/commands/tink'
+        self.assertEqual({p.name for p in local_command_dir.glob('*.md')}, EXPECTED_COMMANDS)
         for forbidden in ['prime.md', 'save.md', 'remember.md', 'fix.md']:
             self.assertFalse((command_dir / forbidden).exists())
+        self.assertFalse((command_dir / 'index.md').exists())
+        self.assertFalse((local_command_dir / 'index.md').exists())
+        self.assertFalse((ROOT / 'commands/index.md').exists())
+        self.assertFalse((ROOT / 'templates/codex/skills/tink-index').exists())
         self.assertFalse((ROOT / 'templates/claude/commands/tiny').exists())
 
     def test_codex_skill_surface_is_focused(self):
-        skill = (ROOT / 'templates/codex/skills/tink/SKILL.md').read_text(encoding='utf-8')
-        self.assertIn('Self-growing harnesses for Codex', skill)
-        self.assertIn('$tink cast <task>', skill)
-        self.assertIn('$tink setup', skill)
-        self.assertIn('$tink update', skill)
-        self.assertIn('request_user_input', skill)
-        self.assertIn('.tink/current/plan.md', skill)
-        self.assertIn('.tink/current/session.json', skill)
-        self.assertIn('Codex skill files', skill)
-        self.assertNotIn('AskUserQuestion', skill)
-        self.assertNotIn('UserPromptSubmit', skill)
+        core = (ROOT / 'templates/codex/skills/tink-core/RULES.md').read_text(encoding='utf-8')
+        self.assertFalse((ROOT / 'templates/codex/skills/tink').exists())
+        visible_codex_skills = {
+            p.name
+            for p in (ROOT / 'templates/codex/skills').iterdir()
+            if p.is_dir() and (p / 'SKILL.md').exists()
+        }
+        self.assertEqual(visible_codex_skills, EXPECTED_CODEX_SKILLS)
+        self.assertIn('Tink helps Codex', core)
+        self.assertIn('$tink:cast <task>', core)
+        self.assertIn('$tink:setup', core)
+        self.assertIn('$tink:update', core)
+        self.assertIn('Accept legacy `$tink <action>` spelling', core)
+        self.assertIn('request_user_input', core)
+        self.assertIn('.tink/current/plan.md', core)
+        self.assertIn('.tink/current/context-pack.md', core)
+        self.assertIn('.tink/current/context-map.json', core)
+        self.assertIn('.tink/current/excluded-context.md', core)
+        self.assertIn('.tink/current/session.json', core)
+        self.assertIn('Codex skill files', core)
+        self.assertNotIn('AskUserQuestion', core)
+        self.assertNotIn('UserPromptSubmit', core)
+        for skill_dir in EXPECTED_CODEX_SKILLS:
+            self.assertTrue((ROOT / f'templates/codex/skills/{skill_dir}/SKILL.md').exists())
+        alias = (ROOT / 'templates/codex/skills/tink-cast/SKILL.md').read_text(encoding='utf-8')
+        self.assertIn('name: cast', alias)
+        self.assertIn('description: Start a Tink run for a non-trivial task.', alias)
+        self.assertIn('../tink-core/RULES.md', alias)
+        self.assertNotIn('name: tink:', alias)
 
     def test_dual_format_paths_stay_in_sync(self):
         pairs = [
             ('commands/cast.md', 'templates/claude/commands/tink/cast.md'),
+            ('commands/cast.md', '.claude/commands/tink/cast.md'),
             ('commands/verify.md', 'templates/claude/commands/tink/verify.md'),
+            ('commands/verify.md', '.claude/commands/tink/verify.md'),
             ('commands/frog.md', 'templates/claude/commands/tink/frog.md'),
+            ('commands/frog.md', '.claude/commands/tink/frog.md'),
             ('commands/list.md', 'templates/claude/commands/tink/list.md'),
+            ('commands/list.md', '.claude/commands/tink/list.md'),
             ('commands/setup.md', 'templates/claude/commands/tink/setup.md'),
+            ('commands/setup.md', '.claude/commands/tink/setup.md'),
             ('commands/update.md', 'templates/claude/commands/tink/update.md'),
+            ('commands/update.md', '.claude/commands/tink/update.md'),
             ('commands/weave.md', 'templates/claude/commands/tink/weave.md'),
+            ('commands/weave.md', '.claude/commands/tink/weave.md'),
             ('skills/tink/SKILL.md', 'templates/claude/skills/tink/SKILL.md'),
         ]
         drift = []
@@ -142,6 +188,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('the small helper at your side', text)
         self.assertIn('Could Claude Code or Codex grow with me in the same way?', text)
         self.assertIn('/tink:cast', text)
+        self.assertIn('$tink:cast', text)
         self.assertIn('/tink:frog', text)
         self.assertIn('/tink:weave', text)
         self.assertIn('plugin-first', text)
@@ -152,6 +199,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('.tink/rules/', text)
         self.assertIn('.tink/runs/', text)
         self.assertIn('approval', text.lower())
+        self.assertIn('docs/compatibility-policy.md', text)
+        self.assertIn('docs/repo-signals.md', text)
+        self.assertIn('docs/mcp-safe-profile.md', text)
         self.assertNotIn('30-second', text)
         self.assertNotIn('AI jokes', text)
         self.assertNotIn('/tink:prime', text)
@@ -169,6 +219,10 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Tink follows semver', versioning)
         self.assertIn('.claude-plugin/plugin.json', versioning)
         self.assertIn('/plugin update tink@tink-harness', versioning)
+        pr_draft = (ROOT / 'docs/pr/2026-06-07-v1.2.0.md').read_text(encoding='utf-8')
+        for section in ['## 문제', '## 해결', '## 검증', '## 참고']:
+            self.assertIn(section, pr_draft)
+        self.assertIn('npm latest `1.1.1`', pr_draft)
 
 
     def test_setup_explains_choices_before_asking(self):
@@ -201,6 +255,24 @@ class TemplateTests(unittest.TestCase):
         hone = (ROOT / 'templates/claude/commands/tink/weave.md').read_text(encoding='utf-8')
         self.assertIn('Meaning of `context`', forge)
         self.assertIn('Run state contract', forge)
+        self.assertIn('context-pack.md', forge)
+        self.assertIn('context-map.json', forge)
+        self.assertIn('external_context[]', forge)
+        self.assertIn('External context profile rules', forge)
+        self.assertIn('External context safety checklist', forge)
+        self.assertIn('Figma, GitHub, and official docs are representative examples', forge)
+        self.assertIn('smallest useful `source_ref`', forge)
+        self.assertIn('sensitivity: "public" | "internal" | "sensitive" | "secret"', forge)
+        self.assertIn('contract.verification.manual_checks[]', forge)
+        self.assertIn('excluded-context.md', forge)
+        self.assertIn('context-map.schema.json', forge)
+        self.assertIn('deterministic context selection', forge)
+        self.assertIn('Selection order', forge)
+        self.assertIn('Selected hint output rules', forge)
+        self.assertIn('unmatched_path', forge)
+        self.assertIn('Exclusion rules', forge)
+        self.assertIn('Candidate limits', forge)
+        self.assertIn('Do not create or require a separate `tink index` command', forge)
         self.assertIn('execute the first safe step', forge)
         self.assertIn('Do not end with a harness recommendation only', forge)
         self.assertIn('steps.json', forge)
@@ -368,6 +440,8 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue((base / '.tink/harnesses/index.json').exists())
             self.assertTrue((base / '.tink/rules/index.json').exists())
             self.assertTrue((base / '.tink/schemas/contract.schema.json').exists())
+            self.assertTrue((base / '.tink/schemas/context-map.schema.json').exists())
+            self.assertTrue((base / '.tink/schemas/verification.schema.json').exists())
             self.assertTrue((base / '.tink/schemas/session.schema.json').exists())
             self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
             self.assertTrue((base / '.tink/maintenance/weave-queue.json').exists())
@@ -389,6 +463,9 @@ class TemplateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             base = Path(d)
             codex_home = base / '.codex-home'
+            legacy_codex_skill = codex_home / 'skills/tink/SKILL.md'
+            legacy_codex_skill.parent.mkdir(parents=True)
+            legacy_codex_skill.write_text('---\nname: tink\n---\n\n# Tink\n\nLegacy Tink skill.\n', encoding='utf-8')
             env = os.environ.copy()
             env['CODEX_HOME'] = str(codex_home)
             env['TINK_INSTALL_SURFACES'] = 'codex'
@@ -401,9 +478,19 @@ class TemplateTests(unittest.TestCase):
                 text=True,
                 encoding='utf-8',
             )
-            self.assertTrue((codex_home / 'skills/tink/SKILL.md').exists())
+            self.assertTrue((codex_home / 'skills/tink-core/RULES.md').exists())
+            self.assertFalse((codex_home / 'skills/tink/SKILL.md').exists())
+            installed_codex_skills = {
+                p.name
+                for p in (codex_home / 'skills').iterdir()
+                if p.is_dir() and (p / 'SKILL.md').exists()
+            }
+            self.assertEqual(installed_codex_skills, EXPECTED_CODEX_SKILLS)
+            self.assertIn('name: cast', (codex_home / 'skills/tink-cast/SKILL.md').read_text(encoding='utf-8'))
             self.assertTrue((base / '.tink/harnesses/index.json').exists())
             self.assertTrue((base / '.tink/rules/index.json').exists())
+            self.assertTrue((base / '.tink/schemas/context-map.schema.json').exists())
+            self.assertTrue((base / '.tink/schemas/verification.schema.json').exists())
             self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
             self.assertTrue((base / '.tink/maintenance/friction.jsonl').exists())
             self.assertTrue((base / '.tink/memory/mistakes.md').exists())
@@ -436,10 +523,19 @@ class TemplateTests(unittest.TestCase):
             'templates/claude/commands/tink/weave.md',
             'templates/claude/commands/tink/update.md',
             'templates/claude/skills/tink/SKILL.md',
-            'templates/codex/skills/tink/SKILL.md',
+            'templates/codex/skills/tink-core/RULES.md',
+            'templates/codex/skills/tink-cast/SKILL.md',
+            'templates/codex/skills/tink-verify/SKILL.md',
+            'templates/codex/skills/tink-list/SKILL.md',
+            'templates/codex/skills/tink-setup/SKILL.md',
+            'templates/codex/skills/tink-frog/SKILL.md',
+            'templates/codex/skills/tink-weave/SKILL.md',
+            'templates/codex/skills/tink-update/SKILL.md',
             'templates/tink/config.json',
             'templates/tink/rules/index.json',
             'templates/tink/schemas/contract.schema.json',
+            'templates/tink/schemas/context-map.schema.json',
+            'templates/tink/schemas/verification.schema.json',
             'templates/tink/schemas/session.schema.json',
             'templates/tink/harnesses/index.json',
             'templates/tink/maintenance/ledger.jsonl',
@@ -447,6 +543,11 @@ class TemplateTests(unittest.TestCase):
             'templates/tink/maintenance/friction.jsonl',
             'templates/tink/hooks/user-prompt-submit.mjs',
             'templates/tink/memory/mistakes.md',
+            'docs/compatibility-policy.md',
+            'docs/mcp-safe-profile.md',
+            'docs/repo-signals.md',
+            'docs/pr/2026-06-07-v1.2.0.md',
+            'docs/pr/2026-06-07-v1.2.1.md',
             'README.md',
             'LICENSE',
         ]:
@@ -475,6 +576,8 @@ class TemplateTests(unittest.TestCase):
                 self.assertTrue((base / '.claude/skills/tink/SKILL.md').exists())
                 self.assertTrue((base / '.tink/harnesses/index.json').exists())
                 self.assertTrue((base / '.tink/rules/index.json').exists())
+                self.assertTrue((base / '.tink/schemas/context-map.schema.json').exists())
+                self.assertTrue((base / '.tink/schemas/verification.schema.json').exists())
                 self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
                 self.assertTrue((base / '.tink/maintenance/weave-queue.json').exists())
                 self.assertTrue((base / '.tink/maintenance/friction.jsonl').exists())
@@ -586,6 +689,319 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('context-habit-calibration', text)
         self.assertIn('Validation checklist', text)
 
+    def test_repo_signals_doc_explains_flow(self):
+        text = (ROOT / 'docs/repo-signals.md').read_text(encoding='utf-8')
+        self.assertIn('Repo Signals', text)
+        self.assertIn('not a `tink index` command', text)
+        self.assertIn('docs/compatibility-policy.md', text)
+        self.assertIn('verification_hints', text)
+        self.assertIn('contract.verification.manual_checks[]', text)
+        self.assertIn('context-map.json signals', text)
+        self.assertIn('unmatched_path', text)
+        self.assertIn('must not', text)
+
+    def test_mcp_safe_profile_explains_phase_4(self):
+        text = (ROOT / 'docs/mcp-safe-profile.md').read_text(encoding='utf-8')
+        self.assertIn('MCP Safe Profile', text)
+        self.assertIn('Phase 4', text)
+        self.assertIn('Figma, GitHub, official docs, dashboards, and attachments are representative examples', text)
+        self.assertIn('not about making one or two tools the only supported sources', text)
+        self.assertIn('Trust Risk', text)
+        self.assertIn('Scope Risk', text)
+        self.assertIn('Safety Risk', text)
+        self.assertIn('context-map.json', text)
+        self.assertIn('excluded-context.md', text)
+        self.assertIn('contract.verification.manual_checks[]', text)
+        self.assertIn('Claude Code and Codex', text)
+        self.assertIn('macOS and Windows', text)
+        self.assertIn('must not', text)
+
+    def test_compatibility_policy_sets_default_support_matrix(self):
+        text = (ROOT / 'docs/compatibility-policy.md').read_text(encoding='utf-8')
+        self.assertIn('Claude Code and Codex are both supported surfaces', text)
+        self.assertIn('macOS and Windows are both supported operating systems', text)
+        self.assertIn('Do not add a feature that only works for Claude Code', text)
+        self.assertIn('Do not add a feature that only works for Codex', text)
+        self.assertIn('repo-local `.claude` command copy', text)
+        self.assertIn('matching Codex skill behavior', text)
+        self.assertIn('What changes for Claude Code?', text)
+        self.assertIn('Does this work on Windows?', text)
+
+    def test_current_run_context_artifact_fixture(self):
+        fixture_dir = ROOT / 'tests/fixtures/current-run'
+        pack = (fixture_dir / 'context-pack.md').read_text(encoding='utf-8')
+        notes = (fixture_dir / 'notes.md').read_text(encoding='utf-8')
+        maintenance_ledger = [
+            json.loads(line)
+            for line in (fixture_dir / 'maintenance-ledger.jsonl').read_text(encoding='utf-8').splitlines()
+            if line.strip()
+        ]
+        maintenance_friction = [
+            json.loads(line)
+            for line in (fixture_dir / 'maintenance-friction.jsonl').read_text(encoding='utf-8').splitlines()
+            if line.strip()
+        ]
+        maintenance_weave = json.loads((fixture_dir / 'maintenance-weave-queue.json').read_text(encoding='utf-8'))
+        contract = json.loads((fixture_dir / 'contract.json').read_text(encoding='utf-8'))
+        context_map = json.loads((fixture_dir / 'context-map.json').read_text(encoding='utf-8'))
+        external_profile = json.loads((fixture_dir / 'external-context-profile.json').read_text(encoding='utf-8'))
+        verification = json.loads((fixture_dir / 'verification.json').read_text(encoding='utf-8'))
+        verification_failure = json.loads((fixture_dir / 'verification-failure.json').read_text(encoding='utf-8'))
+        verification_blocked = json.loads((fixture_dir / 'verification-blocked.json').read_text(encoding='utf-8'))
+        excluded = (fixture_dir / 'excluded-context.md').read_text(encoding='utf-8')
+        schema = json.loads((ROOT / 'templates/tink/schemas/context-map.schema.json').read_text(encoding='utf-8'))
+        verification_schema = json.loads((ROOT / 'templates/tink/schemas/verification.schema.json').read_text(encoding='utf-8'))
+        repo_signals = json.loads((ROOT / 'tests/fixtures/repo-signals/tink-harness.json').read_text(encoding='utf-8'))
+
+        for required in schema['required']:
+            self.assertIn(required, context_map)
+
+        self.assertIn('Included Context', pack)
+        self.assertIn('Excluded Context', pack)
+        self.assertIn('Verification Implications', pack)
+        self.assertIn('External Sources', excluded)
+        self.assertIn('Deferred Work', excluded)
+        self.assertIn('Figma unrelated pages', excluded)
+        self.assertIn('GitHub unrelated discussion', excluded)
+        self.assertIn('Official docs examples from older versions', excluded)
+        self.assertIn('Deployment dashboard evidence is blocked', excluded)
+        self.assertIn('Verification Summary', notes)
+        self.assertIn('Verification Failure Summary', notes)
+        self.assertIn('Verification Blocked Summary', notes)
+        for field in ['result:', 'checked:', 'problems:', 'remaining:', 'last_safe_point:', 'next_action:', 'evidence:']:
+            self.assertIn(field, notes)
+        self.assertIn('remaining: none', notes)
+        self.assertIn('last_safe_point: verification is incomplete', notes)
+        self.assertNotIn('Traceback', notes)
+        self.assertNotIn('npm ERR!', notes)
+
+        self.assertGreaterEqual(len(context_map['included']), 3)
+        self.assertGreaterEqual(len(context_map['excluded']), 1)
+        self.assertGreaterEqual(len(context_map['signals']), 1)
+        self.assertIn('external_context', context_map)
+        self.assertGreaterEqual(len(context_map['external_context']), 3)
+        external_schema = schema['$defs']['external_context_profile']
+        external_required = set(external_schema['required'])
+        allowed_external_confidence = set(external_schema['properties']['confidence']['enum'])
+        allowed_sensitivity = set(external_schema['properties']['sensitivity']['enum'])
+        all_external_sources = context_map['external_context'] + external_profile['sources']
+        for item in all_external_sources:
+            self.assertTrue(external_required.issubset(item), item)
+            self.assertIn(item['confidence'], allowed_external_confidence)
+            self.assertIn(item['sensitivity'], allowed_sensitivity)
+            self.assertGreaterEqual(len(item['included']), 1)
+            self.assertGreaterEqual(len(item['excluded']), 1)
+            self.assertNotIn('raw token', ' '.join(item['included']).lower())
+        source_names = {item['source'] for item in all_external_sources}
+        self.assertIn('Figma', source_names)
+        self.assertIn('GitHub', source_names)
+        self.assertIn('official docs', source_names)
+        self.assertNotIn('Sentry', source_names)
+        self.assertTrue(source_names - {'Figma'})
+        for blocked in external_profile['blocked_sources']:
+            self.assertIn('blocked_reason', blocked)
+            self.assertIn('next_action', blocked)
+            self.assertIn(blocked['sensitivity'], allowed_sensitivity)
+        for required in verification_schema['required']:
+            self.assertIn(required, verification)
+        self.assertIn(verification['surface'], verification_schema['properties']['surface']['enum'])
+        self.assertIn(verification['platform'], verification_schema['properties']['platform']['enum'])
+        self.assertIn(verification['result'], verification_schema['properties']['result']['enum'])
+        self.assertGreaterEqual(len(verification['checks']), 1)
+        check_required = set(verification_schema['$defs']['check_result']['required'])
+        allowed_kinds = verification_schema['$defs']['check_result']['properties']['kind']['enum']
+        allowed_statuses = verification_schema['$defs']['check_result']['properties']['status']['enum']
+        allowed_failure_types = verification_schema['$defs']['check_result']['properties']['failure_type']['enum']
+        allowed_maintenance_signals = verification_schema['$defs']['check_result']['properties']['maintenance_signal']['enum']
+        for evidence in [verification, verification_failure, verification_blocked]:
+            for required in verification_schema['required']:
+                self.assertIn(required, evidence)
+            self.assertIn(evidence['result'], verification_schema['properties']['result']['enum'])
+            self.assertIn('report', evidence)
+            for required in verification_schema['$defs']['report']['required']:
+                self.assertIn(required, evidence['report'])
+            self.assertIsInstance(evidence['report']['checked'], list)
+            self.assertIsInstance(evidence['report']['remaining'], list)
+            self.assertGreater(len(evidence['report']['result_line']), 10)
+            self.assertGreater(len(evidence['report']['next_action']), 10)
+            for check in evidence['checks']:
+                self.assertTrue(check_required.issubset(check), check)
+                self.assertIn(check['kind'], allowed_kinds)
+                self.assertIn(check['status'], allowed_statuses)
+                if 'failure_type' in check:
+                    self.assertIn(check['failure_type'], allowed_failure_types)
+                if 'maintenance_signal' in check:
+                    self.assertIn(check['maintenance_signal'], allowed_maintenance_signals)
+                    self.assertIn('next_action', check)
+
+        self.assertEqual(verification_failure['result'], 'fail')
+        self.assertIn('check_failed', {signal['type'] for signal in verification_failure['maintenance_signals']})
+        self.assertEqual(verification_blocked['result'], 'blocked')
+        blocked_signal_types = {signal['type'] for signal in verification_blocked['maintenance_signals']}
+        self.assertIn('check_blocked', blocked_signal_types)
+        self.assertIn('check_skipped', blocked_signal_types)
+        ledger_results = {entry['result'] for entry in maintenance_ledger}
+        self.assertEqual(ledger_results, {'pass', 'fail', 'blocked'})
+        for entry in maintenance_ledger:
+            self.assertEqual(entry['type'], 'verify')
+            self.assertIn('.tink/current/contract.json', entry['files'])
+            self.assertIn('.tink/current/verification.json', entry['files'])
+            self.assertEqual(entry['approval'], 'current-run')
+            self.assertEqual(entry['rollback'], 'No reusable state changed.')
+        queue_signals = {item['signal'] for item in maintenance_weave['items']}
+        self.assertEqual(queue_signals, {'check_failed', 'check_blocked', 'check_skipped'})
+        for item in maintenance_weave['items']:
+            self.assertEqual(item['run'], '.tink/current')
+            self.assertTrue(item['auto'])
+            self.assertIn('reason', item)
+        friction_types = {entry['type'] for entry in maintenance_friction}
+        self.assertEqual(friction_types, {'check_failed', 'check_blocked', 'check_skipped'})
+        for entry in maintenance_friction:
+            self.assertEqual(entry['source'], 'verify')
+            self.assertEqual(entry['contract'], '.tink/current/contract.json')
+            self.assertEqual(entry['evidence'], '.tink/current/verification.json')
+        required_skipped = [
+            check
+            for check in verification_blocked['checks']
+            if check['required'] and check['status'] == 'skipped'
+        ]
+        self.assertEqual(required_skipped, [])
+
+        entry_required = set(schema['$defs']['context_entry']['required'])
+        allowed_confidence = set(schema['$defs']['context_entry']['properties']['confidence']['enum'])
+        for entry in [*context_map['included'], *context_map['excluded']]:
+            self.assertTrue(entry_required.issubset(entry), entry)
+            self.assertTrue(('path' in entry) or ('source' in entry), entry)
+            self.assertIn(entry['confidence'], allowed_confidence)
+            self.assertIsInstance(entry['reason'], str)
+            self.assertGreater(len(entry['reason']), 10)
+
+        for signal in context_map['signals']:
+            for required in ['kind', 'value', 'reason']:
+                self.assertIn(required, signal)
+            if 'source' in signal:
+                source_path = ROOT / signal['source']
+                self.assertTrue(source_path.exists(), signal['source'])
+                self.assertIn('source_ref', signal)
+                self.assertIn('confidence', signal)
+
+        hint_names = {hint['name'] for hint in repo_signals['verification_hints']}
+        manual_checks = contract['verification']['manual_checks']
+        hint_signals = {
+            signal['source_ref']
+            for signal in context_map['signals']
+            if signal.get('kind') == 'verification_hint'
+        }
+        unmatched_paths = {
+            signal['value']
+            for signal in context_map['signals']
+            if signal.get('kind') == 'unmatched_path'
+        }
+        self.assertIn('docs/memory.md', unmatched_paths)
+        self.assertGreaterEqual(len(manual_checks), 1)
+        external_manual_checks = [
+            check
+            for check in manual_checks
+            if check.get('source') == 'tests/fixtures/current-run/external-context-profile.json'
+        ]
+        self.assertGreaterEqual(len(external_manual_checks), 3)
+        external_check_refs = {check['source_ref'] for check in external_manual_checks}
+        self.assertIn('sources.Figma.verification_hint', external_check_refs)
+        self.assertIn('sources.GitHub.verification_hint', external_check_refs)
+        self.assertIn('sources.official docs.verification_hint', external_check_refs)
+        verification_external_refs = {
+            check.get('source_ref')
+            for check in verification['checks']
+            if check.get('source') == 'tests/fixtures/current-run/external-context-profile.json'
+        }
+        self.assertTrue(external_check_refs.issubset(verification_external_refs))
+        for check in manual_checks:
+            self.assertIn('target', check)
+            if check.get('source_ref', '').startswith('verification_hints.'):
+                self.assertIn(check['source_ref'].split('.', 1)[1], hint_names)
+                self.assertIn(check['source_ref'], hint_signals)
+                self.assertEqual(check['source'], 'tests/fixtures/repo-signals/tink-harness.json')
+
+    def test_repo_signal_fixture_matches_repo(self):
+        fixture = json.loads((ROOT / 'tests/fixtures/repo-signals/tink-harness.json').read_text(encoding='utf-8'))
+        test_source = (ROOT / 'tests/test_templates.py').read_text(encoding='utf-8')
+
+        self.assertEqual(fixture['repo'], 'tink-harness')
+        self.assertIn('This is not a generated index', fixture['purpose'])
+        self.assertNotIn('index.md', fixture['command_surface']['allowed'])
+        self.assertIn('index.md', fixture['command_surface']['forbidden'])
+
+        for item in fixture['instruction_files']:
+            self.assertTrue((ROOT / item['path']).exists(), item['path'])
+            self.assertGreater(len(item['reason']), 10)
+
+        for schema_path in fixture['schema_files']:
+            self.assertTrue((ROOT / schema_path).exists(), schema_path)
+            json.loads((ROOT / schema_path).read_text(encoding='utf-8'))
+
+        for item in fixture['fixture_dirs']:
+            self.assertTrue((ROOT / item['path']).is_dir(), item['path'])
+
+        for command in fixture['verification_commands']:
+            self.assertEqual(command['command'], 'npm test')
+            self.assertIn('template sync', command['covers'])
+
+        for group in fixture['sync_groups']:
+            self.assertEqual(group['rule'], 'byte-identical')
+            self.assertIn(group['verified_by'], test_source)
+            self.assertGreaterEqual(len(group['files']), 2)
+            for path in group['files']:
+                self.assertTrue((ROOT / path).exists(), path)
+
+        hint_names = set()
+        for hint in fixture['verification_hints']:
+            hint_names.add(hint['name'])
+            self.assertIn('when', hint)
+            self.assertIn('add_manual_check', hint)
+            self.assertIn('reason', hint)
+            check = hint['add_manual_check']
+            self.assertIn(check['target'], test_source)
+            self.assertIsInstance(check['required'], bool)
+            for pattern in hint['when']['paths']:
+                self.assertNotEqual(pattern, '')
+        self.assertIn('command-template-sync', hint_names)
+        self.assertIn('schema-shape', hint_names)
+
+        allowed = set(fixture['command_surface']['allowed'])
+        forbidden = set(fixture['command_surface']['forbidden'])
+        self.assertEqual(allowed, EXPECTED_COMMANDS)
+        self.assertFalse(allowed & forbidden)
+        self.assertIn(fixture['command_surface']['verified_by'], test_source)
+
+    def test_repo_signal_path_cases_select_verification_hints(self):
+        signals = json.loads((ROOT / 'tests/fixtures/repo-signals/tink-harness.json').read_text(encoding='utf-8'))
+        path_cases = json.loads((ROOT / 'tests/fixtures/repo-signals/path-cases.json').read_text(encoding='utf-8'))
+        hints = signals['verification_hints']
+        hint_names = {hint['name'] for hint in hints}
+
+        self.assertEqual(path_cases['repo'], 'tink-harness')
+        self.assertGreaterEqual(len(path_cases['cases']), 4)
+
+        for case in path_cases['cases']:
+            selected = set()
+            for changed_path in case['changed_paths']:
+                self.assertTrue((ROOT / changed_path).exists(), changed_path)
+                for hint in hints:
+                    patterns = hint['when']['paths']
+                    if any(fnmatch.fnmatch(changed_path, pattern) for pattern in patterns):
+                        selected.add(hint['name'])
+
+            expected = set(case['expected_hints'])
+            self.assertTrue(expected.issubset(hint_names), case)
+            self.assertEqual(
+                selected,
+                expected,
+                f"{case['name']} selected {sorted(selected)} instead of {sorted(expected)}",
+            )
+            if not expected:
+                self.assertEqual(case.get('expected_signal'), 'unmatched_path')
+            self.assertGreater(len(case['reason']), 10)
+
     def test_context_glossary_exists(self):
         text = (ROOT / 'CONTEXT.md').read_text(encoding='utf-8')
         for term in [
@@ -651,13 +1067,47 @@ class TemplateTests(unittest.TestCase):
 
     def test_contract_rule_graph_and_verify_templates_exist(self):
         schema = json.loads((ROOT / 'templates/tink/schemas/contract.schema.json').read_text(encoding='utf-8'))
+        context_schema = json.loads((ROOT / 'templates/tink/schemas/context-map.schema.json').read_text(encoding='utf-8'))
+        verification_schema = json.loads((ROOT / 'templates/tink/schemas/verification.schema.json').read_text(encoding='utf-8'))
         rules = json.loads((ROOT / 'templates/tink/rules/index.json').read_text(encoding='utf-8'))
         verify = (ROOT / 'templates/claude/commands/tink/verify.md').read_text(encoding='utf-8')
+        codex_core = (ROOT / 'templates/codex/skills/tink-core/RULES.md').read_text(encoding='utf-8')
         cast = (ROOT / 'templates/claude/commands/tink/cast.md').read_text(encoding='utf-8')
         weave = (ROOT / 'templates/claude/commands/tink/weave.md').read_text(encoding='utf-8')
 
         self.assertIn('task_type', schema['required'])
         self.assertIn('verification', schema['properties'])
+        self.assertIn('included', context_schema['required'])
+        self.assertIn('excluded', context_schema['required'])
+        self.assertIn('context_entry', context_schema['$defs'])
+        self.assertIn('external_context_profile', context_schema['$defs'])
+        self.assertIn('external_context', context_schema['properties'])
+        self.assertIn('source_ref', context_schema['properties']['signals']['items']['properties'])
+        self.assertIn('confidence', context_schema['properties']['signals']['items']['properties'])
+        external_props = context_schema['$defs']['external_context_profile']['properties']
+        for field in ['source', 'source_ref', 'included', 'excluded', 'confidence', 'sensitivity', 'verification_hint']:
+            self.assertIn(field, external_props)
+        command_props = schema['properties']['verification']['properties']['commands']['items']['properties']
+        manual_props = schema['properties']['verification']['properties']['manual_checks']['items']['properties']
+        for field in ['cwd', 'timeout_ms', 'platforms', 'safe', 'evidence']:
+            self.assertIn(field, command_props)
+        for field in ['method', 'source', 'source_ref', 'evidence']:
+            self.assertIn(field, manual_props)
+        self.assertIn('surface', verification_schema['required'])
+        self.assertIn('platform', verification_schema['required'])
+        self.assertIn('check_result', verification_schema['$defs'])
+        self.assertIn('maintenance_signal', verification_schema['$defs'])
+        self.assertIn('report', verification_schema['$defs'])
+        self.assertIn('blocked', verification_schema['properties'])
+        self.assertIn('maintenance_signals', verification_schema['properties'])
+        self.assertIn('report', verification_schema['properties'])
+        check_props = verification_schema['$defs']['check_result']['properties']
+        self.assertIn('failure_type', check_props)
+        self.assertIn('maintenance_signal', check_props)
+        self.assertIn('next_action', check_props)
+        report_required = verification_schema['$defs']['report']['required']
+        for field in ['result_line', 'checked', 'remaining', 'next_action']:
+            self.assertIn(field, report_required)
         self.assertTrue(any(node['type'] == 'guard-candidate' for node in rules['nodes']))
         self.assertIn('mandatory', rules['selection_policy']['load_order'])
         self.assertTrue(all('load' in node for node in rules['nodes']))
@@ -665,8 +1115,42 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('/tink:verify', verify)
         self.assertIn('.tink/current/contract.json', verify)
         self.assertIn('.tink/current/verification.json', verify)
+        self.assertIn('Verify runner contract', verify)
+        self.assertIn('.tink/schemas/verification.schema.json', verify)
+        self.assertIn('macOS and Windows', verify)
         self.assertIn('.tink/maintenance/friction.jsonl', verify)
         self.assertIn('check_failed', verify)
+        self.assertIn('check_blocked', verify)
+        self.assertIn('check_skipped', verify)
+        self.assertIn('required `skipped` check is a `blocked` result', verify)
+        self.assertIn('Next action', verify)
+        self.assertIn('Final report format', verify)
+        self.assertIn('Result', verify)
+        self.assertIn('Checked', verify)
+        self.assertIn('Problems', verify)
+        self.assertIn('Remaining', verify)
+        self.assertIn('report.result_line', verify)
+        self.assertIn('Notes summary format', verify)
+        self.assertIn('Maintenance output rules', verify)
+        self.assertIn('last_safe_point', verify)
+        self.assertIn('fix-and-rerun', verify)
+        self.assertIn('unblock-and-rerun', verify)
+        self.assertIn('Do not paste raw logs, full command output', verify)
+        self.assertIn('Do not create `.tink/maintenance/ledger.jsonl`', verify)
+        self.assertIn('one line or one queue item per check', verify)
+        self.assertIn('Verify Runner', codex_core)
+        self.assertIn('$tink:verify', codex_core)
+        self.assertIn('macOS and Windows', codex_core)
+        self.assertIn('check_blocked', codex_core)
+        self.assertIn('result, checked items, problems, remaining work, and next action', codex_core)
+        self.assertIn('last safe point, next action, and evidence', codex_core)
+        self.assertIn('maintenance output', codex_core)
+        self.assertIn('Do not create missing maintenance files during verify', codex_core)
+        self.assertIn('context-map.json.external_context[]', codex_core)
+        self.assertIn('Treat Figma, GitHub, and official docs as representative examples', codex_core)
+        self.assertIn('External context safety checklist', codex_core)
+        self.assertIn('smallest useful `source_ref`', codex_core)
+        self.assertIn('contract.verification.manual_checks[]', codex_core)
         self.assertIn('.tink/rules/index.json', cast)
         self.assertIn('contract.json', cast)
         self.assertIn('session.json', cast)

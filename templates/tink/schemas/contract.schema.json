@@ -45,7 +45,27 @@
               "name": { "type": "string" },
               "command": { "type": "string" },
               "required": { "type": "boolean", "default": true },
-              "approval_required": { "type": "boolean", "default": false }
+              "approval_required": { "type": "boolean", "default": false },
+              "cwd": {
+                "type": "string",
+                "description": "Directory to run from. Use repo-root relative paths when possible."
+              },
+              "timeout_ms": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "platforms": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["windows", "macos", "linux", "any"]
+                }
+              },
+              "safe": {
+                "type": "boolean",
+                "description": "Whether the command is expected to be non-destructive and local-only."
+              },
+              "evidence": { "type": "string" }
             },
             "additionalProperties": true
           }
@@ -58,7 +78,14 @@
             "properties": {
               "name": { "type": "string" },
               "target": { "type": "string" },
-              "required": { "type": "boolean", "default": true }
+              "required": { "type": "boolean", "default": true },
+              "method": {
+                "type": "string",
+                "description": "How to inspect the target, such as test-target, file-exists, doc-contains, or human-review."
+              },
+              "source": { "type": "string" },
+              "source_ref": { "type": "string" },
+              "evidence": { "type": "string" }
             },
             "additionalProperties": true
           }
