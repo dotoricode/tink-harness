@@ -1,0 +1,132 @@
+{
+  "rollup": ".tink/maintenance/context-metrics-rollup.json",
+  "evaluator": "run-history-rollup-v1",
+  "target_threshold_percent": 90,
+  "measurement_status": "measured",
+  "scope": "run_history",
+  "limits": [
+    "This fixture measures representative run-history records, not production telemetry.",
+    "Production-wide 90 percent requires real accumulated .tink/runs data."
+  ],
+  "runs": [
+    {
+      "run": ".tink/runs/2026-06-08-0010-context-budget-ledger.md",
+      "source_ref": "tests/fixtures/current-run/context-metrics-evaluation.json",
+      "scope": "fixture",
+      "scores": {
+        "unnecessary_context_reduction": 100,
+        "initial_context_pack_size_reduction": 100,
+        "review_evidence_lookup_time_reduction": 100,
+        "verification_omission_detection": 100,
+        "repeated_context_reuse_accuracy": 100,
+        "rework_probability_reduction": 100
+      }
+    },
+    {
+      "run": ".tink/runs/2026-06-08-0020-context-metrics-evaluator.md",
+      "source_ref": "docs/pr/2026-06-08-context-metrics-evaluator.ko.md",
+      "scope": "fixture",
+      "scores": {
+        "unnecessary_context_reduction": 96,
+        "initial_context_pack_size_reduction": 94,
+        "review_evidence_lookup_time_reduction": 98,
+        "verification_omission_detection": 100,
+        "repeated_context_reuse_accuracy": 95,
+        "rework_probability_reduction": 93
+      }
+    },
+    {
+      "run": ".tink/runs/2026-06-08-0030-context-metrics-artifact.md",
+      "source_ref": "docs/pr/2026-06-08-context-metrics-artifact.ko.md",
+      "scope": "current_run",
+      "scores": {
+        "unnecessary_context_reduction": 94,
+        "initial_context_pack_size_reduction": 92,
+        "review_evidence_lookup_time_reduction": 96,
+        "verification_omission_detection": 98,
+        "repeated_context_reuse_accuracy": 94,
+        "rework_probability_reduction": 91
+      }
+    }
+  ],
+  "scores": [
+    {
+      "name": "unnecessary_context_reduction",
+      "score_percent": 97,
+      "minimum_percent": 94,
+      "formula": "average(run_scores.unnecessary_context_reduction)",
+      "numerator": 290,
+      "denominator": 3,
+      "evidence_refs": [
+        ".tink/runs/2026-06-08-0010-context-budget-ledger.md",
+        ".tink/runs/2026-06-08-0020-context-metrics-evaluator.md",
+        ".tink/runs/2026-06-08-0030-context-metrics-artifact.md"
+      ]
+    },
+    {
+      "name": "initial_context_pack_size_reduction",
+      "score_percent": 95,
+      "minimum_percent": 92,
+      "formula": "average(run_scores.initial_context_pack_size_reduction)",
+      "numerator": 286,
+      "denominator": 3,
+      "evidence_refs": [
+        ".tink/runs/2026-06-08-0010-context-budget-ledger.md",
+        ".tink/runs/2026-06-08-0020-context-metrics-evaluator.md",
+        ".tink/runs/2026-06-08-0030-context-metrics-artifact.md"
+      ]
+    },
+    {
+      "name": "review_evidence_lookup_time_reduction",
+      "score_percent": 98,
+      "minimum_percent": 96,
+      "formula": "average(run_scores.review_evidence_lookup_time_reduction)",
+      "numerator": 294,
+      "denominator": 3,
+      "evidence_refs": [
+        ".tink/runs/2026-06-08-0010-context-budget-ledger.md",
+        ".tink/runs/2026-06-08-0020-context-metrics-evaluator.md",
+        ".tink/runs/2026-06-08-0030-context-metrics-artifact.md"
+      ]
+    },
+    {
+      "name": "verification_omission_detection",
+      "score_percent": 99,
+      "minimum_percent": 98,
+      "formula": "average(run_scores.verification_omission_detection)",
+      "numerator": 298,
+      "denominator": 3,
+      "evidence_refs": [
+        ".tink/runs/2026-06-08-0010-context-budget-ledger.md",
+        ".tink/runs/2026-06-08-0020-context-metrics-evaluator.md",
+        ".tink/runs/2026-06-08-0030-context-metrics-artifact.md"
+      ]
+    },
+    {
+      "name": "repeated_context_reuse_accuracy",
+      "score_percent": 96,
+      "minimum_percent": 94,
+      "formula": "average(run_scores.repeated_context_reuse_accuracy)",
+      "numerator": 289,
+      "denominator": 3,
+      "evidence_refs": [
+        ".tink/runs/2026-06-08-0010-context-budget-ledger.md",
+        ".tink/runs/2026-06-08-0020-context-metrics-evaluator.md",
+        ".tink/runs/2026-06-08-0030-context-metrics-artifact.md"
+      ]
+    },
+    {
+      "name": "rework_probability_reduction",
+      "score_percent": 95,
+      "minimum_percent": 91,
+      "formula": "average(run_scores.rework_probability_reduction)",
+      "numerator": 284,
+      "denominator": 3,
+      "evidence_refs": [
+        ".tink/runs/2026-06-08-0010-context-budget-ledger.md",
+        ".tink/runs/2026-06-08-0020-context-metrics-evaluator.md",
+        ".tink/runs/2026-06-08-0030-context-metrics-artifact.md"
+      ]
+    }
+  ]
+}

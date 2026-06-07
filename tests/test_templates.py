@@ -666,6 +666,8 @@ class TemplateTests(unittest.TestCase):
             'docs/context-budget-ledger.ko.md',
             'docs/context-metrics-evaluator.md',
             'docs/context-metrics-evaluator.ko.md',
+            'docs/context-run-history-rollup.md',
+            'docs/context-run-history-rollup.ko.md',
             'docs/update-diagnosis.md',
             'docs/update-diagnosis.ko.md',
             'docs/phase-5-update-confidence.md',
@@ -685,6 +687,7 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-08-context-budget-ledger.ko.md',
             'docs/pr/2026-06-08-context-metrics-artifact.ko.md',
             'docs/pr/2026-06-08-context-metrics-evaluator.ko.md',
+            'docs/pr/2026-06-08-context-run-history-rollup.ko.md',
             'README.md',
             'LICENSE',
         ]:
@@ -807,6 +810,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('docs/external-context-policy.md', readme)
         self.assertIn('docs/context-metrics-evaluator.md', readme)
         self.assertIn('docs/context-metrics-evaluator.ko.md', readme)
+        self.assertIn('docs/context-run-history-rollup.md', readme)
+        self.assertIn('docs/context-run-history-rollup.ko.md', readme)
 
     def test_work_state_phase5_and_idea_plan_docs_exist(self):
         work_state = (ROOT / 'docs/work-state.md').read_text(encoding='utf-8')
@@ -834,6 +839,8 @@ class TemplateTests(unittest.TestCase):
         context_budget_ko = (ROOT / 'docs/context-budget-ledger.ko.md').read_text(encoding='utf-8')
         context_metrics = (ROOT / 'docs/context-metrics-evaluator.md').read_text(encoding='utf-8')
         context_metrics_ko = (ROOT / 'docs/context-metrics-evaluator.ko.md').read_text(encoding='utf-8')
+        context_rollup = (ROOT / 'docs/context-run-history-rollup.md').read_text(encoding='utf-8')
+        context_rollup_ko = (ROOT / 'docs/context-run-history-rollup.ko.md').read_text(encoding='utf-8')
         context_efficiency_html = (ROOT / 'docs/context-engineering-efficiency.ko.html').read_text(encoding='utf-8')
         update_diagnosis = (ROOT / 'docs/update-diagnosis.md').read_text(encoding='utf-8')
         update_diagnosis_ko = (ROOT / 'docs/update-diagnosis.ko.md').read_text(encoding='utf-8')
@@ -982,6 +989,8 @@ class TemplateTests(unittest.TestCase):
             (context_budget_ko, ['Context Budget Ledger', 'verification_link', 'measurement_status: "estimated"', 'measurement_status: "measured"', '근거 없이 90% 달성으로 표시하지 않는다']),
             (context_metrics, ['Context Metrics Evaluator', 'fixture-ratio-v1', 'not a new public command', 'production telemetry']),
             (context_metrics_ko, ['Context Metrics Evaluator', 'fixture-ratio-v1', '새 public command가 아니다', 'production telemetry']),
+            (context_rollup, ['Context Run History Rollup', 'run_history', 'not a new public command', 'production telemetry']),
+            (context_rollup_ko, ['Context Run History Rollup', 'run_history', '새 public command가 아니다', 'production telemetry']),
             (context_efficiency_html, ['Tink 컨텍스트 엔지니어링', 'role', 'reuse_signal', 'verification_link', '예상 개선 효과']),
             (update_diagnosis, ['without adding a new command', 'Update Result Summary']),
             (update_diagnosis_ko, ['새 command를 추가하지 않고', 'Update Result Summary']),
@@ -1418,6 +1427,38 @@ class TemplateTests(unittest.TestCase):
                 self.assertIn(check['source_ref'].split('.', 1)[1], hint_names)
                 self.assertIn(check['source_ref'], hint_signals)
                 self.assertEqual(check['source'], 'tests/fixtures/repo-signals/tink-harness.json')
+
+    def test_context_metrics_run_history_rollup_fixture(self):
+        rollup = json.loads((ROOT / 'tests/fixtures/maintenance/context-metrics-rollup.json').read_text(encoding='utf-8'))
+
+        self.assertEqual(rollup['rollup'], '.tink/maintenance/context-metrics-rollup.json')
+        self.assertEqual(rollup['evaluator'], 'run-history-rollup-v1')
+        self.assertEqual(rollup['target_threshold_percent'], 90)
+        self.assertEqual(rollup['measurement_status'], 'measured')
+        self.assertEqual(rollup['scope'], 'run_history')
+        self.assertIn('not production telemetry', ' '.join(rollup['limits']))
+        self.assertGreaterEqual(len(rollup['runs']), 3)
+
+        for run in rollup['runs']:
+            self.assertIn('run', run)
+            self.assertIn('source_ref', run)
+            self.assertIn(run['scope'], {'fixture', 'current_run', 'run_history'})
+            self.assertEqual(set(run['scores']), CONTEXT_EFFICIENCY_METRICS)
+
+        rollup_scores = {item['name']: item for item in rollup['scores']}
+        self.assertEqual(set(rollup_scores), CONTEXT_EFFICIENCY_METRICS)
+
+        for name in CONTEXT_EFFICIENCY_METRICS:
+            values = [run['scores'][name] for run in rollup['runs']]
+            score = rollup_scores[name]
+            self.assertEqual(score['numerator'], sum(values), name)
+            self.assertEqual(score['denominator'], len(values), name)
+            self.assertEqual(score['score_percent'], round(sum(values) / len(values)), name)
+            self.assertEqual(score['minimum_percent'], min(values), name)
+            self.assertGreaterEqual(score['score_percent'], rollup['target_threshold_percent'], name)
+            self.assertGreaterEqual(score['minimum_percent'], rollup['target_threshold_percent'], name)
+            self.assertIn('average(run_scores.', score['formula'])
+            self.assertGreaterEqual(len(score['evidence_refs']), len(rollup['runs']))
 
     def test_repo_signal_fixture_matches_repo(self):
         fixture = json.loads((ROOT / 'tests/fixtures/repo-signals/tink-harness.json').read_text(encoding='utf-8'))
