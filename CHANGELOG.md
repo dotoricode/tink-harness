@@ -4,6 +4,11 @@ All notable changes to Tink are tracked here.
 
 ## [Unreleased]
 
+No unreleased changes yet.
+
+
+## [1.2.2] - 2026-06-08
+
 ### Added
 
 - Work-unit docs for the remaining roadmap: verification evidence details, external context policy, harness lifecycle signals, memory decision layers, context change review, and update diagnosis.

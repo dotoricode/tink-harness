@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 릴리스:** v1.2.1 — Codex 스킬 표면 정리, context 기록, portable verification, 외부 context 안전 기준.
+**최신 릴리스:** v1.2.2 — 업데이트 신뢰도, 작업 단위 계획, 검증 증거 세분화, memory 정책 기반.
 
 [English](README.md) · **한국어**
 
