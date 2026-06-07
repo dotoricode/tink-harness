@@ -125,6 +125,16 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('$tink:update', core)
         self.assertIn('Accept legacy `$tink <action>` spelling', core)
         self.assertIn('request_user_input', core)
+        self.assertIn('Codex Approval Protocol', core)
+        self.assertIn('Codex must not silently treat a command invocation as approval', core)
+        self.assertIn('A user\'s `$tink:cast` invocation means "prepare and ask for approval"', core)
+        self.assertIn('Do not create run state, load harness bodies, edit files, run commands, or continue the task before the answer', core)
+        self.assertIn('Use this compact approval request shape', core)
+        self.assertIn('이 작업은 Tink run으로 잡고 진행하겠습니다.', core)
+        self.assertIn('- 승인 후 첫 단계:', core)
+        self.assertIn('I will handle this as a Tink run.', core)
+        self.assertIn('- first step after approval:', core)
+        self.assertIn('If `request_user_input` is available, map this content into the prompt', core)
         self.assertIn('.tink/current/plan.md', core)
         self.assertIn('.tink/current/context-pack.md', core)
         self.assertIn('.tink/current/context-map.json', core)
@@ -139,6 +149,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('name: cast', alias)
         self.assertIn('description: Start a Tink run for a non-trivial task.', alias)
         self.assertIn('../tink-core/RULES.md', alias)
+        self.assertIn('asks for approval first', alias)
         self.assertNotIn('name: tink:', alias)
 
     def test_dual_format_paths_stay_in_sync(self):
@@ -268,6 +279,10 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('context-map.schema.json', forge)
         self.assertIn('deterministic context selection', forge)
         self.assertIn('Selection order', forge)
+        self.assertIn('Context Graph Lite rules', forge)
+        self.assertIn('context_graph_lite.rules[]', forge)
+        self.assertIn('kind: "context_graph_rule"', forge)
+        self.assertIn('hidden runtime index', forge)
         self.assertIn('Selected hint output rules', forge)
         self.assertIn('unmatched_path', forge)
         self.assertIn('Exclusion rules', forge)
@@ -498,6 +513,67 @@ class TemplateTests(unittest.TestCase):
             self.assertFalse((base / '.claude/commands').exists())
             self.assertFalse((base / '.claude/skills').exists())
 
+    def test_codex_update_refreshes_existing_install(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            codex_home = base / '.codex-home'
+            legacy_codex_skill = codex_home / 'skills/tink/SKILL.md'
+            legacy_codex_skill.parent.mkdir(parents=True)
+            legacy_codex_skill.write_text('---\nname: tink\n---\n\n# Tink\n\nLegacy Tink skill.\n', encoding='utf-8')
+            stale_cast = codex_home / 'skills/tink-cast/SKILL.md'
+            stale_cast.parent.mkdir(parents=True)
+            stale_cast.write_text('---\nname: cast\n---\n\n# stale cast\n', encoding='utf-8')
+            stale_contract = base / '.tink/schemas/contract.schema.json'
+            stale_contract.parent.mkdir(parents=True)
+            stale_contract.write_text('{"old": true}\n', encoding='utf-8')
+            stale_config = base / '.tink/config.json'
+            stale_config.write_text('{"language": "custom", "install_scope": "custom", "local": true}\n', encoding='utf-8')
+
+            env = os.environ.copy()
+            env['CODEX_HOME'] = str(codex_home)
+            env['TINK_INSTALL_SURFACES'] = 'codex'
+            result = subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'update', '--lang=ko', '--yes'],
+                cwd=base,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+            )
+            output = result.stdout
+
+            self.assertFalse((codex_home / 'skills/tink/SKILL.md').exists())
+            self.assertTrue((codex_home / 'skills/tink-core/RULES.md').exists())
+            self.assertIn('This is the Codex alias for `$tink:cast <task>`.', stale_cast.read_text(encoding='utf-8'))
+            installed_codex_skills = {
+                p.name
+                for p in (codex_home / 'skills').iterdir()
+                if p.is_dir() and (p / 'SKILL.md').exists()
+            }
+            self.assertEqual(installed_codex_skills, EXPECTED_CODEX_SKILLS)
+            self.assertTrue((base / '.tink/schemas/context-map.schema.json').exists())
+            self.assertTrue((base / '.tink/schemas/verification.schema.json').exists())
+            self.assertIn('"old": true', stale_contract.read_text(encoding='utf-8'))
+            config_after_update = json.loads(stale_config.read_text(encoding='utf-8'))
+            self.assertEqual(config_after_update['language'], 'custom')
+            self.assertEqual(config_after_update['install_scope'], 'custom')
+            self.assertTrue(config_after_update['local'])
+            self.assertFalse((base / '.claude/commands').exists())
+            self.assertFalse((base / '.claude/skills').exists())
+            self.assertIn('Updating Tink for Codex', output)
+            self.assertIn('Update Result Summary', output)
+            self.assertIn('Surfaces: codex', output)
+            self.assertIn('Codex skills:', output)
+            self.assertIn('Updated or added:', output)
+            self.assertIn('skills/tink-cast/SKILL.md', output)
+            self.assertIn('Preserved user-modified files:', output)
+            self.assertIn('.tink/schemas/contract.schema.json', output)
+            self.assertIn('.tink/config.json', output)
+            self.assertIn('Removed legacy paths:', output)
+            self.assertIn('skills/tink', output)
+            self.assertIn('Next: open Codex and use $tink:cast <task> to start.', output)
+
     def test_package_contents_are_release_ready(self):
         result = subprocess.run([NPM, 'pack', '--dry-run', '--json'], cwd=ROOT, check=True, capture_output=True, text=True, encoding='utf-8')
         pack = json.loads(result.stdout)[0]
@@ -544,8 +620,18 @@ class TemplateTests(unittest.TestCase):
             'templates/tink/hooks/user-prompt-submit.mjs',
             'templates/tink/memory/mistakes.md',
             'docs/compatibility-policy.md',
+            'docs/phase-5-update-confidence.md',
+            'docs/phase-5-update-confidence.ko.md',
             'docs/mcp-safe-profile.md',
             'docs/repo-signals.md',
+            'docs/repo-signals.ko.md',
+            'docs/tink-idea-implementation-plan.ko.md',
+            'docs/update-troubleshooting.md',
+            'docs/update-troubleshooting.ko.md',
+            'docs/update-verification-recipe.md',
+            'docs/update-verification-recipe.ko.md',
+            'docs/work-state.md',
+            'docs/work-state.ko.md',
             'docs/pr/2026-06-07-v1.2.0.md',
             'docs/pr/2026-06-07-v1.2.1.md',
             'README.md',
@@ -650,6 +736,125 @@ class TemplateTests(unittest.TestCase):
 
         self.assertIn(f'Current version: `{version}`', versioning)
         self.assertIn(f'## [{version}]', changelog)
+        self.assertIn('docs/work-state.md', readme)
+        self.assertIn('docs/work-state.ko.md', readme)
+        self.assertIn('docs/phase-5-update-confidence.md', readme)
+        self.assertIn('docs/phase-5-update-confidence.ko.md', readme)
+        self.assertIn('docs/repo-signals.ko.md', readme)
+        self.assertIn('docs/tink-idea-implementation-plan.ko.md', readme)
+        self.assertIn('docs/update-troubleshooting.md', readme)
+        self.assertIn('docs/update-troubleshooting.ko.md', readme)
+        self.assertIn('docs/update-verification-recipe.md', readme)
+        self.assertIn('docs/update-verification-recipe.ko.md', readme)
+
+    def test_work_state_phase5_and_idea_plan_docs_exist(self):
+        work_state = (ROOT / 'docs/work-state.md').read_text(encoding='utf-8')
+        work_state_ko = (ROOT / 'docs/work-state.ko.md').read_text(encoding='utf-8')
+        phase5 = (ROOT / 'docs/phase-5-update-confidence.md').read_text(encoding='utf-8')
+        phase5_ko = (ROOT / 'docs/phase-5-update-confidence.ko.md').read_text(encoding='utf-8')
+        idea_plan = (ROOT / 'docs/tink-idea-implementation-plan.ko.md').read_text(encoding='utf-8')
+        troubleshooting = (ROOT / 'docs/update-troubleshooting.md').read_text(encoding='utf-8')
+        troubleshooting_ko = (ROOT / 'docs/update-troubleshooting.ko.md').read_text(encoding='utf-8')
+        verification_recipe = (ROOT / 'docs/update-verification-recipe.md').read_text(encoding='utf-8')
+        verification_recipe_ko = (ROOT / 'docs/update-verification-recipe.ko.md').read_text(encoding='utf-8')
+
+        for term in [
+            'Quick Reading Order',
+            '.tink/current/context-map.json',
+            '.tink/current/excluded-context.md',
+            '.tink/current/verification.json',
+            'Do not create a new command surface',
+            'Claude Code and Codex',
+            'macOS and Windows',
+        ]:
+            self.assertIn(term, work_state)
+
+        for term in [
+            'Phase 5: Update Confidence',
+            'existing users',
+            'Codex install with legacy `skills/tink/SKILL.md`',
+            'Update Result Summary',
+            'Troubleshooting Guide',
+            'Verification Recipe',
+            'No new public command is added',
+        ]:
+            self.assertIn(term, phase5)
+
+        for term in [
+            '구현 상태 매트릭스',
+            '새 public `tink index` command는 만들지 않는다',
+            'Claude Code와 Codex',
+            'macOS와 Windows',
+            'Context Graph Lite',
+            'Evidence Runner Plus',
+            'MCP Gateway Policy',
+            'Harness Lifecycle Metrics',
+            'Sentry 연동은 현재 계획에서 제외한다',
+            'Release Evidence Pack',
+            '현재 계획에서 제외한다',
+            '사용자나 팀이 직접 결정해야',
+        ]:
+            self.assertIn(term, idea_plan)
+
+        for term in [
+            '작업 상태 읽기 가이드',
+            '빠른 읽기 순서',
+            '.tink/current/verification.json',
+            'Claude Code와 Codex',
+            'macOS와 Windows',
+        ]:
+            self.assertIn(term, work_state_ko)
+
+        for term in [
+            'Phase 5: 업데이트 신뢰도',
+            '기존 사용자',
+            'Update Result Summary',
+            'Troubleshooting Guide',
+            '새 public command가 추가되지 않습니다',
+        ]:
+            self.assertIn(term, phase5_ko)
+
+        for term in [
+            'Update Troubleshooting',
+            'Update Result Summary',
+            'Old `tink` Still Appears In Codex',
+            'Schema Files Are Missing',
+            'Windows Encoding Warnings',
+            'Claude Code, Codex, or both',
+        ]:
+            self.assertIn(term, troubleshooting)
+
+        for term in [
+            '업데이트 문제 해결 가이드',
+            'Update Result Summary',
+            'Codex skill picker에 예전 `tink`가 보일 때',
+            'schema files가 없을 때',
+            'Windows에서 인코딩 경고가 보일 때',
+            'Claude Code, Codex, 또는 둘 다',
+        ]:
+            self.assertIn(term, troubleshooting_ko)
+
+        for term in [
+            'Update Verification Recipe',
+            'Quick Check',
+            'Update Result Summary',
+            'Codex Skills',
+            'Claude Code Commands',
+            'Healthy Update Criteria',
+            'docs/update-troubleshooting.md',
+        ]:
+            self.assertIn(term, verification_recipe)
+
+        for term in [
+            '업데이트 검증 레시피',
+            '빠른 검증',
+            'Update Result Summary',
+            'Codex skill 확인',
+            'Claude Code command 확인',
+            '정상으로 볼 수 있는 기준',
+            'docs/update-troubleshooting.ko.md',
+        ]:
+            self.assertIn(term, verification_recipe_ko)
 
     def test_command_surface_consistent_across_surfaces(self):
         expected_slash_commands = {
@@ -691,14 +896,28 @@ class TemplateTests(unittest.TestCase):
 
     def test_repo_signals_doc_explains_flow(self):
         text = (ROOT / 'docs/repo-signals.md').read_text(encoding='utf-8')
+        ko_text = (ROOT / 'docs/repo-signals.ko.md').read_text(encoding='utf-8')
         self.assertIn('Repo Signals', text)
         self.assertIn('not a `tink index` command', text)
         self.assertIn('docs/compatibility-policy.md', text)
         self.assertIn('verification_hints', text)
+        self.assertIn('Context Graph Lite', text)
+        self.assertIn('context_graph_lite', text)
+        self.assertIn('when_paths', text)
+        self.assertIn('include_paths', text)
+        self.assertIn('not a new command', text)
         self.assertIn('contract.verification.manual_checks[]', text)
         self.assertIn('context-map.json signals', text)
         self.assertIn('unmatched_path', text)
         self.assertIn('must not', text)
+        self.assertIn('Repo signal', ko_text)
+        self.assertIn('Context Graph Lite', ko_text)
+        self.assertIn('context_graph_lite', ko_text)
+        self.assertIn('새 command가 아니다', ko_text)
+        self.assertIn('tink index', ko_text)
+        self.assertIn('unmatched_path', ko_text)
+        self.assertIn('Claude Code와 Codex', ko_text)
+        self.assertIn('macOS와 Windows', ko_text)
 
     def test_mcp_safe_profile_explains_phase_4(self):
         text = (ROOT / 'docs/mcp-safe-profile.md').read_text(encoding='utf-8')
@@ -759,8 +978,13 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Included Context', pack)
         self.assertIn('Excluded Context', pack)
         self.assertIn('Verification Implications', pack)
+        self.assertIn('Repo Signals', pack)
+        self.assertIn('context_graph_lite.rules.claude-command-sync', pack)
+        self.assertIn('verification_hints.command-template-sync', pack)
         self.assertIn('External Sources', excluded)
         self.assertIn('Deferred Work', excluded)
+        self.assertIn('Public graph indexing is intentionally excluded', excluded)
+        self.assertIn('does not create a `tink index` command', excluded)
         self.assertIn('Figma unrelated pages', excluded)
         self.assertIn('GitHub unrelated discussion', excluded)
         self.assertIn('Official docs examples from older versions', excluded)
@@ -892,11 +1116,17 @@ class TemplateTests(unittest.TestCase):
             for signal in context_map['signals']
             if signal.get('kind') == 'verification_hint'
         }
+        graph_signals = {
+            signal['source_ref']
+            for signal in context_map['signals']
+            if signal.get('kind') == 'context_graph_rule'
+        }
         unmatched_paths = {
             signal['value']
             for signal in context_map['signals']
             if signal.get('kind') == 'unmatched_path'
         }
+        self.assertIn('context_graph_lite.rules.claude-command-sync', graph_signals)
         self.assertIn('docs/memory.md', unmatched_paths)
         self.assertGreaterEqual(len(manual_checks), 1)
         external_manual_checks = [
@@ -942,6 +1172,26 @@ class TemplateTests(unittest.TestCase):
         for item in fixture['fixture_dirs']:
             self.assertTrue((ROOT / item['path']).is_dir(), item['path'])
 
+        graph = fixture['context_graph_lite']
+        self.assertEqual(graph['mode'], 'internal-cast-only')
+        self.assertFalse(graph['public_command'])
+        self.assertIn('not a generated index', graph['description'])
+        self.assertGreaterEqual(len(graph['rules']), 4)
+        graph_rule_names = {rule['name'] for rule in graph['rules']}
+        self.assertIn('claude-command-sync', graph_rule_names)
+        self.assertIn('codex-skill-surface', graph_rule_names)
+        self.assertIn('installer-update-flow', graph_rule_names)
+        self.assertIn('schema-contract-artifacts', graph_rule_names)
+        for rule in graph['rules']:
+            for field in ['name', 'when_paths', 'include_paths', 'signal_refs', 'reason', 'confidence']:
+                self.assertIn(field, rule)
+            self.assertGreater(len(rule['reason']), 10)
+            self.assertIn(rule['confidence'], {'low', 'medium', 'high'})
+            for pattern in rule['when_paths']:
+                self.assertNotEqual(pattern, '')
+            for include_path in rule['include_paths']:
+                self.assertTrue((ROOT / include_path).exists(), include_path)
+
         for command in fixture['verification_commands']:
             self.assertEqual(command['command'], 'npm test')
             self.assertIn('template sync', command['covers'])
@@ -966,6 +1216,7 @@ class TemplateTests(unittest.TestCase):
                 self.assertNotEqual(pattern, '')
         self.assertIn('command-template-sync', hint_names)
         self.assertIn('schema-shape', hint_names)
+        self.assertIn('installer-update-confidence', hint_names)
 
         allowed = set(fixture['command_surface']['allowed'])
         forbidden = set(fixture['command_surface']['forbidden'])
@@ -978,18 +1229,28 @@ class TemplateTests(unittest.TestCase):
         path_cases = json.loads((ROOT / 'tests/fixtures/repo-signals/path-cases.json').read_text(encoding='utf-8'))
         hints = signals['verification_hints']
         hint_names = {hint['name'] for hint in hints}
+        graph_rules = signals['context_graph_lite']['rules']
+        graph_rule_names = {rule['name'] for rule in graph_rules}
 
         self.assertEqual(path_cases['repo'], 'tink-harness')
         self.assertGreaterEqual(len(path_cases['cases']), 4)
 
         for case in path_cases['cases']:
             selected = set()
+            selected_graph_rules = set()
+            selected_context_paths = set()
+            selected_signal_refs = set()
             for changed_path in case['changed_paths']:
                 self.assertTrue((ROOT / changed_path).exists(), changed_path)
                 for hint in hints:
                     patterns = hint['when']['paths']
                     if any(fnmatch.fnmatch(changed_path, pattern) for pattern in patterns):
                         selected.add(hint['name'])
+                for rule in graph_rules:
+                    if any(fnmatch.fnmatch(changed_path, pattern) for pattern in rule['when_paths']):
+                        selected_graph_rules.add(rule['name'])
+                        selected_context_paths.update(rule['include_paths'])
+                        selected_signal_refs.update(rule['signal_refs'])
 
             expected = set(case['expected_hints'])
             self.assertTrue(expected.issubset(hint_names), case)
@@ -998,6 +1259,21 @@ class TemplateTests(unittest.TestCase):
                 expected,
                 f"{case['name']} selected {sorted(selected)} instead of {sorted(expected)}",
             )
+            expected_graph_rules = set(case.get('expected_context_rules', []))
+            self.assertTrue(expected_graph_rules.issubset(graph_rule_names), case)
+            self.assertEqual(
+                selected_graph_rules,
+                expected_graph_rules,
+                f"{case['name']} selected graph rules {sorted(selected_graph_rules)} instead of {sorted(expected_graph_rules)}",
+            )
+            for context_path in case.get('expected_context_paths', []):
+                self.assertIn(context_path, selected_context_paths, case)
+                self.assertTrue((ROOT / context_path).exists(), context_path)
+            for hint in expected:
+                self.assertTrue(
+                    any(ref == f'verification_hints.{hint}' for ref in selected_signal_refs) or not expected_graph_rules,
+                    f"{case['name']} did not connect graph rules to verification_hints.{hint}",
+                )
             if not expected:
                 self.assertEqual(case.get('expected_signal'), 'unmatched_path')
             self.assertGreater(len(case['reason']), 10)
@@ -1147,6 +1423,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('maintenance output', codex_core)
         self.assertIn('Do not create missing maintenance files during verify', codex_core)
         self.assertIn('context-map.json.external_context[]', codex_core)
+        self.assertIn('context_graph_lite.rules[]', codex_core)
+        self.assertIn('context_graph_rule', codex_core)
+        self.assertIn('Do not create a public `tink index` command', codex_core)
         self.assertIn('Treat Figma, GitHub, and official docs as representative examples', codex_core)
         self.assertIn('External context safety checklist', codex_core)
         self.assertIn('smallest useful `source_ref`', codex_core)

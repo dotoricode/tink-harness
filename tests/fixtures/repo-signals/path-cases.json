@@ -12,6 +12,15 @@
         "command-template-sync",
         "command-surface"
       ],
+      "expected_context_rules": [
+        "claude-command-sync"
+      ],
+      "expected_context_paths": [
+        "commands/cast.md",
+        "templates/claude/commands/tink/cast.md",
+        ".claude/commands/tink/cast.md",
+        "tests/test_templates.py"
+      ],
       "reason": "Root command changes require sync and command-surface checks."
     },
     {
@@ -23,6 +32,9 @@
         "command-template-sync",
         "command-surface"
       ],
+      "expected_context_rules": [
+        "claude-command-sync"
+      ],
       "reason": "Installable command changes require sync and command-surface checks."
     },
     {
@@ -33,6 +45,9 @@
       "expected_hints": [
         "command-template-sync",
         "command-surface"
+      ],
+      "expected_context_rules": [
+        "claude-command-sync"
       ],
       "reason": "Repo-local Claude command changes require the same sync and command-surface checks."
     },
@@ -55,6 +70,9 @@
       "expected_hints": [
         "schema-shape"
       ],
+      "expected_context_rules": [
+        "schema-contract-artifacts"
+      ],
       "reason": "Schema changes require schema shape checks."
     },
     {
@@ -64,6 +82,9 @@
       ],
       "expected_hints": [
         "schema-shape"
+      ],
+      "expected_context_rules": [
+        "schema-contract-artifacts"
       ],
       "reason": "Verification evidence schema changes require schema shape checks."
     },
@@ -75,7 +96,40 @@
       "expected_hints": [
         "command-surface"
       ],
+      "expected_context_rules": [
+        "codex-skill-surface"
+      ],
+      "expected_context_paths": [
+        "templates/codex/skills/tink-core/RULES.md",
+        "templates/codex/skills/tink-cast/SKILL.md",
+        "tests/test_templates.py",
+        "docs/compatibility-policy.md"
+      ],
       "reason": "Codex alias skill changes can affect the public command surface."
+    },
+    {
+      "name": "update docs",
+      "changed_paths": [
+        "docs/update-verification-recipe.md",
+        "docs/update-troubleshooting.ko.md"
+      ],
+      "expected_hints": [
+        "installer-update-confidence"
+      ],
+      "expected_context_rules": [
+        "installer-update-flow"
+      ],
+      "expected_context_paths": [
+        "bin/install.js",
+        "tests/test_templates.py",
+        "README.md",
+        "README.ko.md",
+        "docs/update-troubleshooting.md",
+        "docs/update-troubleshooting.ko.md",
+        "docs/update-verification-recipe.md",
+        "docs/update-verification-recipe.ko.md"
+      ],
+      "reason": "Update docs should stay aligned with installer output, package contents, and existing-user update tests."
     },
     {
       "name": "memory docs note",

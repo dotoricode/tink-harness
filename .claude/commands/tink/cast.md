@@ -228,6 +228,13 @@ When a repo signal fixture exists, such as `tests/fixtures/repo-signals/*.json` 
 - do not include every fixture entry by default; select only entries that explain the current task, verification, or safety boundary;
 - if the fixture conflicts with live repo state, prefer live repo state and record the fixture mismatch as a medium-confidence signal.
 
+Context Graph Lite rules may appear in the same fixture under `context_graph_lite.rules[]`. Use them only inside cast:
+- match changed paths against `when_paths`;
+- consider `include_paths` as the first related context candidates;
+- cite selected rules in `context-map.json.signals` with `kind: "context_graph_rule"` and `source_ref: "context_graph_lite.rules.<name>"`;
+- use `signal_refs` to connect the context choice to sync groups, verification commands, or verification hints;
+- never create or require a public `tink index` command, watch process, generated cache, or hidden runtime index.
+
 When a selected repo signal has matching `verification_hints`, add the hint as a contract verification candidate:
 - map `add_manual_check` to `contract.verification.manual_checks[]`;
 - keep the target as a test, file, or evidence handle, not as executable fixture code;

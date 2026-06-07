@@ -66,6 +66,14 @@
       "confidence": "high"
     },
     {
+      "kind": "context_graph_rule",
+      "value": "claude-command-sync",
+      "reason": "The changed cast command path selected matching command copies and tests as first-pass related context.",
+      "source": "tests/fixtures/repo-signals/tink-harness.json",
+      "source_ref": "context_graph_lite.rules.claude-command-sync",
+      "confidence": "high"
+    },
+    {
       "kind": "test_command",
       "value": "npm test",
       "reason": "Project verification command covers template and package checks.",

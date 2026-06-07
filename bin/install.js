@@ -18,6 +18,13 @@ const yes = args.includes('--yes') || args.includes('-y');
 const interactive = process.stdin.isTTY && process.stdout.isTTY && !yes && !dryRun;
 const source = 'https://github.com/dotoricode/tink-harness.git';
 const validSurfaces = new Set(['claude', 'codex']);
+const operationLog = {
+  written: [],
+  updated: [],
+  preserved: [],
+  removedLegacy: [],
+  keptUnknown: []
+};
 
 const COPY = {
   en: {
@@ -235,6 +242,17 @@ function displayPath(base, filePath) {
   return path.relative(base, filePath) || '.';
 }
 
+function recordOperation(kind, base, filePath) {
+  operationLog[kind].push(displayPath(base, filePath).replace(/\\/g, '/'));
+}
+
+function shortList(items, emptyText = '- none') {
+  if (!items.length) return emptyText;
+  const shown = items.slice(0, 8).map((item) => `- ${item}`);
+  if (items.length > shown.length) shown.push(`- ...and ${items.length - shown.length} more`);
+  return shown.join('\n');
+}
+
 function isAlwaysUpdatePath(src) {
   const rel = path.relative(root, src).replace(/\\/g, '/');
   return rel.startsWith('templates/claude/commands/') ||
@@ -254,6 +272,7 @@ function writeFileFromTemplate(src, dest, base) {
       }
       if (!isAlwaysUpdatePath(src)) {
         log.message(`keep user-modified ${displayPath(base, dest)}`);
+        recordOperation('preserved', base, dest);
         return;
       }
       // commands/skills/maintenance: always update to new version
@@ -263,6 +282,7 @@ function writeFileFromTemplate(src, dest, base) {
     }
   }
   log.message(`${dryRun ? 'would write' : (exists ? 'update' : 'write')} ${displayPath(base, dest)}`);
+  recordOperation(exists ? 'updated' : 'written', base, dest);
   if (!dryRun) {
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.copyFileSync(src, dest);
@@ -294,6 +314,7 @@ function copyTinkCommands(templateRoot, target) {
     const legacy = path.join(flatCommandDest, name);
     if (fs.existsSync(legacy)) {
       log.message(`${dryRun ? 'would remove legacy' : 'remove legacy'} ${displayPath(target, legacy)}`);
+      recordOperation('removedLegacy', target, legacy);
       if (!dryRun) fs.rmSync(legacy, { force: true });
     }
   }
@@ -301,6 +322,7 @@ function copyTinkCommands(templateRoot, target) {
     const legacy = path.join(commandDest, name);
     if (fs.existsSync(legacy)) {
       log.message(`${dryRun ? 'would remove legacy' : 'remove legacy'} ${displayPath(target, legacy)}`);
+      recordOperation('removedLegacy', target, legacy);
       if (!dryRun) fs.rmSync(legacy, { force: true });
     }
   }
@@ -308,12 +330,14 @@ function copyTinkCommands(templateRoot, target) {
     const legacy = path.join(flatCommandDest, name);
     if (fs.existsSync(legacy)) {
       log.message(`${dryRun ? 'would remove legacy Tiny' : 'remove legacy Tiny'} ${displayPath(target, legacy)}`);
+      recordOperation('removedLegacy', target, legacy);
       if (!dryRun) fs.rmSync(legacy, { force: true });
     }
   }
   for (const legacyDir of legacyDirs) {
     if (fs.existsSync(legacyDir)) {
       log.message(`${dryRun ? 'would remove legacy Tiny' : 'remove legacy Tiny'} ${displayPath(target, legacyDir)}`);
+      recordOperation('removedLegacy', target, legacyDir);
       if (!dryRun) fs.rmSync(legacyDir, { recursive: true, force: true });
     }
   }
@@ -336,10 +360,12 @@ function removeLegacyCodexSkill(codexTarget) {
 
   if (!shouldRemove) {
     log.message(`keep unknown ${displayPath(codexTarget, legacyDir)}`);
+    recordOperation('keptUnknown', codexTarget, legacyDir);
     return;
   }
 
   log.message(`${dryRun ? 'would remove legacy' : 'remove legacy'} ${displayPath(codexTarget, legacyDir)}`);
+  recordOperation('removedLegacy', codexTarget, legacyDir);
   if (!dryRun) fs.rmSync(legacyDir, { recursive: true, force: true });
 }
 
@@ -444,6 +470,8 @@ function updateGitignore(target, policy) {
 function patchConfig(target, scope, hookScope, language) {
   const configPath = path.join(target, '.tink/config.json');
   if (!fs.existsSync(configPath) || dryRun) return;
+  const rel = displayPath(target, configPath).replace(/\\/g, '/');
+  if (isUpdate && !force && operationLog.preserved.includes(rel)) return;
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   config.install_scope = scope;
   config.hook_scope = hookScope;
@@ -465,6 +493,37 @@ function doneLineFor(agent) {
   if (agent === 'codex') return '\nDone. Open Codex and use $tink:cast <task> to start.';
   if (agent === 'all') return '\nDone. Use /tink:cast <task> in Claude Code or $tink:cast <task> in Codex to start.';
   return '\nDone. Open Claude Code and run /tink:cast <task> to start.';
+}
+
+function updateResultSummary(agent, targets) {
+  const locations = [
+    includesClaude(agent) ? `Claude Code commands: ${path.join(targets.installTarget, '.claude/commands/tink')}` : null,
+    includesClaude(agent) ? `Claude Code skill: ${path.join(targets.installTarget, '.claude/skills/tink')}` : null,
+    includesCodex(agent) ? `Codex skills: ${path.join(targets.codexTarget, 'skills')}` : null,
+    `Tink shared files: ${path.join(targets.installTarget, '.tink')}`
+  ].filter(Boolean);
+
+  return [
+    'Update Result Summary',
+    `Surfaces: ${agent}`,
+    `Install target: ${targets.installTarget}`,
+    includesCodex(agent) ? `Codex target: ${targets.codexTarget}` : null,
+    '',
+    'Updated or added:',
+    shortList([...operationLog.updated, ...operationLog.written]),
+    '',
+    'Preserved user-modified files:',
+    shortList(operationLog.preserved),
+    '',
+    'Removed legacy paths:',
+    shortList(operationLog.removedLegacy),
+    operationLog.keptUnknown.length ? ['', 'Kept unknown legacy-looking paths:', shortList(operationLog.keptUnknown)] : null,
+    '',
+    'Installed locations:',
+    locations.map((item) => `- ${item}`).join('\n'),
+    '',
+    `Next: ${nextStepFor(agent).replace(/^Next: /, '')}`
+  ].flat().filter((line) => line !== null).join('\n');
 }
 
 function detectLanguage() {
@@ -623,7 +682,7 @@ async function main() {
   const { agent, scope, components, gitPolicy, hookScope, language } = await resolveChoices();
 
   if (!interactive) {
-    console.log(`Installing Tink for ${agent === 'claude' ? 'Claude Code' : agent === 'codex' ? 'Codex' : 'Claude Code and Codex'}`);
+    console.log(`${isUpdate ? 'Updating' : 'Installing'} Tink for ${agent === 'claude' ? 'Claude Code' : agent === 'codex' ? 'Codex' : 'Claude Code and Codex'}`);
     console.log(`Source: ${source}`);
     console.log(`surfaces ${agent}`);
     console.log(`language ${language}`);
@@ -653,9 +712,11 @@ async function main() {
 
   if (interactive) {
     note(summary, COPY[language].installed);
+    if (isUpdate) note(updateResultSummary(agent, targets), 'Update Result Summary');
     outro(COPY[language].done);
   } else {
     console.log(`\n${summary}`);
+    if (isUpdate) console.log(`\n${updateResultSummary(agent, targets)}`);
     console.log(doneLineFor(agent));
   }
 }

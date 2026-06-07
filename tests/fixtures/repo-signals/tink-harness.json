@@ -173,8 +173,123 @@
         "required": true
       },
       "reason": "Command additions and aliases should not expand the public surface by accident."
+    },
+    {
+      "name": "installer-update-confidence",
+      "when": {
+        "paths": [
+          "bin/install.js",
+          "package.json",
+          "README.md",
+          "README.ko.md",
+          "docs/update-*.md"
+        ],
+        "signal_refs": [
+          "context_graph_lite.rules.installer-update-flow"
+        ]
+      },
+      "add_manual_check": {
+        "name": "installer update confidence",
+        "target": "test_codex_update_refreshes_existing_install",
+        "required": true
+      },
+      "reason": "Installer, package, README, and update docs changes should prove existing-user update behavior still preserves local state and reports the result clearly."
     }
   ],
+  "context_graph_lite": {
+    "mode": "internal-cast-only",
+    "public_command": false,
+    "description": "Small static changed-path rules used by cast to choose related context. This is not a generated index and must not add a public command.",
+    "rules": [
+      {
+        "name": "claude-command-sync",
+        "when_paths": [
+          "commands/*.md",
+          "templates/claude/commands/tink/*.md",
+          ".claude/commands/tink/*.md"
+        ],
+        "include_paths": [
+          "commands/cast.md",
+          "templates/claude/commands/tink/cast.md",
+          ".claude/commands/tink/cast.md",
+          "tests/test_templates.py"
+        ],
+        "signal_refs": [
+          "sync_groups.*-command",
+          "verification_hints.command-template-sync",
+          "verification_hints.command-surface"
+        ],
+        "reason": "Claude command edits often require the matching command copies and sync tests.",
+        "confidence": "high"
+      },
+      {
+        "name": "codex-skill-surface",
+        "when_paths": [
+          "templates/codex/skills/tink-*/SKILL.md",
+          "templates/codex/skills/tink-core/RULES.md"
+        ],
+        "include_paths": [
+          "templates/codex/skills/tink-core/RULES.md",
+          "templates/codex/skills/tink-cast/SKILL.md",
+          "tests/test_templates.py",
+          "docs/compatibility-policy.md"
+        ],
+        "signal_refs": [
+          "verification_hints.command-surface"
+        ],
+        "reason": "Codex skill edits can affect picker surface, shared rules, and Claude/Codex compatibility.",
+        "confidence": "high"
+      },
+      {
+        "name": "installer-update-flow",
+        "when_paths": [
+          "bin/install.js",
+          "package.json",
+          "README.md",
+          "README.ko.md",
+          "docs/update-*.md"
+        ],
+        "include_paths": [
+          "bin/install.js",
+          "tests/test_templates.py",
+          "README.md",
+          "README.ko.md",
+          "docs/update-troubleshooting.md",
+          "docs/update-troubleshooting.ko.md",
+          "docs/update-verification-recipe.md",
+          "docs/update-verification-recipe.ko.md"
+        ],
+        "signal_refs": [
+          "verification_commands.test suite",
+          "verification_hints.installer-update-confidence"
+        ],
+        "reason": "Installer and update docs should be checked together because update output, package contents, and user guidance must stay aligned.",
+        "confidence": "high"
+      },
+      {
+        "name": "schema-contract-artifacts",
+        "when_paths": [
+          "templates/tink/schemas/*.json",
+          "tests/fixtures/current-run/*.json"
+        ],
+        "include_paths": [
+          "templates/tink/schemas/contract.schema.json",
+          "templates/tink/schemas/context-map.schema.json",
+          "templates/tink/schemas/verification.schema.json",
+          "templates/tink/schemas/session.schema.json",
+          "tests/fixtures/current-run/context-map.json",
+          "tests/fixtures/current-run/contract.json",
+          "tests/test_templates.py"
+        ],
+        "signal_refs": [
+          "schema_files",
+          "verification_hints.schema-shape"
+        ],
+        "reason": "Schema and current-run fixture changes should keep artifact shape, contract checks, and tests together.",
+        "confidence": "high"
+      }
+    ]
+  },
   "fixture_dirs": [
     {
       "path": "tests/fixtures/current-run",
