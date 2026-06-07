@@ -47,7 +47,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.2.2')
+        self.assertEqual(pkg['version'], '1.3.0')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -60,7 +60,7 @@ class TemplateTests(unittest.TestCase):
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code and Codex', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn('Latest release:</strong> v1.2.2', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('Latest release:</strong> v1.3.0', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn("What's new in 1.2.0", (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('Tinker Bell', (ROOT / 'README.md').read_text(encoding='utf-8'))
@@ -209,6 +209,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('.tink/current/', text)
         self.assertIn('.tink/rules/', text)
         self.assertIn('.tink/runs/', text)
+        self.assertIn('docs/context-budget-ledger.md', text)
         self.assertIn('approval', text.lower())
         self.assertIn('docs/compatibility-policy.md', text)
         self.assertIn('docs/repo-signals.md', text)
@@ -282,6 +283,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Context Graph Lite rules', forge)
         self.assertIn('context_graph_lite.rules[]', forge)
         self.assertIn('kind: "context_graph_rule"', forge)
+        self.assertIn('Context Budget Ledger fields', forge)
+        self.assertIn('reuse_signal: "avoid_next_time"', forge)
         self.assertIn('hidden runtime index', forge)
         self.assertIn('Selected hint output rules', forge)
         self.assertIn('unmatched_path', forge)
@@ -638,6 +641,8 @@ class TemplateTests(unittest.TestCase):
             'docs/memory-decision-layers.ko.md',
             'docs/context-change-review.md',
             'docs/context-change-review.ko.md',
+            'docs/context-budget-ledger.md',
+            'docs/context-budget-ledger.ko.md',
             'docs/update-diagnosis.md',
             'docs/update-diagnosis.ko.md',
             'docs/phase-5-update-confidence.md',
@@ -654,6 +659,7 @@ class TemplateTests(unittest.TestCase):
             'docs/work-state.ko.md',
             'docs/pr/2026-06-07-v1.2.0.md',
             'docs/pr/2026-06-07-v1.2.1.md',
+            'docs/pr/2026-06-08-context-budget-ledger.ko.md',
             'README.md',
             'LICENSE',
         ]:
@@ -796,6 +802,9 @@ class TemplateTests(unittest.TestCase):
         memory_layers_ko = (ROOT / 'docs/memory-decision-layers.ko.md').read_text(encoding='utf-8')
         context_change = (ROOT / 'docs/context-change-review.md').read_text(encoding='utf-8')
         context_change_ko = (ROOT / 'docs/context-change-review.ko.md').read_text(encoding='utf-8')
+        context_budget = (ROOT / 'docs/context-budget-ledger.md').read_text(encoding='utf-8')
+        context_budget_ko = (ROOT / 'docs/context-budget-ledger.ko.md').read_text(encoding='utf-8')
+        context_efficiency_html = (ROOT / 'docs/context-engineering-efficiency.ko.html').read_text(encoding='utf-8')
         update_diagnosis = (ROOT / 'docs/update-diagnosis.md').read_text(encoding='utf-8')
         update_diagnosis_ko = (ROOT / 'docs/update-diagnosis.ko.md').read_text(encoding='utf-8')
 
@@ -807,6 +816,8 @@ class TemplateTests(unittest.TestCase):
             'Do not create a new command surface',
             'Claude Code and Codex',
             'macOS and Windows',
+            'Context Budget Ledger',
+            'verification_link',
         ]:
             self.assertIn(term, work_state)
 
@@ -843,6 +854,8 @@ class TemplateTests(unittest.TestCase):
             '.tink/current/verification.json',
             'Claude Code와 Codex',
             'macOS와 Windows',
+            'Context Budget Ledger',
+            'verification_link',
         ]:
             self.assertIn(term, work_state_ko)
 
@@ -932,6 +945,9 @@ class TemplateTests(unittest.TestCase):
             (memory_layers_ko, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
             (context_change, ['context-diff.json', 'not a new command', 'not a hidden runtime cache']),
             (context_change_ko, ['context-diff.json', '새 command도 아니고', 'hidden runtime cache도 아니다']),
+            (context_budget, ['Context Budget Ledger', 'verification_link', 'measurement_status: "estimated"', 'Do not claim 90% without evidence']),
+            (context_budget_ko, ['Context Budget Ledger', 'verification_link', 'measurement_status: "estimated"', '근거 없이 90% 달성으로 표시하지 않는다']),
+            (context_efficiency_html, ['Tink 컨텍스트 엔지니어링', 'role', 'reuse_signal', 'verification_link', '예상 개선 효과']),
             (update_diagnosis, ['without adding a new command', 'Update Result Summary']),
             (update_diagnosis_ko, ['새 command를 추가하지 않고', 'Update Result Summary']),
         ]:
@@ -1175,12 +1191,60 @@ class TemplateTests(unittest.TestCase):
 
         entry_required = set(schema['$defs']['context_entry']['required'])
         allowed_confidence = set(schema['$defs']['context_entry']['properties']['confidence']['enum'])
+        allowed_roles = set(schema['$defs']['context_entry']['properties']['role']['enum'])
+        allowed_costs = set(schema['$defs']['context_entry']['properties']['cost']['enum'])
+        allowed_reuse_signals = set(schema['$defs']['context_entry']['properties']['reuse_signal']['enum'])
+        allowed_staleness = set(schema['$defs']['context_entry']['properties']['staleness']['enum'])
+        allowed_evidence_kinds = set(schema['$defs']['context_entry']['properties']['evidence_kind']['enum'])
         for entry in [*context_map['included'], *context_map['excluded']]:
             self.assertTrue(entry_required.issubset(entry), entry)
             self.assertTrue(('path' in entry) or ('source' in entry), entry)
             self.assertIn(entry['confidence'], allowed_confidence)
+            for field in ['role', 'cost', 'reuse_signal', 'staleness', 'evidence_kind']:
+                self.assertIn(field, entry)
+            self.assertIn(entry['role'], allowed_roles)
+            self.assertIn(entry['cost'], allowed_costs)
+            self.assertIn(entry['reuse_signal'], allowed_reuse_signals)
+            self.assertIn(entry['staleness'], allowed_staleness)
+            self.assertIn(entry['evidence_kind'], allowed_evidence_kinds)
+            if entry['role'] == 'verification_target':
+                self.assertIn('verification_link', entry)
             self.assertIsInstance(entry['reason'], str)
             self.assertGreater(len(entry['reason']), 10)
+
+        included_with_links = [
+            entry
+            for entry in context_map['included']
+            if 'role' in entry and 'verification_link' in entry
+        ]
+        self.assertEqual(len(included_with_links), len(context_map['included']))
+        avoid_next_time = [
+            entry
+            for entry in context_map['excluded']
+            if entry.get('reuse_signal') == 'avoid_next_time'
+        ]
+        self.assertGreaterEqual(len(avoid_next_time), 1)
+
+        metrics = context_map['efficiency_metrics']
+        self.assertEqual(metrics['target_threshold_percent'], 90)
+        self.assertEqual(metrics['measurement_status'], 'estimated')
+        metric_names = {item['name'] for item in metrics['scores']}
+        self.assertEqual(
+            metric_names,
+            {
+                'unnecessary_context_reduction',
+                'initial_context_pack_size_reduction',
+                'review_evidence_lookup_time_reduction',
+                'verification_omission_detection',
+                'repeated_context_reuse_accuracy',
+                'rework_probability_reduction',
+            },
+        )
+        for metric in metrics['scores']:
+            self.assertGreaterEqual(metric['score_percent'], 0)
+            self.assertLessEqual(metric['score_percent'], 100)
+            self.assertIn(metric['confidence'], {'low', 'medium', 'high'})
+            self.assertIn('limit', metric)
 
         for signal in context_map['signals']:
             for required in ['kind', 'value', 'reason']:
@@ -1300,6 +1364,16 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('schema-shape', hint_names)
         self.assertIn('installer-update-confidence', hint_names)
 
+        budget_policy = fixture['context_budget_policy']
+        self.assertEqual(budget_policy['target_threshold_percent'], 90)
+        for field in ['role', 'cost', 'reuse_signal', 'verification_link', 'staleness', 'evidence_kind']:
+            self.assertIn(field, budget_policy['entry_fields'])
+        role_defaults = {item['role'] for item in budget_policy['role_defaults']}
+        self.assertIn('primary', role_defaults)
+        self.assertIn('verification_target', role_defaults)
+        self.assertIn('avoid_next_time', role_defaults)
+        self.assertIn('verification_target entries with matching checks', budget_policy['scoring_basis'])
+
         allowed = set(fixture['command_surface']['allowed'])
         forbidden = set(fixture['command_surface']['forbidden'])
         self.assertEqual(allowed, EXPECTED_COMMANDS)
@@ -1313,6 +1387,7 @@ class TemplateTests(unittest.TestCase):
         hint_names = {hint['name'] for hint in hints}
         graph_rules = signals['context_graph_lite']['rules']
         graph_rule_names = {rule['name'] for rule in graph_rules}
+        known_context_roles = {item['role'] for item in signals['context_budget_policy']['role_defaults']}
 
         self.assertEqual(path_cases['repo'], 'tink-harness')
         self.assertGreaterEqual(len(path_cases['cases']), 4)
@@ -1356,6 +1431,8 @@ class TemplateTests(unittest.TestCase):
                     any(ref == f'verification_hints.{hint}' for ref in selected_signal_refs) or not expected_graph_rules,
                     f"{case['name']} did not connect graph rules to verification_hints.{hint}",
                 )
+            for role in case.get('expected_context_roles', []):
+                self.assertIn(role, known_context_roles, case)
             if not expected:
                 self.assertEqual(case.get('expected_signal'), 'unmatched_path')
             self.assertGreater(len(case['reason']), 10)
@@ -1445,8 +1522,18 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('context_entry', context_schema['$defs'])
         self.assertIn('external_context_profile', context_schema['$defs'])
         self.assertIn('external_context', context_schema['properties'])
+        self.assertIn('efficiency_metrics', context_schema['properties'])
         self.assertIn('source_ref', context_schema['properties']['signals']['items']['properties'])
         self.assertIn('confidence', context_schema['properties']['signals']['items']['properties'])
+        entry_props = context_schema['$defs']['context_entry']['properties']
+        for field in ['role', 'cost', 'reuse_signal', 'verification_link', 'staleness', 'evidence_kind']:
+            self.assertIn(field, entry_props)
+        self.assertIn('verification_target', entry_props['role']['enum'])
+        self.assertIn('avoid_next_time', entry_props['reuse_signal']['enum'])
+        metric_props = context_schema['$defs']['efficiency_metrics']['properties']
+        self.assertIn('target_threshold_percent', metric_props)
+        self.assertIn('measurement_status', metric_props)
+        self.assertIn('scores', metric_props)
         external_props = context_schema['$defs']['external_context_profile']['properties']
         for field in ['source', 'source_ref', 'included', 'excluded', 'confidence', 'sensitivity', 'verification_hint']:
             self.assertIn(field, external_props)
@@ -1495,6 +1582,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('changes', context_diff)
         self.assertIn('public graph indexing', {item['value'] for item in context_diff['excluded']})
         self.assertIn('verification_hints.command-template-sync', context_diff['after']['signal_refs'])
+        self.assertIn('metric_impacts', context_diff)
+        self.assertTrue(any(item['metric'] == 'verification_omission_detection' for item in context_diff['metric_impacts']))
         report_required = verification_schema['$defs']['report']['required']
         for field in ['result_line', 'checked', 'remaining', 'next_action']:
             self.assertIn(field, report_required)
@@ -1539,6 +1628,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('context-map.json.external_context[]', codex_core)
         self.assertIn('context_graph_lite.rules[]', codex_core)
         self.assertIn('context_graph_rule', codex_core)
+        self.assertIn('Context Budget Ledger fields', codex_core)
+        self.assertIn('verification_target', codex_core)
         self.assertIn('Do not create a public `tink index` command', codex_core)
         self.assertIn('Treat Figma, GitHub, and official docs as representative examples', codex_core)
         self.assertIn('External context safety checklist', codex_core)

@@ -7,6 +7,25 @@ All notable changes to Tink are tracked here.
 No unreleased changes yet.
 
 
+## [1.3.0] - 2026-06-08
+
+### Added
+
+- Context Budget Ledger fields for `context-map.json` entries: `role`, `cost`, `reuse_signal`, `verification_link`, `staleness`, and `evidence_kind`.
+- `context-map.json.efficiency_metrics` example shape for recording six context-efficiency scores with basis, confidence, evidence refs, and limits.
+- Current-run fixture examples that connect selected context to verification links and mark avoid-next-time exclusions.
+- Repo signal `context_budget_policy` fixture guidance for scoring selected Context Graph Lite candidates without adding a public `tink index` command.
+- Korean-first Context Budget Ledger documentation with an English companion.
+- Korean context-engineering efficiency HTML explainer for the current operating model and expected improvement ranges.
+- Korean PR history draft for the Context Budget Ledger work in `docs/pr/2026-06-08-context-budget-ledger.ko.md`.
+
+### Changed
+
+- `/tink:cast` and `$tink:cast` guidance now asks context artifacts to record role, cost, reuse signal, verification link, staleness, and evidence kind when useful.
+- Work State Guide now explains how to read Context Budget Ledger fields.
+- README and Korean README now link to the Context Budget Ledger docs without expanding the main body.
+
+
 ## [1.2.2] - 2026-06-08
 
 ### Added

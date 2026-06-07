@@ -21,6 +21,11 @@
         ".claude/commands/tink/cast.md",
         "tests/test_templates.py"
       ],
+      "expected_context_roles": [
+        "primary",
+        "supporting",
+        "verification_target"
+      ],
       "reason": "Root command changes require sync and command-surface checks."
     },
     {
@@ -105,6 +110,11 @@
         "tests/test_templates.py",
         "docs/compatibility-policy.md"
       ],
+      "expected_context_roles": [
+        "primary",
+        "supporting",
+        "verification_target"
+      ],
       "reason": "Codex alias skill changes can affect the public command surface."
     },
     {
@@ -128,6 +138,11 @@
         "docs/update-troubleshooting.ko.md",
         "docs/update-verification-recipe.md",
         "docs/update-verification-recipe.ko.md"
+      ],
+      "expected_context_roles": [
+        "primary",
+        "supporting",
+        "verification_target"
       ],
       "reason": "Update docs should stay aligned with installer output, package contents, and existing-user update tests."
     },

@@ -61,6 +61,9 @@
       "type": "array",
       "items": { "$ref": "#/$defs/external_context_profile" }
     },
+    "efficiency_metrics": {
+      "$ref": "#/$defs/efficiency_metrics"
+    },
     "generated_at": {
       "type": "string",
       "description": "ISO timestamp for when the context map was created."
@@ -95,6 +98,44 @@
           "type": "string",
           "enum": ["low", "medium", "high"]
         },
+        "role": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "supporting",
+            "verification_target",
+            "external_evidence",
+            "exclusion_candidate",
+            "example_only",
+            "stale",
+            "avoid_next_time"
+          ],
+          "description": "How this entry should be used when building or reviewing the context pack."
+        },
+        "cost": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Relative context cost for deciding whether the entry belongs in the first context pack."
+        },
+        "reuse_signal": {
+          "type": "string",
+          "enum": ["always", "often", "rare", "example_only", "avoid_next_time"],
+          "description": "Whether similar future runs should prefer, down-rank, or avoid this context."
+        },
+        "verification_link": {
+          "type": "string",
+          "description": "Check name, evidence ref, or verification hint that proves why this context matters."
+        },
+        "staleness": {
+          "type": "string",
+          "enum": ["fresh", "aging", "stale", "unknown"],
+          "description": "Freshness signal used to exclude stale context faster."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "enum": ["file", "doc", "schema", "test", "command", "external", "signal", "diff", "unknown"],
+          "description": "Kind of evidence represented by this context entry."
+        },
         "source_ref": {
           "type": "string",
           "description": "Optional source-local reference, such as issue id, frame id, URL label, or attachment name."
@@ -106,6 +147,58 @@
         "verification_hint": {
           "type": "string",
           "description": "Follow-up check needed before treating this context as verified."
+        }
+      },
+      "additionalProperties": true
+    },
+    "efficiency_metrics": {
+      "type": "object",
+      "required": ["target_threshold_percent", "measurement_status", "scores"],
+      "properties": {
+        "target_threshold_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "measurement_status": {
+          "type": "string",
+          "enum": ["estimated", "measured", "mixed"]
+        },
+        "scores": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/metric_score" }
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "metric_score": {
+      "type": "object",
+      "required": ["name", "score_percent", "basis", "confidence"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "score_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "basis": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "limit": {
+          "type": "string"
         }
       },
       "additionalProperties": true
