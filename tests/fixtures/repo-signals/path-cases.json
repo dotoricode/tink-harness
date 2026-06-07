@@ -40,6 +40,11 @@
       "expected_context_rules": [
         "claude-command-sync"
       ],
+      "expected_context_roles": [
+        "primary",
+        "supporting",
+        "verification_target"
+      ],
       "reason": "Installable command changes require sync and command-surface checks."
     },
     {
@@ -53,6 +58,11 @@
       ],
       "expected_context_rules": [
         "claude-command-sync"
+      ],
+      "expected_context_roles": [
+        "primary",
+        "supporting",
+        "verification_target"
       ],
       "reason": "Repo-local Claude command changes require the same sync and command-surface checks."
     },
@@ -78,6 +88,11 @@
       "expected_context_rules": [
         "schema-contract-artifacts"
       ],
+      "expected_context_roles": [
+        "primary",
+        "supporting",
+        "verification_target"
+      ],
       "reason": "Schema changes require schema shape checks."
     },
     {
@@ -90,6 +105,11 @@
       ],
       "expected_context_rules": [
         "schema-contract-artifacts"
+      ],
+      "expected_context_roles": [
+        "primary",
+        "supporting",
+        "verification_target"
       ],
       "reason": "Verification evidence schema changes require schema shape checks."
     },

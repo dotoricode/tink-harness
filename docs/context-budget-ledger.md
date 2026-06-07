@@ -48,6 +48,8 @@ Entries with `role: "verification_target"` should connect to a command, manual c
 
 If there is no runtime telemetry yet, mark the scores as `measurement_status: "estimated"` and include the limits. Do not claim 90% without evidence.
 
+If fixture ratios can be calculated, `measurement_status: "measured"` is acceptable. The artifact must still state whether the scope is fixture evidence or production telemetry. See `docs/context-metrics-evaluator.md` for the calculation rules.
+
 ## Compatibility
 
 - Claude Code and Codex read the same schema and fixtures.

@@ -131,7 +131,7 @@ This release makes Tink work as one harness layer across Claude Code and Codex.
 - Codex now installs focused `$tink:*` action skills instead of one broad visible `tink` skill, so the picker shows commands like `$tink:cast` and `$tink:verify` cleanly.
 - Non-trivial runs now create context artifacts: `context-pack.md`, `context-map.json`, and `excluded-context.md`.
 - Repo Signals and Context Graph Lite help `/tink:cast` and `$tink:cast` choose relevant tests, schemas, sync partners, and verification hints without adding a new `tink index` command.
-- Context Budget Ledger fields are documented in `docs/context-budget-ledger.md` and `docs/context-budget-ledger.ko.md` for scoring context efficiency without adding a new command.
+- Context Budget Ledger fields and fixture-ratio evaluation are documented in `docs/context-budget-ledger.md`, `docs/context-budget-ledger.ko.md`, `docs/context-metrics-evaluator.md`, and `docs/context-metrics-evaluator.ko.md` without adding a new command.
 - `/tink:verify` and `$tink:verify` share one portable Verify Runner model and write compact evidence to `.tink/current/verification.json`.
 - External context now follows the MCP Safe Profile: include only the smallest useful source handle, mark confidence and sensitivity, exclude unsafe context visibly, and connect important claims to verification.
 
