@@ -122,7 +122,7 @@ Tink는 직접 볼 수 있는 파일을 씁니다.
 
 Rule graph는 작게 유지합니다. Tink는 먼저 필수 규칙을 고르고, 작업 사실이나 keyword에 맞는 선택 규칙만 가져오며, phase별로 이미 읽은 rule id를 기록해 같은 안내를 반복하지 않습니다.
 
-설계 메모는 `docs/`에 둡니다. 기본 호환성 기준은 `docs/compatibility-policy.md`에 있으며, 새 작업은 Claude Code와 Codex, macOS와 Windows를 함께 고려해야 합니다. Repo Signal 동작은 `docs/repo-signals.ko.md` 또는 `docs/repo-signals.md`에 정리되어 있고, 외부 context 안전 기준은 `docs/mcp-safe-profile.md`에 정리되어 있습니다. `.tink/current/` 상태를 읽거나 검토할 때는 `docs/work-state.ko.md` 또는 `docs/work-state.md`부터 보면 됩니다. 다음 업데이트 안정화 계획은 `docs/phase-5-update-confidence.ko.md`와 `docs/phase-5-update-confidence.md`에 정리되어 있습니다. 더 큰 아이디어 구현 점검과 로드맵은 `docs/tink-idea-implementation-plan.ko.md`에 정리되어 있습니다.
+설계 메모는 `docs/`에 둡니다. 기본 호환성 기준은 `docs/compatibility-policy.md`에 있으며, 새 작업은 Claude Code와 Codex, macOS와 Windows를 함께 고려해야 합니다. Repo Signal 동작은 `docs/repo-signals.ko.md` 또는 `docs/repo-signals.md`에 정리되어 있고, 가벼운 graph 규칙 적용 계획은 `docs/graph-rule-adoption-plan.ko.md`에 정리되어 있습니다. 외부 context 안전 기준은 `docs/mcp-safe-profile.md`에 정리되어 있습니다. `.tink/current/` 상태를 읽거나 검토할 때는 `docs/work-state.ko.md` 또는 `docs/work-state.md`부터 보면 됩니다. 다음 업데이트 안정화 계획은 `docs/phase-5-update-confidence.ko.md`와 `docs/phase-5-update-confidence.md`에 정리되어 있습니다. 더 큰 아이디어 구현 점검과 로드맵은 `docs/tink-idea-implementation-plan.ko.md`에 정리되어 있습니다.
 
 중요한 원칙은 승인입니다. 현재 작업을 진행하는 승인과, 미래에도 재사용될 상태를 저장하는 승인은 별개입니다. 새 하네스, 메모리, rule graph, hook guard 저장은 항상 별도 승인이 필요합니다.
 
