@@ -61,7 +61,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.5.0')
+        self.assertEqual(pkg['version'], '1.6.0')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -74,8 +74,9 @@ class TemplateTests(unittest.TestCase):
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code and Codex', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn('Latest release:</strong> v1.5.0', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn("What's new in 1.5.0", (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('Latest release:</strong> v1.6.0', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn("What's new in 1.6.0", (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('Graph-rule seed routing', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('Tinker Bell', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('colorLine(line, color)', installer)
@@ -718,6 +719,8 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-08-codex-surface-cleanup.ko.md',
             'docs/pr/2026-06-08-v1.5.0.ko.md',
             'docs/pr/2026-06-09-graph-rule-adoption-plan.ko.md',
+            'docs/pr/2026-06-09-graph-rule-seed-rules.ko.md',
+            'docs/pr/2026-06-09-v1.6.0.ko.md',
             'README.md',
             'LICENSE',
         ]:
