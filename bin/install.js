@@ -12,9 +12,9 @@ const root = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const command = args[0] || 'install';
 const isUpdate = command === 'update';
-const dryRun = args.includes('--dry-run');
-const force = args.includes('--force');
-const cleanCodexPicker = args.includes('--clean-codex-picker') || process.env.TINK_CLEAN_CODEX_PICKER === '1';
+let dryRun = args.includes('--dry-run');
+let force = args.includes('--force');
+let cleanCodexPicker = args.includes('--clean-codex-picker') || process.env.TINK_CLEAN_CODEX_PICKER === '1';
 const yes = args.includes('--yes') || args.includes('-y');
 const interactive = process.stdin.isTTY && process.stdout.isTTY && !yes && !dryRun;
 const source = 'https://github.com/dotoricode/tink-harness.git';
@@ -220,16 +220,6 @@ function componentOptionsFor(agent, language) {
     return [claudeSkill, codexSkills];
   });
 
-  if (includesCodex(agent)) {
-    options.push({
-      value: 'codex-picker-cleanup',
-      label: 'Codex picker cleanup',
-      hint: language === 'ko'
-        ? '현재 repo의 repo-local Claude Tink surface를 정리해 Codex의 Source Command Tink 항목을 줄입니다.'
-        : 'Remove repo-local Claude Tink surfaces so Codex shows focused Tink skills.'
-    });
-  }
-
   return options;
 }
 
@@ -245,6 +235,57 @@ function wantsCodexPickerCleanup(components, agent) {
   return cleanCodexPicker || components.includes('codex-picker-cleanup') || agent === 'codex';
 }
 
+function advancedOptionChoices(agent, language) {
+  const choices = [
+    {
+      value: 'dry-run',
+      label: 'Preview only (--dry-run)',
+      hint: language === 'ko'
+        ? '파일을 쓰거나 지우지 않고 어떤 작업을 할지만 보여줍니다.'
+        : 'Show planned writes/removals without changing files.'
+    },
+    {
+      value: 'force',
+      label: 'Overwrite user-modified files (--force)',
+      hint: language === 'ko'
+        ? '사용자가 수정한 파일도 덮어쓸 수 있는 위험 옵션입니다.'
+        : 'Risky. Allows overwriting user-modified files.'
+    }
+  ];
+  if (includesCodex(agent)) {
+    choices.push({
+      value: 'clean-codex-picker',
+      label: 'Clean Codex picker (--clean-codex-picker)',
+      hint: language === 'ko'
+        ? '현재 repo의 repo-local Claude Tink surface를 정리해 Source Command Tink 항목을 줄입니다.'
+        : 'Remove repo-local Claude Tink surfaces that show as Source Command Tink entries.'
+    });
+  }
+  return choices;
+}
+
+function defaultAdvancedValues(agent) {
+  return [
+    dryRun ? 'dry-run' : null,
+    force ? 'force' : null,
+    includesCodex(agent) && cleanCodexPicker ? 'clean-codex-picker' : null
+  ].filter(Boolean);
+}
+
+function applyAdvancedOptions(values) {
+  dryRun = values.includes('dry-run');
+  force = values.includes('force');
+  cleanCodexPicker = values.includes('clean-codex-picker');
+}
+
+function optionsSummary(agent) {
+  return [
+    `Preview only (--dry-run): ${dryRun ? 'yes' : 'no'}`,
+    `Overwrite user-modified files (--force): ${force ? 'yes' : 'no'}`,
+    includesCodex(agent) ? `Clean Codex picker (--clean-codex-picker): ${cleanCodexPicker ? 'yes' : 'no'}` : null
+  ].filter(Boolean).join('\n');
+}
+
 function locationSummary(agent, scope) {
   const repoTarget = process.cwd();
   const installTarget = scope === 'global' ? os.homedir() : repoTarget;
@@ -254,16 +295,15 @@ function locationSummary(agent, scope) {
     includesClaude(agent) ? `Claude Code command target: ${path.join(installTarget, '.claude/commands/tink')}` : null,
     includesClaude(agent) ? `Claude Code skill target: ${path.join(installTarget, '.claude/skills/tink')}` : null,
     includesCodex(agent) ? `Codex skills target: ${path.join(codexHome(), 'skills')}` : null,
-    includesCodex(agent) ? `Codex picker cleanup target: ${path.join(repoTarget, '.claude')}` : null
+    includesCodex(agent) ? `Codex picker cleanup target: ${path.join(process.cwd(), '.claude')}` : null
   ].filter(Boolean).join('\n');
 }
 
 function defaultComponentValues(agent, language) {
   return componentOptionsFor(agent, language)
     .map((item) => item.value)
-    .filter((value) => value !== 'hook' && value !== 'codex-picker-cleanup');
+    .filter((value) => value !== 'hook');
 }
-
 function colorLine(line, color) {
   if (!process.stdout.isTTY && !interactive) return line;
   const [r, g, b] = color;
@@ -720,6 +760,7 @@ async function resolveChoices() {
 
   let components = defaultComponentValues(agent, language);
   if (includesClaude(agent) && args.includes('--with-hook')) components.push('hook');
+  let advancedOptions = defaultAdvancedValues(agent);
   let gitPolicy = 'harnesses';
   let hookScope = 'off';
 
@@ -768,6 +809,7 @@ async function resolveChoices() {
   })));
   components = defaultComponentValues(agent, language);
   if (includesClaude(agent) && args.includes('--with-hook')) components.push('hook');
+  advancedOptions = defaultAdvancedValues(agent);
 
   components = handleCancel(await multiselect({
     message: copy.components,
@@ -800,6 +842,15 @@ async function resolveChoices() {
     ],
     initialValue: scope || 'repo'
   }));
+
+  advancedOptions = handleCancel(await multiselect({
+    message: language === 'ko' ? '실행 옵션을 선택하세요 (space로 토글)' : 'Select run options (space to toggle)',
+    options: advancedOptionChoices(agent, language),
+    initialValues: advancedOptions,
+    required: false
+  }));
+  applyAdvancedOptions(advancedOptions);
+  note(optionsSummary(agent), language === 'ko' ? '선택된 옵션' : 'Selected options');
 
   note(locationSummary(agent, scope), language === 'ko' ? '설치 위치' : 'Install locations');
 
@@ -864,6 +915,7 @@ async function main() {
     console.log(`language ${language}`);
     console.log(`scope ${scope}`);
     console.log(`components ${components.join(', ')}`);
+    console.log(optionsSummary(agent));
     console.log(locationSummary(agent, scope));
   }
 

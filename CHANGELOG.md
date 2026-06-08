@@ -7,6 +7,20 @@ All notable changes to Tink are tracked here.
 No unreleased changes yet.
 
 
+## [1.6.3] - 2026-06-09
+
+### Changed
+
+- Interactive install/update now includes an `Advanced options` step so `--dry-run`, `--force`, and `--clean-codex-picker` are available as visible choices instead of CLI-only flags.
+- Install/update output now prints selected option state for preview, force overwrite, and Codex picker cleanup.
+- Non-interactive CLI flags still work and seed the same option state used by the interactive wizard.
+
+### Added
+
+- Regression coverage for visible advanced option labels and selected option output.
+- Korean PR history draft for the v1.6.3 patch in `docs/pr/2026-06-09-v1.6.3.ko.md`.
+
+
 ## [1.6.2] - 2026-06-09
 
 ### Changed

@@ -61,7 +61,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.6.2')
+        self.assertEqual(pkg['version'], '1.6.3')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -74,8 +74,8 @@ class TemplateTests(unittest.TestCase):
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code and Codex', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn('Latest package:</strong> v1.6.2', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn("What's new in 1.6.2", (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('Latest package:</strong> v1.6.3', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn("What's new in 1.6.3", (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('graph-rule seed rules', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('Tinker Bell', (ROOT / 'README.md').read_text(encoding='utf-8'))
@@ -87,7 +87,10 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Installation scope', installer)
         self.assertIn('Select components to install', installer)
         self.assertIn('--clean-codex-picker', installer)
-        self.assertIn('Codex picker cleanup', installer)
+        self.assertIn('Select run options', installer)
+        self.assertIn('Preview only (--dry-run)', installer)
+        self.assertIn('Overwrite user-modified files (--force)', installer)
+        self.assertIn('Clean Codex picker (--clean-codex-picker)', installer)
         self.assertIn('Hook recommendation', installer)
         self.assertIn('UserPromptSubmit', installer)
         self.assertIn('--with-hook', installer)
@@ -558,6 +561,9 @@ class TemplateTests(unittest.TestCase):
                 encoding='utf-8',
             )
             self.assertIn('components commands, claude-skill, codex-skills, harnesses, memory', result.stdout)
+            self.assertIn('Preview only (--dry-run): yes', result.stdout)
+            self.assertIn('Overwrite user-modified files (--force): no', result.stdout)
+            self.assertIn('Clean Codex picker (--clean-codex-picker): no', result.stdout)
             self.assertIn('Claude Code command target:', result.stdout)
             self.assertIn('Codex skills target:', result.stdout)
             self.assertIn('Codex picker cleanup target:', result.stdout)
@@ -827,6 +833,7 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-09-v1.6.0.ko.md',
             'docs/pr/2026-06-09-v1.6.1.ko.md',
             'docs/pr/2026-06-09-v1.6.2.ko.md',
+            'docs/pr/2026-06-09-v1.6.3.ko.md',
             'README.md',
             'LICENSE',
         ]:
