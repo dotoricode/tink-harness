@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 패키지:** v1.6.2 — Codex 설치가 `Tink: Cast` 같은 action skill을 보여주고, Claude/Codex skill 선택지를 분리하며, 오래된 Codex picker 항목을 정리할 수 있습니다. 최신 마이너 릴리스 노트: [v1.6.0](https://github.com/dotoricode/tink-harness/releases/tag/v1.6.0).
+**최신 패키지:** v1.6.3 — interactive install/update에서 preview, force overwrite, Codex picker cleanup 같은 고급 옵션을 실제 선택지로 제공합니다. 최신 마이너 릴리스 노트: [v1.6.0](https://github.com/dotoricode/tink-harness/releases/tag/v1.6.0).
 
 [English](README.md) · **한국어**
 
@@ -59,6 +59,13 @@ npx tink-harness@latest update
 
 업데이트 후 Codex skill, schema, Windows 경고가 이상해 보이면 `docs/update-troubleshooting.ko.md` 또는 `docs/update-troubleshooting.md`를 확인하세요.
 
+## 1.6.3에서 달라진 점
+
+이번 패치는 CLI 옵션을 interactive installer 안에서 직접 고를 수 있게 만듭니다.
+
+- wizard에 `Advanced options` 단계가 추가되어 `Preview only (--dry-run)`, `Overwrite user-modified files (--force)`, `Clean Codex picker (--clean-codex-picker)`를 선택할 수 있습니다.
+- install/update 출력에 선택된 옵션 상태를 표시해서 preview, force overwrite, Codex picker cleanup이 켜졌는지 바로 볼 수 있습니다.
+- 기존 CLI flag는 그대로 동작하며, interactive wizard에서는 같은 옵션의 초기 선택값으로 반영됩니다.
 ## 1.6.2에서 달라진 점
 
 이번 패치는 Claude Code와 Codex를 함께 쓰는 설치 흐름을 더 명확하게 만듭니다.
