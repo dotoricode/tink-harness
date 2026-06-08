@@ -696,6 +696,7 @@ class TemplateTests(unittest.TestCase):
             'docs/mcp-safe-profile.md',
             'docs/repo-signals.md',
             'docs/repo-signals.ko.md',
+            'docs/graph-rule-adoption-plan.ko.md',
             'docs/tink-idea-implementation-plan.ko.md',
             'docs/update-troubleshooting.md',
             'docs/update-troubleshooting.ko.md',
@@ -713,6 +714,7 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-08-context-run-record-policy.ko.md',
             'docs/pr/2026-06-08-codex-surface-cleanup.ko.md',
             'docs/pr/2026-06-08-v1.5.0.ko.md',
+            'docs/pr/2026-06-09-graph-rule-adoption-plan.ko.md',
             'README.md',
             'LICENSE',
         ]:
@@ -825,6 +827,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('docs/phase-5-update-confidence.md', readme)
         self.assertIn('docs/phase-5-update-confidence.ko.md', readme)
         self.assertIn('docs/repo-signals.ko.md', readme)
+        self.assertIn('docs/graph-rule-adoption-plan.ko.md', readme)
         self.assertIn('docs/tink-idea-implementation-plan.ko.md', readme)
         self.assertIn('docs/update-troubleshooting.md', readme)
         self.assertIn('docs/update-troubleshooting.ko.md', readme)
