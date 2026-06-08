@@ -61,7 +61,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.6.0')
+        self.assertEqual(pkg['version'], '1.6.1')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -74,9 +74,9 @@ class TemplateTests(unittest.TestCase):
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code and Codex', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn('Latest release:</strong> v1.6.0', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn("What's new in 1.6.0", (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn('Graph-rule seed routing', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('Latest package:</strong> v1.6.1', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn("What's new in 1.6.1", (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('graph-rule seed rules', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('Tinker Bell', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('colorLine(line, color)', installer)
@@ -555,6 +555,21 @@ class TemplateTests(unittest.TestCase):
             stale_contract.write_text('{"old": true}\n', encoding='utf-8')
             stale_config = base / '.tink/config.json'
             stale_config.write_text('{"language": "custom", "install_scope": "custom", "local": true}\n', encoding='utf-8')
+            stale_rules = base / '.tink/rules/index.json'
+            stale_rules.parent.mkdir(parents=True)
+            stale_rules.write_text(json.dumps({
+                'version': 1,
+                'nodes': [
+                    {'id': 'harness:code-change'},
+                    {'id': 'harness:bug-fix'},
+                    {'id': 'harness:ship'},
+                    {'id': 'harness:pre-publish-multi-agent-verify'},
+                    {'id': 'check:package-dry-run'},
+                    {'id': 'check:readme-cli-match'},
+                    {'id': 'guard:release-verification-stop'},
+                    {'id': 'guard:forbidden-path-write'},
+                ],
+            }) + '\n', encoding='utf-8')
             repo_command = base / '.claude/commands/tink/frog.md'
             repo_command.parent.mkdir(parents=True)
             repo_command.write_text('# /tink:frog\n\nTink frog command.\n', encoding='utf-8')
@@ -592,6 +607,11 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue((base / '.tink/schemas/context-map.schema.json').exists())
             self.assertTrue((base / '.tink/schemas/context-metrics-evaluation.schema.json').exists())
             self.assertTrue((base / '.tink/schemas/verification.schema.json').exists())
+            updated_rules = json.loads(stale_rules.read_text(encoding='utf-8'))
+            updated_rule_ids = {node['id'] for node in updated_rules['nodes']}
+            self.assertIn('node_shape', updated_rules)
+            self.assertIn('context:version-metadata-sync', updated_rule_ids)
+            self.assertIn('context:claude-command-three-copy-sync', updated_rule_ids)
             self.assertIn('"old": true', stale_contract.read_text(encoding='utf-8'))
             config_after_update = json.loads(stale_config.read_text(encoding='utf-8'))
             self.assertEqual(config_after_update['language'], 'custom')
@@ -609,6 +629,7 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('Codex skills:', output)
             self.assertIn('Updated or added:', output)
             self.assertIn('skills/tink-cast/SKILL.md', output)
+            self.assertIn('.tink/rules/index.json', output)
             self.assertIn('Preserved user-modified files:', output)
             self.assertIn('.tink/schemas/contract.schema.json', output)
             self.assertIn('.tink/config.json', output)
@@ -617,6 +638,37 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('.claude/commands/tink/frog.md', output)
             self.assertIn('.claude/skills/tink', output)
             self.assertIn('Next: open Codex and use $tink:cast <task> to start.', output)
+
+    def test_update_preserves_user_modified_rule_graph(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            rules_path = base / '.tink/rules/index.json'
+            rules_path.parent.mkdir(parents=True)
+            rules_path.write_text(json.dumps({
+                'version': 1,
+                'nodes': [
+                    {'id': 'harness:code-change'},
+                    {'id': 'custom:team-rule', 'reason': 'Team-specific rule.'},
+                ],
+            }) + '\n', encoding='utf-8')
+
+            env = os.environ.copy()
+            env['TINK_INSTALL_SURFACES'] = 'claude'
+            result = subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'update', '--lang=ko', '--yes'],
+                cwd=base,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+            )
+
+            updated_rules = json.loads(rules_path.read_text(encoding='utf-8'))
+            self.assertNotIn('node_shape', updated_rules)
+            self.assertIn('custom:team-rule', {node['id'] for node in updated_rules['nodes']})
+            self.assertIn('Preserved user-modified files:', result.stdout)
+            self.assertIn('.tink/rules/index.json', result.stdout)
 
     def test_package_contents_are_release_ready(self):
         result = subprocess.run([NPM, 'pack', '--dry-run', '--json'], cwd=ROOT, check=True, capture_output=True, text=True, encoding='utf-8')
@@ -721,6 +773,7 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-09-graph-rule-adoption-plan.ko.md',
             'docs/pr/2026-06-09-graph-rule-seed-rules.ko.md',
             'docs/pr/2026-06-09-v1.6.0.ko.md',
+            'docs/pr/2026-06-09-v1.6.1.ko.md',
             'README.md',
             'LICENSE',
         ]:

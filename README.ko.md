@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 릴리스:** v1.6.0 — graph-rule seed routing으로 반복 작업에서 필요한 관련 파일, 하네스, 검증 체크를 더 잘 고릅니다.
+**최신 패키지:** v1.6.1 — 기존 설치에서 `tink-harness update`를 실행할 때 generated legacy rule graph도 새 seed rules로 갱신합니다. 최신 마이너 릴리스 노트: [v1.6.0](https://github.com/dotoricode/tink-harness/releases/tag/v1.6.0).
 
 [English](README.md) · **한국어**
 
@@ -59,6 +59,12 @@ npx tink-harness@latest update
 
 업데이트 후 Codex skill, schema, Windows 경고가 이상해 보이면 `docs/update-troubleshooting.ko.md` 또는 `docs/update-troubleshooting.md`를 확인하세요.
 
+## 1.6.1에서 달라진 점
+
+이번 패치는 기존 설치의 update 경로를 고칩니다.
+
+- `tink-harness update`가 v1.5.x에서 생성된 기본 `.tink/rules/index.json`을 새 v1.6.x rule graph seed로 갱신합니다.
+- custom rule이나 rule evidence가 들어간 사용자 수정 rule graph는 계속 보존합니다.
 ## 1.6.0에서 달라진 점
 
 이번 릴리스는 Tink의 작은 rule graph를 실제 작업에서 더 쓸모 있게 만듭니다.

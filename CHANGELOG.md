@@ -7,6 +7,19 @@ All notable changes to Tink are tracked here.
 No unreleased changes yet.
 
 
+## [1.6.1] - 2026-06-09
+
+### Fixed
+
+- Existing installs from v1.5.x now refresh the generated legacy `.tink/rules/index.json` during `tink-harness update`, so users receive the v1.6.0 graph-rule seed rules through `npx tink-harness@latest update`.
+- User-modified rule graphs with custom rules or rule evidence are still preserved during update.
+
+### Added
+
+- Regression coverage for generated legacy rule graph refresh and custom rule graph preservation.
+- Korean PR history draft for the v1.6.1 patch in `docs/pr/2026-06-09-v1.6.1.ko.md`.
+
+
 ## [1.6.0] - 2026-06-09
 
 ### Added
