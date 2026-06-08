@@ -261,6 +261,39 @@ function isAlwaysUpdatePath(src) {
     rel.startsWith('templates/tink/maintenance/');
 }
 
+function isGeneratedLegacyRuleGraph(src, dest) {
+  const rel = path.relative(root, src).replace(/\\/g, '/');
+  if (rel !== 'templates/tink/rules/index.json') return false;
+  try {
+    const rules = JSON.parse(fs.readFileSync(dest, 'utf8'));
+    if (rules.node_shape) return false;
+    const legacyIds = [
+      'harness:code-change',
+      'harness:bug-fix',
+      'harness:ship',
+      'harness:pre-publish-multi-agent-verify',
+      'check:package-dry-run',
+      'check:readme-cli-match',
+      'guard:release-verification-stop',
+      'guard:forbidden-path-write'
+    ];
+    const nodes = Array.isArray(rules.nodes) ? rules.nodes : [];
+    if (nodes.length !== legacyIds.length) return false;
+    const ids = nodes.map((node) => node && node.id);
+    if (!legacyIds.every((id) => ids.includes(id))) return false;
+    return nodes.every((node) =>
+      node &&
+      !Object.prototype.hasOwnProperty.call(node, 'reason') &&
+      !Object.prototype.hasOwnProperty.call(node, 'risk') &&
+      !Object.prototype.hasOwnProperty.call(node, 'checks') &&
+      !Object.prototype.hasOwnProperty.call(node, 'include_paths') &&
+      !Object.prototype.hasOwnProperty.call(node, 'select_harnesses')
+    );
+  } catch {
+    return false;
+  }
+}
+
 function writeFileFromTemplate(src, dest, base) {
   const exists = fs.existsSync(dest);
   if (exists && !force) {
@@ -270,12 +303,12 @@ function writeFileFromTemplate(src, dest, base) {
       if (Buffer.compare(srcContent, destContent) === 0) {
         return;
       }
-      if (!isAlwaysUpdatePath(src)) {
+      if (!isAlwaysUpdatePath(src) && !isGeneratedLegacyRuleGraph(src, dest)) {
         log.message(`keep user-modified ${displayPath(base, dest)}`);
         recordOperation('preserved', base, dest);
         return;
       }
-      // commands/skills/maintenance: always update to new version
+      // commands/skills/maintenance and generated legacy rule graph: update to new version
     } else {
       log.message(`skip existing ${displayPath(base, dest)}`);
       return;

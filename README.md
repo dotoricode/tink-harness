@@ -24,7 +24,7 @@
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest release:</strong> v1.6.0 - Graph-rule seed routing now helps Tink pick supporting files, harnesses, and verification checks for repeated work.</p>
+<p><strong>Latest package:</strong> v1.6.1 - Existing installs now refresh generated legacy rule graphs during <code>tink-harness update</code>. Latest minor release notes: <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.6.0">v1.6.0</a>.</p>
 
 **English** · [한국어](README.ko.md)
 
@@ -123,6 +123,13 @@ During update, select the installed agent surface you want to refresh.
 To quickly verify the updated install, see `docs/update-verification-recipe.md` or `docs/update-verification-recipe.ko.md`.
 
 If an update looks stale or incomplete, see `docs/update-troubleshooting.md` or `docs/update-troubleshooting.ko.md`.
+
+## What's new in 1.6.1
+
+This patch fixes the update path for existing installs.
+
+- `tink-harness update` now refreshes the generated legacy `.tink/rules/index.json` from v1.5.x so existing users receive the v1.6.0 graph-rule seed rules.
+- User-modified rule graphs are still preserved when they contain custom rules or rule evidence.
 
 ## What's new in 1.6.0
 

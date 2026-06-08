@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `1.6.0`
+Current version: `1.6.1`
 
 Tink follows semver from `1.0.0` onward.
 
