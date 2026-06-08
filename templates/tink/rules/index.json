@@ -10,6 +10,11 @@
       "max_retrievable_per_phase": 5
     }
   },
+  "node_shape": {
+    "required": ["id", "type", "load", "phase", "budget_cost", "when", "reason"],
+    "recommended": ["select_harnesses", "include_paths", "checks", "risk"],
+    "notes": "Rules stay file-based and small. They are not a public index, watcher, generated cache, or database-backed retrieval layer."
+  },
   "nodes": [
     {
       "id": "harness:code-change",
@@ -19,7 +24,11 @@
       "phase": "classification",
       "budget_cost": 2,
       "keywords": ["code", "refactor", "implementation", "change"],
-      "when": { "task_type": ["code_change"] }
+      "when": { "task_type": ["code_change"] },
+      "select_harnesses": ["code-change"],
+      "checks": ["Related files only", "Tests or clear reason not run", "Diff evidence"],
+      "reason": "Code changes need a narrow implementation harness and explicit diff evidence.",
+      "risk": "A generic docs or research harness can skip implementation checks."
     },
     {
       "id": "harness:bug-fix",
@@ -29,7 +38,11 @@
       "phase": "classification",
       "budget_cost": 2,
       "keywords": ["bug", "repro", "failure", "regression"],
-      "when": { "task_type": ["bug_fix"], "has_repro": [true] }
+      "when": { "task_type": ["bug_fix"], "has_repro": [true] },
+      "select_harnesses": ["bug-fix"],
+      "checks": ["Reproduced or reason stated", "Root cause identified", "Regression checked"],
+      "reason": "Bug fixes should keep reproduction and regression evidence close to the change.",
+      "risk": "Skipping reproduction can turn a bug fix into an unverified code edit."
     },
     {
       "id": "harness:ship",
@@ -39,7 +52,11 @@
       "phase": "approval",
       "budget_cost": 2,
       "keywords": ["release", "deploy", "publish", "ship"],
-      "when": { "task_type": ["release", "deploy", "publish"] }
+      "when": { "task_type": ["release", "deploy", "publish"] },
+      "select_harnesses": ["ship"],
+      "checks": ["CI checks pass or skip reason stated", "Rollback documented", "Known risks explicit"],
+      "reason": "Externally visible work needs shipping checks before it is called done.",
+      "risk": "A lighter harness can miss rollback, version, or public visibility evidence."
     },
     {
       "id": "harness:pre-publish-multi-agent-verify",
@@ -52,7 +69,11 @@
       "when": {
         "task_type": ["release", "publish"],
         "risk": ["public_publish"]
-      }
+      },
+      "select_harnesses": ["pre-publish-multi-agent-verify"],
+      "checks": ["Build artifact produced and recorded", "User-target scenarios locked before agents start", "No secrets, credentials, or private paths in published files"],
+      "reason": "Public package releases need isolated install, UX, docs, and leak checks beyond generic ship checks.",
+      "risk": "Publishing from local source checks alone can miss package contents or installed-surface drift."
     },
     {
       "id": "check:package-dry-run",
@@ -65,7 +86,10 @@
       "when": {
         "task_type": ["release", "publish"],
         "package_manager": ["npm"]
-      }
+      },
+      "checks": ["npm pack --dry-run --json"],
+      "reason": "npm package contents can differ from the working tree and README.",
+      "risk": "Users may receive a package missing new docs, templates, or command files."
     },
     {
       "id": "check:readme-cli-match",
@@ -78,7 +102,88 @@
       "when": {
         "task_type": ["release", "publish"],
         "risk": ["public_publish"]
-      }
+      },
+      "include_paths": ["README.md", "README.ko.md", "bin/install.js", "commands/update.md"],
+      "checks": ["README commands match shipped CLI/help"],
+      "reason": "Public docs should not advertise commands or update paths that the shipped package does not provide.",
+      "risk": "Users follow stale install or update instructions."
+    },
+    {
+      "id": "context:readme-bilingual-sync",
+      "type": "context-rule",
+      "load": "mandatory",
+      "phase": "context",
+      "budget_cost": 1,
+      "keywords": ["README", "docs", "Korean", "bilingual"],
+      "when": {
+        "changed_paths": ["README.md"]
+      },
+      "include_paths": ["README.ko.md"],
+      "checks": ["English README and Korean README latest-release guidance stay aligned"],
+      "reason": "README.md has a Korean companion document that should stay in sync for user-facing changes.",
+      "risk": "Korean users can receive stale install, update, or release guidance."
+    },
+    {
+      "id": "context:version-metadata-sync",
+      "type": "context-rule",
+      "load": "mandatory",
+      "phase": "context",
+      "budget_cost": 1,
+      "keywords": ["version", "release", "package", "plugin"],
+      "when": {
+        "changed_paths": ["package.json"],
+        "task_type": ["release", "publish"]
+      },
+      "include_paths": ["package-lock.json", ".claude-plugin/plugin.json", "CHANGELOG.md", "VERSIONING.md"],
+      "checks": ["package.json, package-lock.json, .claude-plugin/plugin.json, CHANGELOG.md, and VERSIONING.md agree on the version"],
+      "reason": "npm and Claude Code plugin update detection depend on aligned version metadata.",
+      "risk": "npm latest, GitHub release notes, and Claude Code plugin updates can drift."
+    },
+    {
+      "id": "context:claude-command-three-copy-sync",
+      "type": "context-rule",
+      "load": "mandatory",
+      "phase": "context",
+      "budget_cost": 1,
+      "keywords": ["commands", "Claude Code", "sync"],
+      "when": {
+        "changed_paths": ["commands/*.md"]
+      },
+      "include_paths": ["templates/claude/commands/tink/*.md", ".claude/commands/tink/*.md"],
+      "checks": ["commands/*.md, templates/claude/commands/tink/*.md, and .claude/commands/tink/*.md stay byte-identical for matching command names"],
+      "reason": "Claude Code command sources are maintained in three copies in this repo.",
+      "risk": "A fix can work in one surface but not in installed Claude Code commands."
+    },
+    {
+      "id": "context:installer-update-smoke",
+      "type": "context-rule",
+      "load": "retrievable",
+      "phase": "verification",
+      "budget_cost": 2,
+      "keywords": ["installer", "update", "Codex", "Claude Code"],
+      "when": {
+        "changed_paths": ["bin/install.js"]
+      },
+      "include_paths": ["tests/test_templates.py", "docs/update-verification-recipe.md", "docs/update-verification-recipe.ko.md"],
+      "checks": ["install/update smoke covers changed installer behavior"],
+      "reason": "Installer changes affect existing users across Claude Code, Codex, macOS, and Windows.",
+      "risk": "Local source tests can pass while npx install or update still produces stale surfaces."
+    },
+    {
+      "id": "context:codex-only-update-surface-cleanup",
+      "type": "context-rule",
+      "load": "retrievable",
+      "phase": "verification",
+      "budget_cost": 2,
+      "keywords": ["Codex-only", "Source Command Tink", "update", "legacy"],
+      "when": {
+        "task_type": ["bug_fix", "release", "publish"],
+        "risk": ["codex_surface_drift"]
+      },
+      "include_paths": ["bin/install.js", "docs/update-troubleshooting.md", "docs/update-troubleshooting.ko.md", "docs/update-verification-recipe.md", "docs/update-verification-recipe.ko.md"],
+      "checks": ["Codex-only update removes repo-local .claude/commands/tink/*.md and .claude/skills/tink/SKILL.md when they are generated Tink surfaces"],
+      "reason": "Codex-only users expect focused $tink:* action skills, not repo-local Claude Code command entries.",
+      "risk": "Codex skill picker can show stale Source Command Tink entries after update."
     },
     {
       "id": "guard:release-verification-stop",
@@ -92,6 +197,9 @@
         "task_type": ["release", "deploy", "publish"],
         "risk": ["external_visibility", "public_publish"]
       },
+      "checks": ["Required contract checks exist before release completion"],
+      "reason": "Release completion should not be reported without required verification evidence.",
+      "risk": "A release can be described as complete without the checks that prove it.",
       "opt_in": true
     },
     {
@@ -105,6 +213,9 @@
       "when": {
         "forbidden": ["path_write"]
       },
+      "checks": ["Forbidden path writes are blocked or explicitly approved before execution"],
+      "reason": "Contract-forbidden paths are high-risk and should not be modified silently.",
+      "risk": "A run can mutate files that the user or contract excluded.",
       "opt_in": true
     }
   ],

@@ -19,7 +19,7 @@ Accept legacy `$tink <action>` spelling for compatibility, but present `$tink:<a
 ## Operating Rules
 
 1. Create or update `.tink/current/contract.json` for non-trivial runs: task type, risks, success conditions, forbidden actions, verification, and evidence.
-2. Read `.tink/rules/index.json` before loading harness bodies when it exists. Use contract facts to choose only relevant harnesses, checks, and opt-in guard candidates. Load matching `mandatory` rules first, retrieve only relevant `retrievable` rules by facts or keywords, and record loaded rule ids by phase in `.tink/current/session.json`.
+2. Read `.tink/rules/index.json` before loading harness bodies when it exists. Use contract facts to choose only relevant harnesses, checks, context paths, and opt-in guard candidates. Load matching `mandatory` rules first, retrieve only relevant `retrievable` rules by facts or keywords, and record loaded rule ids by phase in `.tink/current/session.json`. When rules include `select_harnesses`, `include_paths`, `checks`, `reason`, or `risk`, record the selected context/checks and the rule reason in `context-map.json` or `contract.json` instead of silently loading extra context.
 3. Read `.tink/harnesses/index.json` before loading harness bodies.
 4. Read approved memory files when present and useful: `.tink/memory/mistakes.md`, `preferences.md`, and `lessons.md`.
 5. Prefer the smallest useful harness set. Use context footprint, not a universal hard cap.
@@ -31,13 +31,15 @@ Accept legacy `$tink <action>` spelling for compatibility, but present `$tink:<a
 11. Use `request_user_input` for choice prompts when available. Otherwise stop and ask one concise blocking approval question directly in chat. Do not continue until the user answers.
 12. Treat reusable saves as a separate hard approval gate for `.tink/memory/*`, `.tink/harnesses/*`, `.tink/rules/*`, `.tink/config.json`, Codex skill files, and template/plugin files that affect future installs.
 13. Current-run approval never authorizes reusable-state writes. Before saving reusable state, show operation, destination files, exact entry or patch summary, reusable reason, sensitive content excluded, and rollback/removal path.
-14. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`.
-15. Do not stop at recommendation. Execute the first safe step after run state exists.
-16. Run `$tink:verify` behavior before final when `contract.json` lists required checks.
-17. Store reusable memory or rule updates under `.tink/` only after separate approval.
-18. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `$tink:weave`.
-19. Keep context compact. Do not paste raw logs or full diffs.
-20. Use calm, clear, concise language. Prefer plain everyday words over technical terms. No jokes.
+14. Before saving a reusable rule graph update, run a structural gate: duplicate, breadth, evidence, verification, Claude Code/Codex compatibility, macOS/Windows compatibility, and portable commands. AI may propose a rule; saving it still requires separate approval.
+15. `$tink:frog` may inspect rule quality as well as harness quality. Prefer keep, rewrite, split, merge, or needs-evidence recommendations before any removal proposal.
+16. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`.
+17. Do not stop at recommendation. Execute the first safe step after run state exists.
+18. Run `$tink:verify` behavior before final when `contract.json` lists required checks.
+19. Store reusable memory or rule updates under `.tink/` only after separate approval.
+20. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `$tink:weave`.
+21. Keep context compact. Do not paste raw logs or full diffs.
+22. Use calm, clear, concise language. Prefer plain everyday words over technical terms. No jokes.
 
 ## Codex Approval Protocol
 

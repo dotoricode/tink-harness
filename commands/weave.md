@@ -49,6 +49,13 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - opt-in hook guard candidate: the same failure should be blocked by `PreToolUse`, `PostToolUse`, or `Stop` after user approval;
    - friction logging update: the run should record a missing evidence pattern more clearly.
 7. Read only the target harness files and `.tink/rules/index.json` when the evidence points to rule selection.
+   For rule graph updates, run a structural gate before proposing a save:
+   - duplicate: does an existing rule already cover the same `when`, `include_paths`, or `checks`?
+   - breadth: is the rule too broad, such as "always check docs", instead of tied to concrete paths, task facts, or risks?
+   - evidence: does the proposal cite a run, failed check, user correction, or friction entry?
+   - verification: does the rule add a check or explain why no check is needed?
+   - compatibility: does the rule make sense for both Claude Code and Codex, and for macOS and Windows?
+   - portability: does it avoid OS-specific shell syntax unless alternatives are listed?
 8. Propose small edits:
    - clearer when-to-use trigger
    - better ask-first question
@@ -58,6 +65,7 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - rule graph node or edge
    - opt-in guard template
 9. Show an approval payload: destination files, exact patch summary, evidence handles, repeated vs single-run classification, why reusable, context-cost delta, sensitive content excluded, rollback path.
+   For rule graph updates, also show structural gate results: duplicate, breadth, evidence, verification, compatibility, and portability.
 10. Ask for approval before saving.
 11. Apply surgical changes, update index metadata or `.tink/rules/index.json` if needed, mark the weave queue item status, and append the approval/result to `.tink/maintenance/ledger.jsonl`.
 

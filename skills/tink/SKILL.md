@@ -37,7 +37,7 @@ Use only these commands:
 
 ## Operating rules
 1. Create or update `.tink/current/contract.json` for non-trivial runs: task type, risks, success conditions, forbidden actions, verification, and evidence.
-2. Read `.tink/rules/index.json` before loading harness bodies when it exists. Use contract facts to choose only relevant harnesses, checks, and opt-in guard candidates. Load matching `mandatory` rules first, retrieve only relevant `retrievable` rules by facts or keywords, and record loaded rule ids by phase in `.tink/current/session.json`.
+2. Read `.tink/rules/index.json` before loading harness bodies when it exists. Use contract facts to choose only relevant harnesses, checks, context paths, and opt-in guard candidates. Load matching `mandatory` rules first, retrieve only relevant `retrievable` rules by facts or keywords, and record loaded rule ids by phase in `.tink/current/session.json`. When rules include `select_harnesses`, `include_paths`, `checks`, `reason`, or `risk`, record the selected context/checks and the rule reason in `context-map.json` or `contract.json` instead of silently loading extra context.
 3. Read `.tink/harnesses/index.json` before loading harness bodies.
 4. Read small approved memory files when present: `.tink/memory/mistakes.md`, `preferences.md`, `lessons.md`.
 5. Prefer the smallest useful harness set. Use context footprint, not a universal hard cap: tiny harnesses may stack, large harnesses load one at a time after approval, and meta harnesses should reduce or replace context rather than pile on.
@@ -52,14 +52,16 @@ Use only these commands:
 14. Hard gates must not offer `Continue as-is` or `이대로 진행`, and Stitch may change method or order but not the user's goal without separate approval.
 15. Treat Reusable State Save Gate as a separate hard approval gate for `.tink/memory/*`, `.tink/harnesses/*`, `.tink/rules/*`, `.tink/config.json`, `.claude/`, and template/plugin files that affect future installs.
 16. Current-run approval never authorizes reusable-state writes; before saving reusable state, show operation, destination files, exact entry or patch summary, reusable reason, sensitive content excluded, and rollback/removal path.
-17. Ask for approval before applying, saving, purging, honing, or installing enforcement hooks.
-18. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, and `excluded-context.md`.
-19. Do not stop at recommendation. Execute the first safe step after run state exists.
-20. Run `/tink:verify` behavior before final when `contract.json` lists required checks.
-21. Store reusable memory or rule updates only after separate Reusable State Save Gate approval.
-22. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `/tink:weave`.
-23. Keep context compact. Do not paste raw logs or full diffs.
-24. Use calm, clear, concise language. Prefer plain everyday words over technical terms if a simpler word works. No jokes.
+17. Before saving a reusable rule graph update, run a structural gate: duplicate, breadth, evidence, verification, Claude Code/Codex compatibility, macOS/Windows compatibility, and portable commands. AI may propose a rule; saving it still requires separate approval.
+18. `/tink:frog` may inspect rule quality as well as harness quality. Prefer keep, rewrite, split, merge, or needs-evidence recommendations before any removal proposal.
+19. Ask for approval before applying, saving, purging, honing, or installing enforcement hooks.
+20. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, and `excluded-context.md`.
+21. Do not stop at recommendation. Execute the first safe step after run state exists.
+22. Run `/tink:verify` behavior before final when `contract.json` lists required checks.
+23. Store reusable memory or rule updates only after separate Reusable State Save Gate approval.
+24. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `/tink:weave`.
+25. Keep context compact. Do not paste raw logs or full diffs.
+26. Use calm, clear, concise language. Prefer plain everyday words over technical terms if a simpler word works. No jokes.
 
 ## Quality bar
 The user should not have to repeat themselves. If the same mistake appears twice, propose `/tink:weave`, a rule graph update, an opt-in guard candidate, or a memory update through `/tink:cast`.

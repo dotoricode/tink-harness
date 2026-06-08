@@ -26,6 +26,7 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - `.tink/runs/` summaries
    - `.tink/maintenance/ledger.jsonl`
    - `.tink/maintenance/weave-queue.json`
+   - `.tink/rules/index.json`
    - references in memory files
    - recent git history touching harness files as weak context only
 2b. Check `.tink/runs/` accumulation against TTL config:
@@ -53,6 +54,14 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - merge into another harness
    - delete
    - rewrite via `/tink:weave`
+6b. If `.tink/rules/index.json` exists, also inspect rule quality:
+   - keep: concrete `when`, `reason`, and useful `checks` or `include_paths`
+   - rewrite: too broad, unclear reason, or missing verification
+   - split: one rule mixes unrelated paths, tasks, or risks
+   - merge: multiple rules cover the same `when`, `include_paths`, and `checks`
+   - needs evidence: weak or no run, ledger, friction, or user-correction evidence
+   Prefer keep, rewrite, split, merge, or needs evidence before any removal proposal.
+   Report rule recommendations separately from harness recommendations.
 7. Only strong evidence may recommend `delete`. Medium evidence may recommend `merge` or `hone`. Weak evidence must default to `keep` or `needs evidence`.
 8. For each non-keep action, prepare an operation-specific approval payload with exact files, op ID, evidence handles, and rollback.
 9. If the recommendation is `weave`, write or present a weave handoff packet and, after approval, add it to `.tink/maintenance/weave-queue.json`:

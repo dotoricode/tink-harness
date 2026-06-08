@@ -65,6 +65,15 @@ Graph 규칙은 이런 실수를 줄이기 위한 작은 연결 규칙이다.
 
 ## 작업 단위
 
+## 현재 구현 상태
+
+- 1차 구현: `templates/tink/rules/index.json`에 `node_shape`와 안전 seed rule을 추가했다.
+- 1차 구현: `$tink:cast` / `/tink:cast`가 `select_harnesses`, `include_paths`, `checks`, `reason`, `risk`를 기록 대상으로 다루도록 지침을 보강했다.
+- 1차 구현: `$tink:weave` / `/tink:weave`가 reusable rule graph update를 제안하기 전에 structural gate를 확인하도록 했다.
+- 1차 구현: `$tink:frog` / `/tink:frog`가 harness뿐 아니라 rule quality도 `keep`, `rewrite`, `split`, `merge`, `needs evidence`로 점검할 수 있게 했다.
+- 남은 구현: 실제 cast 실행 산출물 fixture에서 seed rule 선택 결과를 더 풍부하게 보여주는 예제를 늘릴 수 있다.
+- 남은 구현: 충분한 run 기록이 쌓인 뒤 rule 사용 빈도와 실패 신호 기반 정리 제안을 더 정량화할 수 있다.
+
 ### 1. 규칙 schema 정리
 
 `templates/tink/rules/index.json`의 노드 형식을 더 명확히 한다.
