@@ -17,14 +17,14 @@
 </p>
 
 <p>
-  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.5.0"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.6.0"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest release:</strong> v1.5.0 - Codex-only update now removes repo-local Claude Tink surfaces that appeared as <code>Source Command Tink ...</code>.</p>
+<p><strong>Latest release:</strong> v1.6.0 - Graph-rule seed routing now helps Tink pick supporting files, harnesses, and verification checks for repeated work.</p>
 
 **English** · [한국어](README.ko.md)
 
@@ -124,13 +124,14 @@ To quickly verify the updated install, see `docs/update-verification-recipe.md` 
 
 If an update looks stale or incomplete, see `docs/update-troubleshooting.md` or `docs/update-troubleshooting.ko.md`.
 
-## What's new in 1.5.0
+## What's new in 1.6.0
 
-This release fixes the Codex skill picker state after updating an existing repo.
+This release makes Tink's small rule graph more useful during real work.
 
-- Codex-only `tink-harness update` now removes repo-local `.claude/commands/tink/*.md` and the old repo-local `.claude/skills/tink/SKILL.md` Tink surface.
-- This prevents Codex from showing `Source Command Tink Frog/List/...` or a broad repo-local `Tink` entry when the user expects only `$tink:*` action skills.
-- If you intentionally install both Claude Code and Codex surfaces, repo-local Claude Code commands can remain and `Source Command Tink ...` entries may be expected. See `docs/update-troubleshooting.md` or `docs/update-troubleshooting.ko.md`.
+- Seed rules now connect common maintenance work to related files, harnesses, and checks, such as README bilingual sync, version metadata sync, Claude Code command 3-copy sync, and installer/update smoke checks.
+- `/tink:cast` and `$tink:cast` guidance now records rule `reason`, `risk`, `include_paths`, and `checks` as reviewable context evidence instead of silently loading extra files.
+- `/tink:weave` and `/tink:frog` now include rule-quality review so reusable rules can be kept, rewritten, split, merged, or marked as needing more evidence.
+- The graph remains file-based and small. This release still does not add a public `tink index` command, watcher, generated cache, database, or external service.
 
 ## Recent foundation from 1.2.0+
 
