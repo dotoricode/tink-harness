@@ -357,10 +357,13 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('compact evidence', purge)
         self.assertIn('weave handoff packet', purge)
         self.assertIn('operation-specific approval payload', purge)
+        self.assertIn('rule quality', purge)
+        self.assertIn('keep, rewrite, split, merge, or needs evidence', purge)
         self.assertIn('real failures', hone)
         self.assertIn('weave handoff packet', hone)
         self.assertIn('Approval payload', hone)
         self.assertIn('Ask for approval before saving', hone)
+        self.assertIn('structural gate', hone)
         list_cmd = (ROOT / 'templates/claude/commands/tink/list.md').read_text(encoding='utf-8')
         self.assertIn('unknown', list_cmd)
         self.assertIn('Do not infer non-use from missing evidence', list_cmd)
@@ -1884,9 +1887,31 @@ class TemplateTests(unittest.TestCase):
         for field in ['result_line', 'checked', 'remaining', 'next_action']:
             self.assertIn(field, report_required)
         self.assertTrue(any(node['type'] == 'guard-candidate' for node in rules['nodes']))
+        self.assertIn('node_shape', rules)
+        for field in ['id', 'type', 'load', 'phase', 'budget_cost', 'when', 'reason']:
+            self.assertIn(field, rules['node_shape']['required'])
         self.assertIn('mandatory', rules['selection_policy']['load_order'])
         self.assertTrue(all('load' in node for node in rules['nodes']))
         self.assertTrue(all('budget_cost' in node for node in rules['nodes']))
+        self.assertTrue(all('reason' in node for node in rules['nodes']))
+        self.assertTrue(all('risk' in node for node in rules['nodes']))
+        self.assertTrue(all('checks' in node for node in rules['nodes']))
+        rule_ids = {node['id'] for node in rules['nodes']}
+        for rule_id in [
+            'context:readme-bilingual-sync',
+            'context:version-metadata-sync',
+            'context:claude-command-three-copy-sync',
+            'context:installer-update-smoke',
+            'context:codex-only-update-surface-cleanup',
+        ]:
+            self.assertIn(rule_id, rule_ids)
+        nodes_by_id = {node['id']: node for node in rules['nodes']}
+        self.assertIn('README.ko.md', nodes_by_id['context:readme-bilingual-sync']['include_paths'])
+        self.assertIn('.claude-plugin/plugin.json', nodes_by_id['context:version-metadata-sync']['include_paths'])
+        self.assertIn('templates/claude/commands/tink/*.md', nodes_by_id['context:claude-command-three-copy-sync']['include_paths'])
+        self.assertIn('docs/update-verification-recipe.ko.md', nodes_by_id['context:installer-update-smoke']['include_paths'])
+        self.assertIn('Source Command Tink', nodes_by_id['context:codex-only-update-surface-cleanup']['risk'])
+        self.assertNotIn('tink index', json.dumps(rules))
         self.assertIn('/tink:verify', verify)
         self.assertIn('.tink/current/contract.json', verify)
         self.assertIn('.tink/current/verification.json', verify)
@@ -1936,7 +1961,12 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('contract.json', cast)
         self.assertIn('session.json', cast)
         self.assertIn('loaded_rule_ids_by_phase', cast)
+        self.assertIn('select_harnesses', cast)
+        self.assertIn('include_paths', cast)
+        self.assertIn('kind: "rule_graph"', cast)
         self.assertIn('rule graph update', weave)
+        self.assertIn('structural gate', weave)
+        self.assertIn('duplicate, breadth, evidence, verification, compatibility, and portability', weave)
         self.assertIn('friction.jsonl', weave)
 
     def test_language_command_naming_adr_exists(self):

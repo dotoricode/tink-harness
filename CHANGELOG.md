@@ -4,7 +4,11 @@ All notable changes to Tink are tracked here.
 
 ## [Unreleased]
 
-No unreleased changes yet.
+### Added
+
+- Graph-rule seed rules now route common Tink maintenance work to the right supporting files, harnesses, and verification checks without adding a public `tink index` command.
+- `/tink:weave`, `/tink:frog`, and `$tink:*` guidance now treats rule `reason`, `risk`, `include_paths`, and `checks` as reviewable context-engineering evidence.
+- Korean PR history draft for the graph-rule seed rules work in `docs/pr/2026-06-09-graph-rule-seed-rules.ko.md`.
 
 
 ## [1.5.0] - 2026-06-08

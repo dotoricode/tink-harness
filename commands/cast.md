@@ -369,8 +369,12 @@ A task is trivial only when ALL of the following are true:
 2. Read `.tink/rules/index.json` if present. Use it as a small rule graph to choose candidate harnesses, checks, and opt-in guard candidates from contract facts. Do not read every harness.
    - Load `mandatory` nodes first when their `when` facts match the contract.
    - Retrieve `retrievable` nodes only when their `when` facts or `keywords` fit the task.
+   - Treat `select_harnesses`, `include_paths`, `checks`, `reason`, and `risk` as first-class routing data when present.
    - Respect `budget_cost` and `selection_policy.retrieval.max_retrievable_per_phase` when present.
    - Record every loaded rule id in `.tink/current/session.json` under `loaded_rule_ids_by_phase.<phase>`.
+   - Record selected `include_paths` in `context-map.json.included[]` with `role: "supporting"` or `role: "verification_target"` when the rule also adds a check.
+   - Record rule `checks` in `contract.json.verification.manual_checks[]` or `commands[]` only when they are relevant and cheap; otherwise record them in `notes.md` as deferred checks.
+   - Record rule `reason` and `risk` in `context-map.json.signals[]` with `kind: "rule_graph"` so reviewers can see why the context or check was chosen.
    - If a rule id is already listed for the same phase, do not repeat its guidance; cite the existing session entry instead.
 3. Read `.tink/harnesses/index.json`. Use it to validate the candidates from the rule graph and to fall back when no rule node matches.
 4. Read small memory files where `config.json` sets `memory_has_entries.<name>: true`. Skip files set to `false`. After a Save Gate approves a new memory entry, set that file's flag to `true` in `config.json`.
