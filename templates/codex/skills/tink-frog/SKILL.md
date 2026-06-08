@@ -1,5 +1,5 @@
 ---
-name: frog
+name: "Tink: Frog"
 description: Propose safe cleanup for unused or redundant Tink harnesses.
 ---
 

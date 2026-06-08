@@ -1,5 +1,5 @@
 ---
-name: verify
+name: "Tink: Verify"
 description: Run or report the checks promised in the Tink contract.
 ---
 

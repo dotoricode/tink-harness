@@ -61,7 +61,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.6.1')
+        self.assertEqual(pkg['version'], '1.6.2')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -74,8 +74,8 @@ class TemplateTests(unittest.TestCase):
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code and Codex', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn('Latest package:</strong> v1.6.1', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn("What's new in 1.6.1", (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('Latest package:</strong> v1.6.2', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn("What's new in 1.6.2", (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('graph-rule seed rules', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('Tinker Bell', (ROOT / 'README.md').read_text(encoding='utf-8'))
@@ -86,6 +86,8 @@ class TemplateTests(unittest.TestCase):
 
         self.assertIn('Installation scope', installer)
         self.assertIn('Select components to install', installer)
+        self.assertIn('--clean-codex-picker', installer)
+        self.assertIn('Codex picker cleanup', installer)
         self.assertIn('Hook recommendation', installer)
         self.assertIn('UserPromptSubmit', installer)
         self.assertIn('--with-hook', installer)
@@ -163,11 +165,11 @@ class TemplateTests(unittest.TestCase):
         for skill_dir in EXPECTED_CODEX_SKILLS:
             self.assertTrue((ROOT / f'templates/codex/skills/{skill_dir}/SKILL.md').exists())
         alias = (ROOT / 'templates/codex/skills/tink-cast/SKILL.md').read_text(encoding='utf-8')
-        self.assertIn('name: cast', alias)
+        self.assertIn('name: "Tink: Cast"', alias)
         self.assertIn('description: Start a Tink run for a non-trivial task.', alias)
         self.assertIn('../tink-core/RULES.md', alias)
         self.assertIn('asks for approval first', alias)
-        self.assertNotIn('name: tink:', alias)
+        self.assertNotIn('name: tink:', alias.lower())
 
     def test_dual_format_paths_stay_in_sync(self):
         pairs = [
@@ -527,7 +529,7 @@ class TemplateTests(unittest.TestCase):
                 if p.is_dir() and (p / 'SKILL.md').exists()
             }
             self.assertEqual(installed_codex_skills, EXPECTED_CODEX_SKILLS)
-            self.assertIn('name: cast', (codex_home / 'skills/tink-cast/SKILL.md').read_text(encoding='utf-8'))
+            self.assertIn('name: "Tink: Cast"', (codex_home / 'skills/tink-cast/SKILL.md').read_text(encoding='utf-8'))
             self.assertTrue((base / '.tink/harnesses/index.json').exists())
             self.assertTrue((base / '.tink/rules/index.json').exists())
             self.assertTrue((base / '.tink/schemas/context-map.schema.json').exists())
@@ -539,6 +541,56 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue((base / '.tink/config.json').exists())
             self.assertFalse((base / '.claude/commands').exists())
             self.assertFalse((base / '.claude/skills').exists())
+
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            codex_home = base / '.codex-home'
+            env = os.environ.copy()
+            env['CODEX_HOME'] = str(codex_home)
+            env['TINK_INSTALL_SURFACES'] = 'all'
+            result = subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=en', '--yes', '--dry-run'],
+                cwd=base,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+            )
+            self.assertIn('components commands, claude-skill, codex-skills, harnesses, memory', result.stdout)
+            self.assertIn('Claude Code command target:', result.stdout)
+            self.assertIn('Codex skills target:', result.stdout)
+            self.assertIn('Codex picker cleanup target:', result.stdout)
+            self.assertNotIn('codex-picker-cleanup', result.stdout.split('components ', 1)[1].splitlines()[0])
+
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            codex_home = base / '.codex-home'
+            repo_command = base / '.claude/commands/tink/cast.md'
+            repo_command.parent.mkdir(parents=True)
+            repo_command.write_text('# /tink:cast\n\nlegacy repo-local command\n', encoding='utf-8')
+            repo_skill = base / '.claude/skills/tink/SKILL.md'
+            repo_skill.parent.mkdir(parents=True)
+            repo_skill.write_text('---\nname: tink\n---\n\n# Tink\n\nlegacy repo-local skill\n', encoding='utf-8')
+            env = os.environ.copy()
+            env['CODEX_HOME'] = str(codex_home)
+            env['TINK_INSTALL_SURFACES'] = 'all'
+            result = subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'update', '--lang=en', '--yes', '--clean-codex-picker'],
+                cwd=base,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+            )
+            self.assertFalse(repo_command.exists())
+            self.assertFalse(repo_skill.exists())
+            self.assertTrue((codex_home / 'skills/tink-cast/SKILL.md').exists())
+            self.assertIn('name: "Tink: Cast"', (codex_home / 'skills/tink-cast/SKILL.md').read_text(encoding='utf-8'))
+            self.assertIn('Removed legacy paths:', result.stdout)
+            self.assertIn('.claude/commands/tink/cast.md', result.stdout)
+            self.assertIn('.claude/skills/tink', result.stdout)
 
     def test_codex_update_refreshes_existing_install(self):
         with tempfile.TemporaryDirectory() as d:
@@ -774,6 +826,7 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-09-graph-rule-seed-rules.ko.md',
             'docs/pr/2026-06-09-v1.6.0.ko.md',
             'docs/pr/2026-06-09-v1.6.1.ko.md',
+            'docs/pr/2026-06-09-v1.6.2.ko.md',
             'README.md',
             'LICENSE',
         ]:

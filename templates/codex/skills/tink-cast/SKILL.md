@@ -1,5 +1,5 @@
 ---
-name: cast
+name: "Tink: Cast"
 description: Start a Tink run for a non-trivial task.
 ---
 

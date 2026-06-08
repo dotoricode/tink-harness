@@ -1,5 +1,5 @@
 ---
-name: update
+name: "Tink: Update"
 description: Detect the Tink install source and show the safe update path.
 ---
 

@@ -14,6 +14,7 @@ const command = args[0] || 'install';
 const isUpdate = command === 'update';
 const dryRun = args.includes('--dry-run');
 const force = args.includes('--force');
+const cleanCodexPicker = args.includes('--clean-codex-picker') || process.env.TINK_CLEAN_CODEX_PICKER === '1';
 const yes = args.includes('--yes') || args.includes('-y');
 const interactive = process.stdin.isTTY && process.stdout.isTTY && !yes && !dryRun;
 const source = 'https://github.com/dotoricode/tink-harness.git';
@@ -120,7 +121,7 @@ function argValue(name) {
 }
 
 function usage() {
-  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  npx tink-harness@latest [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--dry-run] [--force]\n  npx tink-harness@latest update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--dry-run] [--force]\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Keeps user-modified files.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select git tracking policy for project state\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
+  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  npx tink-harness@latest [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--clean-codex-picker] [--dry-run] [--force]\n  npx tink-harness@latest update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--clean-codex-picker] [--dry-run] [--force]\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Keeps user-modified files.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select git tracking policy for project state\n\nOptions:\n  --clean-codex-picker  Remove repo-local Claude Tink command/skill surfaces from the current repo so Codex shows focused Tink skills instead of Source Command Tink entries.\n\nEnvironment:\n  TINK_INSTALL_SURFACES=claude|codex|all\n  TINK_CLEAN_CODEX_PICKER=1\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
 }
 
 function normalizeSurfaces(surfaces) {
@@ -159,7 +160,7 @@ function codexHome() {
   return process.env.CODEX_HOME || path.join(os.homedir(), '.codex');
 }
 
-function componentOptionsFor(agent, language) {
+function legacyComponentOptionsFor(agent, language) {
   const options = COMPONENTS[language].filter((item) => {
     if (item.value === 'commands') return includesClaude(agent);
     if (item.value === 'hook') return includesClaude(agent);
@@ -191,6 +192,76 @@ function componentOptionsFor(agent, language) {
     }
     return item;
   });
+}
+
+function componentOptionsFor(agent, language) {
+  const options = COMPONENTS[language].flatMap((item) => {
+    if (item.value === 'commands') return includesClaude(agent) ? [item] : [];
+    if (item.value === 'hook') return includesClaude(agent) ? [item] : [];
+    if (item.value !== 'skill') return [item];
+
+    const claudeSkill = {
+      value: 'claude-skill',
+      label: 'Claude Code Tink skill',
+      hint: language === 'ko'
+        ? 'Claude Code가 읽는 Tink 작업 원칙'
+        : 'Tink operating rules for Claude Code'
+    };
+    const codexSkills = {
+      value: 'codex-skills',
+      label: 'Codex Tink skills',
+      hint: language === 'ko'
+        ? 'Codex가 $tink:*로 읽는 Tink action skills'
+        : 'Tink action skills for Codex through $tink:*'
+    };
+
+    if (agent === 'claude') return [claudeSkill];
+    if (agent === 'codex') return [codexSkills];
+    return [claudeSkill, codexSkills];
+  });
+
+  if (includesCodex(agent)) {
+    options.push({
+      value: 'codex-picker-cleanup',
+      label: 'Codex picker cleanup',
+      hint: language === 'ko'
+        ? '현재 repo의 repo-local Claude Tink surface를 정리해 Codex의 Source Command Tink 항목을 줄입니다.'
+        : 'Remove repo-local Claude Tink surfaces so Codex shows focused Tink skills.'
+    });
+  }
+
+  return options;
+}
+
+function wantsClaudeSkill(components) {
+  return components.includes('skill') || components.includes('claude-skill');
+}
+
+function wantsCodexSkills(components) {
+  return components.includes('skill') || components.includes('codex-skills');
+}
+
+function wantsCodexPickerCleanup(components, agent) {
+  return cleanCodexPicker || components.includes('codex-picker-cleanup') || agent === 'codex';
+}
+
+function locationSummary(agent, scope) {
+  const repoTarget = process.cwd();
+  const installTarget = scope === 'global' ? os.homedir() : repoTarget;
+  return [
+    `Repo target: ${repoTarget}`,
+    `Shared .tink target: ${path.join(installTarget, '.tink')}`,
+    includesClaude(agent) ? `Claude Code command target: ${path.join(installTarget, '.claude/commands/tink')}` : null,
+    includesClaude(agent) ? `Claude Code skill target: ${path.join(installTarget, '.claude/skills/tink')}` : null,
+    includesCodex(agent) ? `Codex skills target: ${path.join(codexHome(), 'skills')}` : null,
+    includesCodex(agent) ? `Codex picker cleanup target: ${path.join(repoTarget, '.claude')}` : null
+  ].filter(Boolean).join('\n');
+}
+
+function defaultComponentValues(agent, language) {
+  return componentOptionsFor(agent, language)
+    .map((item) => item.value)
+    .filter((value) => value !== 'hook' && value !== 'codex-picker-cleanup');
 }
 
 function colorLine(line, color) {
@@ -510,17 +581,20 @@ function copySelected(scope, components, agent) {
   const codexTarget = codexHome();
   const target = scope === 'global' ? globalTarget : repoTarget;
   const templateRoot = path.join(root, 'templates');
+  const cleanupCodexPicker = wantsCodexPickerCleanup(components, agent);
 
-  if (includesClaude(agent) && components.includes('commands')) {
+  if (includesClaude(agent) && components.includes('commands') && !cleanupCodexPicker) {
     copyTinkCommands(templateRoot, target);
   }
-  if (agent === 'codex') {
-    removeRepoLocalClaudeTinkSurface(target);
+  if (cleanupCodexPicker) {
+    removeRepoLocalClaudeTinkSurface(repoTarget);
   }
-  if (components.includes('skill')) {
-    if (includesClaude(agent)) {
+  if (wantsClaudeSkill(components)) {
+    if (includesClaude(agent) && !cleanupCodexPicker) {
       copyDir(path.join(templateRoot, 'claude/skills'), path.join(target, '.claude/skills'), target);
     }
+  }
+  if (wantsCodexSkills(components)) {
     if (includesCodex(agent)) {
       removeLegacyCodexSkill(codexTarget);
       copyDir(path.join(templateRoot, 'codex/skills'), path.join(codexTarget, 'skills'), codexTarget);
@@ -644,7 +718,7 @@ async function resolveChoices() {
   }
   if (!['en', 'ko', 'zh'].includes(language)) language = 'en';
 
-  let components = componentOptionsFor(agent, language).map((item) => item.value).filter((value) => value !== 'hook');
+  let components = defaultComponentValues(agent, language);
   if (includesClaude(agent) && args.includes('--with-hook')) components.push('hook');
   let gitPolicy = 'harnesses';
   let hookScope = 'off';
@@ -692,7 +766,7 @@ async function resolveChoices() {
     initialValues: agent === 'all' ? ['claude', 'codex'] : [agent],
     required: true
   })));
-  components = componentOptionsFor(agent, language).map((item) => item.value).filter((value) => value !== 'hook');
+  components = defaultComponentValues(agent, language);
   if (includesClaude(agent) && args.includes('--with-hook')) components.push('hook');
 
   components = handleCancel(await multiselect({
@@ -726,6 +800,8 @@ async function resolveChoices() {
     ],
     initialValue: scope || 'repo'
   }));
+
+  note(locationSummary(agent, scope), language === 'ko' ? '설치 위치' : 'Install locations');
 
   if (scope === 'repo' && components.some((item) => ['harnesses', 'memory', 'hook'].includes(item))) {
     note(copy.gitNote, copy.gitNoteTitle);
@@ -788,6 +864,7 @@ async function main() {
     console.log(`language ${language}`);
     console.log(`scope ${scope}`);
     console.log(`components ${components.join(', ')}`);
+    console.log(locationSummary(agent, scope));
   }
 
   const targets = copySelected(scope, components, agent);
