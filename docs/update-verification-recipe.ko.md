@@ -49,6 +49,7 @@ Codex surface를 갱신했다면 다음이 있어야 한다.
 
 - `skills/tink`는 제거되어야 한다.
 - picker에는 action skill이 보이고, `tink-core`는 공유 규칙으로만 쓰인다.
+- Codex-only update에서는 repo-local `.claude/commands/tink/*.md`와 `.claude/skills/tink/SKILL.md`가 제거되어 Codex에 `Source Command Tink ...` 또는 넓은 repo-local `Tink` 항목이 보이지 않아야 한다.
 
 ### 3. Claude Code command 확인
 
@@ -63,6 +64,8 @@ Claude Code surface를 갱신했다면 다음 command가 있어야 한다.
 - `/tink:update`
 
 repo 개발 중에는 `npm test`가 3-copy sync를 확인한다.
+
+Claude Code와 Codex를 둘 다 갱신했다면 repo-local Claude command가 Codex에서 `Source Command Tink ...`로 보일 수 있다. 이것은 `all` surface에서는 예상 가능한 상태이며, Codex-only update에서는 피한다.
 
 ### 4. Schema 확인
 

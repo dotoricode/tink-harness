@@ -105,6 +105,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('legacyTinyCommands', installer)
         self.assertIn('tink/maintenance', installer)
         self.assertIn('removeLegacyCodexSkill', installer)
+        self.assertIn('removeRepoLocalClaudeTinkSurface', installer)
         self.assertNotIn("value: 'both'", installer)
         self.assertNotIn("'tiny/harnesses'", installer)
         self.assertTrue((ROOT / pkg['bin']['tink-harness']).exists())
@@ -550,6 +551,16 @@ class TemplateTests(unittest.TestCase):
             stale_contract.write_text('{"old": true}\n', encoding='utf-8')
             stale_config = base / '.tink/config.json'
             stale_config.write_text('{"language": "custom", "install_scope": "custom", "local": true}\n', encoding='utf-8')
+            repo_command = base / '.claude/commands/tink/frog.md'
+            repo_command.parent.mkdir(parents=True)
+            repo_command.write_text('# /tink:frog\n\nTink frog command.\n', encoding='utf-8')
+            repo_update_command = base / '.claude/commands/tink/update.md'
+            repo_update_command.write_text('# /tink:update\n\nTink update command.\n', encoding='utf-8')
+            repo_flat_command = base / '.claude/commands/tink-frog.md'
+            repo_flat_command.write_text('legacy flat Tink command\n', encoding='utf-8')
+            repo_claude_skill = base / '.claude/skills/tink/SKILL.md'
+            repo_claude_skill.parent.mkdir(parents=True)
+            repo_claude_skill.write_text('---\nname: tink\n---\n\n# Tink\n\nClaude Tink skill.\n', encoding='utf-8')
 
             env = os.environ.copy()
             env['CODEX_HOME'] = str(codex_home)
@@ -584,6 +595,10 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue(config_after_update['local'])
             self.assertFalse((base / '.claude/commands').exists())
             self.assertFalse((base / '.claude/skills').exists())
+            self.assertFalse(repo_command.exists())
+            self.assertFalse(repo_update_command.exists())
+            self.assertFalse(repo_flat_command.exists())
+            self.assertFalse(repo_claude_skill.exists())
             self.assertIn('Updating Tink for Codex', output)
             self.assertIn('Update Result Summary', output)
             self.assertIn('Surfaces: codex', output)
@@ -595,6 +610,8 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('.tink/config.json', output)
             self.assertIn('Removed legacy paths:', output)
             self.assertIn('skills/tink', output)
+            self.assertIn('.claude/commands/tink/frog.md', output)
+            self.assertIn('.claude/skills/tink', output)
             self.assertIn('Next: open Codex and use $tink:cast <task> to start.', output)
 
     def test_package_contents_are_release_ready(self):
@@ -694,6 +711,7 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-08-context-run-history-rollup.ko.md',
             'docs/pr/2026-06-08-context-threshold-status.ko.md',
             'docs/pr/2026-06-08-context-run-record-policy.ko.md',
+            'docs/pr/2026-06-08-codex-surface-cleanup.ko.md',
             'README.md',
             'LICENSE',
         ]:
@@ -927,6 +945,8 @@ class TemplateTests(unittest.TestCase):
             'Update Troubleshooting',
             'Update Result Summary',
             'Old `tink` Still Appears In Codex',
+            'Source Command Tink',
+            'Codex-only update',
             'Schema Files Are Missing',
             'Windows Encoding Warnings',
             'Claude Code, Codex, or both',
@@ -937,6 +957,8 @@ class TemplateTests(unittest.TestCase):
             '업데이트 문제 해결 가이드',
             'Update Result Summary',
             'Codex skill picker에 예전 `tink`가 보일 때',
+            'Source Command Tink',
+            'Codex-only update',
             'schema files가 없을 때',
             'Windows에서 인코딩 경고가 보일 때',
             'Claude Code, Codex, 또는 둘 다',
@@ -948,6 +970,7 @@ class TemplateTests(unittest.TestCase):
             'Quick Check',
             'Update Result Summary',
             'Codex Skills',
+            'Source Command Tink',
             'Claude Code Commands',
             'Healthy Update Criteria',
             'docs/update-troubleshooting.md',
@@ -959,6 +982,7 @@ class TemplateTests(unittest.TestCase):
             '빠른 검증',
             'Update Result Summary',
             'Codex skill 확인',
+            'Source Command Tink',
             'Claude Code command 확인',
             '정상으로 볼 수 있는 기준',
             'docs/update-troubleshooting.ko.md',
