@@ -369,6 +369,70 @@ function removeLegacyCodexSkill(codexTarget) {
   if (!dryRun) fs.rmSync(legacyDir, { recursive: true, force: true });
 }
 
+function removeIfExists(base, filePath, label = 'legacy') {
+  if (!fs.existsSync(filePath)) return false;
+  log.message(`${dryRun ? `would remove ${label}` : `remove ${label}`} ${displayPath(base, filePath)}`);
+  recordOperation('removedLegacy', base, filePath);
+  if (!dryRun) fs.rmSync(filePath, { recursive: true, force: true });
+  return true;
+}
+
+function removeRepoLocalClaudeTinkSurface(target) {
+  const commandDir = path.join(target, '.claude/commands/tink');
+  const flatCommandDir = path.join(target, '.claude/commands');
+  const commandFiles = ['setup.md', 'cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'];
+  for (const name of commandFiles) {
+    removeIfExists(target, path.join(commandDir, name), 'repo-local Claude command');
+  }
+  if (fs.existsSync(commandDir) && fs.readdirSync(commandDir).length === 0) {
+    removeIfExists(target, commandDir, 'empty repo-local Claude command dir');
+  }
+
+  const legacyFlatCommands = [
+    'tink-setup.md',
+    'tink-cast.md',
+    'tink-verify.md',
+    'tink-list.md',
+    'tink-frog.md',
+    'tink-weave.md',
+    'tink-update.md',
+    'tink-forge.md',
+    'tink-purge.md',
+    'tink-hone.md'
+  ];
+  for (const name of legacyFlatCommands) {
+    removeIfExists(target, path.join(flatCommandDir, name), 'repo-local Claude command');
+  }
+  if (fs.existsSync(flatCommandDir) && fs.readdirSync(flatCommandDir).length === 0) {
+    removeIfExists(target, flatCommandDir, 'empty repo-local Claude commands dir');
+  }
+
+  const skillDir = path.join(target, '.claude/skills/tink');
+  const skillParentDir = path.join(target, '.claude/skills');
+  const skillFile = path.join(skillDir, 'SKILL.md');
+  if (!fs.existsSync(skillDir)) {
+    if (fs.existsSync(skillParentDir) && fs.readdirSync(skillParentDir).length === 0) {
+      removeIfExists(target, skillParentDir, 'empty repo-local Claude skills dir');
+    }
+    return;
+  }
+  if (!fs.existsSync(skillFile)) {
+    log.message(`keep unknown ${displayPath(target, skillDir)}`);
+    recordOperation('keptUnknown', target, skillDir);
+    return;
+  }
+  const text = fs.readFileSync(skillFile, 'utf8');
+  if (text.includes('name: tink') && text.includes('# Tink')) {
+    removeIfExists(target, skillDir, 'repo-local Claude skill');
+    if (fs.existsSync(skillParentDir) && fs.readdirSync(skillParentDir).length === 0) {
+      removeIfExists(target, skillParentDir, 'empty repo-local Claude skills dir');
+    }
+    return;
+  }
+  log.message(`keep unknown ${displayPath(target, skillDir)}`);
+  recordOperation('keptUnknown', target, skillDir);
+}
+
 function readJsonFile(filePath, fallback) {
   if (!fs.existsSync(filePath)) return fallback;
   try {
@@ -416,6 +480,9 @@ function copySelected(scope, components, agent) {
 
   if (includesClaude(agent) && components.includes('commands')) {
     copyTinkCommands(templateRoot, target);
+  }
+  if (agent === 'codex') {
+    removeRepoLocalClaudeTinkSurface(target);
   }
   if (components.includes('skill')) {
     if (includesClaude(agent)) {

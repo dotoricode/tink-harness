@@ -49,6 +49,7 @@ Expected state:
 
 - `skills/tink` is removed.
 - The picker shows action skills.
+- For a Codex-only update, repo-local `.claude/commands/tink/*.md` and `.claude/skills/tink/SKILL.md` are removed so Codex does not show `Source Command Tink ...` or a broad repo-local `Tink` entry.
 - `tink-core` is shared internal guidance, not a user-facing action.
 
 ### 3. Claude Code Commands
@@ -64,6 +65,8 @@ For Claude Code, these commands should exist:
 - `/tink:update`
 
 When developing Tink itself, `npm test` verifies the 3-copy command sync rule.
+
+If you intentionally refreshed both Claude Code and Codex, these repo-local Claude commands may also appear in Codex as `Source Command Tink ...`. That is expected for the `all` surface and avoided by a Codex-only update.
 
 ### 4. Schemas
 

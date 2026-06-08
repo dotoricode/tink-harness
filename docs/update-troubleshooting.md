@@ -19,13 +19,15 @@ After `tink-harness update`, read `Update Result Summary`.
 Possible causes:
 
 - The old broad Codex `skills/tink/SKILL.md` is still present.
+- Repo-local Claude Code files such as `.claude/commands/tink/*.md` are being shown by Codex as `Source Command Tink ...`.
+- Repo-local Claude Code skill `.claude/skills/tink/SKILL.md` is being shown by Codex as a broad `Tink` skill.
 - `CODEX_HOME` points somewhere unexpected.
 - Codex has not refreshed the skill list yet.
 
 Run:
 
 ```bash
-npx tink-harness@latest update --yes
+TINK_INSTALL_SURFACES=codex npx tink-harness@latest update --yes
 ```
 
 Then check `Codex target`, `Removed legacy paths`, and `Codex skills` in the summary.
@@ -33,8 +35,11 @@ Then check `Codex target`, `Removed legacy paths`, and `Codex skills` in the sum
 Expected state:
 
 - `skills/tink` is gone.
+- `.claude/commands/tink/*.md` and `.claude/skills/tink/SKILL.md` are gone for a Codex-only update.
 - `tink-cast`, `tink-verify`, `tink-list`, `tink-frog`, `tink-weave`, `tink-setup`, and `tink-update` exist.
 - `tink-core/RULES.md` exists as shared internal rules, but should not appear as a user action in the picker.
+
+If you intentionally selected both Claude Code and Codex, repo-local Claude commands may remain. In that case `Source Command Tink ...` entries are expected because the repo still has Claude Code commands installed.
 
 ## Schema Files Are Missing
 
