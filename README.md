@@ -24,7 +24,7 @@
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.6.1 - Existing installs now refresh generated legacy rule graphs during <code>tink-harness update</code>. Latest minor release notes: <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.6.0">v1.6.0</a>.</p>
+<p><strong>Latest package:</strong> v1.6.2 - Codex installs now show focused <code>Tink: Cast</code> action skills, split Claude/Codex skill choices, and can clean stale Codex picker entries. Latest minor release notes: <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.6.0">v1.6.0</a>.</p>
 
 **English** · [한국어](README.ko.md)
 
@@ -123,6 +123,15 @@ During update, select the installed agent surface you want to refresh.
 To quickly verify the updated install, see `docs/update-verification-recipe.md` or `docs/update-verification-recipe.ko.md`.
 
 If an update looks stale or incomplete, see `docs/update-troubleshooting.md` or `docs/update-troubleshooting.ko.md`.
+
+## What's new in 1.6.2
+
+This patch makes the installer clearer for mixed Claude Code + Codex setups.
+
+- Codex action skills now install with names like `Tink: Cast`, `Tink: Verify`, and `Tink: Update` instead of generic `Cast`/`Verify` labels.
+- The component picker now separates `Claude Code Tink skill` from `Codex Tink skills` when both surfaces are selected.
+- Install/update output now prints the repo, shared `.tink`, Claude Code, and Codex target paths so you can see where the selected choices will land.
+- `--clean-codex-picker` and `TINK_CLEAN_CODEX_PICKER=1` can remove repo-local Claude Tink command/skill surfaces that make Codex show noisy `Source Command Tink ...` entries.
 
 ## What's new in 1.6.1
 

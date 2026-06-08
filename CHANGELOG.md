@@ -7,6 +7,21 @@ All notable changes to Tink are tracked here.
 No unreleased changes yet.
 
 
+## [1.6.2] - 2026-06-09
+
+### Changed
+
+- Codex action skill templates now install with names like `Tink: Cast`, `Tink: Verify`, and `Tink: Update` so the Codex picker shows the Tink namespace clearly.
+- The installer now separates `Claude Code Tink skill` and `Codex Tink skills` when both Claude Code and Codex surfaces are selected.
+- Install/update output now includes repo, shared `.tink`, Claude Code, Codex, and Codex picker cleanup target paths.
+
+### Added
+
+- `--clean-codex-picker` and `TINK_CLEAN_CODEX_PICKER=1` for removing repo-local Claude Tink command/skill surfaces that make Codex show noisy `Source Command Tink ...` entries.
+- Regression coverage for mixed-surface component choices, Codex skill display names, and Codex picker cleanup.
+- Korean PR history draft for the v1.6.2 patch in `docs/pr/2026-06-09-v1.6.2.ko.md`.
+
+
 ## [1.6.1] - 2026-06-09
 
 ### Fixed

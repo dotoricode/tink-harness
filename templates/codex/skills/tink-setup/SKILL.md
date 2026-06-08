@@ -1,5 +1,5 @@
 ---
-name: setup
+name: "Tink: Setup"
 description: Configure Tink language, scope, git tracking, and policy.
 ---
 

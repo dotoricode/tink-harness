@@ -1,5 +1,5 @@
 ---
-name: list
+name: "Tink: List"
 description: Inspect available Tink harnesses and usage signals.
 ---
 

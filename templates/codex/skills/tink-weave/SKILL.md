@@ -1,5 +1,5 @@
 ---
-name: weave
+name: "Tink: Weave"
 description: Improve Tink harnesses from real use, failures, and corrections.
 ---
 
