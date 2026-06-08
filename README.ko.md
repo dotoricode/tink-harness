@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 릴리스:** v1.4.0 — context 효율 점수를 계산식, evidence ref, 측정 scope와 함께 남기는 Context Metrics Evaluator artifact.
+**최신 릴리스:** v1.5.0 — Codex-only update에서 Codex skill picker에 `Source Command Tink ...`로 보이던 repo-local Claude Tink surface를 정리합니다.
 
 [English](README.md) · **한국어**
 
@@ -59,7 +59,15 @@ npx tink-harness@latest update
 
 업데이트 후 Codex skill, schema, Windows 경고가 이상해 보이면 `docs/update-troubleshooting.ko.md` 또는 `docs/update-troubleshooting.md`를 확인하세요.
 
-## 1.2.0에서 달라진 점
+## 1.5.0에서 달라진 점
+
+이번 릴리스는 기존 repo에서 Codex skill picker가 헷갈리게 보이는 문제를 고쳤습니다.
+
+- Codex-only `tink-harness update`가 repo-local `.claude/commands/tink/*.md`와 예전 repo-local `.claude/skills/tink/SKILL.md` Tink surface를 정리합니다.
+- 그래서 Codex에서 `$tink:*` action skill만 기대하는 상황에 `Source Command Tink Frog/List/...` 또는 넓은 `Tink` 항목이 같이 보이는 일을 줄입니다.
+- 의도적으로 Claude Code와 Codex를 둘 다 설치한 경우에는 repo-local Claude Code command가 남을 수 있고, 이때 `Source Command Tink ...` 항목은 정상일 수 있습니다. 자세한 내용은 `docs/update-troubleshooting.ko.md` 또는 `docs/update-troubleshooting.md`를 확인하세요.
+
+## 1.2.0 이후 기반 개선
 
 이번 릴리스는 Tink를 Claude Code와 Codex에서 같은 하네스 레이어로 쓰기 쉽게 정리합니다.
 

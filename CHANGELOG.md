@@ -7,6 +7,21 @@ All notable changes to Tink are tracked here.
 No unreleased changes yet.
 
 
+## [1.5.0] - 2026-06-08
+
+### Changed
+
+- Codex-only install/update now removes repo-local Tink Claude Code command files under `.claude/commands/tink/*.md` so Codex no longer shows them as stale `Source Command Tink ...` entries after a Codex-only refresh.
+- Codex-only install/update now removes the old repo-local `.claude/skills/tink/SKILL.md` Tink surface when it matches the known generated Tink skill, while preserving unknown user-authored content.
+- Update troubleshooting and verification docs now explain when `Source Command Tink ...` is stale and when it is expected because the repo intentionally keeps the Claude Code surface.
+- README and Korean README now highlight the v1.5.0 update behavior for existing Codex users.
+
+### Added
+
+- Regression coverage for Codex-only update cleanup of repo-local Claude command and skill surfaces.
+- Korean PR history draft for the v1.5.0 release in `docs/pr/2026-06-08-v1.5.0.ko.md`.
+
+
 ## [1.4.0] - 2026-06-08
 
 ### Added
