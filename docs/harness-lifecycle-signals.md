@@ -42,18 +42,27 @@ Recommendations are only suggestions. Deleting, merging, rewriting, saving memor
 
 ## Local HTML Report
 
-Installed repos also receive a small read-only helper:
+Installed repos also receive two small read-only helpers. First, generate the JSON summary from visible `.tink/` records:
+
+```bash
+node .tink/tools/generate-harness-lifecycle-summary.mjs
+```
+
+By default it reads `.tink/harnesses/index.json`, `.tink/runs/*.md`, `.tink/maintenance/weave-queue.json`, and `.tink/maintenance/friction.jsonl`, then writes `.tink/maintenance/harness-lifecycle.json`.
+
+Then turn that summary into a local HTML report:
 
 ```bash
 node .tink/tools/render-harness-health-report.mjs
 ```
 
-By default it reads `.tink/maintenance/harness-lifecycle.json` and writes `.tink/maintenance/harness-health-report.html`. You can pass explicit input and output paths when testing:
+The report helper reads `.tink/maintenance/harness-lifecycle.json` and writes `.tink/maintenance/harness-health-report.html`. You can pass explicit paths when testing:
 
 ```bash
+node .tink/tools/generate-harness-lifecycle-summary.mjs repo-root output.json
 node .tink/tools/render-harness-health-report.mjs input.json output.html
 ```
 
-The report is only a view of the summary. It does not edit, merge, archive, delete, save memory, or update rules.
+Both helpers are read-only with respect to reusable Tink state. They write only the requested summary or report file. They do not edit, merge, archive, delete, save memory, or update rules.
 
 This is not a watcher, hidden cache, or new public `tink index` command. The source of truth remains the visible files under `.tink/runs/`, `.tink/maintenance/`, `.tink/harnesses/`, and `.tink/rules/`.
