@@ -40,4 +40,20 @@ Evidence should stay conservative:
 
 Recommendations are only suggestions. Deleting, merging, rewriting, saving memory, or updating rules still requires explicit approval. A lifecycle summary may prepare the next action, but it must not apply it automatically.
 
+## Local HTML Report
+
+Installed repos also receive a small read-only helper:
+
+```bash
+node .tink/tools/render-harness-health-report.mjs
+```
+
+By default it reads `.tink/maintenance/harness-lifecycle.json` and writes `.tink/maintenance/harness-health-report.html`. You can pass explicit input and output paths when testing:
+
+```bash
+node .tink/tools/render-harness-health-report.mjs input.json output.html
+```
+
+The report is only a view of the summary. It does not edit, merge, archive, delete, save memory, or update rules.
+
 This is not a watcher, hidden cache, or new public `tink index` command. The source of truth remains the visible files under `.tink/runs/`, `.tink/maintenance/`, `.tink/harnesses/`, and `.tink/rules/`.
