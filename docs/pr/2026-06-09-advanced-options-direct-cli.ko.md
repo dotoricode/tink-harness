@@ -17,11 +17,14 @@ Interactive install/update에 `--dry-run`, `--force`, `--clean-codex-picker`가 
 - Graphify식 knowledge graph 화면을 참고해 하네스 health report를 왼쪽 navigation, 중앙 graph canvas, 오른쪽 insight rail 구조의 정적 대시보드로 바꿨다.
 - 실제 graph 관계가 적을 때도 하네스 사용량, evidence, candidate score factor를 작은 위성 노드로 보여줘 지도 형태를 더 읽기 쉽게 했다.
 - 오른쪽 insight rail에 Cast routing rules 카드를 추가해 새 visible-thinking 하네스가 어떤 상황에서 붙는지 바로 볼 수 있게 했다.
+- setup에서 선택한 언어에 맞춰 dashboard 설명, 버튼, 패널 제목은 한국어로 표시하고, 하네스 ID·명령어·graph relation type 같은 안정 식별자는 영어로 유지했다.
+- `Full/Core/Pause` 컨트롤, recommendation 필터 카드, 하네스 카드 선택, 중요 하네스/routing rule 클릭, 노드 선택 강조를 실제 동작으로 연결했다.
 
 ## 검증
 
 - `npm test`
 - `git diff --check`
+- 인앱 브라우저에서 dashboard 로드 후 `전체/핵심/정지`, recommendation 필터, 하네스 카드, graph node 선택 동작과 콘솔 error/warn 0건을 확인했다.
 
 ## 참고
 

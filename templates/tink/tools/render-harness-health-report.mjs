@@ -28,6 +28,177 @@ const REC_COLORS = {
   unknown: '#9aa7b7'
 };
 
+const COPY = {
+  en: {
+    htmlLang: 'en',
+    title: 'Tink Harness Health Summary',
+    navLabel: 'Navigation',
+    operator: 'Operator',
+    online: 'Tink Online',
+    localHealth: 'LOCAL HARNESS HEALTH',
+    knowledgeGraph: 'Knowledge Graph',
+    heroText: 'Every visible Tink run, rule, memory reference, and harness relationship mapped into one local dashboard. This report only prepares suggestions and never edits reusable state.',
+    generated: 'GENERATED',
+    harnessMap: 'HARNESS MAP',
+    mapHelp: 'Harnesses, rules, memory, and stages are mapped from visible Tink records. Click a node to inspect it.',
+    graphControls: 'Graph controls',
+    full: 'Full',
+    core: 'Core',
+    pause: 'Pause',
+    nodeSize: 'node size = usage',
+    colorType: 'color = type',
+    linesRelations: 'lines = relationships',
+    recentRuns: 'RECENT RUNS',
+    timeline: 'Recent run timeline',
+    noRunEvents: 'No run events found.',
+    runRecordsWillAppear: 'Run records will appear here.',
+    noHarnessRecorded: 'No harness recorded',
+    harnessCards: 'Harness cards',
+    harnesses: 'Harnesses',
+    tracked: 'tracked',
+    nodes: 'Nodes',
+    graphItems: 'graph items',
+    links: 'Links',
+    relations: 'relations',
+    active: 'Active',
+    recentState: 'recent state',
+    uses: 'Uses',
+    visibleRecords: 'visible records',
+    mapConfidence: 'MAP CONFIDENCE',
+    confidenceText: 'of harnesses have visible evidence handles. Lower confidence means observe before changing reusable state.',
+    importantHarnesses: 'MOST IMPORTANT HARNESSES',
+    candidateScore: 'Candidate score',
+    noHarnessEvidence: 'No harness evidence yet.',
+    castRoutingRules: 'CAST ROUTING RULES',
+    visibleThinking: 'Visible-thinking overlays',
+    selected: 'SELECTED',
+    noHarnessSelected: 'No harness selected',
+    clickNode: 'Click a node to inspect it.',
+    recommendation: 'Recommendation',
+    lifecycleState: 'Lifecycle state',
+    score: 'Score',
+    blocked: 'Blocked',
+    context: 'Context',
+    with: 'With',
+    evidenceHandles: 'Evidence handles',
+    graphOverview: 'Graph overview',
+    nodeTypes: 'Node types',
+    edgeTypes: 'Edge types',
+    none: 'None',
+    type: 'Type',
+    weight: 'Weight',
+    recommendations: 'RECOMMENDATIONS',
+    currentMix: 'Current mix',
+    noRecommendations: 'No recommendations yet.',
+    sources: 'SOURCES',
+    runCount: 'Run count',
+    tooltipPrefix: 'Click to inspect',
+    filteredTo: 'Filtered to',
+    showingAll: 'Showing all graph nodes',
+    coreMode: 'Core graph only',
+    pauseOn: 'Motion paused',
+    pauseOff: 'Motion enabled',
+    groups: [
+      ['keep', 'Healthy harnesses', 'Ready to keep using'],
+      ['weave', 'Weave candidates', 'Worth improving next'],
+      ['frog_candidate', 'Cleanup review', 'Needs explicit approval'],
+      ['merge_candidate', 'Merge review', 'Overlap to inspect'],
+      ['observe', 'Observation pool', 'Needs more evidence']
+    ],
+    routeRules: [
+      ['requirements-interview', 'Ambiguous scope or missing acceptance criteria'],
+      ['plan-consensus', 'API, schema, contract, refactor, or tradeoff-heavy plans'],
+      ['goal-checkpoint', 'Multi-file, multi-phase, resumed, or release-step work'],
+      ['delegation-brief', 'Independent verification, PR handoff, agent, or human handoff']
+    ]
+  },
+  ko: {
+    htmlLang: 'ko',
+    title: 'Tink 하네스 건강 요약',
+    navLabel: '탐색',
+    operator: '작업자',
+    online: 'Tink 온라인',
+    localHealth: '로컬 하네스 건강',
+    knowledgeGraph: 'Knowledge Graph',
+    heroText: '보이는 Tink run, rule, memory reference, harness 관계를 하나의 로컬 대시보드로 보여줍니다. 이 보고서는 제안만 준비하며 재사용 상태를 직접 수정하지 않습니다.',
+    generated: '생성 시각',
+    harnessMap: '하네스 지도',
+    mapHelp: '보이는 Tink 기록에서 하네스, rule, memory, stage 관계를 그립니다. 노드를 클릭하면 자세히 볼 수 있습니다.',
+    graphControls: '그래프 조작',
+    full: '전체',
+    core: '핵심',
+    pause: '정지',
+    nodeSize: '노드 크기 = 사용량',
+    colorType: '색상 = type',
+    linesRelations: '선 = 관계',
+    recentRuns: '최근 run',
+    timeline: '최근 run 타임라인',
+    noRunEvents: '아직 run 이벤트가 없습니다.',
+    runRecordsWillAppear: 'run 기록이 생기면 여기에 표시됩니다.',
+    noHarnessRecorded: '기록된 하네스 없음',
+    harnessCards: '하네스 카드',
+    harnesses: '하네스',
+    tracked: '추적 중',
+    nodes: '노드',
+    graphItems: '그래프 항목',
+    links: '링크',
+    relations: '관계',
+    active: '활성',
+    recentState: '최근 상태',
+    uses: '사용',
+    visibleRecords: '보이는 기록',
+    mapConfidence: '지도 신뢰도',
+    confidenceText: '개 하네스에 보이는 evidence handle이 있습니다. 신뢰도가 낮으면 재사용 상태를 바꾸기 전에 관찰이 필요합니다.',
+    importantHarnesses: '중요 하네스',
+    candidateScore: '후보 점수',
+    noHarnessEvidence: '아직 하네스 evidence가 없습니다.',
+    castRoutingRules: 'CAST 선택 규칙',
+    visibleThinking: '생각 보조 overlay',
+    selected: '선택됨',
+    noHarnessSelected: '선택된 하네스 없음',
+    clickNode: '노드를 클릭하면 자세히 볼 수 있습니다.',
+    recommendation: '추천',
+    lifecycleState: '생애주기 상태',
+    score: '점수',
+    blocked: '막힘',
+    context: '컨텍스트',
+    with: '함께 사용',
+    evidenceHandles: 'Evidence handles',
+    graphOverview: '그래프 개요',
+    nodeTypes: '노드 type',
+    edgeTypes: 'edge type',
+    none: '없음',
+    type: 'Type',
+    weight: 'Weight',
+    recommendations: '추천 요약',
+    currentMix: '현재 구성',
+    noRecommendations: '아직 추천이 없습니다.',
+    sources: '소스',
+    runCount: 'Run 수',
+    tooltipPrefix: '클릭해서 보기',
+    filteredTo: '필터',
+    showingAll: '전체 그래프 표시 중',
+    coreMode: '핵심 그래프만 표시 중',
+    pauseOn: '움직임 정지',
+    pauseOff: '움직임 켜짐',
+    groups: [
+      ['keep', '건강한 하네스', '계속 사용해도 좋음'],
+      ['weave', '개선 후보', '다음에 다듬을 만함'],
+      ['frog_candidate', '정리 검토', '명시 승인 필요'],
+      ['merge_candidate', '병합 검토', '겹침 확인 필요'],
+      ['observe', '관찰 대상', '증거가 더 필요함']
+    ],
+    routeRules: [
+      ['requirements-interview', '범위가 애매하거나 acceptance criteria가 빠졌을 때'],
+      ['plan-consensus', 'API, schema, contract, 큰 리팩터링, tradeoff가 많은 계획일 때'],
+      ['goal-checkpoint', 'multi-file, multi-phase, resumed thread, release steps일 때'],
+      ['delegation-brief', '독립 검증, PR handoff, 다른 agent/human handoff가 필요할 때']
+    ]
+  }
+};
+
+COPY.zh = COPY.en;
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -46,6 +217,28 @@ function readSummary(filePath) {
     throw new Error(`Missing harness health summary: ${filePath}`);
   }
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function readConfiguredLanguage() {
+  const configPath = path.resolve(process.cwd(), '.tink/config.json');
+  if (!fs.existsSync(configPath)) return 'en';
+  try {
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    const language = config.language || 'en';
+    if (language === 'auto') {
+      const lang = String(process.env.LANG || '').toLowerCase();
+      if (lang.startsWith('ko')) return 'ko';
+      if (lang.startsWith('zh')) return 'zh';
+      return 'en';
+    }
+    return COPY[language] ? language : 'en';
+  } catch {
+    return 'en';
+  }
+}
+
+function reportCopy() {
+  return COPY[readConfiguredLanguage()] || COPY.en;
 }
 
 function countByRecommendation(harnesses) {
@@ -161,11 +354,13 @@ function buildGraphLayout(summary) {
     const y = clamp(anchor.y + Math.sin(angle) * anchor.ry * ring, 42, 638);
     const radius = clamp(4 + Math.sqrt(Number(node.weight || 1) / maxWeight) * 17, 5, 26);
     const score = Number(node.candidate_score || 0);
+    const harness = type === 'harness' ? harnessById.get(shortLabel(node.id)) : null;
     return {
       ...node,
       id: String(node.id),
       type,
       label: node.label || shortLabel(node.id),
+      recommendation: harness?.recommendation || '',
       x,
       y,
       radius,
@@ -224,7 +419,7 @@ function buildGraphLayout(summary) {
   return { nodes: augmented, edges: drawnEdges };
 }
 
-function renderGraphCanvas(summary) {
+function renderGraphCanvas(summary, copy) {
   const { nodes, edges } = buildGraphLayout(summary);
   const strongest = nodes
     .filter((node) => node.type === 'harness')
@@ -234,14 +429,14 @@ function renderGraphCanvas(summary) {
     <section class="map-panel" aria-labelledby="map-title">
       <div class="map-head">
         <div>
-          <p class="eyebrow">HARNESS MAP</p>
-          <h2 id="map-title">Knowledge Graph</h2>
-          <p>Harnesses, rules, memory, and stages are mapped from visible Tink records. Click a node to inspect it.</p>
+          <p class="eyebrow">${escapeHtml(copy.harnessMap)}</p>
+          <h2 id="map-title">${escapeHtml(copy.knowledgeGraph)}</h2>
+          <p>${escapeHtml(copy.mapHelp)}</p>
         </div>
-        <div class="map-controls" aria-label="Graph controls">
-          <button class="active" type="button">Full</button>
-          <button type="button">Core</button>
-          <button type="button">Pause</button>
+        <div class="map-controls" aria-label="${escapeAttr(copy.graphControls)}">
+          <button class="active" type="button" data-mode="full" aria-pressed="true">${escapeHtml(copy.full)}</button>
+          <button type="button" data-mode="core" aria-pressed="false">${escapeHtml(copy.core)}</button>
+          <button type="button" data-action="pause" aria-pressed="false">${escapeHtml(copy.pause)}</button>
         </div>
       </div>
       <svg class="graph-canvas" viewBox="0 0 1090 680" role="img" aria-label="Harness health graph">
@@ -263,6 +458,10 @@ function renderGraphCanvas(summary) {
         <g class="edges">
           ${edges.map((edge) => `
             <line
+              class="graph-edge"
+              data-source="${escapeAttr(edge.source)}"
+              data-target="${escapeAttr(edge.target)}"
+              data-edge-type="${escapeAttr(edge.type)}"
               x1="${edge.sourceNode.x.toFixed(1)}"
               y1="${edge.sourceNode.y.toFixed(1)}"
               x2="${edge.targetNode.x.toFixed(1)}"
@@ -277,10 +476,15 @@ function renderGraphCanvas(summary) {
           ${nodes.map((node) => `
             <circle
               class="graph-node"
+              tabindex="0"
+              role="button"
+              aria-label="${escapeAttr(`${copy.tooltipPrefix}: ${node.label}`)}"
               data-node-id="${escapeAttr(node.id)}"
               data-node-type="${escapeAttr(node.type)}"
               data-node-label="${escapeAttr(node.label)}"
               data-node-weight="${escapeAttr(node.weight || 0)}"
+              data-core="${node.type === 'harness' || node.type === 'rule' || Number(node.weight || 0) > 1 ? 'true' : 'false'}"
+              data-recommendation="${escapeAttr(node.recommendation || '')}"
               cx="${node.x.toFixed(1)}"
               cy="${node.y.toFixed(1)}"
               r="${node.radius.toFixed(1)}"
@@ -301,45 +505,41 @@ function renderGraphCanvas(summary) {
           `).join('')}
         </g>
       </svg>
+      <div class="graph-tooltip" id="graph-tooltip" role="status" aria-live="polite"></div>
       <div class="map-caption">
-        <span>node size = usage</span>
-        <span>color = type</span>
-        <span>lines = relationships</span>
+        <span id="graph-status">${escapeHtml(copy.showingAll)}</span>
+        <span>${escapeHtml(copy.nodeSize)}</span>
+        <span>${escapeHtml(copy.colorType)}</span>
+        <span>${escapeHtml(copy.linesRelations)}</span>
       </div>
     </section>
   `;
 }
 
-function renderProjectCards(harnesses) {
-  const groups = [
-    ['keep', 'Healthy harnesses', 'Ready to keep using'],
-    ['weave', 'Weave candidates', 'Worth improving next'],
-    ['frog_candidate', 'Cleanup review', 'Needs explicit approval'],
-    ['merge_candidate', 'Merge review', 'Overlap to inspect'],
-    ['observe', 'Observation pool', 'Needs more evidence']
-  ];
+function renderProjectCards(harnesses, copy) {
+  const groups = copy.groups;
   const counts = new Map(countByRecommendation(harnesses));
   return `
     <section class="project-strip" aria-label="Health groups">
       ${groups.map(([key, title, hint]) => `
-        <article class="project-card ${recommendationClass(key)}">
+        <button class="project-card ${recommendationClass(key)}" type="button" data-filter-rec="${escapeAttr(key)}" aria-pressed="false">
           <span class="project-bar"></span>
           <h3>${escapeHtml(title)}</h3>
           <p>${escapeHtml(hint)}</p>
           <strong>${escapeHtml(counts.get(key) || 0)}</strong>
-        </article>
+        </button>
       `).join('')}
     </section>
   `;
 }
 
-function renderTimeline(events = []) {
+function renderTimeline(events = [], copy) {
   const items = events.slice(0, 8);
   return `
     <section class="timeline">
       <div class="panel-title">
-        <p class="eyebrow">RECENT RUNS</p>
-        <h2>Recent run timeline</h2>
+        <p class="eyebrow">${escapeHtml(copy.recentRuns)}</p>
+        <h2>${escapeHtml(copy.timeline)}</h2>
       </div>
       <ol>
         ${items.map((event) => `
@@ -347,49 +547,49 @@ function renderTimeline(events = []) {
             <span class="dot ${recommendationClass(event.outcome || 'unknown')}"></span>
             <div>
               <strong>${escapeHtml(event.outcome || 'unknown')}</strong>
-              <p>${escapeHtml((event.harnesses || []).join(', ') || 'No harness recorded')}</p>
+              <p>${escapeHtml((event.harnesses || []).join(', ') || copy.noHarnessRecorded)}</p>
               <code>${escapeHtml(normalizePath(event.source))}</code>
             </div>
           </li>
-        `).join('') || '<li><span class="dot observe"></span><div><strong>No run events found.</strong><p>Run records will appear here.</p></div></li>'}
+        `).join('') || `<li><span class="dot observe"></span><div><strong>${escapeHtml(copy.noRunEvents)}</strong><p>${escapeHtml(copy.runRecordsWillAppear)}</p></div></li>`}
       </ol>
     </section>
   `;
 }
 
-function renderStats(summary) {
+function renderStats(summary, copy) {
   const harnesses = Array.isArray(summary.harnesses) ? summary.harnesses : [];
   const graph = graphStats(summary.graph || {});
   const active = harnesses.filter((item) => item.lifecycle_state === 'active').length;
   const checks = harnesses.reduce((sum, item) => sum + Number(item.signals?.uses || 0), 0);
   return `
     <section class="stats-grid">
-      <article><span>Harnesses</span><strong>${formatNumber(harnesses.length)}</strong><small>tracked</small></article>
-      <article><span>Nodes</span><strong>${formatNumber(graph.nodes.length)}</strong><small>graph items</small></article>
-      <article><span>Links</span><strong>${formatNumber(graph.edges.length)}</strong><small>relations</small></article>
-      <article><span>Active</span><strong>${formatNumber(active)}</strong><small>recent state</small></article>
-      <article><span>Uses</span><strong>${formatNumber(checks)}</strong><small>visible records</small></article>
+      <article><span>${escapeHtml(copy.harnesses)}</span><strong>${formatNumber(harnesses.length)}</strong><small>${escapeHtml(copy.tracked)}</small></article>
+      <article><span>${escapeHtml(copy.nodes)}</span><strong>${formatNumber(graph.nodes.length)}</strong><small>${escapeHtml(copy.graphItems)}</small></article>
+      <article><span>${escapeHtml(copy.links)}</span><strong>${formatNumber(graph.edges.length)}</strong><small>${escapeHtml(copy.relations)}</small></article>
+      <article><span>${escapeHtml(copy.active)}</span><strong>${formatNumber(active)}</strong><small>${escapeHtml(copy.recentState)}</small></article>
+      <article><span>${escapeHtml(copy.uses)}</span><strong>${formatNumber(checks)}</strong><small>${escapeHtml(copy.visibleRecords)}</small></article>
     </section>
   `;
 }
 
-function renderConfidence(summary) {
+function renderConfidence(summary, copy) {
   const harnesses = Array.isArray(summary.harnesses) ? summary.harnesses : [];
   const withEvidence = harnesses.filter((item) => (item.evidence_handles || []).length > 0).length;
   const confidence = harnesses.length ? Math.round((withEvidence / harnesses.length) * 100) : 0;
   return `
     <section class="insight-card confidence">
       <div class="panel-title">
-        <p class="eyebrow">MAP CONFIDENCE</p>
+        <p class="eyebrow">${escapeHtml(copy.mapConfidence)}</p>
         <h2>${confidence}%</h2>
       </div>
       <div class="meter"><span style="width: ${confidence}%"></span></div>
-      <p><strong>${withEvidence}</strong> of <strong>${harnesses.length}</strong> harnesses have visible evidence handles. Lower confidence means observe before changing reusable state.</p>
+      <p><strong>${withEvidence}</strong> / <strong>${harnesses.length}</strong> ${escapeHtml(copy.confidenceText)}</p>
     </section>
   `;
 }
 
-function renderImportantHarnesses(harnesses) {
+function renderImportantHarnesses(harnesses, copy) {
   const ranked = harnesses
     .slice()
     .sort((a, b) => {
@@ -401,8 +601,8 @@ function renderImportantHarnesses(harnesses) {
   return `
     <section class="insight-card">
       <div class="panel-title">
-        <p class="eyebrow">MOST IMPORTANT HARNESSES</p>
-        <h2>Candidate score</h2>
+        <p class="eyebrow">${escapeHtml(copy.importantHarnesses)}</p>
+        <h2>${escapeHtml(copy.candidateScore)}</h2>
       </div>
       <ol class="ranked">
         ${ranked.map((item, index) => {
@@ -410,34 +610,31 @@ function renderImportantHarnesses(harnesses) {
           const width = clamp(score || Number(item.signals?.uses || 0) * 8, 8, 100);
           return `
             <li>
-              <span>${index + 1}. ${escapeHtml(item.id)}</span>
+              <button class="ranked-button" type="button" data-select-harness="${escapeAttr(item.id)}">
+                <span>${index + 1}. ${escapeHtml(item.id)}</span>
+              </button>
               <strong>${escapeHtml(score)}</strong>
               <i style="width:${width}%"></i>
             </li>
           `;
-        }).join('') || '<li><span>No harness evidence yet.</span><strong>0</strong><i></i></li>'}
+        }).join('') || `<li><span>${escapeHtml(copy.noHarnessEvidence)}</span><strong>0</strong><i></i></li>`}
       </ol>
     </section>
   `;
 }
 
-function renderCastRoutingRules() {
-  const rules = [
-    ['requirements-interview', 'Ambiguous scope or missing acceptance criteria'],
-    ['plan-consensus', 'API, schema, contract, refactor, or tradeoff-heavy plans'],
-    ['goal-checkpoint', 'Multi-file, multi-phase, resumed, or release-step work'],
-    ['delegation-brief', 'Independent verification, PR handoff, agent, or human handoff']
-  ];
+function renderCastRoutingRules(copy) {
+  const rules = copy.routeRules;
   return `
     <section class="insight-card routing-card">
       <div class="panel-title">
-        <p class="eyebrow">CAST ROUTING RULES</p>
-        <h2>Visible-thinking overlays</h2>
+        <p class="eyebrow">${escapeHtml(copy.castRoutingRules)}</p>
+        <h2>${escapeHtml(copy.visibleThinking)}</h2>
       </div>
       <ol class="route-list">
         ${rules.map(([harness, trigger]) => `
           <li>
-            <code>${escapeHtml(harness)}</code>
+            <button type="button" class="link-button" data-select-harness="${escapeAttr(harness)}"><code>${escapeHtml(harness)}</code></button>
             <span>${escapeHtml(trigger)}</span>
           </li>
         `).join('')}
@@ -446,31 +643,31 @@ function renderCastRoutingRules() {
   `;
 }
 
-function renderSelectedPanel(harnesses) {
+function renderSelectedPanel(harnesses, copy) {
   const first = harnesses.find((item) => item.signals?.uses > 0) || harnesses[0];
   if (!first) {
-    return '<section class="insight-card selected"><p class="eyebrow">SELECTED</p><h2>No harness selected</h2><p>Click a node to inspect it.</p></section>';
+    return `<section class="insight-card selected" id="selected-panel"><p class="eyebrow">${escapeHtml(copy.selected)}</p><h2>${escapeHtml(copy.noHarnessSelected)}</h2><p>${escapeHtml(copy.clickNode)}</p></section>`;
   }
   return `
     <section class="insight-card selected" id="selected-panel">
-      <p class="eyebrow">SELECTED</p>
+      <p class="eyebrow">${escapeHtml(copy.selected)}</p>
       <h2>${escapeHtml(first.id)}</h2>
-      <p>${escapeHtml(first.reason || 'Click a node to inspect it.')}</p>
+      <p>${escapeHtml(first.reason || copy.clickNode)}</p>
       <dl>
-        <div><dt>Recommendation</dt><dd>${escapeHtml(first.recommendation || 'unknown')}</dd></div>
-        <div><dt>Lifecycle state</dt><dd>${escapeHtml(first.lifecycle_state || 'unknown')}</dd></div>
-        <div><dt>Uses</dt><dd>${escapeHtml(first.signals?.uses || 0)}</dd></div>
-        <div><dt>Score</dt><dd>${escapeHtml(first.candidate_score?.total || 0)}</dd></div>
+        <div><dt>${escapeHtml(copy.recommendation)}</dt><dd>${escapeHtml(first.recommendation || 'unknown')}</dd></div>
+        <div><dt>${escapeHtml(copy.lifecycleState)}</dt><dd>${escapeHtml(first.lifecycle_state || 'unknown')}</dd></div>
+        <div><dt>${escapeHtml(copy.uses)}</dt><dd>${escapeHtml(first.signals?.uses || 0)}</dd></div>
+        <div><dt>${escapeHtml(copy.score)}</dt><dd>${escapeHtml(first.candidate_score?.total || 0)}</dd></div>
       </dl>
     </section>
   `;
 }
 
-function renderHarness(item) {
+function renderHarness(item, copy) {
   const signals = item.signals || {};
   const score = Number(item.candidate_score?.total || 0);
   return `
-    <article class="harness-card ${recommendationClass(item.recommendation)}">
+    <article class="harness-card ${recommendationClass(item.recommendation)}" data-harness-id="${escapeAttr(item.id)}" data-recommendation="${escapeAttr(item.recommendation || 'unknown')}" tabindex="0" role="button">
       <div>
         <p class="eyebrow">${escapeHtml(item.recommendation || 'unknown')}</p>
         <h3>${escapeHtml(item.id)}</h3>
@@ -478,40 +675,40 @@ function renderHarness(item) {
       <strong>${escapeHtml(score)}</strong>
       <p>${escapeHtml(item.reason)}</p>
       <dl>
-        <div><dt>Lifecycle state</dt><dd>${escapeHtml(item.lifecycle_state || 'unknown')}</dd></div>
-        <div><dt>Uses</dt><dd>${escapeHtml(signals.uses ?? 0)}</dd></div>
-        <div><dt>Blocked</dt><dd>${escapeHtml(signals.blocked ?? 0)}</dd></div>
-        <div><dt>Context</dt><dd>${escapeHtml(signals.context_cost || 'unknown')}</dd></div>
-        <div><dt>With</dt><dd>${renderRelated(signals.co_used_with)}</dd></div>
+        <div><dt>${escapeHtml(copy.lifecycleState)}</dt><dd>${escapeHtml(item.lifecycle_state || 'unknown')}</dd></div>
+        <div><dt>${escapeHtml(copy.uses)}</dt><dd>${escapeHtml(signals.uses ?? 0)}</dd></div>
+        <div><dt>${escapeHtml(copy.blocked)}</dt><dd>${escapeHtml(signals.blocked ?? 0)}</dd></div>
+        <div><dt>${escapeHtml(copy.context)}</dt><dd>${escapeHtml(signals.context_cost || 'unknown')}</dd></div>
+        <div><dt>${escapeHtml(copy.with)}</dt><dd>${renderRelated(signals.co_used_with)}</dd></div>
       </dl>
       <details>
-        <summary>Evidence handles</summary>
+        <summary>${escapeHtml(copy.evidenceHandles)}</summary>
         <ul>${renderEvidence(item.evidence_handles)}</ul>
       </details>
     </article>
   `;
 }
 
-function renderGraphOverview(graph = {}) {
+function renderGraphOverview(graph = {}, copy) {
   const stats = graphStats(graph);
   return `
     <section class="insight-card graph-overview">
       <div class="panel-title">
         <p class="eyebrow">GRAPH OVERVIEW</p>
-        <h2>Graph overview</h2>
+        <h2>${escapeHtml(copy.graphOverview)}</h2>
       </div>
       <dl>
-        <div><dt>Nodes</dt><dd>${escapeHtml(stats.nodes.length)}</dd></div>
-        <div><dt>Edges</dt><dd>${escapeHtml(stats.edges.length)}</dd></div>
-        <div><dt>Node types</dt><dd>${stats.nodeCounts.map(([key, value]) => `${escapeHtml(key)} (${escapeHtml(value)})`).join(', ') || 'None'}</dd></div>
-        <div><dt>Edge types</dt><dd>${stats.edgeCounts.map(([key, value]) => `${escapeHtml(key)} (${escapeHtml(value)})`).join(', ') || 'None'}</dd></div>
+        <div><dt>${escapeHtml(copy.nodes)}</dt><dd>${escapeHtml(stats.nodes.length)}</dd></div>
+        <div><dt>${escapeHtml(copy.links)}</dt><dd>${escapeHtml(stats.edges.length)}</dd></div>
+        <div><dt>${escapeHtml(copy.nodeTypes)}</dt><dd>${stats.nodeCounts.map(([key, value]) => `${escapeHtml(key)} (${escapeHtml(value)})`).join(', ') || escapeHtml(copy.none)}</dd></div>
+        <div><dt>${escapeHtml(copy.edgeTypes)}</dt><dd>${stats.edgeCounts.map(([key, value]) => `${escapeHtml(key)} (${escapeHtml(value)})`).join(', ') || escapeHtml(copy.none)}</dd></div>
       </dl>
       <p class="edge-sample">${stats.edges.slice(0, 6).map((edge) => `<code>${escapeHtml(edge.type)}</code>`).join(' ') || '<code>none</code>'}</p>
     </section>
   `;
 }
 
-function renderScript(harnesses) {
+function renderScript(harnesses, copy) {
   const payload = JSON.stringify(harnesses.map((item) => ({
     id: item.id,
     reason: item.reason,
@@ -520,11 +717,33 @@ function renderScript(harnesses) {
     uses: item.signals?.uses || 0,
     score: item.candidate_score?.total || 0
   }))).replaceAll('<', '\\u003c');
+  const copyPayload = JSON.stringify({
+    selected: copy.selected,
+    recommendation: copy.recommendation,
+    lifecycleState: copy.lifecycleState,
+    uses: copy.uses,
+    score: copy.score,
+    type: copy.type,
+    weight: copy.weight,
+    clickNode: copy.clickNode,
+    tooltipPrefix: copy.tooltipPrefix,
+    filteredTo: copy.filteredTo,
+    showingAll: copy.showingAll,
+    coreMode: copy.coreMode,
+    pauseOn: copy.pauseOn,
+    pauseOff: copy.pauseOff
+  }).replaceAll('<', '\\u003c');
   return `
     <script>
       const harnessData = ${payload};
+      const copy = ${copyPayload};
       const byHarnessId = new Map(harnessData.map((item) => ['harness:' + item.id, item]));
       const selectedPanel = document.getElementById('selected-panel');
+      const graphStatus = document.getElementById('graph-status');
+      const tooltip = document.getElementById('graph-tooltip');
+      const nodes = Array.from(document.querySelectorAll('.graph-node'));
+      const edges = Array.from(document.querySelectorAll('.graph-edge'));
+      const cards = Array.from(document.querySelectorAll('.harness-card'));
       const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
         '&': '&amp;',
         '<': '&lt;',
@@ -532,26 +751,137 @@ function renderScript(harnesses) {
         '"': '&quot;',
         "'": '&#39;'
       })[char]);
-      document.querySelectorAll('.graph-node').forEach((node) => {
-        node.addEventListener('click', () => {
-          document.querySelectorAll('.graph-node.is-selected').forEach((item) => item.classList.remove('is-selected'));
-          node.classList.add('is-selected');
-          const id = node.dataset.nodeId;
-          const item = byHarnessId.get(id);
-          if (selectedPanel && item) {
-            selectedPanel.innerHTML = '<p class="eyebrow">SELECTED</p>' +
-              '<h2>' + esc(item.id) + '</h2>' +
-              '<p>' + esc(item.reason) + '</p>' +
-              '<dl>' +
-              '<div><dt>Recommendation</dt><dd>' + esc(item.recommendation) + '</dd></div>' +
-              '<div><dt>Lifecycle state</dt><dd>' + esc(item.lifecycle_state) + '</dd></div>' +
-              '<div><dt>Uses</dt><dd>' + esc(item.uses) + '</dd></div>' +
-              '<div><dt>Score</dt><dd>' + esc(item.score) + '</dd></div>' +
-              '</dl>';
-          } else if (selectedPanel) {
-            selectedPanel.innerHTML = '<p class="eyebrow">SELECTED</p><h2>' + esc(node.dataset.nodeLabel) + '</h2><p>' + esc(id) + '</p><dl><div><dt>Type</dt><dd>' + esc(node.dataset.nodeType) + '</dd></div><div><dt>Weight</dt><dd>' + esc(node.dataset.nodeWeight) + '</dd></div></dl>';
+      const nodeById = (id) => nodes.find((node) => node.dataset.nodeId === id);
+      const setStatus = (value) => {
+        if (graphStatus) graphStatus.textContent = value;
+      };
+      function clearSelection() {
+        nodes.forEach((item) => item.classList.remove('is-selected', 'is-related'));
+        edges.forEach((item) => item.classList.remove('is-related'));
+        cards.forEach((item) => item.classList.remove('is-selected'));
+      }
+      function selectNode(node) {
+        clearSelection();
+        node.classList.add('is-selected');
+        const id = node.dataset.nodeId;
+        const item = byHarnessId.get(id);
+        edges.forEach((edge) => {
+          const related = edge.dataset.source === id || edge.dataset.target === id;
+          edge.classList.toggle('is-related', related);
+          if (related) {
+            const otherId = edge.dataset.source === id ? edge.dataset.target : edge.dataset.source;
+            const other = nodeById(otherId);
+            if (other) other.classList.add('is-related');
           }
         });
+        if (item) {
+          cards.forEach((card) => card.classList.toggle('is-selected', card.dataset.harnessId === item.id));
+          if (selectedPanel) {
+            selectedPanel.innerHTML = '<p class="eyebrow">' + esc(copy.selected) + '</p>' +
+              '<h2>' + esc(item.id) + '</h2>' +
+              '<p>' + esc(item.reason || copy.clickNode) + '</p>' +
+              '<dl>' +
+              '<div><dt>' + esc(copy.recommendation) + '</dt><dd>' + esc(item.recommendation) + '</dd></div>' +
+              '<div><dt>' + esc(copy.lifecycleState) + '</dt><dd>' + esc(item.lifecycle_state) + '</dd></div>' +
+              '<div><dt>' + esc(copy.uses) + '</dt><dd>' + esc(item.uses) + '</dd></div>' +
+              '<div><dt>' + esc(copy.score) + '</dt><dd>' + esc(item.score) + '</dd></div>' +
+              '</dl>';
+          }
+        } else if (selectedPanel) {
+          selectedPanel.innerHTML = '<p class="eyebrow">' + esc(copy.selected) + '</p><h2>' + esc(node.dataset.nodeLabel) + '</h2><p>' + esc(id) + '</p><dl><div><dt>' + esc(copy.type) + '</dt><dd>' + esc(node.dataset.nodeType) + '</dd></div><div><dt>' + esc(copy.weight) + '</dt><dd>' + esc(node.dataset.nodeWeight) + '</dd></div></dl>';
+        }
+      }
+      function selectHarness(id) {
+        const node = nodeById('harness:' + id);
+        if (node) {
+          selectNode(node);
+          node.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
+        }
+      }
+      function applyMode(mode) {
+        document.querySelectorAll('[data-mode]').forEach((button) => {
+          const active = button.dataset.mode === mode;
+          button.classList.toggle('active', active);
+          button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        nodes.forEach((node) => node.classList.toggle('is-hidden', mode === 'core' && node.dataset.core !== 'true'));
+        const visibleIds = new Set(nodes.filter((node) => !node.classList.contains('is-hidden')).map((node) => node.dataset.nodeId));
+        edges.forEach((edge) => edge.classList.toggle('is-hidden', mode === 'core' && (!visibleIds.has(edge.dataset.source) || !visibleIds.has(edge.dataset.target))));
+        setStatus(mode === 'core' ? copy.coreMode : copy.showingAll);
+      }
+      function togglePause(button) {
+        const paused = !document.body.classList.contains('is-paused');
+        document.body.classList.toggle('is-paused', paused);
+        button.classList.toggle('active', paused);
+        button.setAttribute('aria-pressed', paused ? 'true' : 'false');
+        setStatus(paused ? copy.pauseOn : copy.pauseOff);
+      }
+      function filterRecommendation(value, button) {
+        const alreadyActive = button.classList.contains('active-filter');
+        document.querySelectorAll('[data-filter-rec]').forEach((item) => {
+          item.classList.remove('active-filter');
+          item.setAttribute('aria-pressed', 'false');
+        });
+        if (alreadyActive) {
+          nodes.forEach((node) => node.classList.remove('is-filtered-out'));
+          edges.forEach((edge) => edge.classList.remove('is-filtered-out'));
+          cards.forEach((card) => card.classList.remove('is-filtered-out'));
+          setStatus(copy.showingAll);
+          return;
+        }
+        button.classList.add('active-filter');
+        button.setAttribute('aria-pressed', 'true');
+        nodes.forEach((node) => {
+          const hide = node.dataset.nodeType === 'harness' && node.dataset.recommendation !== value;
+          node.classList.toggle('is-filtered-out', hide);
+        });
+        const visibleIds = new Set(nodes.filter((node) => !node.classList.contains('is-filtered-out')).map((node) => node.dataset.nodeId));
+        edges.forEach((edge) => edge.classList.toggle('is-filtered-out', !visibleIds.has(edge.dataset.source) || !visibleIds.has(edge.dataset.target)));
+        cards.forEach((card) => card.classList.toggle('is-filtered-out', card.dataset.recommendation !== value));
+        setStatus(copy.filteredTo + ': ' + value);
+      }
+      nodes.forEach((node) => {
+        node.addEventListener('click', () => selectNode(node));
+        node.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            selectNode(node);
+          }
+        });
+        node.addEventListener('pointerenter', () => {
+          if (!tooltip) return;
+          tooltip.textContent = copy.tooltipPrefix + ': ' + node.dataset.nodeLabel + ' · ' + node.dataset.nodeType;
+          tooltip.classList.add('is-visible');
+        });
+        node.addEventListener('pointermove', (event) => {
+          if (!tooltip) return;
+          tooltip.style.left = Math.min(event.clientX + 14, window.innerWidth - 220) + 'px';
+          tooltip.style.top = Math.max(event.clientY - 12, 12) + 'px';
+        });
+        node.addEventListener('pointerleave', () => {
+          if (tooltip) tooltip.classList.remove('is-visible');
+        });
+      });
+      document.querySelectorAll('[data-mode]').forEach((button) => {
+        button.addEventListener('click', () => applyMode(button.dataset.mode));
+      });
+      document.querySelectorAll('[data-action="pause"]').forEach((button) => {
+        button.addEventListener('click', () => togglePause(button));
+      });
+      document.querySelectorAll('[data-select-harness]').forEach((button) => {
+        button.addEventListener('click', () => selectHarness(button.dataset.selectHarness));
+      });
+      cards.forEach((card) => {
+        card.addEventListener('click', () => selectHarness(card.dataset.harnessId));
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            selectHarness(card.dataset.harnessId);
+          }
+        });
+      });
+      document.querySelectorAll('[data-filter-rec]').forEach((button) => {
+        button.addEventListener('click', () => filterRecommendation(button.dataset.filterRec, button));
       });
     </script>
   `;
@@ -704,11 +1034,18 @@ function renderStyles() {
     .project-card {
       position: relative;
       min-height: 95px;
+      text-align: left;
+      color: inherit;
+      cursor: pointer;
       padding: 16px 14px;
       border: 1px solid var(--line);
       background: linear-gradient(180deg, rgba(23, 31, 42, .92), rgba(13, 18, 26, .92));
       border-radius: 8px;
       overflow: hidden;
+    }
+    .project-card:hover, .project-card.active-filter, .harness-card:hover, .harness-card.is-selected {
+      border-color: rgba(83, 242, 184, .55);
+      box-shadow: 0 0 0 1px rgba(83, 242, 184, .12), 0 20px 60px rgba(0, 0, 0, .24);
     }
     .project-bar {
       position: absolute;
@@ -761,6 +1098,7 @@ function renderStyles() {
       font-weight: 800;
       letter-spacing: .08em;
       text-transform: uppercase;
+      cursor: pointer;
     }
     .map-controls button.active { background: rgba(83, 242, 184, .14); color: var(--green); }
     .graph-canvas {
@@ -779,8 +1117,48 @@ function renderStyles() {
       stroke: rgba(0,0,0,.82);
       stroke-width: 4px;
     }
-    .graph-node { cursor: pointer; transition: opacity .15s ease, transform .15s ease; transform-box: fill-box; transform-origin: center; }
-    .graph-node:hover, .graph-node.is-selected { opacity: 1; transform: scale(1.22); }
+    .graph-edge { transition: opacity .15s ease, stroke-width .15s ease; }
+    .graph-edge.is-related { opacity: 1; stroke-opacity: .55; stroke-width: 3.2; }
+    .graph-node {
+      cursor: pointer;
+      outline: none;
+      transition: opacity .15s ease, transform .15s ease, stroke-width .15s ease;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .graph-node:hover, .graph-node:focus-visible, .graph-node.is-selected {
+      opacity: 1;
+      transform: scale(1.22);
+      stroke-opacity: .95;
+      stroke-width: 2.2;
+    }
+    .graph-node.is-related { opacity: 1; stroke-opacity: .7; }
+    .graph-node.is-hidden, .graph-edge.is-hidden, .graph-node.is-filtered-out, .graph-edge.is-filtered-out {
+      opacity: .08;
+      pointer-events: none;
+    }
+    .graph-tooltip {
+      position: fixed;
+      z-index: 20;
+      display: none;
+      max-width: 230px;
+      padding: 8px 9px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: rgba(5, 8, 12, .94);
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.35;
+      box-shadow: 0 16px 40px rgba(0,0,0,.35);
+      pointer-events: none;
+    }
+    .graph-tooltip.is-visible { display: block; }
+    .is-paused .graph-node, .is-paused .graph-edge, .is-paused .meter span, .is-paused .status i {
+      transition: none;
+      animation: none;
+      filter: none;
+      box-shadow: none;
+    }
     .map-caption {
       display: flex;
       gap: 18px;
@@ -830,6 +1208,17 @@ function renderStyles() {
     .ranked { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
     .ranked li { position: relative; padding-bottom: 8px; color: var(--muted); font-size: 13px; }
     .ranked span { display: block; padding-right: 38px; color: var(--text); font-weight: 650; }
+    .ranked-button, .link-button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+    }
+    .ranked-button:hover span, .link-button:hover code { color: var(--green); }
     .ranked strong { position: absolute; right: 0; top: 0; color: var(--muted); }
     .ranked i { position: absolute; left: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, var(--green), transparent); border-radius: 999px; }
     .route-list { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
@@ -868,7 +1257,13 @@ function renderStyles() {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
     }
-    .harness-card { padding: 15px; border-top: 3px solid var(--blue); }
+    .harness-card {
+      padding: 15px;
+      border-top: 3px solid var(--blue);
+      cursor: pointer;
+      transition: opacity .15s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    .harness-card.is-filtered-out { opacity: .22; }
     .harness-card.keep { border-top-color: var(--green); }
     .harness-card.weave { border-top-color: var(--gold); }
     .harness-card.frog_candidate { border-top-color: var(--red); }
@@ -917,21 +1312,22 @@ function renderStyles() {
 }
 
 function renderReport(summary) {
+  const copy = reportCopy();
   const harnesses = Array.isArray(summary.harnesses) ? summary.harnesses : [];
   const generatedAt = summary.generated_at || new Date().toISOString();
   const runWindow = summary.run_window || {};
   const counts = countByRecommendation(harnesses);
   return `<!doctype html>
-<html lang="en">
+<html lang="${escapeAttr(copy.htmlLang)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tink Harness Health Summary</title>
+  <title>${escapeHtml(copy.title)}</title>
   ${renderStyles()}
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar" aria-label="Navigation">
+    <aside class="sidebar" aria-label="${escapeAttr(copy.navLabel)}">
       <div class="brand">
         <span class="brand-mark">T</span>
         <div>
@@ -953,54 +1349,54 @@ function renderReport(summary) {
     </aside>
     <main class="main">
       <header class="topbar">
-        <div><strong>Operator</strong><span>local</span></div>
-        <div class="status"><i></i> Tink Online</div>
+        <div><strong>${escapeHtml(copy.operator)}</strong><span>local</span></div>
+        <div class="status"><i></i> ${escapeHtml(copy.online)}</div>
       </header>
       <section class="hero">
         <div>
-          <p class="eyebrow">LOCAL HARNESS HEALTH</p>
-          <h1>Knowledge Graph</h1>
-          <p>Every visible Tink run, rule, memory reference, and harness relationship mapped into one local dashboard. This report only prepares suggestions and never edits reusable state.</p>
+          <p class="eyebrow">${escapeHtml(copy.localHealth)}</p>
+          <h1>${escapeHtml(copy.knowledgeGraph)}</h1>
+          <p>${escapeHtml(copy.heroText)}</p>
         </div>
         <div>
-          <p class="eyebrow">GENERATED</p>
+          <p class="eyebrow">${escapeHtml(copy.generated)}</p>
           <p>${escapeHtml(generatedAt)}</p>
         </div>
       </section>
-      ${renderProjectCards(harnesses)}
+      ${renderProjectCards(harnesses, copy)}
       <section class="content-grid">
-        ${renderGraphCanvas(summary)}
-        ${renderTimeline(summary.timeline || [])}
+        ${renderGraphCanvas(summary, copy)}
+        ${renderTimeline(summary.timeline || [], copy)}
         <section class="harness-section">
-          <h2>Harness cards</h2>
+          <h2>${escapeHtml(copy.harnessCards)}</h2>
           <div class="harness-grid">
-            ${harnesses.map(renderHarness).join('\n')}
+            ${harnesses.map((item) => renderHarness(item, copy)).join('\n')}
           </div>
         </section>
       </section>
     </main>
     <aside class="right-rail" aria-label="Insights">
-      ${renderStats(summary)}
-      ${renderConfidence(summary)}
-      ${renderGraphOverview(summary.graph || {})}
-      ${renderImportantHarnesses(harnesses)}
-      ${renderCastRoutingRules()}
+      ${renderStats(summary, copy)}
+      ${renderConfidence(summary, copy)}
+      ${renderGraphOverview(summary.graph || {}, copy)}
+      ${renderImportantHarnesses(harnesses, copy)}
+      ${renderCastRoutingRules(copy)}
       <section class="insight-card">
         <div class="panel-title">
-          <p class="eyebrow">RECOMMENDATIONS</p>
-          <h2>Current mix</h2>
+          <p class="eyebrow">${escapeHtml(copy.recommendations)}</p>
+          <h2>${escapeHtml(copy.currentMix)}</h2>
         </div>
-        <p>${counts.map(([key, value]) => `<strong>${escapeHtml(key)}</strong>: ${escapeHtml(value)}`).join(' | ') || 'No recommendations yet.'}</p>
+        <p>${counts.map(([key, value]) => `<strong>${escapeHtml(key)}</strong>: ${escapeHtml(value)}`).join(' | ') || escapeHtml(copy.noRecommendations)}</p>
       </section>
-      ${renderSelectedPanel(harnesses)}
+      ${renderSelectedPanel(harnesses, copy)}
       <section class="insight-card">
-        <p class="eyebrow">SOURCES</p>
+        <p class="eyebrow">${escapeHtml(copy.sources)}</p>
         <p>${(summary.sources || []).map((source) => `<code>${escapeHtml(source)}</code>`).join(' ')}</p>
-        <p>Run count: <strong>${escapeHtml(runWindow.run_count ?? 0)}</strong></p>
+        <p>${escapeHtml(copy.runCount)}: <strong>${escapeHtml(runWindow.run_count ?? 0)}</strong></p>
       </section>
     </aside>
   </div>
-  ${renderScript(harnesses)}
+  ${renderScript(harnesses, copy)}
 </body>
 </html>
 `;
