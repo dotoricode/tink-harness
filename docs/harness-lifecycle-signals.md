@@ -80,6 +80,8 @@ node .tink/tools/render-harness-health-report.mjs
 
 The report helper reads `.tink/maintenance/harness-lifecycle.json` and writes `.tink/maintenance/harness-health-report.html`. You can pass explicit paths when testing:
 
+The report includes a static graph overview, recent run timeline, and one card per harness. The graph overview summarizes node and edge types from the JSON `graph` block; it does not start a server or watch files.
+
 ```bash
 node .tink/tools/generate-harness-lifecycle-summary.mjs repo-root output.json
 node .tink/tools/render-harness-health-report.mjs input.json output.html

@@ -33,6 +33,15 @@ function countByRecommendation(harnesses) {
   return [...counts.entries()].sort(([a], [b]) => a.localeCompare(b));
 }
 
+function countByField(items, field) {
+  const counts = new Map();
+  for (const item of items) {
+    const key = item[field] || 'unknown';
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  return [...counts.entries()].sort(([a], [b]) => a.localeCompare(b));
+}
+
 function renderEvidence(handles = []) {
   if (!handles.length) return '<li>No evidence handle yet.</li>';
   return handles.map((handle) => `<li><code>${escapeHtml(handle)}</code></li>`).join('');
@@ -61,6 +70,34 @@ function renderTimeline(events = []) {
             <code>${escapeHtml(event.source)}</code>
           </li>
         `).join('')}
+      </ol>
+    </section>
+  `;
+}
+
+function renderGraphOverview(graph = {}) {
+  const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+  const edges = Array.isArray(graph.edges) ? graph.edges : [];
+  const nodeCounts = countByField(nodes, 'type');
+  const edgeCounts = countByField(edges, 'type');
+  return `
+    <section class="graph">
+      <h2>Graph overview</h2>
+      <dl>
+        <div><dt>Nodes</dt><dd>${escapeHtml(nodes.length)}</dd></div>
+        <div><dt>Edges</dt><dd>${escapeHtml(edges.length)}</dd></div>
+        <div><dt>Node types</dt><dd>${nodeCounts.map(([key, value]) => `${escapeHtml(key)} (${escapeHtml(value)})`).join(', ') || 'None'}</dd></div>
+        <div><dt>Edge types</dt><dd>${edgeCounts.map(([key, value]) => `${escapeHtml(key)} (${escapeHtml(value)})`).join(', ') || 'None'}</dd></div>
+      </dl>
+      <ol>
+        ${edges.slice(0, 12).map((edge) => `
+          <li>
+            <code>${escapeHtml(edge.source)}</code>
+            <span>${escapeHtml(edge.type)}</span>
+            <code>${escapeHtml(edge.target)}</code>
+            <strong>${escapeHtml(edge.count ?? 1)}</strong>
+          </li>
+        `).join('') || '<li>No graph relationships found.</li>'}
       </ol>
     </section>
   `;
@@ -102,6 +139,7 @@ function renderReport(summary) {
   const generatedAt = summary.generated_at || new Date().toISOString();
   const runWindow = summary.run_window || {};
   const timeline = Array.isArray(summary.timeline) ? summary.timeline : [];
+  const graph = summary.graph || {};
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -111,7 +149,7 @@ function renderReport(summary) {
   <style>
     body { font-family: system-ui, sans-serif; margin: 2rem; line-height: 1.5; color: #18212f; background: #f7f8fa; }
     main { max-width: 980px; margin: 0 auto; }
-    header, .timeline, .harness { background: white; border: 1px solid #d8dee8; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    header, .graph, .timeline, .harness { background: white; border: 1px solid #d8dee8; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
     h1, h2 { margin: 0 0 .75rem; }
     dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .5rem; margin: 0 0 1rem; }
     dt { font-size: .8rem; color: #596579; }
@@ -119,7 +157,9 @@ function renderReport(summary) {
     code { background: #eef1f6; padding: .1rem .25rem; border-radius: 4px; }
     .notice { border-left: 4px solid #4b6bfb; padding-left: .75rem; }
     .timeline ol { margin: 0; padding-left: 1.25rem; }
-    .timeline li { margin: .5rem 0; }
+    .timeline li, .graph li { margin: .5rem 0; }
+    .graph ol { margin: 0; padding-left: 1.25rem; }
+    .graph span { margin: 0 .4rem; color: #596579; }
     .badge { display: inline-block; min-width: 4.5rem; margin-right: .5rem; padding: .1rem .4rem; border-radius: 4px; text-align: center; font-size: .8rem; font-weight: 700; background: #eef1f6; }
     .success { color: #0f6b3a; background: #e9f8ef; }
     .failed { color: #9b1c1c; background: #fdecec; }
@@ -139,6 +179,7 @@ function renderReport(summary) {
     </dl>
     <p>${counts.map(([key, value]) => `<strong>${escapeHtml(key)}</strong>: ${escapeHtml(value)}`).join(' · ')}</p>
   </header>
+  ${renderGraphOverview(graph)}
   ${renderTimeline(timeline)}
   ${harnesses.map(renderHarness).join('\n')}
 </main>

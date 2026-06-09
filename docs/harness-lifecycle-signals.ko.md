@@ -80,6 +80,8 @@ node .tink/tools/render-harness-health-report.mjs
 
 리포트 helper는 `.tink/maintenance/harness-lifecycle.json`을 읽고 `.tink/maintenance/harness-health-report.html`을 쓴다. 테스트할 때는 경로를 직접 줄 수 있다.
 
+리포트에는 정적 graph overview, 최근 run timeline, 하네스별 카드가 들어간다. graph overview는 JSON `graph` 블록의 node/edge 종류를 요약한다. 서버를 시작하거나 파일을 감시하지 않는다.
+
 ```bash
 node .tink/tools/generate-harness-lifecycle-summary.mjs repo-root output.json
 node .tink/tools/render-harness-health-report.mjs input.json output.html
