@@ -26,6 +26,7 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - `.tink/runs/` summaries
    - `.tink/maintenance/ledger.jsonl`
    - `.tink/maintenance/weave-queue.json`
+   - `.tink/maintenance/harness-lifecycle.json` or another lifecycle summary that follows `.tink/schemas/harness-lifecycle.schema.json`
    - `.tink/rules/index.json`
    - references in memory files
    - recent git history touching harness files as weak context only
@@ -43,6 +44,7 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - strong: multiple run or ledger records show non-use, repeated rejection, replacement, or accepted alternative
    - medium: one run or ledger record plus clear overlap or memory evidence
    - weak: static index, git-only evidence, stale current notes, or model judgment
+   If a lifecycle summary is present, treat it as a health summary, not as authority. Use its `confidence`, `evidence_grade`, `evidence_handles`, and `safe_next_action` to explain the recommendation. A low-confidence or weak lifecycle entry must default to `keep`, `observe`, or `needs evidence`.
 5. Identify candidates:
    - never used with strong evidence
    - not used recently with strong evidence
@@ -63,6 +65,7 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    Prefer keep, rewrite, split, merge, or needs evidence before any removal proposal.
    Report rule recommendations separately from harness recommendations.
 7. Only strong evidence may recommend `delete`. Medium evidence may recommend `merge` or `hone`. Weak evidence must default to `keep` or `needs evidence`.
+   Lifecycle recommendations follow the same rule: `frog_candidate` means "prepare a cleanup review," not "delete." Deletion, archive, merge, harness edit, rule update, and memory save still need the normal approval payload.
 8. For each non-keep action, prepare an operation-specific approval payload with exact files, op ID, evidence handles, and rollback.
 9. If the recommendation is `weave`, write or present a weave handoff packet and, after approval, add it to `.tink/maintenance/weave-queue.json`:
    - id

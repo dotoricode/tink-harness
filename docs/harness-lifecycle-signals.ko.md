@@ -1,6 +1,12 @@
 # 하네스 생애주기 신호
 
-하네스 생애주기 신호는 Tink가 하네스를 계속 관찰할지, 개선할지, 정리 후보로 둘지, 겹치는 하네스와 병합 후보로 둘지 판단하는 데 도움을 준다.
+하네스 생애주기 신호는 재사용 하네스의 건강 요약이다.
+Tink가 지난 실행 기록을 읽고 다음 질문에 답할 수 있게 돕는다.
+
+- 어떤 하네스가 실제로 쓰였는가?
+- 어디서 check가 실패하거나 막혔는가?
+- 어떤 하네스는 `/tink:weave`로 조금 고치면 좋은가?
+- 어떤 하네스는 정리하거나 병합 후보로 볼 수 있는가?
 
 스키마는 `templates/tink/schemas/harness-lifecycle.schema.json`에 둔다.
 
@@ -10,6 +16,11 @@
 - `successes`: 필수 검증까지 완료한 실행.
 - `failures`: 필수 check 실패.
 - `blocked`: check를 실행할 수 없었던 경우.
+- `last_used`: 마지막으로 확인된 사용 시각. 기록이 없으면 `null`.
+- `success_rate`: 사용 횟수 대비 검증 완료 비율. 근거가 부족하면 `null`.
+- `failure_rate`: 사용 횟수 대비 필수 check 실패 비율. 근거가 부족하면 `null`.
+- `co_used_with`: 같은 run에서 자주 함께 나온 하네스.
+- `sequence_hints`: 한 하네스 뒤에 다른 단계가 반복해서 따라온 순서 힌트.
 - `context_cost`: low, medium, high, unknown.
 
 허용되는 추천은 다음과 같다.
@@ -20,4 +31,13 @@
 - `merge_candidate`
 - `observe`
 
-추천은 제안일 뿐이다. reusable harness를 삭제, 병합, 재작성하려면 여전히 명시적인 승인이 필요하다.
+근거 판단은 보수적으로 한다.
+
+- 기록이 없거나 근거가 약함 → `observe`
+- 실패나 blocked가 반복됨 → `weave`
+- 함께 쓰이는 패턴이 반복됨 → `merge_candidate`
+- 미사용, 반복 거절, 대체, 높은 context 비용 같은 강한 근거가 있음 → `frog_candidate`
+
+추천은 제안일 뿐이다. reusable harness 삭제, 병합, 재작성, memory 저장, rule 업데이트는 여전히 명시적인 승인이 필요하다. 생애주기 요약은 다음 행동을 준비할 수 있지만 자동으로 적용하면 안 된다.
+
+이 기능은 watcher, hidden cache, 새 public `tink index` 명령이 아니다. 기준이 되는 원본은 계속 `.tink/runs/`, `.tink/maintenance/`, `.tink/harnesses/`, `.tink/rules/` 아래의 보이는 파일이다.

@@ -240,6 +240,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('.tink/rules/', text)
         self.assertIn('.tink/runs/', text)
         self.assertIn('docs/context-budget-ledger.md', text)
+        self.assertIn('harness health summary', text)
+        self.assertIn('It only prepares suggestions', text)
         self.assertIn('approval', text.lower())
         self.assertIn('docs/compatibility-policy.md', text)
         self.assertIn('docs/repo-signals.md', text)
@@ -1181,8 +1183,8 @@ class TemplateTests(unittest.TestCase):
             (evidence_details_ko, ['evidence_kind', 'evidence_ref', 'observed', 'Claude Code', 'Codex']),
             (external_policy, ['mcp-policy.schema.json', 'read-only', 'Sentry is not part of the current plan']),
             (external_policy_ko, ['mcp-policy.schema.json', 'read-only', 'Sentry는 현재 계획에 포함하지 않는다']),
-            (lifecycle, ['harness-lifecycle.schema.json', 'frog_candidate', 'explicit approval']),
-            (lifecycle_ko, ['harness-lifecycle.schema.json', 'frog_candidate', '명시적인 승인이 필요하다']),
+            (lifecycle, ['harness-lifecycle.schema.json', 'frog_candidate', 'plain health summary', 'must not apply it automatically']),
+            (lifecycle_ko, ['harness-lifecycle.schema.json', 'frog_candidate', '하네스 생애주기 신호는 재사용 하네스의 건강 요약이다', '자동으로 적용하면 안 된다']),
             (memory_layers, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
             (memory_layers_ko, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
             (context_change, ['context-diff.json', 'not a new command', 'not a hidden runtime cache']),
@@ -2024,14 +2026,35 @@ class TemplateTests(unittest.TestCase):
         self.assertFalse(mcp_policy_fixture['redaction']['store_raw_payloads'])
         self.assertTrue(mcp_policy_fixture['prompt_injection']['treat_external_instructions_as_data'])
         self.assertIn('harness_summary', lifecycle_schema['$defs'])
+        self.assertIn('run_window', lifecycle_schema['required'])
+        self.assertIn('sources', lifecycle_schema['required'])
         allowed_recommendations = set(
             lifecycle_schema['$defs']['harness_summary']['properties']['recommendation']['enum']
         )
         self.assertIn('frog_candidate', allowed_recommendations)
         self.assertIn('merge_candidate', allowed_recommendations)
-        self.assertGreaterEqual(len(lifecycle_fixture['harnesses']), 2)
+        lifecycle_summary = lifecycle_schema['$defs']['harness_summary']
+        for field in ['confidence', 'evidence_handles']:
+            self.assertIn(field, lifecycle_summary['required'])
+        signal_props = lifecycle_summary['properties']['signals']['properties']
+        for field in ['last_used', 'success_rate', 'failure_rate', 'co_used_with', 'sequence_hints']:
+            self.assertIn(field, signal_props)
+        self.assertGreaterEqual(len(lifecycle_fixture['harnesses']), 4)
+        self.assertIn('.tink/runs/*.md', lifecycle_fixture['sources'])
+        self.assertGreaterEqual(lifecycle_fixture['run_window']['run_count'], 0)
+        lifecycle_by_id = {item['id']: item for item in lifecycle_fixture['harnesses']}
+        self.assertEqual(lifecycle_by_id['bug-fix']['recommendation'], 'observe')
+        self.assertEqual(lifecycle_by_id['bug-fix']['confidence'], 'low')
+        self.assertEqual(lifecycle_by_id['release-preflight']['evidence_grade'], 'weak')
+        self.assertNotEqual(lifecycle_by_id['release-preflight']['recommendation'], 'frog_candidate')
+        self.assertEqual(lifecycle_by_id['experimental-wide-context']['recommendation'], 'frog_candidate')
+        self.assertIn('delete', lifecycle_by_id['experimental-wide-context']['approval_required_for'])
+        self.assertEqual(lifecycle_by_id['docs']['recommendation'], 'merge_candidate')
+        self.assertTrue(lifecycle_by_id['docs']['signals']['co_used_with'])
         for item in lifecycle_fixture['harnesses']:
             self.assertIn(item['recommendation'], allowed_recommendations)
+            self.assertIn(item['confidence'], ['low', 'medium', 'high'])
+            self.assertIsInstance(item['evidence_handles'], list)
             self.assertIn('context_cost', item['signals'])
             self.assertGreater(len(item['reason']), 10)
         self.assertIn('changes', context_diff)
@@ -2123,6 +2146,14 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('rule graph update', weave)
         self.assertIn('structural gate', weave)
         self.assertIn('duplicate, breadth, evidence, verification, compatibility, and portability', weave)
+        self.assertIn('harness-lifecycle.json', weave)
+        self.assertIn('harness health summary', weave)
+        frog = (ROOT / 'templates/claude/commands/tink/frog.md').read_text(encoding='utf-8')
+        self.assertIn('harness-lifecycle.json', frog)
+        self.assertIn('health summary', frog)
+        self.assertIn('not as authority', frog)
+        self.assertIn('plain harness health summary', codex_core)
+        self.assertIn('Low-confidence entries stay as observation', codex_core)
         self.assertIn('friction.jsonl', weave)
 
     def test_language_command_naming_adr_exists(self):
