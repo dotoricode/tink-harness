@@ -495,6 +495,9 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('goals.json', text)
             self.assertIn('delegation.md', text)
             self.assertIn('Do not start tmux panes', text)
+            self.assertIn('overlay', text)
+            self.assertIn('missing acceptance criteria', text)
+            self.assertIn('independent verification', text)
 
     def test_memory_templates_exist(self):
         for name in ['mistakes.md', 'preferences.md', 'lessons.md']:
@@ -2249,6 +2252,14 @@ class TemplateTests(unittest.TestCase):
         ]:
             self.assertIn(rule_id, rule_ids)
         nodes_by_id = {node['id']: node for node in rules['nodes']}
+        self.assertIn('missing_acceptance_criteria', nodes_by_id['harness:requirements-interview']['when']['risk'])
+        self.assertIn('code_change', nodes_by_id['harness:requirements-interview']['when']['task_type'])
+        self.assertIn('api', nodes_by_id['harness:plan-consensus']['keywords'])
+        self.assertIn('public_contract', nodes_by_id['harness:plan-consensus']['when']['risk'])
+        self.assertIn('multi_step', nodes_by_id['harness:goal-checkpoint']['when']['risk'])
+        self.assertIn('needs_resume', nodes_by_id['harness:goal-checkpoint']['when']['risk'])
+        self.assertIn('independent_verification', nodes_by_id['harness:delegation-brief']['when']['risk'])
+        self.assertIn('code_change', nodes_by_id['harness:delegation-brief']['when']['task_type'])
         self.assertIn('README.ko.md', nodes_by_id['context:readme-bilingual-sync']['include_paths'])
         self.assertIn('.claude-plugin/plugin.json', nodes_by_id['context:version-metadata-sync']['include_paths'])
         self.assertIn('templates/claude/commands/tink/*.md', nodes_by_id['context:claude-command-three-copy-sync']['include_paths'])

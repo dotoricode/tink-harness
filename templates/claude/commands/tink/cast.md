@@ -400,12 +400,12 @@ A task is trivial only when ALL of the following are true:
    - docs
    - ship/release
    - new pattern not covered yet
-6. Consider GJC-style visible-thinking overlays as normal Tink harnesses, not as new command surfaces:
-   - If the request is an ambiguous idea, early product concept, or underspecified implementation prompt, prefer `requirements-interview` before planning or coding. This is the default harness when Stitch is expected to trigger for goal ambiguity.
-   - If the request asks for a plan, architecture decision, large refactor, migration, or broad public contract change, consider `plan-consensus`.
-   - If the work naturally splits into multiple durable milestones, add `goal-checkpoint` and create `.tink/current/goals.json` after approval.
-   - If parallel review, verification, or handoff would reduce risk, add `delegation-brief` and create `.tink/current/delegation.md` after approval. This harness prepares briefs only; it never starts tmux, worktrees, workers, or external agents.
-7. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context. When the task is ambiguous (Stitch goal-ambiguity is expected to trigger), start with `requirements-interview` alone; add a second harness only after the user clarifies. Do not bundle 2+ harnesses for ambiguous tasks upfront.
+6. Actively look for GJC-style visible-thinking overlays as normal Tink harnesses, not as new command surfaces. These are small helper harnesses, so use them more readily when they make the run clearer:
+   - If the request is an ambiguous idea, early product concept, vague bug report, broad "make it better" request, or underspecified implementation prompt, prefer `requirements-interview` before planning or coding. This is the default harness when Stitch is expected to trigger for goal ambiguity, unclear scope, or missing acceptance criteria.
+   - If the request asks for a plan, architecture decision, large refactor, migration, API/schema/contract change, compatibility decision, or tradeoff-heavy approach, add `plan-consensus` before implementation.
+   - If the work spans multiple files, multiple phases, release steps, a resumed thread, or any run likely to need more than one verification pass, add `goal-checkpoint` and create `.tink/current/goals.json` after approval.
+   - If parallel review, independent verification, PR handoff, another agent, or a human handoff would reduce risk, add `delegation-brief` and create `.tink/current/delegation.md` after approval. This harness prepares briefs only; it never starts tmux, worktrees, workers, or external agents.
+7. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context. Treat `requirements-interview`, `plan-consensus`, `goal-checkpoint`, and `delegation-brief` as overlay candidates that can sit beside a work harness when their trigger is present. When the task is ambiguous (Stitch goal-ambiguity is expected to trigger), start with `requirements-interview` alone; add a second harness only after the user clarifies. Do not bundle 2+ harnesses for ambiguous tasks upfront.
 
    After selecting, run a quick quality check using the index metadata for each chosen harness:
    - If fewer than 2 words in `use_when` match the current task description (case-insensitive) → treat as a Stitch harness-mismatch signal
