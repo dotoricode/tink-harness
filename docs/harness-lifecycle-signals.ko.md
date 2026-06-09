@@ -42,6 +42,8 @@ Tink가 지난 실행 기록을 읽고 다음 질문에 답할 수 있게 돕는
 - `merge_candidate`
 - `observe`
 
+각 하네스에는 `candidate_score`가 들어갈 수 있다. 이 값은 0부터 100까지의 `total`과 evidence, trouble, context cost, overlap, recommendation priority 같은 factor로 구성된 정렬 보조 신호다. 승인으로 해석하면 안 되며 자동 수정으로 이어져도 안 된다.
+
 근거 판단은 보수적으로 한다.
 
 - 기록이 없거나 근거가 약함 → `observe`

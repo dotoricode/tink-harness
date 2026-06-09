@@ -73,6 +73,7 @@ function renderHarness(item) {
       <h2>${escapeHtml(item.id)}</h2>
       <dl>
         <div><dt>Recommendation</dt><dd>${escapeHtml(item.recommendation)}</dd></div>
+        <div><dt>Candidate score</dt><dd>${escapeHtml(item.candidate_score?.total ?? 0)}</dd></div>
         <div><dt>Confidence</dt><dd>${escapeHtml(item.confidence || 'unknown')}</dd></div>
         <div><dt>Evidence grade</dt><dd>${escapeHtml(item.evidence_grade || 'unknown')}</dd></div>
         <div><dt>Uses</dt><dd>${escapeHtml(signals.uses ?? 0)}</dd></div>
