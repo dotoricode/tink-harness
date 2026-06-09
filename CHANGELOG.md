@@ -4,7 +4,9 @@ All notable changes to Tink are tracked here.
 
 ## [Unreleased]
 
-No unreleased changes yet.
+### Changed
+
+- Moved README release highlights into the changelog path and added top-level changelog links in the English and Korean README files.
 
 
 ## [1.8.0] - 2026-06-09

@@ -17,16 +17,16 @@
 </p>
 
 <p>
-  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.6.0"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.8.0"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.8.0 - Adds visible-thinking harnesses for requirements interviews, consensus planning, goal checkpoints, and delegation briefs. Latest minor release notes: <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.8.0">v1.8.0</a>.</p>
+<p><strong>Latest package:</strong> v1.8.0 - Adds visible-thinking harnesses for requirements interviews, consensus planning, goal checkpoints, and delegation briefs. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
 
-**English** · [한국어](README.ko.md)
+**English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
 
 ---
 
@@ -124,71 +124,6 @@ To quickly verify the updated install, see `docs/update-verification-recipe.md` 
 
 If an update looks stale or incomplete, see `docs/update-troubleshooting.md` or `docs/update-troubleshooting.ko.md`.
 
-## What's new in 1.8.0
-
-This minor release brings GJC-style visible thinking into Tink without adding new commands.
-
-- `/tink:cast` and `$tink:cast` can now select `requirements-interview`, `plan-consensus`, `goal-checkpoint`, and `delegation-brief`.
-- Long runs can record `.tink/current/goals.json`; handoff or parallel-review plans can record `.tink/current/delegation.md`.
-- Tink still does not start workers, tmux panes, or worktrees from these harnesses. Delegation remains a visible brief unless another approved workflow runs it.
-
-## What's new in 1.7.1
-
-This patch fixes a destructive interaction between the "Both" surface selection and "Clean Codex picker."
-
-- Selecting "Both (Claude Code + Codex)" and "Clean Codex picker" in the same install/update run no longer deletes the Claude Code commands and skills. The option is now hidden when both surfaces are selected — it only appears when Codex is the sole surface.
-
-## What's new in 1.7.0
-
-This minor release removes two installer UX rough edges.
-
-- The surface selection step now uses a single-choice prompt — Claude Code, Codex, or Both — instead of a multi-checkbox toggle, so the selected state is immediately visible on any terminal.
-- The component selection prompt now names the surface being configured, so you see a surface-specific prompt rather than the same generic message regardless of what you selected.
-
-## What's new in 1.6.3
-
-This patch makes CLI options visible in the interactive installer.
-
-- The wizard now has an `Advanced options` step with `Preview only (--dry-run)`, `Overwrite user-modified files (--force)`, and `Clean Codex picker (--clean-codex-picker)` when Codex is selected.
-- Install/update output now prints the selected option state, so you can see whether preview, force overwrite, or Codex picker cleanup is active.
-- CLI flags still work for non-interactive runs and seed the same visible choices when the wizard is used.
-
-## What's new in 1.6.2
-
-This patch makes the installer clearer for mixed Claude Code + Codex setups.
-
-- Codex action skills now install with names like `Tink: Cast`, `Tink: Verify`, and `Tink: Update` instead of generic `Cast`/`Verify` labels.
-- The component picker now separates `Claude Code Tink skill` from `Codex Tink skills` when both surfaces are selected.
-- Install/update output now prints the repo, shared `.tink`, Claude Code, and Codex target paths so you can see where the selected choices will land.
-- `--clean-codex-picker` and `TINK_CLEAN_CODEX_PICKER=1` can remove repo-local Claude Tink command/skill surfaces that make Codex show noisy `Source Command Tink ...` entries.
-
-## What's new in 1.6.1
-
-This patch fixes the update path for existing installs.
-
-- `tink-harness update` now refreshes the generated legacy `.tink/rules/index.json` from v1.5.x so existing users receive the v1.6.0 graph-rule seed rules.
-- User-modified rule graphs are still preserved when they contain custom rules or rule evidence.
-
-## What's new in 1.6.0
-
-This release makes Tink's small rule graph more useful during real work.
-
-- Seed rules now connect common maintenance work to related files, harnesses, and checks, such as README bilingual sync, version metadata sync, Claude Code command 3-copy sync, and installer/update smoke checks.
-- `/tink:cast` and `$tink:cast` guidance now records rule `reason`, `risk`, `include_paths`, and `checks` as reviewable context evidence instead of silently loading extra files.
-- `/tink:weave` and `/tink:frog` now include rule-quality review so reusable rules can be kept, rewritten, split, merged, or marked as needing more evidence.
-- The graph remains file-based and small. This release still does not add a public `tink index` command, watcher, generated cache, database, or external service.
-
-## Recent foundation from 1.2.0+
-
-This release makes Tink work as one harness layer across Claude Code and Codex.
-
-- Codex now installs focused `$tink:*` action skills instead of one broad visible `tink` skill, so the picker shows commands like `$tink:cast` and `$tink:verify` cleanly.
-- Non-trivial runs now create context artifacts: `context-pack.md`, `context-map.json`, and `excluded-context.md`.
-- Repo Signals and Context Graph Lite help `/tink:cast` and `$tink:cast` choose relevant tests, schemas, sync partners, and verification hints without adding a new `tink index` command.
-- Context Budget Ledger fields, fixture-ratio evaluation, run-history rollup, the 90 percent threshold status, and future real-run record boundaries are documented in `docs/context-budget-ledger.md`, `docs/context-budget-ledger.ko.md`, `docs/context-metrics-evaluator.md`, `docs/context-metrics-evaluator.ko.md`, `docs/context-run-history-rollup.md`, `docs/context-run-history-rollup.ko.md`, `docs/context-threshold-status.md`, `docs/context-threshold-status.ko.md`, `docs/context-run-record-policy.md`, and `docs/context-run-record-policy.ko.md` without adding a new command.
-- `/tink:verify` and `$tink:verify` share one portable Verify Runner model and write compact evidence to `.tink/current/verification.json`.
-- External context now follows the MCP Safe Profile: include only the smallest useful source handle, mark confidence and sensitivity, exclude unsafe context visibly, and connect important claims to verification.
-
 ## Commands
 
 Tink keeps the command surface small.
@@ -251,7 +186,7 @@ When selected, current-run artifacts may also include `.tink/current/goals.json`
 
 The rule graph stays small on purpose. Tink loads matching mandatory rules first, retrieves only relevant optional rules by task facts or keywords, and records loaded rule ids by phase so the same guidance is not repeated in one run.
 
-Design notes live in `docs/`. The compatibility baseline is `docs/compatibility-policy.md`: every new slice should consider Claude Code and Codex, plus macOS and Windows. Repo signal behavior is described in `docs/repo-signals.md` or `docs/repo-signals.ko.md`. The lightweight graph-rule adoption plan is `docs/graph-rule-adoption-plan.ko.md`. External context safety is described in `docs/mcp-safe-profile.md` and `docs/external-context-policy.md`. To read or review `.tink/current/` state, start with `docs/work-state.md` or `docs/work-state.ko.md`. Update confidence is still documented in `docs/phase-5-update-confidence.md` or `docs/phase-5-update-confidence.ko.md`. The planned work-unit list is `docs/planned-work-units.md` or `docs/planned-work-units.ko.md`, with details in the verification evidence, harness lifecycle, memory decision, context change, and update diagnosis docs. The broader Korean idea audit and roadmap is `docs/tink-idea-implementation-plan.ko.md`.
+Design notes live in `docs/`. The compatibility baseline is `docs/compatibility-policy.md`: every new slice should consider Claude Code and Codex, plus macOS and Windows. Repo signal behavior is described in `docs/repo-signals.md` or `docs/repo-signals.ko.md`. The lightweight graph-rule adoption plan is `docs/graph-rule-adoption-plan.ko.md`. External context safety is described in `docs/mcp-safe-profile.md` and `docs/external-context-policy.md`. To read or review `.tink/current/` state, start with `docs/work-state.md` or `docs/work-state.ko.md`. Update confidence is still documented in `docs/phase-5-update-confidence.md` or `docs/phase-5-update-confidence.ko.md`. Context efficiency docs live in `docs/context-budget-ledger.md`, `docs/context-budget-ledger.ko.md`, `docs/context-metrics-evaluator.md`, `docs/context-metrics-evaluator.ko.md`, `docs/context-run-history-rollup.md`, `docs/context-run-history-rollup.ko.md`, `docs/context-threshold-status.md`, `docs/context-threshold-status.ko.md`, `docs/context-run-record-policy.md`, and `docs/context-run-record-policy.ko.md`. The planned work-unit list is `docs/planned-work-units.md` or `docs/planned-work-units.ko.md`, with details in the verification evidence, harness lifecycle, memory decision, context change, and update diagnosis docs. The broader Korean idea audit and roadmap is `docs/tink-idea-implementation-plan.ko.md`.
 
 The important rule is approval.
 
