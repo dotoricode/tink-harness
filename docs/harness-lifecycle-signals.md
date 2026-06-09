@@ -25,6 +25,13 @@ Useful signals:
 - `memory_refs`: memory files that appeared in the same run records.
 - `context_cost`: low, medium, high, or unknown.
 
+The summary also includes a small `graph` block for later reports and dashboards:
+
+- `graph.nodes`: harness, rule, memory, and stage nodes.
+- `graph.edges`: relationships such as `co_used`, `sequence`, `uses_rule`, and `uses_memory`.
+
+This graph is derived from the same visible records. It is a view model, not a hidden cache or background index.
+
 Allowed recommendations:
 
 - `keep`

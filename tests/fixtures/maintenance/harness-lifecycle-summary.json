@@ -170,5 +170,111 @@
         "delete"
       ]
     }
-  ]
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "id": "harness:bug-fix",
+        "type": "harness",
+        "label": "bug-fix",
+        "recommendation": "observe",
+        "confidence": "low",
+        "weight": 0
+      },
+      {
+        "id": "harness:code-change",
+        "type": "harness",
+        "label": "code-change",
+        "recommendation": "keep",
+        "confidence": "high",
+        "weight": 8
+      },
+      {
+        "id": "harness:docs",
+        "type": "harness",
+        "label": "docs",
+        "recommendation": "merge_candidate",
+        "confidence": "medium",
+        "weight": 6
+      },
+      {
+        "id": "harness:experimental-wide-context",
+        "type": "harness",
+        "label": "experimental-wide-context",
+        "recommendation": "frog_candidate",
+        "confidence": "high",
+        "weight": 2
+      },
+      {
+        "id": "harness:release-preflight",
+        "type": "harness",
+        "label": "release-preflight",
+        "recommendation": "observe",
+        "confidence": "low",
+        "weight": 1
+      },
+      {
+        "id": "memory:.tink/memory/preferences.md",
+        "type": "memory",
+        "label": ".tink/memory/preferences.md",
+        "weight": 1
+      },
+      {
+        "id": "rule:harness:code-change",
+        "type": "rule",
+        "label": "harness:code-change",
+        "weight": 1
+      },
+      {
+        "id": "rule:harness:docs",
+        "type": "rule",
+        "label": "harness:docs",
+        "weight": 1
+      },
+      {
+        "id": "stage:verify",
+        "type": "stage",
+        "label": "verify",
+        "weight": 7
+      }
+    ],
+    "edges": [
+      {
+        "source": "harness:code-change",
+        "target": "harness:docs",
+        "type": "co_used",
+        "count": 3
+      },
+      {
+        "source": "harness:code-change",
+        "target": "memory:.tink/memory/preferences.md",
+        "type": "uses_memory",
+        "count": 1
+      },
+      {
+        "source": "harness:code-change",
+        "target": "rule:harness:code-change",
+        "type": "uses_rule",
+        "count": 1
+      },
+      {
+        "source": "harness:code-change",
+        "target": "stage:verify",
+        "type": "sequence",
+        "count": 7
+      },
+      {
+        "source": "harness:docs",
+        "target": "harness:code-change",
+        "type": "co_used",
+        "count": 3
+      },
+      {
+        "source": "harness:docs",
+        "target": "rule:harness:docs",
+        "type": "uses_rule",
+        "count": 1
+      }
+    ]
+  }
 }

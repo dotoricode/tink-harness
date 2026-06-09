@@ -165,6 +165,104 @@ function addSignalRefs(item, field, refs) {
   }
 }
 
+function graphNodeId(type, id) {
+  return `${type}:${id}`;
+}
+
+function addGraphNode(nodes, node) {
+  if (!nodes.has(node.id)) nodes.set(node.id, node);
+}
+
+function addGraphEdge(edges, edge) {
+  const key = `${edge.source}\0${edge.target}\0${edge.type}`;
+  if (!edges.has(key)) edges.set(key, edge);
+}
+
+function buildGraph(harnessSummaries) {
+  const nodes = new Map();
+  const edges = new Map();
+
+  for (const item of harnessSummaries) {
+    const harnessNodeId = graphNodeId('harness', item.id);
+    addGraphNode(nodes, {
+      id: harnessNodeId,
+      type: 'harness',
+      label: item.id,
+      recommendation: item.recommendation,
+      confidence: item.confidence,
+      weight: item.signals.uses
+    });
+
+    for (const related of item.signals.co_used_with) {
+      const relatedNodeId = graphNodeId('harness', related.id);
+      addGraphEdge(edges, {
+        source: harnessNodeId,
+        target: relatedNodeId,
+        type: 'co_used',
+        count: related.count
+      });
+    }
+
+    for (const hint of item.signals.sequence_hints) {
+      const targetType = hint.after === 'verify' ? 'stage' : 'harness';
+      const targetNodeId = graphNodeId(targetType, hint.after);
+      addGraphNode(nodes, {
+        id: targetNodeId,
+        type: targetType,
+        label: hint.after,
+        weight: hint.count
+      });
+      addGraphEdge(edges, {
+        source: graphNodeId('harness', hint.before),
+        target: targetNodeId,
+        type: 'sequence',
+        count: hint.count
+      });
+    }
+
+    for (const ref of item.signals.rule_refs) {
+      const ruleNodeId = graphNodeId('rule', ref);
+      addGraphNode(nodes, {
+        id: ruleNodeId,
+        type: 'rule',
+        label: ref,
+        weight: 1
+      });
+      addGraphEdge(edges, {
+        source: harnessNodeId,
+        target: ruleNodeId,
+        type: 'uses_rule',
+        count: 1
+      });
+    }
+
+    for (const ref of item.signals.memory_refs) {
+      const memoryNodeId = graphNodeId('memory', ref);
+      addGraphNode(nodes, {
+        id: memoryNodeId,
+        type: 'memory',
+        label: ref,
+        weight: 1
+      });
+      addGraphEdge(edges, {
+        source: harnessNodeId,
+        target: memoryNodeId,
+        type: 'uses_memory',
+        count: 1
+      });
+    }
+  }
+
+  return {
+    nodes: [...nodes.values()].sort((a, b) => a.id.localeCompare(b.id)),
+    edges: [...edges.values()].sort((a, b) => (
+      a.source.localeCompare(b.source) ||
+      a.target.localeCompare(b.target) ||
+      a.type.localeCompare(b.type)
+    ))
+  };
+}
+
 function summarize(root) {
   const harnessIndexPath = path.join(root, '.tink/harnesses/index.json');
   const harnessIndex = readJson(harnessIndexPath, []);
@@ -288,6 +386,7 @@ function summarize(root) {
   }
 
   const datedRuns = runs.map((run) => run.date).filter(Boolean).sort();
+  const harnessSummaries = [...summaries.values()].sort((a, b) => a.id.localeCompare(b.id));
   return {
     generated_at: new Date().toISOString(),
     run_window: {
@@ -303,7 +402,8 @@ function summarize(root) {
       '.tink/maintenance/weave-queue.json',
       '.tink/maintenance/friction.jsonl'
     ],
-    harnesses: [...summaries.values()].sort((a, b) => a.id.localeCompare(b.id))
+    harnesses: harnessSummaries,
+    graph: buildGraph(harnessSummaries)
   };
 }
 
