@@ -421,6 +421,31 @@ function renderImportantHarnesses(harnesses) {
   `;
 }
 
+function renderCastRoutingRules() {
+  const rules = [
+    ['requirements-interview', 'Ambiguous scope or missing acceptance criteria'],
+    ['plan-consensus', 'API, schema, contract, refactor, or tradeoff-heavy plans'],
+    ['goal-checkpoint', 'Multi-file, multi-phase, resumed, or release-step work'],
+    ['delegation-brief', 'Independent verification, PR handoff, agent, or human handoff']
+  ];
+  return `
+    <section class="insight-card routing-card">
+      <div class="panel-title">
+        <p class="eyebrow">CAST ROUTING RULES</p>
+        <h2>Visible-thinking overlays</h2>
+      </div>
+      <ol class="route-list">
+        ${rules.map(([harness, trigger]) => `
+          <li>
+            <code>${escapeHtml(harness)}</code>
+            <span>${escapeHtml(trigger)}</span>
+          </li>
+        `).join('')}
+      </ol>
+    </section>
+  `;
+}
+
 function renderSelectedPanel(harnesses) {
   const first = harnesses.find((item) => item.signals?.uses > 0) || harnesses[0];
   if (!first) {
@@ -807,6 +832,16 @@ function renderStyles() {
     .ranked span { display: block; padding-right: 38px; color: var(--text); font-weight: 650; }
     .ranked strong { position: absolute; right: 0; top: 0; color: var(--muted); }
     .ranked i { position: absolute; left: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, var(--green), transparent); border-radius: 999px; }
+    .route-list { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .route-list li {
+      display: grid;
+      gap: 6px;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 7px;
+      background: rgba(255,255,255,.03);
+    }
+    .route-list span { color: var(--muted); font-size: 12px; line-height: 1.35; }
     .timeline { padding: 16px; }
     .timeline ol { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 11px; }
     .timeline li { display: grid; grid-template-columns: 10px 1fr; gap: 10px; }
@@ -949,6 +984,7 @@ function renderReport(summary) {
       ${renderConfidence(summary)}
       ${renderGraphOverview(summary.graph || {})}
       ${renderImportantHarnesses(harnesses)}
+      ${renderCastRoutingRules()}
       <section class="insight-card">
         <div class="panel-title">
           <p class="eyebrow">RECOMMENDATIONS</p>

@@ -16,6 +16,7 @@ Interactive install/update에 `--dry-run`, `--force`, `--clean-codex-picker`가 
 - `requirements-interview`, `plan-consensus`, `goal-checkpoint`, `delegation-brief`를 단독 명령이 아니라 기존 작업 하네스에 얹을 수 있는 작은 overlay 후보로 명시했다.
 - Graphify식 knowledge graph 화면을 참고해 하네스 health report를 왼쪽 navigation, 중앙 graph canvas, 오른쪽 insight rail 구조의 정적 대시보드로 바꿨다.
 - 실제 graph 관계가 적을 때도 하네스 사용량, evidence, candidate score factor를 작은 위성 노드로 보여줘 지도 형태를 더 읽기 쉽게 했다.
+- 오른쪽 insight rail에 Cast routing rules 카드를 추가해 새 visible-thinking 하네스가 어떤 상황에서 붙는지 바로 볼 수 있게 했다.
 
 ## 검증
 
