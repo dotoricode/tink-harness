@@ -32,6 +32,8 @@ Tink가 지난 실행 기록을 읽고 다음 질문에 답할 수 있게 돕는
 
 이 graph는 같은 보이는 기록에서 만든 보기용 모델이다. hidden cache나 background index가 아니다.
 
+`timeline` 블록은 최근 run event를 최신순으로 담는다. 각 event에는 날짜, source, status, outcome, 선택된 하네스가 들어간다. HTML 리포트는 이 값을 사용해 브라우저에서 파일을 다시 replay하지 않고도 실패, blocked, 성공 검증 흐름을 보여준다.
+
 허용되는 추천은 다음과 같다.
 
 - `keep`

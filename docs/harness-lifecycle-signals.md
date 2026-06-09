@@ -32,6 +32,8 @@ The summary also includes a small `graph` block for later reports and dashboards
 
 This graph is derived from the same visible records. It is a view model, not a hidden cache or background index.
 
+The `timeline` block lists recent run events in newest-first order with date, source, status, outcome, and selected harnesses. It helps the HTML report show when failures, blocked runs, and successful verification happened without replaying files in the browser.
+
 Allowed recommendations:
 
 - `keep`

@@ -263,6 +263,25 @@ function buildGraph(harnessSummaries) {
   };
 }
 
+function runOutcome(run) {
+  if (run.blocked) return 'blocked';
+  if (run.failed) return 'failed';
+  if (run.completed) return 'success';
+  return 'unknown';
+}
+
+function buildTimeline(runs, root) {
+  return runs
+    .map((run) => ({
+      date: run.date,
+      source: path.relative(root, run.path),
+      status: run.status,
+      outcome: runOutcome(run),
+      harnesses: run.harnesses
+    }))
+    .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+}
+
 function summarize(root) {
   const harnessIndexPath = path.join(root, '.tink/harnesses/index.json');
   const harnessIndex = readJson(harnessIndexPath, []);
@@ -403,7 +422,8 @@ function summarize(root) {
       '.tink/maintenance/friction.jsonl'
     ],
     harnesses: harnessSummaries,
-    graph: buildGraph(harnessSummaries)
+    graph: buildGraph(harnessSummaries),
+    timeline: buildTimeline(runs, root)
   };
 }
 

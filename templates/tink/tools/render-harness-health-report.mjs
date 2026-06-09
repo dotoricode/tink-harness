@@ -45,6 +45,27 @@ function renderRelated(items = []) {
     .join(', ');
 }
 
+function renderTimeline(events = []) {
+  if (!events.length) {
+    return '<section class="timeline"><h2>Recent run timeline</h2><p>No run events found.</p></section>';
+  }
+  return `
+    <section class="timeline">
+      <h2>Recent run timeline</h2>
+      <ol>
+        ${events.slice(0, 10).map((event) => `
+          <li>
+            <span class="badge ${escapeHtml(event.outcome || 'unknown')}">${escapeHtml(event.outcome || 'unknown')}</span>
+            <strong>${escapeHtml(event.date || 'Unknown date')}</strong>
+            <span>${escapeHtml((event.harnesses || []).join(', ') || 'No harness recorded')}</span>
+            <code>${escapeHtml(event.source)}</code>
+          </li>
+        `).join('')}
+      </ol>
+    </section>
+  `;
+}
+
 function renderHarness(item) {
   const signals = item.signals || {};
   return `
@@ -77,6 +98,7 @@ function renderReport(summary) {
   const counts = countByRecommendation(harnesses);
   const generatedAt = summary.generated_at || new Date().toISOString();
   const runWindow = summary.run_window || {};
+  const timeline = Array.isArray(summary.timeline) ? summary.timeline : [];
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -86,13 +108,19 @@ function renderReport(summary) {
   <style>
     body { font-family: system-ui, sans-serif; margin: 2rem; line-height: 1.5; color: #18212f; background: #f7f8fa; }
     main { max-width: 980px; margin: 0 auto; }
-    header, .harness { background: white; border: 1px solid #d8dee8; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    header, .timeline, .harness { background: white; border: 1px solid #d8dee8; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
     h1, h2 { margin: 0 0 .75rem; }
     dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .5rem; margin: 0 0 1rem; }
     dt { font-size: .8rem; color: #596579; }
     dd { margin: 0; font-weight: 650; }
     code { background: #eef1f6; padding: .1rem .25rem; border-radius: 4px; }
     .notice { border-left: 4px solid #4b6bfb; padding-left: .75rem; }
+    .timeline ol { margin: 0; padding-left: 1.25rem; }
+    .timeline li { margin: .5rem 0; }
+    .badge { display: inline-block; min-width: 4.5rem; margin-right: .5rem; padding: .1rem .4rem; border-radius: 4px; text-align: center; font-size: .8rem; font-weight: 700; background: #eef1f6; }
+    .success { color: #0f6b3a; background: #e9f8ef; }
+    .failed { color: #9b1c1c; background: #fdecec; }
+    .blocked { color: #7a4b00; background: #fff4db; }
   </style>
 </head>
 <body>
@@ -108,6 +136,7 @@ function renderReport(summary) {
     </dl>
     <p>${counts.map(([key, value]) => `<strong>${escapeHtml(key)}</strong>: ${escapeHtml(value)}`).join(' · ')}</p>
   </header>
+  ${renderTimeline(timeline)}
   ${harnesses.map(renderHarness).join('\n')}
 </main>
 </body>

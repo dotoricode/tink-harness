@@ -3,7 +3,7 @@
   "$id": "https://github.com/dotoricode/tink-harness/schemas/harness-lifecycle.schema.json",
   "title": "Tink harness lifecycle summary",
   "type": "object",
-  "required": ["generated_at", "run_window", "sources", "harnesses", "graph"],
+  "required": ["generated_at", "run_window", "sources", "harnesses", "graph", "timeline"],
   "properties": {
     "generated_at": { "type": "string" },
     "run_window": {
@@ -38,6 +38,10 @@
         }
       },
       "additionalProperties": true
+    },
+    "timeline": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/timeline_event" }
     }
   },
   "$defs": {
@@ -159,6 +163,24 @@
           "enum": ["co_used", "sequence", "uses_rule", "uses_memory"]
         },
         "count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "timeline_event": {
+      "type": "object",
+      "required": ["source", "status", "outcome", "harnesses"],
+      "properties": {
+        "date": { "type": ["string", "null"] },
+        "source": { "type": "string" },
+        "status": { "type": "string" },
+        "outcome": {
+          "type": "string",
+          "enum": ["success", "failed", "blocked", "unknown"]
+        },
+        "harnesses": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
       },
       "additionalProperties": true
     }
