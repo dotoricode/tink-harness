@@ -485,6 +485,15 @@ Do not save if the user approved only the current run. Saving reusable state nee
 ## Approval format
 Use concise, selection-oriented wording. The recommendation must include the first action Tink will perform, not only the harness name.
 
+User-facing approval wording:
+- Do not show internal terms such as `Probe`, `probe`, `합성 프로브`, `generic fit`, `제너릭 fit`, or `Stitch`.
+- Translate the synthesis probe result as `맞춤 절차 판단`.
+- Translate `generic fit` as `기본 하네스는 큰 틀만 맞음` or `기본 하네스만으로는 부족함`.
+- Translate visible Stitch output as `확인할 점`, not `Stitch 점검`.
+- Explain what each selected harness does in one short phrase before asking for approval.
+- Show a short `하네스 선택 과정` when more than one harness or a run-only draft is selected: candidate considered, selected harnesses, and why each was chosen.
+- Prefer natural scope wording such as `완료 기준을 먼저 나누겠습니다` or `이번 점검은 두 범위로 보겠습니다` instead of awkward wording like `"더 잘 동작하기"의 기준이 두 갈래입니다`.
+
 Approval option counts (always exactly one applies):
 - Default (no Stitch, no run-only draft): 4 options — 승인 / 조정 / 새 하네스 초안 만들기 / 취소
 - Run-only draft offered: 4 options — 승인 / 조정 / 기본 하네스만 사용 / 취소
@@ -497,9 +506,16 @@ Approval option counts (always exactly one applies):
 **🎯 Goals**
 - <goal>
 
-**🛠️ Harness**: `code-change + review`
-- **Probe:** 1 yes — built-in 하네스로 충분
-- **이유:** 변경 범위가 좁고, 회귀 확인이 필요합니다.
+**🛠️ 선택한 하네스**: `code-change + review`
+- `code-change`: 범위가 정해진 코드 변경을 작게 수행하는 하네스
+- `review`: 변경 위험과 누락을 확인하는 점검 하네스
+
+**하네스 선택 과정**
+- 후보: `code-change`, `review`, `harness-synthesis`
+- 선택: `code-change + review`
+- 이유: 변경 범위가 좁고, 회귀 확인이 필요합니다. 별도 맞춤 초안은 필요하지 않습니다.
+
+- **맞춤 절차 판단:** 기본 하네스로 충분
 - **첫 실행:** 관련 파일을 먼저 읽고 검증 명령 후보를 확정합니다.
 
 ? 진행할까요?
@@ -517,7 +533,16 @@ If a run-only draft or new harness is useful:
 **🎯 Goals**
 - <goal>
 
-**🛠️ Harness**: `<built-in>` (probe: 3 yes — generic fit)
+**🛠️ 선택한 하네스**: `<built-in> + 임시 초안`
+- `<built-in>`: 기본 작업 흐름을 잡는 하네스
+- `customer-interview-synthesis`: 이번 작업의 인터뷰 분석 순서를 보강하는 임시 초안
+
+**하네스 선택 과정**
+- 후보: `<built-in>`, `harness-synthesis`, `customer-interview-synthesis`
+- 선택: `<built-in> + customer-interview-synthesis`
+- 이유: 기본 하네스는 큰 틀만 맞고, 인터뷰 원문 근거와 pain point 구분은 별도 절차가 필요합니다.
+
+**맞춤 절차 판단:** 기본 하네스만으로는 부족함
 
 **임시 하네스 초안** (이번 작업 전용):
 - **name:** `customer-interview-synthesis`
@@ -536,7 +561,7 @@ If a run-only draft or new harness is useful:
   4. 취소
 ```
 
-If Stitch triggers as a soft gate, merge it into the approval format. The user-facing block uses plain language — never the word `Stitch`. The Korean default uses `점검 사항`; English uses `Review note`:
+If Stitch triggers as a soft gate, merge it into the approval format. The user-facing block uses plain language — never the word `Stitch`. The Korean default uses `확인할 점`; English uses `Review note`:
 
 ```text
 ### 🧶 Run: <task name>
@@ -544,13 +569,20 @@ If Stitch triggers as a soft gate, merge it into the approval format. The user-f
 **🎯 Goals**
 - <goal>
 
-**🔍 점검 사항**
+**🔍 확인할 점**
 - 제안: <one proposal>
 - 이유: <reason>
 - 이대로 진행 시 가정: <explicit assumption>
 
-**🛠️ Harness**: `<harness>`
-- **Probe:** ...
+**🛠️ 선택한 하네스**: `<harness>`
+- `<harness>`: <what this harness does in one short phrase>
+
+**하네스 선택 과정**
+- 후보: <candidate harnesses>
+- 선택: `<harness>`
+- 이유: <why selected>
+
+- **맞춤 절차 판단:** <기본 하네스로 충분 | 기본 하네스만으로는 부족함 | 새 맞춤 절차 필요>
 - **이유:** ...
 - **첫 실행:** ...
 
@@ -712,4 +744,4 @@ If a check fails:
 - Do not store raw logs, full diffs, secrets, or one-off task progress as reusable memory.
 - Do not ask "do you want to save?" before showing the Reusable State Save Gate payload. Show the payload directly.
 - Do not narrate .tink/ file writes (current/, runs/, memory/, config.json) in the response body. Do not show diff summaries, file lists, or "I created X / I updated Y" breakdowns. The tool-use header is sufficient on its own. At the end of the response, add at most one short sentence summarizing what changed across all .tink/ writes.
-- Do not use Tink-internal jargon (Stitch, hard gate, Save Gate, Reusable State, or temporary labels like G1/G2/G3) when writing user-facing responses. Translate to plain language matching `config.json` language. Internal documentation and code keep original terms for consistency.
+- Do not use Tink-internal jargon (Stitch, Probe, synthesis probe, generic fit, hard gate, Save Gate, Reusable State, or temporary labels like G1/G2/G3) when writing user-facing responses. Translate to plain language matching `config.json` language. Internal documentation and code keep original terms for consistency.
