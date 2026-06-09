@@ -131,6 +131,9 @@ function ensureSummary(id, contextCost) {
     evidence_handles: [],
     safe_next_action: 'Keep observing until real run, ledger, queue, or friction evidence exists.',
     approval_required_for: [],
+    lifecycle_state: 'no_evidence',
+    stale_days: null,
+    state_reason: 'No run records mention this harness.',
     candidate_score: {
       total: 0,
       factors: []
@@ -308,6 +311,59 @@ function scoreCandidate(item) {
   };
 }
 
+function daysBetween(fromDate, toDate) {
+  if (!fromDate || !toDate) return null;
+  const fromMs = Date.parse(fromDate);
+  const toMs = Date.parse(toDate);
+  if (!Number.isFinite(fromMs) || !Number.isFinite(toMs) || toMs < fromMs) return null;
+  return Math.floor((toMs - fromMs) / 86400000);
+}
+
+function addApprovalRequirement(item, value) {
+  if (!item.approval_required_for.includes(value)) {
+    item.approval_required_for.push(value);
+  }
+}
+
+function applyLifecycleState(item, referenceDate) {
+  const staleDays = daysBetween(item.signals.last_used, referenceDate);
+  item.stale_days = staleDays;
+
+  if (item.recommendation === 'frog_candidate') {
+    item.lifecycle_state = 'cleanup_review';
+    item.state_reason = 'Repeated trouble with high context cost needs a cleanup review, not automatic deletion.';
+    return;
+  }
+  if (item.recommendation === 'weave') {
+    item.lifecycle_state = 'needs_weave';
+    item.state_reason = 'Repeated trouble suggests a small improvement review.';
+    return;
+  }
+  if (item.recommendation === 'merge_candidate') {
+    item.lifecycle_state = 'merge_review';
+    item.state_reason = 'Repeated overlap suggests a merge review, not automatic merging.';
+    return;
+  }
+  if (item.signals.uses === 0) {
+    item.lifecycle_state = 'no_evidence';
+    item.state_reason = 'No run records mention this harness. Missing records are not cleanup evidence.';
+    return;
+  }
+  if (staleDays !== null && staleDays >= 30) {
+    item.lifecycle_state = 'dormant_candidate';
+    item.recommendation = 'observe';
+    item.confidence = item.evidence_grade === 'weak' ? 'low' : 'medium';
+    item.reason = 'This harness has not appeared in recent run records. Age alone is only a dormant review signal, not delete evidence.';
+    item.state_reason = `Last seen ${staleDays} days before the latest indexed run.`;
+    item.safe_next_action = 'Review whether to keep active or archive after explicit approval. Do not delete from age alone.';
+    addApprovalRequirement(item, 'archive');
+    return;
+  }
+
+  item.lifecycle_state = 'active';
+  item.state_reason = 'Recent enough to keep in normal observation.';
+}
+
 function runOutcome(run) {
   if (run.blocked) return 'blocked';
   if (run.failed) return 'failed';
@@ -448,10 +504,14 @@ function summarize(root) {
       item.safe_next_action = 'Keep using this harness and watch whether failures repeat.';
     }
 
-    item.candidate_score = scoreCandidate(item);
   }
 
   const datedRuns = runs.map((run) => run.date).filter(Boolean).sort();
+  const referenceDate = datedRuns[datedRuns.length - 1] || null;
+  for (const item of summaries.values()) {
+    applyLifecycleState(item, referenceDate);
+    item.candidate_score = scoreCandidate(item);
+  }
   const harnessSummaries = [...summaries.values()].sort((a, b) => a.id.localeCompare(b.id));
   return {
     generated_at: new Date().toISOString(),

@@ -73,6 +73,7 @@ function renderHarness(item) {
       <h2>${escapeHtml(item.id)}</h2>
       <dl>
         <div><dt>Recommendation</dt><dd>${escapeHtml(item.recommendation)}</dd></div>
+        <div><dt>Lifecycle state</dt><dd>${escapeHtml(item.lifecycle_state || 'unknown')}</dd></div>
         <div><dt>Candidate score</dt><dd>${escapeHtml(item.candidate_score?.total ?? 0)}</dd></div>
         <div><dt>Confidence</dt><dd>${escapeHtml(item.confidence || 'unknown')}</dd></div>
         <div><dt>Evidence grade</dt><dd>${escapeHtml(item.evidence_grade || 'unknown')}</dd></div>
@@ -85,6 +86,7 @@ function renderHarness(item) {
         <div><dt>Often used with</dt><dd>${renderRelated(signals.co_used_with)}</dd></div>
       </dl>
       <p>${escapeHtml(item.reason)}</p>
+      <p><strong>State reason:</strong> ${escapeHtml(item.state_reason || 'No lifecycle state reason recorded.')}</p>
       <p><strong>Safe next action:</strong> ${escapeHtml(item.safe_next_action || 'Review evidence before acting.')}</p>
       <details>
         <summary>Evidence handles</summary>

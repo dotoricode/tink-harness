@@ -10,6 +10,7 @@ All notable changes to Tink are tracked here.
 - Added a derived graph view to harness lifecycle summaries so future reports can read harness, rule, memory, and stage relationships without adding a watcher or hidden cache.
 - Added timeline events to harness lifecycle summaries and rendered recent run history in the local harness health HTML report.
 - Added explainable candidate scores to harness lifecycle summaries and the local health report so weave, frog, merge, and observe candidates are easier to sort without automatic action.
+- Added lifecycle state fields, including a `dormant_candidate` state that treats old usage as an archive review signal rather than delete evidence.
 
 ### Changed
 

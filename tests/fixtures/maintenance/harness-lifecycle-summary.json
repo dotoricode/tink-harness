@@ -54,6 +54,9 @@
       ],
       "safe_next_action": "Keep using this harness and watch whether failures repeat.",
       "approval_required_for": [],
+      "lifecycle_state": "active",
+      "stale_days": 0,
+      "state_reason": "Recent enough to keep in normal observation.",
       "candidate_score": {
         "total": 60,
         "factors": [
@@ -114,6 +117,9 @@
       "approval_required_for": [
         "merge"
       ],
+      "lifecycle_state": "merge_review",
+      "stale_days": 0,
+      "state_reason": "Repeated overlap suggests a merge review, not automatic merging.",
       "candidate_score": {
         "total": 45,
         "factors": [
@@ -158,6 +164,9 @@
       "evidence_handles": [],
       "safe_next_action": "Keep observing until real run or ledger evidence exists.",
       "approval_required_for": [],
+      "lifecycle_state": "no_evidence",
+      "stale_days": null,
+      "state_reason": "No run records mention this harness. Missing records are not cleanup evidence.",
       "candidate_score": {
         "total": 5,
         "factors": [
@@ -194,6 +203,9 @@
       ],
       "safe_next_action": "Keep or ask for more evidence; do not delete from this signal alone.",
       "approval_required_for": [],
+      "lifecycle_state": "active",
+      "stale_days": 12,
+      "state_reason": "Recent enough to keep in normal observation.",
       "candidate_score": {
         "total": 15,
         "factors": [
@@ -239,6 +251,9 @@
         "archive",
         "delete"
       ],
+      "lifecycle_state": "cleanup_review",
+      "stale_days": 6,
+      "state_reason": "Repeated trouble with high context cost needs a cleanup review, not automatic deletion.",
       "candidate_score": {
         "total": 95,
         "factors": [
