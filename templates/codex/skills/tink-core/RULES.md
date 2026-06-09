@@ -56,6 +56,8 @@ When multiple harnesses or a run-only draft are selected, briefly explain each h
 
 Default Korean options are `승인`, `조정`, `취소`. If a run-only draft is proposed, use `승인`, `조정`, `기본 하네스만 사용`, `취소`. If a high-impact safety or quality branch is visible, use `승인`, `요구사항 입력`, `이대로 진행`, `취소`. For hard gates or reusable-state saves, use only `승인`, `요구사항 입력`, `취소`.
 
+Option label quality rules: use short, common, readable labels only. Good Korean labels include `승인`, `조정`, `취소`, `요구사항 입력`, `기본 하네스만 사용`, `새 하네스 초안 만들기`, `구조 점검`, `내용 점검`, and `전체 점검`. Do not invent compressed Korean labels, transliterated fragments, or unclear summaries such as `콘데의달 지질`. If the idea is too specific for a clean 1-5 word label, put the detail in `description` and use a generic label such as `내용 점검` or `전체 점검`. Before calling `request_user_input`, reread each Korean label; if it looks misspelled, unnatural, or semantically unclear, replace it with a plain fallback label.
+
 When `request_user_input` is unavailable, write the same approval request as a normal assistant message and wait for the user's answer. Do not create run state, load harness bodies, edit files, run commands, or continue the task before the answer. A user's `$tink:cast` invocation means "prepare and ask for approval", not "start immediately".
 
 Use this compact approval request shape. Keep it short; do not expose internal terms such as Stitch, Probe, synthesis probe, generic fit, or hard gate in user-facing text. Translate them into plain wording such as `확인할 점`, `맞춤 절차 판단`, `기본 하네스로 충분`, or `기본 하네스만으로는 부족함`.
