@@ -26,6 +26,7 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - Auto signals from completed runs (entries where `auto: true`)
    Count auto signals per harness: `check_failed` signals count as 2, all other outcomes count as 1. Use this frequency to rank improvement candidates — harnesses with the highest signal count should be improved first. If invoked from `/tink:frog`, also read the purge output and `.tink/current/notes.md` for the weave handoff packet.
    If `.tink/maintenance/friction.jsonl` exists, read only compact recent entries and count repeated `check_failed`, `check_skipped`, `blocked`, gate denial, or rollback events. Repeated friction can justify a harness edit, rule graph update, or opt-in guard candidate.
+   If `.tink/tools/generate-harness-lifecycle-summary.mjs` exists, run `node .tink/tools/generate-harness-lifecycle-summary.mjs` from the repo root before ranking candidates. The generated `.tink/maintenance/harness-lifecycle.json` is a report, not approval or reusable memory.
    If `.tink/maintenance/harness-lifecycle.json` or another summary following `.tink/schemas/harness-lifecycle.schema.json` exists, read it as a harness health summary. Prefer entries with recommendation `weave`, high or medium confidence, and concrete `evidence_handles`. Low-confidence entries should stay as observation unless the user explicitly asks to act on them.
 2. Identify one or a few active harnesses to improve using real failures and evidence:
    - repeated mistakes
@@ -35,6 +36,7 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - confusing approval prompts
    - too much context footprint
    - missing done criteria
+   Rank lifecycle-backed `weave` candidates ahead of raw queue counts when they cite concrete evidence handles and medium or high confidence. Use raw queue and friction counts to break ties.
 3. Require concrete evidence handles before proposing a save:
    - run record path or run ID
    - current notes path when same-conversation certainty exists

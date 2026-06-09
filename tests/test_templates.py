@@ -1192,8 +1192,8 @@ class TemplateTests(unittest.TestCase):
             (evidence_details_ko, ['evidence_kind', 'evidence_ref', 'observed', 'Claude Code', 'Codex']),
             (external_policy, ['mcp-policy.schema.json', 'read-only', 'Sentry is not part of the current plan']),
             (external_policy_ko, ['mcp-policy.schema.json', 'read-only', 'Sentry는 현재 계획에 포함하지 않는다']),
-            (lifecycle, ['harness-lifecycle.schema.json', 'frog_candidate', 'plain health summary', 'generate-harness-lifecycle-summary.mjs', 'render-harness-health-report.mjs', 'must not apply it automatically']),
-            (lifecycle_ko, ['harness-lifecycle.schema.json', 'frog_candidate', '하네스 생애주기 신호는 재사용 하네스의 건강 요약이다', 'generate-harness-lifecycle-summary.mjs', 'render-harness-health-report.mjs', '자동으로 적용하면 안 된다']),
+            (lifecycle, ['harness-lifecycle.schema.json', 'frog_candidate', 'plain health summary', 'generate-harness-lifecycle-summary.mjs', 'render-harness-health-report.mjs', 'weave` and `/tink:frog` should prepare this summary', 'normal approval payload']),
+            (lifecycle_ko, ['harness-lifecycle.schema.json', 'frog_candidate', '하네스 생애주기 신호는 재사용 하네스의 건강 요약이다', 'generate-harness-lifecycle-summary.mjs', 'render-harness-health-report.mjs', '요약을 먼저 준비해야 한다', '승인 payload']),
             (memory_layers, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
             (memory_layers_ko, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
             (context_change, ['context-diff.json', 'not a new command', 'not a hidden runtime cache']),
@@ -2226,11 +2226,17 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('duplicate, breadth, evidence, verification, compatibility, and portability', weave)
         self.assertIn('harness-lifecycle.json', weave)
         self.assertIn('harness health summary', weave)
+        self.assertIn('node .tink/tools/generate-harness-lifecycle-summary.mjs', weave)
+        self.assertIn('Rank lifecycle-backed `weave` candidates', weave)
         frog = (ROOT / 'templates/claude/commands/tink/frog.md').read_text(encoding='utf-8')
         self.assertIn('harness-lifecycle.json', frog)
         self.assertIn('health summary', frog)
         self.assertIn('not as authority', frog)
+        self.assertIn('node .tink/tools/generate-harness-lifecycle-summary.mjs', frog)
+        self.assertIn('Sort lifecycle-backed candidates', frog)
         self.assertIn('plain harness health summary', codex_core)
+        self.assertIn('prepare the harness health summary before ranking candidates', codex_core)
+        self.assertIn('generate-harness-lifecycle-summary.mjs', codex_core)
         self.assertIn('Low-confidence entries stay as observation', codex_core)
         self.assertIn('friction.jsonl', weave)
 

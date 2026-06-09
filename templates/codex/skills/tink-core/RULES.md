@@ -34,14 +34,15 @@ Accept legacy `$tink <action>` spelling for compatibility, but present `$tink:<a
 14. Current-run approval never authorizes reusable-state writes. Before saving reusable state, show operation, destination files, exact entry or patch summary, reusable reason, sensitive content excluded, and rollback/removal path.
 15. Before saving a reusable rule graph update, run a structural gate: duplicate, breadth, evidence, verification, Claude Code/Codex compatibility, macOS/Windows compatibility, and portable commands. AI may propose a rule; saving it still requires separate approval.
 16. `$tink:frog` may inspect rule quality as well as harness quality. Prefer keep, rewrite, split, merge, or needs-evidence recommendations before any removal proposal.
-17. When `.tink/maintenance/harness-lifecycle.json` or another file following `.tink/schemas/harness-lifecycle.schema.json` exists, treat it as a plain harness health summary. Use `confidence`, `evidence_grade`, `evidence_handles`, and `safe_next_action` to prioritize `$tink:weave` or `$tink:frog` candidates, but do not treat it as approval. Low-confidence entries stay as observation. Harness edits, rule updates, memory saves, merges, archives, and deletions still require the reusable-state approval gate.
-18. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`. If selected, also create `.tink/current/goals.json` for `goal-checkpoint` and `.tink/current/delegation.md` for `delegation-brief`.
-19. Do not stop at recommendation. Execute the first safe step after run state exists.
-20. Run `$tink:verify` behavior before final when `contract.json` lists required checks.
-21. Store reusable memory or rule updates under `.tink/` only after separate approval.
-22. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `$tink:weave`.
-23. Keep context compact. Do not paste raw logs or full diffs.
-24. Use calm, clear, concise language. Prefer plain everyday words over technical terms. No jokes.
+17. For `$tink:weave` or `$tink:frog`, prepare the harness health summary before ranking candidates. If `.tink/tools/generate-harness-lifecycle-summary.mjs` exists, run `node .tink/tools/generate-harness-lifecycle-summary.mjs` from the repo root and then read `.tink/maintenance/harness-lifecycle.json`. If the generator is missing, continue from compact run, queue, ledger, and friction evidence.
+18. When `.tink/maintenance/harness-lifecycle.json` or another file following `.tink/schemas/harness-lifecycle.schema.json` exists, treat it as a plain harness health summary. Use `confidence`, `evidence_grade`, `evidence_handles`, and `safe_next_action` to prioritize `$tink:weave` or `$tink:frog` candidates, but do not treat it as approval. Low-confidence entries stay as observation. Harness edits, rule updates, memory saves, merges, archives, and deletions still require the reusable-state approval gate.
+19. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`. If selected, also create `.tink/current/goals.json` for `goal-checkpoint` and `.tink/current/delegation.md` for `delegation-brief`.
+20. Do not stop at recommendation. Execute the first safe step after run state exists.
+21. Run `$tink:verify` behavior before final when `contract.json` lists required checks.
+22. Store reusable memory or rule updates under `.tink/` only after separate approval.
+23. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `$tink:weave`.
+24. Keep context compact. Do not paste raw logs or full diffs.
+25. Use calm, clear, concise language. Prefer plain everyday words over technical terms. No jokes.
 
 ## Codex Approval Protocol
 

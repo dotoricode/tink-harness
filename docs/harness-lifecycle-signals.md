@@ -65,4 +65,6 @@ node .tink/tools/render-harness-health-report.mjs input.json output.html
 
 Both helpers are read-only with respect to reusable Tink state. They write only the requested summary or report file. They do not edit, merge, archive, delete, save memory, or update rules.
 
+`/tink:weave` and `/tink:frog` should prepare this summary before ranking candidates when the generator is installed. The summary helps sort candidates by evidence strength, but the commands still show the normal approval payload before any reusable change.
+
 This is not a watcher, hidden cache, or new public `tink index` command. The source of truth remains the visible files under `.tink/runs/`, `.tink/maintenance/`, `.tink/harnesses/`, and `.tink/rules/`.
