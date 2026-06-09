@@ -2037,6 +2037,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('harness_summary', lifecycle_schema['$defs'])
         self.assertIn('run_window', lifecycle_schema['required'])
         self.assertIn('sources', lifecycle_schema['required'])
+        self.assertIn('graph', lifecycle_schema['required'])
+        self.assertIn('graph_node', lifecycle_schema['$defs'])
+        self.assertIn('graph_edge', lifecycle_schema['$defs'])
         allowed_recommendations = set(
             lifecycle_schema['$defs']['harness_summary']['properties']['recommendation']['enum']
         )
@@ -2052,6 +2055,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('.tink/runs/*.md', lifecycle_fixture['sources'])
         self.assertGreaterEqual(lifecycle_fixture['run_window']['run_count'], 0)
         lifecycle_by_id = {item['id']: item for item in lifecycle_fixture['harnesses']}
+        graph_node_ids = {item['id'] for item in lifecycle_fixture['graph']['nodes']}
+        graph_edge_types = {item['type'] for item in lifecycle_fixture['graph']['edges']}
         self.assertEqual(lifecycle_by_id['bug-fix']['recommendation'], 'observe')
         self.assertEqual(lifecycle_by_id['bug-fix']['confidence'], 'low')
         self.assertEqual(lifecycle_by_id['release-preflight']['evidence_grade'], 'weak')
@@ -2063,6 +2068,14 @@ class TemplateTests(unittest.TestCase):
         self.assertTrue(lifecycle_by_id['code-change']['signals']['sequence_hints'])
         self.assertIn('harness:code-change', lifecycle_by_id['code-change']['signals']['rule_refs'])
         self.assertIn('.tink/memory/preferences.md', lifecycle_by_id['code-change']['signals']['memory_refs'])
+        self.assertIn('harness:code-change', graph_node_ids)
+        self.assertIn('rule:harness:code-change', graph_node_ids)
+        self.assertIn('memory:.tink/memory/preferences.md', graph_node_ids)
+        self.assertIn('stage:verify', graph_node_ids)
+        self.assertIn('co_used', graph_edge_types)
+        self.assertIn('sequence', graph_edge_types)
+        self.assertIn('uses_rule', graph_edge_types)
+        self.assertIn('uses_memory', graph_edge_types)
         for item in lifecycle_fixture['harnesses']:
             self.assertIn(item['recommendation'], allowed_recommendations)
             self.assertIn(item['confidence'], ['low', 'medium', 'high'])
@@ -2135,6 +2148,14 @@ class TemplateTests(unittest.TestCase):
             ])
             self.assertIn('harness:code-change', generated_by_id['code-change']['signals']['rule_refs'])
             self.assertIn('.tink/memory/preferences.md', generated_by_id['code-change']['signals']['memory_refs'])
+            generated_graph_nodes = {item['id'] for item in generated['graph']['nodes']}
+            generated_graph_edges = {(item['source'], item['target'], item['type']) for item in generated['graph']['edges']}
+            self.assertIn('harness:code-change', generated_graph_nodes)
+            self.assertIn('rule:harness:code-change', generated_graph_nodes)
+            self.assertIn('memory:.tink/memory/preferences.md', generated_graph_nodes)
+            self.assertIn(('harness:code-change', 'stage:verify', 'sequence'), generated_graph_edges)
+            self.assertIn(('harness:code-change', 'rule:harness:code-change', 'uses_rule'), generated_graph_edges)
+            self.assertIn(('harness:code-change', 'memory:.tink/memory/preferences.md', 'uses_memory'), generated_graph_edges)
             self.assertIn('.tink/maintenance/weave-queue.json', generated_by_id['wide-context']['evidence_handles'])
         with tempfile.TemporaryDirectory() as d:
             output = Path(d) / 'harness-health-report.html'

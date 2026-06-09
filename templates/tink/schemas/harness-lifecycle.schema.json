@@ -3,7 +3,7 @@
   "$id": "https://github.com/dotoricode/tink-harness/schemas/harness-lifecycle.schema.json",
   "title": "Tink harness lifecycle summary",
   "type": "object",
-  "required": ["generated_at", "run_window", "sources", "harnesses"],
+  "required": ["generated_at", "run_window", "sources", "harnesses", "graph"],
   "properties": {
     "generated_at": { "type": "string" },
     "run_window": {
@@ -23,6 +23,21 @@
     "harnesses": {
       "type": "array",
       "items": { "$ref": "#/$defs/harness_summary" }
+    },
+    "graph": {
+      "type": "object",
+      "required": ["nodes", "edges"],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/graph_node" }
+        },
+        "edges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/graph_edge" }
+        }
+      },
+      "additionalProperties": true
     }
   },
   "$defs": {
@@ -107,6 +122,42 @@
       "properties": {
         "before": { "type": "string" },
         "after": { "type": "string" },
+        "count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "graph_node": {
+      "type": "object",
+      "required": ["id", "type", "label"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["harness", "rule", "memory", "stage"]
+        },
+        "label": { "type": "string" },
+        "recommendation": {
+          "type": "string",
+          "enum": ["keep", "weave", "frog_candidate", "merge_candidate", "observe"]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "weight": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "graph_edge": {
+      "type": "object",
+      "required": ["source", "target", "type"],
+      "properties": {
+        "source": { "type": "string" },
+        "target": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["co_used", "sequence", "uses_rule", "uses_memory"]
+        },
         "count": { "type": "integer", "minimum": 0 }
       },
       "additionalProperties": true

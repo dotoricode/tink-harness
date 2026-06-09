@@ -25,6 +25,13 @@ Tink가 지난 실행 기록을 읽고 다음 질문에 답할 수 있게 돕는
 - `memory_refs`: 같은 run 기록에 나온 memory 파일.
 - `context_cost`: low, medium, high, unknown.
 
+요약에는 이후 리포트와 대시보드가 읽기 쉬운 작은 `graph` 블록도 들어간다.
+
+- `graph.nodes`: harness, rule, memory, stage 노드.
+- `graph.edges`: `co_used`, `sequence`, `uses_rule`, `uses_memory` 같은 관계.
+
+이 graph는 같은 보이는 기록에서 만든 보기용 모델이다. hidden cache나 background index가 아니다.
+
 허용되는 추천은 다음과 같다.
 
 - `keep`
