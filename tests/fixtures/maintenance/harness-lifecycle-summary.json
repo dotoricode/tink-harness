@@ -36,6 +36,12 @@
             "count": 7
           }
         ],
+        "rule_refs": [
+          "harness:code-change"
+        ],
+        "memory_refs": [
+          ".tink/memory/preferences.md"
+        ],
         "context_cost": "medium"
       },
       "recommendation": "keep",
@@ -66,6 +72,10 @@
           }
         ],
         "sequence_hints": [],
+        "rule_refs": [
+          "harness:docs"
+        ],
+        "memory_refs": [],
         "context_cost": "low"
       },
       "recommendation": "merge_candidate",
@@ -92,6 +102,8 @@
         "failure_rate": null,
         "co_used_with": [],
         "sequence_hints": [],
+        "rule_refs": [],
+        "memory_refs": [],
         "context_cost": "unknown"
       },
       "recommendation": "observe",
@@ -114,6 +126,8 @@
         "failure_rate": 0,
         "co_used_with": [],
         "sequence_hints": [],
+        "rule_refs": [],
+        "memory_refs": [],
         "context_cost": "high"
       },
       "recommendation": "observe",
@@ -138,6 +152,8 @@
         "failure_rate": 0.5,
         "co_used_with": [],
         "sequence_hints": [],
+        "rule_refs": [],
+        "memory_refs": [],
         "context_cost": "high"
       },
       "recommendation": "frog_candidate",

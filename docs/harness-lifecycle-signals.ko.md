@@ -21,6 +21,8 @@ Tink가 지난 실행 기록을 읽고 다음 질문에 답할 수 있게 돕는
 - `failure_rate`: 사용 횟수 대비 필수 check 실패 비율. 근거가 부족하면 `null`.
 - `co_used_with`: 같은 run에서 자주 함께 나온 하네스.
 - `sequence_hints`: 한 하네스 뒤에 다른 단계가 반복해서 따라온 순서 힌트.
+- `rule_refs`: 같은 run 기록에 나온 rule id.
+- `memory_refs`: 같은 run 기록에 나온 memory 파일.
 - `context_cost`: low, medium, high, unknown.
 
 허용되는 추천은 다음과 같다.
@@ -48,7 +50,7 @@ Tink가 지난 실행 기록을 읽고 다음 질문에 답할 수 있게 돕는
 node .tink/tools/generate-harness-lifecycle-summary.mjs
 ```
 
-기본값으로 `.tink/harnesses/index.json`, `.tink/runs/*.md`, `.tink/maintenance/weave-queue.json`, `.tink/maintenance/friction.jsonl`을 읽고 `.tink/maintenance/harness-lifecycle.json`을 쓴다.
+기본값으로 `.tink/harnesses/index.json`, `.tink/rules/index.json`, `.tink/memory/*.md`, `.tink/runs/*.md`, `.tink/maintenance/weave-queue.json`, `.tink/maintenance/friction.jsonl`을 읽고 `.tink/maintenance/harness-lifecycle.json`을 쓴다.
 
 그 다음 이 요약을 로컬 HTML 리포트로 바꿀 수 있다.
 

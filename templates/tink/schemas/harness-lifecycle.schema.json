@@ -49,6 +49,14 @@
               "type": "array",
               "items": { "$ref": "#/$defs/sequence_hint" }
             },
+            "rule_refs": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "memory_refs": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
             "context_cost": {
               "type": "string",
               "enum": ["low", "medium", "high", "unknown"]
