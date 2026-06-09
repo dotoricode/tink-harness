@@ -61,7 +61,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.7.1')
+        self.assertEqual(pkg['version'], '1.8.0')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -74,8 +74,8 @@ class TemplateTests(unittest.TestCase):
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code and Codex', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn('Latest package:</strong> v1.7.1', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn("What's new in 1.7.1", (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('Latest package:</strong> v1.8.0', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn("What's new in 1.8.0", (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('graph-rule seed rules', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('Tinker Bell', (ROOT / 'README.md').read_text(encoding='utf-8'))
@@ -432,18 +432,35 @@ class TemplateTests(unittest.TestCase):
         names = {item['name'] for item in index}
         expected_names = {
             'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship',
+            'requirements-interview', 'plan-consensus',
+            'goal-checkpoint', 'delegation-brief',
             'harness-synthesis', 'harness-curation',
             'pre-publish-multi-agent-verify', 'tink-feedback-apply',
             'pr-merge',
         }
         self.assertEqual(names, expected_names)
-        work_harnesses = {'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship'}
+        work_harnesses = {
+            'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship',
+            'requirements-interview', 'plan-consensus',
+            'goal-checkpoint', 'delegation-brief',
+        }
         for name in work_harnesses:
             text = (ROOT / f'templates/tink/harnesses/{name}.md').read_text(encoding='utf-8')
             for section in HARNESS_SECTIONS:
                 self.assertIn(section, text)
             self.assertIn('.tink/current/answers.md', text)
             self.assertLessEqual(len(text.splitlines()), 100)
+
+        cast = (ROOT / 'commands/cast.md').read_text(encoding='utf-8')
+        codex_core = (ROOT / 'templates/codex/skills/tink-core/RULES.md').read_text(encoding='utf-8')
+        for text in [cast, codex_core]:
+            self.assertIn('requirements-interview', text)
+            self.assertIn('plan-consensus', text)
+            self.assertIn('goal-checkpoint', text)
+            self.assertIn('delegation-brief', text)
+            self.assertIn('goals.json', text)
+            self.assertIn('delegation.md', text)
+            self.assertIn('Do not start tmux panes', text)
 
     def test_memory_templates_exist(self):
         for name in ['mistakes.md', 'preferences.md', 'lessons.md']:
@@ -836,6 +853,7 @@ class TemplateTests(unittest.TestCase):
             'docs/pr/2026-06-09-v1.6.3.ko.md',
             'docs/pr/2026-06-09-v1.7.0.ko.md',
             'docs/pr/2026-06-09-v1.7.1.ko.md',
+            'docs/pr/2026-06-09-v1.8.0.ko.md',
             'README.md',
             'LICENSE',
         ]:

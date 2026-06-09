@@ -147,6 +147,11 @@ After approval, create `.tink/current/` with these files before doing deeper wor
 - `context-metrics-evaluation.json`: measured or estimated context-efficiency scores, formulas, evidence refs, and limits
 - `excluded-context.md`: notable omitted files, tools, sources, or claims and why they were excluded
 
+Optional current-run artifacts are created only when their harness is selected:
+
+- `goals.json`: current-run goals for `goal-checkpoint`; keep 2-6 goals, one active goal, status, done criteria, verification, and evidence.
+- `delegation.md`: handoff or parallel-work packets for `delegation-brief`; include packet scope, forbidden actions, expected evidence, and reconciliation notes. Do not start tmux panes, worktrees, workers, or external agents from this harness.
+
 Create `contract.json` before loading harness bodies. It should be short, factual, and based on the user request plus visible project context:
 
 ```json
@@ -389,34 +394,39 @@ A task is trivial only when ALL of the following are true:
    - docs
    - ship/release
    - new pattern not covered yet
-6. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context. When the task is ambiguous (Stitch goal-ambiguity is expected to trigger), start with a single best-fit harness; add a second only after the user clarifies. Do not bundle 2+ harnesses for ambiguous tasks upfront.
+6. Consider GJC-style visible-thinking overlays as normal Tink harnesses, not as new command surfaces:
+   - If the request is an ambiguous idea, early product concept, or underspecified implementation prompt, prefer `requirements-interview` before planning or coding. This is the default harness when Stitch is expected to trigger for goal ambiguity.
+   - If the request asks for a plan, architecture decision, large refactor, migration, or broad public contract change, consider `plan-consensus`.
+   - If the work naturally splits into multiple durable milestones, add `goal-checkpoint` and create `.tink/current/goals.json` after approval.
+   - If parallel review, verification, or handoff would reduce risk, add `delegation-brief` and create `.tink/current/delegation.md` after approval. This harness prepares briefs only; it never starts tmux, worktrees, workers, or external agents.
+7. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context. When the task is ambiguous (Stitch goal-ambiguity is expected to trigger), start with `requirements-interview` alone; add a second harness only after the user clarifies. Do not bundle 2+ harnesses for ambiguous tasks upfront.
 
    After selecting, run a quick quality check using the index metadata for each chosen harness:
    - If fewer than 2 words in `use_when` match the current task description (case-insensitive) → treat as a Stitch harness-mismatch signal
    - If `checks` is empty or missing → treat as a Stitch harness-mismatch signal
    - If `asks` is empty or missing and the task goal is not self-evident → treat as a Stitch goal-ambiguity signal
-   Feed any signals into the Stitch evaluation at step 11.
+   Feed any signals into the Stitch evaluation at step 16.
 
-7. Add any rule graph check candidates to `contract.json` verification if they are relevant and cheap. For risky commands, set `approval_required: true`.
-8. Add opt-in guard candidates to `notes.md` only as suggestions. Do not register enforcement hooks unless the user separately approves.
-9. Run the synthesis probe on the initial harness choice. The probe produces one of three outcomes: strong fit (0-1 yes), generic fit (2-3 yes), or no fit (4-5 yes or no harness matches).
-10. If the probe finds no fit, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
-11. If the probe finds a generic fit (2-3 yes), propose a run-only draft harness or domain rules alongside the built-in harness. Do not save it by default.
-12. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
-13. If lightweight signals show a recurring operating habit, use `harness-curation` (its habit calibration section) to make one advisory recommendation without loading a separate body.
-14. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
-15. Run Stitch once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Call `AskUserQuestion` as described in the Interaction policy section.
-16. Ask for explicit approval before non-trivial work.
-17. After approval, read only the selected harness files and any approved run-only draft.
-18. Create `.tink/current/` files from the run state contract, including `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`.
-19. Execute the first safe step immediately:
+8. Add any rule graph check candidates to `contract.json` verification if they are relevant and cheap. For risky commands, set `approval_required: true`.
+9. Add opt-in guard candidates to `notes.md` only as suggestions. Do not register enforcement hooks unless the user separately approves.
+10. Run the synthesis probe on the initial harness choice. The probe produces one of three outcomes: strong fit (0-1 yes), generic fit (2-3 yes), or no fit (4-5 yes or no harness matches).
+11. If the probe finds no fit, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
+12. If the probe finds a generic fit (2-3 yes), propose a run-only draft harness or domain rules alongside the built-in harness. Do not save it by default.
+13. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
+14. If lightweight signals show a recurring operating habit, use `harness-curation` (its habit calibration section) to make one advisory recommendation without loading a separate body.
+15. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
+16. Run Stitch once before committing to `.tink/current/`. If it triggers, show exactly one proposal before approval. Call `AskUserQuestion` as described in the Interaction policy section.
+17. Ask for explicit approval before non-trivial work.
+18. After approval, read only the selected harness files and any approved run-only draft.
+19. Create `.tink/current/` files from the run state contract, including `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`. If selected, also create `goals.json` for `goal-checkpoint` and `delegation.md` for `delegation-brief`.
+20. Execute the first safe step immediately:
    - inspect relevant files,
    - run a read-only diagnostic,
    - draft the first artifact,
    - or reproduce the issue.
-20. Keep `steps.json`, `notes.md`, `contract.json`, and `session.json` current as work progresses.
-21. Before final, run `/tink:verify` behavior for required contract checks or state why verification is blocked.
-22. If the task exposed a repeated mistake or reusable improvement, use the Reusable State Save Gate approval payload below. Save only after separate user approval.
+21. Keep `steps.json`, `notes.md`, `contract.json`, and `session.json` current as work progresses. When present, keep `goals.json` and `delegation.md` aligned with actual status and evidence.
+22. Before final, run `/tink:verify` behavior for required contract checks or state why verification is blocked.
+23. If the task exposed a repeated mistake or reusable improvement, use the Reusable State Save Gate approval payload below. Save only after separate user approval.
 
 
 ## Synthesis probe
@@ -635,6 +645,42 @@ Before saving, score the candidate 1-5 on specificity, actionability, verifiabil
     { "id": "1", "status": "in_progress", "description": "Create run state and inspect the target", "started_at": "", "completed_at": "" }
   ]
 }
+```
+
+## `goals.json` template
+Use only when `goal-checkpoint` is selected:
+
+```json
+{
+  "goals": [
+    {
+      "id": "G1",
+      "status": "active",
+      "description": "",
+      "done_criteria": [],
+      "verification": [],
+      "evidence": [],
+      "next_action": ""
+    }
+  ]
+}
+```
+
+## `delegation.md` template
+Use only when `delegation-brief` is selected:
+
+```md
+# Delegation brief
+
+## Shared constraints
+-
+
+## Packets
+### Packet 1: <owner label>
+- Scope:
+- Forbidden:
+- Expected evidence:
+- Reconciliation notes:
 ```
 
 ## Meaning of `context`

@@ -26,20 +26,21 @@ Accept legacy `$tink <action>` spelling for compatibility, but present `$tink:<a
 6. If `.tink/current/` exists and continuity is uncertain, read `plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, and `contract.json` when present; summarize goal, last safe point, next step, open questions, and verification; then ask resume/archive/replace/cancel before continuing.
 7. Run the synthesis probe before committing to `.tink/current/`. Strong fit keeps the harness; generic fit adds a run-only draft; no fit loads `harness-synthesis`.
 8. If too many tools, skills, agents, or harnesses are available, use `harness-curation` to choose the smallest effective set before loading more context.
-9. Run Stitch once before committing to `.tink/current/`: evaluate every time, show exactly one proposal only for high-impact quality or safety branches, and use the configured language.
-10. For non-trivial `$tink:cast` runs, ask for current-run approval before creating `.tink/current/`, loading harness bodies, editing files, or executing the first step. Codex must not silently treat a command invocation as approval.
-11. Use `request_user_input` for choice prompts when available. Otherwise stop and ask one concise blocking approval question directly in chat. Do not continue until the user answers.
-12. Treat reusable saves as a separate hard approval gate for `.tink/memory/*`, `.tink/harnesses/*`, `.tink/rules/*`, `.tink/config.json`, Codex skill files, and template/plugin files that affect future installs.
-13. Current-run approval never authorizes reusable-state writes. Before saving reusable state, show operation, destination files, exact entry or patch summary, reusable reason, sensitive content excluded, and rollback/removal path.
-14. Before saving a reusable rule graph update, run a structural gate: duplicate, breadth, evidence, verification, Claude Code/Codex compatibility, macOS/Windows compatibility, and portable commands. AI may propose a rule; saving it still requires separate approval.
-15. `$tink:frog` may inspect rule quality as well as harness quality. Prefer keep, rewrite, split, merge, or needs-evidence recommendations before any removal proposal.
-16. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`.
-17. Do not stop at recommendation. Execute the first safe step after run state exists.
-18. Run `$tink:verify` behavior before final when `contract.json` lists required checks.
-19. Store reusable memory or rule updates under `.tink/` only after separate approval.
-20. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `$tink:weave`.
-21. Keep context compact. Do not paste raw logs or full diffs.
-22. Use calm, clear, concise language. Prefer plain everyday words over technical terms. No jokes.
+9. Treat GJC-style visible-thinking workflows as ordinary Tink harness choices, not new commands: use `requirements-interview` for ambiguous ideas, `plan-consensus` for broad plans or architecture, `goal-checkpoint` for long runs with 2-6 current-run goals, and `delegation-brief` for safe handoff or parallel-work briefs.
+10. Run Stitch once before committing to `.tink/current/`: evaluate every time, show exactly one proposal only for high-impact quality or safety branches, and use the configured language.
+11. For non-trivial `$tink:cast` runs, ask for current-run approval before creating `.tink/current/`, loading harness bodies, editing files, or executing the first step. Codex must not silently treat a command invocation as approval.
+12. Use `request_user_input` for choice prompts when available. Otherwise stop and ask one concise blocking approval question directly in chat. Do not continue until the user answers.
+13. Treat reusable saves as a separate hard approval gate for `.tink/memory/*`, `.tink/harnesses/*`, `.tink/rules/*`, `.tink/config.json`, Codex skill files, and template/plugin files that affect future installs.
+14. Current-run approval never authorizes reusable-state writes. Before saving reusable state, show operation, destination files, exact entry or patch summary, reusable reason, sensitive content excluded, and rollback/removal path.
+15. Before saving a reusable rule graph update, run a structural gate: duplicate, breadth, evidence, verification, Claude Code/Codex compatibility, macOS/Windows compatibility, and portable commands. AI may propose a rule; saving it still requires separate approval.
+16. `$tink:frog` may inspect rule quality as well as harness quality. Prefer keep, rewrite, split, merge, or needs-evidence recommendations before any removal proposal.
+17. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`. If selected, also create `.tink/current/goals.json` for `goal-checkpoint` and `.tink/current/delegation.md` for `delegation-brief`.
+18. Do not stop at recommendation. Execute the first safe step after run state exists.
+19. Run `$tink:verify` behavior before final when `contract.json` lists required checks.
+20. Store reusable memory or rule updates under `.tink/` only after separate approval.
+21. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `$tink:weave`.
+22. Keep context compact. Do not paste raw logs or full diffs.
+23. Use calm, clear, concise language. Prefer plain everyday words over technical terms. No jokes.
 
 ## Codex Approval Protocol
 
@@ -106,6 +107,18 @@ Create run state before deeper work:
 - `.tink/current/context-map.json`: machine-readable included/excluded context and reasons
 - `.tink/current/context-metrics-evaluation.json`: measured or estimated context-efficiency scores, formulas, evidence refs, and limits
 - `.tink/current/excluded-context.md`: notable omitted context and why it was left out
+
+Optional current-run artifacts:
+
+- `.tink/current/goals.json`: create only when `goal-checkpoint` is selected. Keep 2-6 goals, one active goal, status, done criteria, verification, evidence, and next action.
+- `.tink/current/delegation.md`: create only when `delegation-brief` is selected. Include packet scope, forbidden actions, expected evidence, and reconciliation notes. Do not start tmux panes, worktrees, workers, or external agents from this harness.
+
+GJC-style harness selection rules:
+
+- Ambiguous ideas, early product concepts, and underspecified implementation prompts should start with `requirements-interview`, usually alone until the user clarifies enough to plan or code.
+- Plan requests, architecture decisions, large refactors, migrations, or broad public contract changes should consider `plan-consensus`.
+- Runs that naturally split into multiple durable milestones should add `goal-checkpoint`.
+- Parallel review, verification, or handoff should use `delegation-brief` only to prepare briefs; worker execution needs separate user approval and tooling.
 
 When useful, enrich `context-map.json.included[]` and `context-map.json.excluded[]` entries with Context Budget Ledger fields: `role`, `cost`, `reuse_signal`, `verification_link`, `staleness`, and `evidence_kind`. Use them to keep the first context pack small, mark stale or avoid-next-time context, and connect `verification_target` entries to command checks, manual checks, evidence refs, or verification hints. Do not claim any 90% efficiency score without measurement evidence.
 

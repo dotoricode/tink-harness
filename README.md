@@ -24,7 +24,7 @@
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.7.1 - Fixes accidental deletion of Claude Code commands when "Both" surface and "Clean Codex picker" were selected together. Latest minor release notes: <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.7.0">v1.7.0</a>.</p>
+<p><strong>Latest package:</strong> v1.8.0 - Adds visible-thinking harnesses for requirements interviews, consensus planning, goal checkpoints, and delegation briefs. Latest minor release notes: <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.8.0">v1.8.0</a>.</p>
 
 **English** · [한국어](README.ko.md)
 
@@ -124,6 +124,14 @@ To quickly verify the updated install, see `docs/update-verification-recipe.md` 
 
 If an update looks stale or incomplete, see `docs/update-troubleshooting.md` or `docs/update-troubleshooting.ko.md`.
 
+## What's new in 1.8.0
+
+This minor release brings GJC-style visible thinking into Tink without adding new commands.
+
+- `/tink:cast` and `$tink:cast` can now select `requirements-interview`, `plan-consensus`, `goal-checkpoint`, and `delegation-brief`.
+- Long runs can record `.tink/current/goals.json`; handoff or parallel-review plans can record `.tink/current/delegation.md`.
+- Tink still does not start workers, tmux panes, or worktrees from these harnesses. Delegation remains a visible brief unless another approved workflow runs it.
+
 ## What's new in 1.7.1
 
 This patch fixes a destructive interaction between the "Both" surface selection and "Clean Codex picker."
@@ -195,6 +203,8 @@ In Tink, `cast` is the main path. It reads the task, chooses or drafts the right
 
 Use it when the task is more than a quick answer.
 
+For bigger or fuzzier work, `cast` can expose more of the agent's thinking as files without adding new commands. Ambiguous ideas can start with `requirements-interview`, broad plans with `plan-consensus`, long runs with `goal-checkpoint`, and safe handoffs with `delegation-brief`. These are reusable harnesses selected by `/tink:cast` or `$tink:cast`, not separate CLI workflows.
+
 ### `/tink:verify` / `$tink:verify`
 
 `verify` runs the checks promised in `.tink/current/contract.json`.
@@ -236,6 +246,8 @@ Tink uses files you can inspect:
 - `.tink/runs/`: compact records from finished, blocked, canceled, or replaced runs
 - `.tink/maintenance/`: verification, friction, and weave signals that help repeated failures become approved improvements
 - `.tink/memory/`: approved mistakes, preferences, and lessons
+
+When selected, current-run artifacts may also include `.tink/current/goals.json` for goal checkpoints or `.tink/current/delegation.md` for handoff packets. Tink prepares those briefs as visible state; it does not start workers, tmux panes, or worktrees unless a separate approved workflow does so.
 
 The rule graph stays small on purpose. Tink loads matching mandatory rules first, retrieves only relevant optional rules by task facts or keywords, and records loaded rule ids by phase so the same guidance is not repeated in one run.
 

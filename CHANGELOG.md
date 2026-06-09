@@ -7,6 +7,21 @@ All notable changes to Tink are tracked here.
 No unreleased changes yet.
 
 
+## [1.8.0] - 2026-06-09
+
+### Added
+
+- Added four visible-thinking harnesses selected through `/tink:cast` and `$tink:cast`: `requirements-interview`, `plan-consensus`, `goal-checkpoint`, and `delegation-brief`.
+- Added optional current-run artifact guidance for `.tink/current/goals.json` and `.tink/current/delegation.md`.
+- Added rule graph routing for ambiguous requirements, broad plans, long runs, and safe delegation briefs without adding new public commands.
+- Added Korean PR history draft for the v1.8.0 release in `docs/pr/2026-06-09-v1.8.0.ko.md`.
+
+### Changed
+
+- Updated Claude Code and Codex cast guidance so GJC-style interview, consensus planning, goal checkpoint, and delegation concepts stay inside Tink's small harness model.
+- Updated README and work-state docs to explain the new harnesses and optional run-state files.
+
+
 ## [1.7.1] - 2026-06-09
 
 ### Fixed

@@ -9,6 +9,10 @@
 - **[research](./research.md)** (small) — 옵션 비교, 문서 읽기, 근거 수집. 추측 분리, 다음 액션 명시.
 - **[review](./review.md)** (small) — 변경·위험·PR 검토. 실측 발견점만 기록.
 - **[docs](./docs.md)** (tiny) — README, 가이드, PRD. 독자와 다음 행동을 명확히.
+- **[requirements-interview](./requirements-interview.md)** (small) — 모호한 아이디어를 한 번에 한 질문씩 좁혀 성공 조건과 금지 조건을 명확히.
+- **[plan-consensus](./plan-consensus.md)** (small) — 큰 설계·리팩토링 계획을 Planner → Architect → Critic → Final 흐름으로 점검.
+- **[goal-checkpoint](./goal-checkpoint.md)** (small) — 긴 실행을 2-6개 목표와 완료 증거로 쪼개 `.tink/current/goals.json`에 기록.
+- **[delegation-brief](./delegation-brief.md)** (small) — 병렬 작업이나 인수인계를 위한 범위·금지 행동·증거 요구사항을 정리. worker는 자동 실행하지 않음.
 - **[ship](./ship.md)** (small) — PR 준비, 릴리스, 배포. 위험·롤백 명시. cast 시작 시 안전판이 미리 켜집니다.
 
 ## 관리용 메타 하네스

@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 패키지:** v1.7.1 — "둘 다" surface와 "Clean Codex picker"를 함께 선택했을 때 Claude Code 명령이 삭제되던 버그를 수정합니다. 최신 마이너 릴리스 노트: [v1.7.0](https://github.com/dotoricode/tink-harness/releases/tag/v1.7.0).
+**최신 패키지:** v1.8.0 — 요구사항 인터뷰, 합의형 계획, 목표 체크포인트, 위임 브리프를 위한 visible-thinking 하네스를 추가합니다. 최신 마이너 릴리스 노트: [v1.8.0](https://github.com/dotoricode/tink-harness/releases/tag/v1.8.0).
 
 [English](README.md) · **한국어**
 
@@ -58,6 +58,14 @@ npx tink-harness@latest update
 업데이트가 정상인지 빠르게 확인하려면 `docs/update-verification-recipe.ko.md` 또는 `docs/update-verification-recipe.md`를 확인하세요.
 
 업데이트 후 Codex skill, schema, Windows 경고가 이상해 보이면 `docs/update-troubleshooting.ko.md` 또는 `docs/update-troubleshooting.md`를 확인하세요.
+
+## 1.8.0에서 달라진 점
+
+이번 마이너 릴리스는 GJC식 사고 단계 노출 방식을 Tink의 작은 하네스 모델 안으로 가져옵니다.
+
+- `/tink:cast`와 `$tink:cast`가 `requirements-interview`, `plan-consensus`, `goal-checkpoint`, `delegation-brief`를 선택할 수 있습니다.
+- 긴 실행은 `.tink/current/goals.json`, 인수인계나 병렬 검토 계획은 `.tink/current/delegation.md`에 보이는 상태로 남길 수 있습니다.
+- 이 하네스들은 worker, tmux pane, worktree를 자동 시작하지 않습니다. 위임은 별도 승인된 워크플로가 실행하기 전까지 브리프 상태로만 둡니다.
 
 ## 1.7.1에서 달라진 점
 
@@ -124,6 +132,8 @@ Claude Code에서는 `/tink:*`, Codex에서는 `$tink:*`을 씁니다. 예전 `$
 
 Tink는 이제 비단순 작업에 대해 `.tink/current/contract.json`도 만듭니다. 이 파일에는 작업 종류, 위험, 성공 조건, 금지 사항, 검증 명령이 들어갑니다.
 
+더 크거나 모호한 작업에서는 `cast`가 에이전트의 생각 단계를 파일로 더 잘 드러내는 하네스를 고를 수 있습니다. 모호한 아이디어는 `requirements-interview`, 큰 계획은 `plan-consensus`, 긴 실행은 `goal-checkpoint`, 안전한 인수인계는 `delegation-brief`를 씁니다. 모두 `/tink:cast` 또는 `$tink:cast`가 고르는 재사용 하네스이며, 별도 CLI 명령은 아닙니다.
+
 ### `/tink:verify` / `$tink:verify`
 
 `contract.json`에 적힌 검증을 실제로 실행하고 증거를 남깁니다.
@@ -155,6 +165,8 @@ Tink는 직접 볼 수 있는 파일을 씁니다.
 - `.tink/runs/`: 완료, 중단, 취소, 교체된 실행 기록
 - `.tink/maintenance/`: 검증, friction, weave 신호 기록
 - `.tink/memory/`: 승인된 실수, 선호, 교훈
+
+선택된 하네스에 따라 `.tink/current/goals.json`에는 현재 실행의 목표 체크포인트가, `.tink/current/delegation.md`에는 인수인계 패킷이 추가될 수 있습니다. Tink는 이런 브리프를 보이는 상태로 준비하지만, 별도 승인된 워크플로가 아니면 worker, tmux pane, worktree를 시작하지 않습니다.
 
 Rule graph는 작게 유지합니다. Tink는 먼저 필수 규칙을 고르고, 작업 사실이나 keyword에 맞는 선택 규칙만 가져오며, phase별로 이미 읽은 rule id를 기록해 같은 안내를 반복하지 않습니다.
 

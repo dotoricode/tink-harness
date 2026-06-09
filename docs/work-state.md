@@ -28,6 +28,11 @@ Start here when resuming, reviewing, or handing off a run:
 7. `.tink/current/notes.md`
    - Read the last safe point, recovery notes, and compact verification summaries.
 
+Optional files may appear for specific harnesses:
+
+- `.tink/current/goals.json`: current-run goal checkpoints created by `goal-checkpoint`.
+- `.tink/current/delegation.md`: handoff or parallel-work packets created by `delegation-brief`.
+
 ## How To Read Context
 
 Use `context-pack.md` first. It should be readable without knowing the schema.
@@ -93,6 +98,7 @@ A good run state has these properties:
 - The excluded context file makes skipped or unsafe inputs visible.
 - Verification evidence is compact and repeatable.
 - Notes say the last safe point and next action.
+- If present, goals and delegation briefs have explicit status, forbidden actions, and evidence.
 
 ## What To Avoid
 
