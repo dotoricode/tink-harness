@@ -25,12 +25,14 @@ Use semver.
 
 ## Release checklist
 
-Before pushing a versioned release:
+Before publishing a versioned release, always work from a release branch and merge by squash. Do not commit release work directly to `main`; a direct `main` commit makes it impossible to attach the release to a normal PR without rewriting published history.
 
-1. Update `package.json`, `package-lock.json`, and `.claude-plugin/plugin.json` to the same version.
-2. Add a `CHANGELOG.md` entry for the version.
-3. Confirm README update instructions still match the actual Claude Code plugin path.
-4. Run:
+1. Create a release branch.
+2. Update `package.json`, `package-lock.json`, and `.claude-plugin/plugin.json` to the same version.
+3. Add a `CHANGELOG.md` entry for the version.
+4. Confirm README update instructions still match the actual Claude Code plugin path.
+5. Write the PR title with `fix`, `feat`, `chore`, or `docs`, and write the PR body in Korean using the relevant subtitles from `Problem`, `Fix`, `Summary`, `Changes`, `Behavior`, and `Testing`.
+6. Run:
 
 ```bash
 npm test
@@ -52,7 +54,20 @@ claude plugin validate .claude-plugin/marketplace.json
 npm pack --dry-run --json
 ```
 
-5. Push and verify GitHub Actions CI.
+7. Push the branch, open a PR, and verify GitHub Actions CI.
+8. Squash merge the PR into `main`. Do not use merge commits or rebase merge for release PRs.
+9. Create the version tag from the squash commit on `main`.
+10. Create the GitHub release. The body should list merged PRs as linked entries and use a linked compare range, for example:
+
+```md
+## What's Changed
+
+- feat(scope): concise change summary by @author in #123
+
+**Full Changelog**: [v1.7.1...v1.8.0](https://github.com/dotoricode/tink-harness/compare/v1.7.1...v1.8.0)
+```
+
+11. Publish to npm only after the GitHub release and package verification are complete.
 
 ## Existing-user update path
 
