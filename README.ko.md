@@ -39,6 +39,13 @@ npx tink-harness@latest install
 
 설치 중 `Claude Code`, `Codex`, 또는 둘 다를 선택할 수 있습니다. Codex에서는 `$tink:cast <task>`로 시작합니다.
 
+repo 내부 smoke 검증을 위해서는 `CODEX_HOME`을 고정해서 실행하세요.
+
+```bash
+set CODEX_HOME=%CD%\.codex
+npx tink-harness@latest install
+```
+
 ## 업데이트
 
 Claude Code 플러그인:
@@ -54,6 +61,8 @@ Standalone / Codex:
 ```bash
 npx tink-harness@latest update
 ```
+
+`CODEX_HOME`을 지정하지 않으면 Windows에서는 `%USERPROFILE%\.codex`, macOS/Linux에서는 `~/.codex`에 Codex skill이 설치됩니다.
 
 ### 고급 옵션
 

@@ -75,6 +75,66 @@
     ]
   },
   {
+    "name": "requirements-interview",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "Clarify an ambiguous idea before planning or implementation.",
+    "asks": [
+      "What decision or artifact should the clarified requirements support?",
+      "What is the highest-impact unknown?"
+    ],
+    "checks": [
+      "One blocking question at a time",
+      "Success conditions explicit before implementation",
+      "Assumptions recorded instead of hidden"
+    ]
+  },
+  {
+    "name": "plan-consensus",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "Plan broad architecture, large refactors, or work where critique can materially change the approach.",
+    "asks": [
+      "What decision must the final plan settle?",
+      "What constraints or compatibility boundaries matter?"
+    ],
+    "checks": [
+      "Planner, Architect, Critic, and Final stages represented",
+      "Rejected alternatives tied to concrete tradeoffs",
+      "Final plan ready for implementation"
+    ]
+  },
+  {
+    "name": "goal-checkpoint",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "Break a long run into 2-6 current-run goals with explicit completion evidence.",
+    "asks": [
+      "What final outcome should the goal list prove?",
+      "What evidence marks each goal complete?"
+    ],
+    "checks": [
+      ".tink/current/goals.json created when selected",
+      "Exactly one active goal while work is underway",
+      "Blocked goals include the smallest unblock action"
+    ]
+  },
+  {
+    "name": "delegation-brief",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "Prepare safe parallel work or handoff briefs without starting workers automatically.",
+    "asks": [
+      "What work can be split without conflicts?",
+      "What evidence should each worker return?"
+    ],
+    "checks": [
+      ".tink/current/delegation.md created when selected",
+      "No tmux panes, worktrees, or workers started automatically",
+      "Packet scopes and forbidden actions visible"
+    ]
+  },
+  {
     "name": "ship",
     "kind": "built-in",
     "context": "small",

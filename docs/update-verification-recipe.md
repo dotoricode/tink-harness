@@ -20,6 +20,15 @@ npx tink-harness@latest update --yes
 
 Then read `Update Result Summary`.
 
+For reproducible repo-local smoke tests, set `CODEX_HOME` explicitly:
+
+```bash
+set CODEX_HOME=%CD%\.codex
+npx tink-harness@latest update --yes
+```
+
+If you do not set `CODEX_HOME`, Codex skills are installed to `%USERPROFILE%\.codex` on Windows by default.
+
 ## Check Order
 
 ### 1. Surface

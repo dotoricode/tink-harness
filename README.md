@@ -80,6 +80,13 @@ npx tink-harness@latest install
 
 During install, select `Codex` when asked which agent surface to install. You can select both `Claude Code` and `Codex` in the same run. Then open Codex and use `$tink:cast <task>`.
 
+For repo-local smoke testing, fix the target with `CODEX_HOME`:
+
+```bash
+set CODEX_HOME=%CD%/.codex
+npx tink-harness@latest install --yes
+```
+
 ## Update
 
 Claude Code plugin users:
@@ -119,6 +126,8 @@ npx tink-harness@latest update
 ```
 
 During update, select the installed agent surface you want to refresh.
+
+If `CODEX_HOME` is not set, Codex skills default to `%USERPROFILE%\.codex` on Windows and `~/.codex` on macOS/Linux.
 
 ### Advanced options
 
