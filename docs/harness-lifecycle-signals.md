@@ -44,6 +44,15 @@ Allowed recommendations:
 
 Each harness may also include `candidate_score`. This is an explainable sorting aid with a `total` from 0 to 100 and named factors such as evidence, trouble, context cost, overlap, and recommendation priority. It is not approval and must not trigger automatic edits.
 
+Each harness also has a `lifecycle_state`:
+
+- `active`: recent enough to keep watching normally.
+- `no_evidence`: no run record mentions it.
+- `dormant_candidate`: not used recently, but age alone is only an archive review signal.
+- `cleanup_review`: strong cleanup evidence exists, still requiring approval.
+- `needs_weave`: repeated trouble suggests a weave review.
+- `merge_review`: repeated overlap suggests a merge review.
+
 Evidence should stay conservative:
 
 - no records or weak evidence -> `observe`

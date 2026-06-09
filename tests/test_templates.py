@@ -2084,11 +2084,15 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('blocked', timeline_outcomes)
         self.assertGreater(lifecycle_by_id['experimental-wide-context']['candidate_score']['total'], lifecycle_by_id['docs']['candidate_score']['total'])
         self.assertEqual(lifecycle_by_id['bug-fix']['candidate_score']['factors'][0]['name'], 'recommendation')
+        self.assertEqual(lifecycle_by_id['experimental-wide-context']['lifecycle_state'], 'cleanup_review')
+        self.assertEqual(lifecycle_by_id['bug-fix']['lifecycle_state'], 'no_evidence')
         for item in lifecycle_fixture['harnesses']:
             self.assertIn(item['recommendation'], allowed_recommendations)
             self.assertIn(item['confidence'], ['low', 'medium', 'high'])
             self.assertIsInstance(item['evidence_handles'], list)
             self.assertIn('candidate_score', item)
+            self.assertIn('lifecycle_state', item)
+            self.assertIn('state_reason', item)
             self.assertIn('context_cost', item['signals'])
             self.assertGreater(len(item['reason']), 10)
         generator_script = ROOT / 'templates/tink/tools/generate-harness-lifecycle-summary.mjs'
@@ -2108,6 +2112,7 @@ class TemplateTests(unittest.TestCase):
                 {'name': 'code-change', 'context': 'medium'},
                 {'name': 'wide-context', 'context': 'high'},
                 {'name': 'bug-fix', 'context': 'unknown'},
+                {'name': 'old-research', 'context': 'high'},
             ]), encoding='utf-8')
             (base / '.tink/rules/index.json').write_text(json.dumps({
                 'nodes': [
@@ -2118,6 +2123,10 @@ class TemplateTests(unittest.TestCase):
             (base / '.tink/memory/preferences.md').write_text('# Preferences\n', encoding='utf-8')
             (base / '.tink/runs/2026-06-01-1000-code-change.md').write_text(
                 '# Run\n\nStatus: completed\n\nSelected harnesses:\n- code-change\n\nLoaded rules:\n- harness:code-change\n\nMemory:\n- .tink/memory/preferences.md\n',
+                encoding='utf-8',
+            )
+            (base / '.tink/runs/2026-04-01-1000-old-research.md').write_text(
+                '# Run\n\nStatus: completed\n\nSelected harnesses:\n- old-research\n',
                 encoding='utf-8',
             )
             (base / '.tink/runs/2026-06-01-1100-code-change.md').write_text(
@@ -2148,10 +2157,14 @@ class TemplateTests(unittest.TestCase):
             )
             generated = json.loads(output.read_text(encoding='utf-8'))
             generated_by_id = {item['id']: item for item in generated['harnesses']}
-            self.assertEqual(generated['run_window']['run_count'], 3)
+            self.assertEqual(generated['run_window']['run_count'], 4)
             self.assertEqual(generated_by_id['code-change']['recommendation'], 'keep')
             self.assertEqual(generated_by_id['wide-context']['recommendation'], 'frog_candidate')
             self.assertEqual(generated_by_id['bug-fix']['recommendation'], 'observe')
+            self.assertEqual(generated_by_id['old-research']['lifecycle_state'], 'dormant_candidate')
+            self.assertEqual(generated_by_id['old-research']['recommendation'], 'observe')
+            self.assertIn('archive', generated_by_id['old-research']['approval_required_for'])
+            self.assertNotIn('delete', generated_by_id['old-research']['approval_required_for'])
             self.assertGreater(generated_by_id['wide-context']['candidate_score']['total'], generated_by_id['code-change']['candidate_score']['total'])
             self.assertEqual(generated_by_id['wide-context']['candidate_score']['factors'][-1]['name'], 'recommendation')
             self.assertEqual(generated_by_id['code-change']['signals']['sequence_hints'], [
@@ -2192,6 +2205,7 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('This report only prepares suggestions', html)
             self.assertIn('Recent run timeline', html)
             self.assertIn('Candidate score', html)
+            self.assertIn('Lifecycle state', html)
             self.assertIn('blocked', html)
             self.assertIn('experimental-wide-context', html)
             self.assertIn('frog_candidate', html)

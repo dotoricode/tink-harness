@@ -108,6 +108,12 @@
             "enum": ["harness_edit", "rule_update", "memory_save", "merge", "delete", "archive"]
           }
         },
+        "lifecycle_state": {
+          "type": "string",
+          "enum": ["active", "no_evidence", "dormant_candidate", "cleanup_review", "needs_weave", "merge_review"]
+        },
+        "stale_days": { "type": ["integer", "null"], "minimum": 0 },
+        "state_reason": { "type": "string" },
         "candidate_score": {
           "$ref": "#/$defs/candidate_score"
         }
