@@ -24,7 +24,7 @@
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.7.0 - Installer surface selection is now a clear single-choice prompt (Claude Code / Codex / Both). Latest minor release notes: <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.7.0">v1.7.0</a>.</p>
+<p><strong>Latest package:</strong> v1.7.1 - Fixes accidental deletion of Claude Code commands when "Both" surface and "Clean Codex picker" were selected together. Latest minor release notes: <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.7.0">v1.7.0</a>.</p>
 
 **English** · [한국어](README.ko.md)
 
@@ -123,6 +123,12 @@ During update, select the installed agent surface you want to refresh.
 To quickly verify the updated install, see `docs/update-verification-recipe.md` or `docs/update-verification-recipe.ko.md`.
 
 If an update looks stale or incomplete, see `docs/update-troubleshooting.md` or `docs/update-troubleshooting.ko.md`.
+
+## What's new in 1.7.1
+
+This patch fixes a destructive interaction between the "Both" surface selection and "Clean Codex picker."
+
+- Selecting "Both (Claude Code + Codex)" and "Clean Codex picker" in the same install/update run no longer deletes the Claude Code commands and skills. The option is now hidden when both surfaces are selected — it only appears when Codex is the sole surface.
 
 ## What's new in 1.7.0
 

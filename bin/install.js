@@ -255,7 +255,7 @@ function advancedOptionChoices(agent, language) {
         : 'Risky. Allows overwriting user-modified files.'
     }
   ];
-  if (includesCodex(agent)) {
+  if (agent === 'codex') {
     choices.push({
       value: 'clean-codex-picker',
       label: 'Clean Codex picker (--clean-codex-picker)',
@@ -271,7 +271,7 @@ function defaultAdvancedValues(agent) {
   return [
     dryRun ? 'dry-run' : null,
     force ? 'force' : null,
-    includesCodex(agent) && cleanCodexPicker ? 'clean-codex-picker' : null
+    agent === 'codex' && cleanCodexPicker ? 'clean-codex-picker' : null
   ].filter(Boolean);
 }
 
@@ -285,7 +285,7 @@ function optionsSummary(agent) {
   return [
     `Preview only (--dry-run): ${dryRun ? 'yes' : 'no'}`,
     `Overwrite user-modified files (--force): ${force ? 'yes' : 'no'}`,
-    includesCodex(agent) ? `Clean Codex picker (--clean-codex-picker): ${cleanCodexPicker ? 'yes' : 'no'}` : null
+    agent === 'codex' ? `Clean Codex picker (--clean-codex-picker): ${cleanCodexPicker ? 'yes' : 'no'}` : null
   ].filter(Boolean).join('\n');
 }
 

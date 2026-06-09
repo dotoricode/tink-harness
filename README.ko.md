@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 패키지:** v1.7.0 — installer surface 선택이 단일 선택 프롬프트(Claude Code / Codex / 둘 다)로 바뀌어 선택 상태를 바로 확인할 수 있습니다. 최신 마이너 릴리스 노트: [v1.7.0](https://github.com/dotoricode/tink-harness/releases/tag/v1.7.0).
+**최신 패키지:** v1.7.1 — "둘 다" surface와 "Clean Codex picker"를 함께 선택했을 때 Claude Code 명령이 삭제되던 버그를 수정합니다. 최신 마이너 릴리스 노트: [v1.7.0](https://github.com/dotoricode/tink-harness/releases/tag/v1.7.0).
 
 [English](README.md) · **한국어**
 
@@ -58,6 +58,12 @@ npx tink-harness@latest update
 업데이트가 정상인지 빠르게 확인하려면 `docs/update-verification-recipe.ko.md` 또는 `docs/update-verification-recipe.md`를 확인하세요.
 
 업데이트 후 Codex skill, schema, Windows 경고가 이상해 보이면 `docs/update-troubleshooting.ko.md` 또는 `docs/update-troubleshooting.md`를 확인하세요.
+
+## 1.7.1에서 달라진 점
+
+이번 패치는 "둘 다" surface와 "Clean Codex picker"를 함께 선택했을 때 Claude Code 명령과 skill이 삭제되는 문제를 수정합니다.
+
+- "둘 다 (Claude Code + Codex)"와 "Clean Codex picker"를 동시에 선택해도 Claude Code 명령과 skill이 삭제되지 않습니다. 이 옵션은 이제 Codex만 선택했을 때만 표시됩니다.
 
 ## 1.7.0에서 달라진 점
 

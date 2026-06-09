@@ -7,6 +7,13 @@ All notable changes to Tink are tracked here.
 No unreleased changes yet.
 
 
+## [1.7.1] - 2026-06-09
+
+### Fixed
+
+- `Clean Codex picker (--clean-codex-picker)` option is no longer shown in the Advanced options step when both Claude Code and Codex surfaces are selected. The option only applies when switching from Claude Code to Codex exclusively, so showing it for mixed installs allowed users to accidentally delete their Claude Code commands and skills.
+
+
 ## [1.7.0] - 2026-06-09
 
 ### Changed
