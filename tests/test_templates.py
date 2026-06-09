@@ -243,6 +243,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('docs/context-budget-ledger.md', text)
         self.assertIn('harness health summary', text)
         self.assertIn('It only prepares suggestions', text)
+        self.assertIn('generate-harness-lifecycle-summary.mjs', text)
         self.assertIn('render-harness-health-report.mjs', text)
         self.assertIn('approval', text.lower())
         self.assertIn('docs/compatibility-policy.md', text)
@@ -533,6 +534,7 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
             self.assertTrue((base / '.tink/maintenance/weave-queue.json').exists())
             self.assertTrue((base / '.tink/maintenance/friction.jsonl').exists())
+            self.assertTrue((base / '.tink/tools/generate-harness-lifecycle-summary.mjs').exists())
             self.assertTrue((base / '.tink/tools/render-harness-health-report.mjs').exists())
             self.assertTrue((base / '.tink/memory/mistakes.md').exists())
             self.assertTrue((base / '.gitignore').exists())
@@ -582,6 +584,7 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue((base / '.tink/schemas/verification.schema.json').exists())
             self.assertTrue((base / '.tink/maintenance/ledger.jsonl').exists())
             self.assertTrue((base / '.tink/maintenance/friction.jsonl').exists())
+            self.assertTrue((base / '.tink/tools/generate-harness-lifecycle-summary.mjs').exists())
             self.assertTrue((base / '.tink/tools/render-harness-health-report.mjs').exists())
             self.assertTrue((base / '.tink/memory/mistakes.md').exists())
             self.assertTrue((base / '.tink/config.json').exists())
@@ -817,6 +820,7 @@ class TemplateTests(unittest.TestCase):
             'templates/tink/maintenance/ledger.jsonl',
             'templates/tink/maintenance/weave-queue.json',
             'templates/tink/maintenance/friction.jsonl',
+            'templates/tink/tools/generate-harness-lifecycle-summary.mjs',
             'templates/tink/tools/render-harness-health-report.mjs',
             'templates/tink/hooks/user-prompt-submit.mjs',
             'templates/tink/memory/mistakes.md',
@@ -1188,8 +1192,8 @@ class TemplateTests(unittest.TestCase):
             (evidence_details_ko, ['evidence_kind', 'evidence_ref', 'observed', 'Claude Code', 'Codex']),
             (external_policy, ['mcp-policy.schema.json', 'read-only', 'Sentry is not part of the current plan']),
             (external_policy_ko, ['mcp-policy.schema.json', 'read-only', 'Sentry는 현재 계획에 포함하지 않는다']),
-            (lifecycle, ['harness-lifecycle.schema.json', 'frog_candidate', 'plain health summary', 'render-harness-health-report.mjs', 'must not apply it automatically']),
-            (lifecycle_ko, ['harness-lifecycle.schema.json', 'frog_candidate', '하네스 생애주기 신호는 재사용 하네스의 건강 요약이다', 'render-harness-health-report.mjs', '자동으로 적용하면 안 된다']),
+            (lifecycle, ['harness-lifecycle.schema.json', 'frog_candidate', 'plain health summary', 'generate-harness-lifecycle-summary.mjs', 'render-harness-health-report.mjs', 'must not apply it automatically']),
+            (lifecycle_ko, ['harness-lifecycle.schema.json', 'frog_candidate', '하네스 생애주기 신호는 재사용 하네스의 건강 요약이다', 'generate-harness-lifecycle-summary.mjs', 'render-harness-health-report.mjs', '자동으로 적용하면 안 된다']),
             (memory_layers, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
             (memory_layers_ko, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
             (context_change, ['context-diff.json', 'not a new command', 'not a hidden runtime cache']),
@@ -2062,9 +2066,55 @@ class TemplateTests(unittest.TestCase):
             self.assertIsInstance(item['evidence_handles'], list)
             self.assertIn('context_cost', item['signals'])
             self.assertGreater(len(item['reason']), 10)
+        generator_script = ROOT / 'templates/tink/tools/generate-harness-lifecycle-summary.mjs'
         report_script = ROOT / 'templates/tink/tools/render-harness-health-report.mjs'
+        self.assertTrue(generator_script.exists())
         self.assertTrue(report_script.exists())
+        subprocess.run(['node', '--check', str(generator_script)], cwd=ROOT, check=True, capture_output=True, text=True, encoding='utf-8')
         subprocess.run(['node', '--check', str(report_script)], cwd=ROOT, check=True, capture_output=True, text=True, encoding='utf-8')
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            (base / '.tink/harnesses').mkdir(parents=True)
+            (base / '.tink/runs').mkdir(parents=True)
+            (base / '.tink/maintenance').mkdir(parents=True)
+            (base / '.tink/harnesses/index.json').write_text(json.dumps([
+                {'name': 'code-change', 'context': 'medium'},
+                {'name': 'wide-context', 'context': 'high'},
+                {'name': 'bug-fix', 'context': 'unknown'},
+            ]), encoding='utf-8')
+            (base / '.tink/runs/2026-06-01-1000-code-change.md').write_text(
+                '# Run\n\nStatus: completed\n\nSelected harnesses:\n- code-change\n',
+                encoding='utf-8',
+            )
+            (base / '.tink/runs/2026-06-02-1000-wide-context.md').write_text(
+                '# Run\n\nStatus: blocked\n\nSelected harnesses:\n- wide-context\n\ncheck_blocked\n',
+                encoding='utf-8',
+            )
+            (base / '.tink/maintenance/weave-queue.json').write_text(json.dumps({
+                'items': [
+                    {'harness': 'wide-context', 'signal': 'check_failed', 'auto': True}
+                ]
+            }), encoding='utf-8')
+            (base / '.tink/maintenance/friction.jsonl').write_text(
+                json.dumps({'harness': 'wide-context', 'type': 'blocked'}) + '\n',
+                encoding='utf-8',
+            )
+            output = base / '.tink/maintenance/harness-lifecycle.json'
+            subprocess.run(
+                ['node', str(generator_script), str(base), str(output)],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+            )
+            generated = json.loads(output.read_text(encoding='utf-8'))
+            generated_by_id = {item['id']: item for item in generated['harnesses']}
+            self.assertEqual(generated['run_window']['run_count'], 2)
+            self.assertEqual(generated_by_id['code-change']['recommendation'], 'keep')
+            self.assertEqual(generated_by_id['wide-context']['recommendation'], 'frog_candidate')
+            self.assertEqual(generated_by_id['bug-fix']['recommendation'], 'observe')
+            self.assertIn('.tink/maintenance/weave-queue.json', generated_by_id['wide-context']['evidence_handles'])
         with tempfile.TemporaryDirectory() as d:
             output = Path(d) / 'harness-health-report.html'
             subprocess.run(

@@ -108,6 +108,7 @@ Tink는 이 기록을 읽어 하네스 건강 요약도 만들 수 있습니다.
 `.tink/maintenance/harness-lifecycle.json`이 있으면 설치된 읽기 전용 helper로 로컬 HTML 리포트를 만들 수 있습니다.
 
 ```bash
+node .tink/tools/generate-harness-lifecycle-summary.mjs
 node .tink/tools/render-harness-health-report.mjs
 ```
 

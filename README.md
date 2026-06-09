@@ -187,6 +187,7 @@ Tink can also read those records into a harness health summary. The summary is d
 If a lifecycle summary exists at `.tink/maintenance/harness-lifecycle.json`, the installed read-only helper can turn it into a local HTML report:
 
 ```bash
+node .tink/tools/generate-harness-lifecycle-summary.mjs
 node .tink/tools/render-harness-health-report.mjs
 ```
 
