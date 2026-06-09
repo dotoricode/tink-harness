@@ -21,6 +21,8 @@ Useful signals:
 - `failure_rate`: failed required checks divided by uses, or `null` when there is not enough evidence.
 - `co_used_with`: harnesses that often appeared in the same run.
 - `sequence_hints`: repeated order hints, such as one harness usually being followed by verification.
+- `rule_refs`: rule ids that appeared in the same run records.
+- `memory_refs`: memory files that appeared in the same run records.
 - `context_cost`: low, medium, high, or unknown.
 
 Allowed recommendations:
@@ -48,7 +50,7 @@ Installed repos also receive two small read-only helpers. First, generate the JS
 node .tink/tools/generate-harness-lifecycle-summary.mjs
 ```
 
-By default it reads `.tink/harnesses/index.json`, `.tink/runs/*.md`, `.tink/maintenance/weave-queue.json`, and `.tink/maintenance/friction.jsonl`, then writes `.tink/maintenance/harness-lifecycle.json`.
+By default it reads `.tink/harnesses/index.json`, `.tink/rules/index.json`, `.tink/memory/*.md`, `.tink/runs/*.md`, `.tink/maintenance/weave-queue.json`, and `.tink/maintenance/friction.jsonl`, then writes `.tink/maintenance/harness-lifecycle.json`.
 
 Then turn that summary into a local HTML report:
 

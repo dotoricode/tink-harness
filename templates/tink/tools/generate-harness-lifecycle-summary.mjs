@@ -26,6 +26,20 @@ function listFiles(dirPath, suffix) {
     .map((name) => path.join(dirPath, name));
 }
 
+function walkFiles(dirPath, suffix) {
+  if (!fs.existsSync(dirPath)) return [];
+  const found = [];
+  for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
+    const entryPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory()) {
+      found.push(...walkFiles(entryPath, suffix));
+    } else if (entry.isFile() && entry.name.endsWith(suffix)) {
+      found.push(entryPath);
+    }
+  }
+  return found.sort();
+}
+
 function parseDateFromRunPath(filePath) {
   const name = path.basename(filePath);
   const match = name.match(/^(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})-/);
@@ -34,12 +48,39 @@ function parseDateFromRunPath(filePath) {
   return `${year}-${month}-${day}T${hour}:${minute}:00`;
 }
 
-function parseRun(filePath, harnessIds) {
-  const text = fs.readFileSync(filePath, 'utf8');
+function extractSelectedHarnesses(text, harnessIds) {
+  const selected = [];
+  const known = new Set(harnessIds);
+  const lines = text.split(/\r?\n/);
+  let inHarnessBlock = false;
+
+  for (const line of lines) {
+    if (/^(#+\s*)?(selected|loaded)?\s*harnesses\s*:?\s*$/i.test(line.trim())) {
+      inHarnessBlock = true;
+      continue;
+    }
+    if (!inHarnessBlock) continue;
+    if (/^#+\s+\S/.test(line) || (!line.trim() && selected.length > 0)) break;
+    const match = line.match(/^\s*[-*]\s*`?([A-Za-z0-9._-]+)`?/);
+    if (match && known.has(match[1]) && !selected.includes(match[1])) {
+      selected.push(match[1]);
+    }
+  }
+
+  if (selected.length > 0) return selected;
   const lower = text.toLowerCase();
+  return harnessIds.filter((id) => lower.includes(id.toLowerCase()));
+}
+
+function extractRefs(text, refs) {
+  return refs.filter((ref) => text.includes(ref));
+}
+
+function parseRun(filePath, harnessIds, ruleRefs, memoryRefs) {
+  const text = fs.readFileSync(filePath, 'utf8');
   const statusMatch = text.match(/^Status:\s*([A-Za-z_-]+)/mi);
   const status = statusMatch ? statusMatch[1].toLowerCase() : 'unknown';
-  const harnesses = harnessIds.filter((id) => lower.includes(id.toLowerCase()));
+  const harnesses = extractSelectedHarnesses(text, harnessIds);
   const failed = /check_failed|failed check|required check failed|verification failed/i.test(text);
   const blocked = status === 'blocked' || /check_blocked|blocked/i.test(text);
   const completed = status === 'completed' || status === 'pass' || /npm test passed|verification passed/i.test(text);
@@ -48,6 +89,8 @@ function parseRun(filePath, harnessIds) {
     date: parseDateFromRunPath(filePath),
     status,
     harnesses,
+    ruleRefs: extractRefs(text, ruleRefs),
+    memoryRefs: extractRefs(text, memoryRefs),
     failed,
     blocked,
     completed
@@ -77,6 +120,8 @@ function ensureSummary(id, contextCost) {
       failure_rate: null,
       co_used_with: [],
       sequence_hints: [],
+      rule_refs: [],
+      memory_refs: [],
       context_cost: contextCost || 'unknown'
     },
     recommendation: 'observe',
@@ -98,10 +143,25 @@ function bumpCoUse(coUse, id, others) {
   coUse.set(id, map);
 }
 
+function bumpSequence(sequenceUse, before, after) {
+  if (!before || !after || before === after) return;
+  const map = sequenceUse.get(before) || new Map();
+  map.set(after, (map.get(after) || 0) + 1);
+  sequenceUse.set(before, map);
+}
+
 function addEvidence(item, evidencePath) {
   if (!evidencePath) return;
   if (!item.evidence_handles.includes(evidencePath)) {
     item.evidence_handles.push(evidencePath);
+  }
+}
+
+function addSignalRefs(item, field, refs) {
+  for (const ref of refs) {
+    if (!item.signals[field].includes(ref)) {
+      item.signals[field].push(ref);
+    }
   }
 }
 
@@ -115,8 +175,15 @@ function summarize(root) {
     ensureSummary(item.name, item.context || 'unknown')
   ]));
   const coUse = new Map();
+  const sequenceUse = new Map();
+  const ruleIndex = readJson(path.join(root, '.tink/rules/index.json'), {});
+  const ruleRefs = Array.isArray(ruleIndex.nodes)
+    ? ruleIndex.nodes.map((item) => item.id).filter(Boolean)
+    : [];
+  const memoryRefs = walkFiles(path.join(root, '.tink/memory'), '.md')
+    .map((filePath) => path.relative(root, filePath));
   const runPaths = listFiles(path.join(root, '.tink/runs'), '.md');
-  const runs = runPaths.map((filePath) => parseRun(filePath, harnessIds));
+  const runs = runPaths.map((filePath) => parseRun(filePath, harnessIds, ruleRefs, memoryRefs));
 
   for (const run of runs) {
     for (const id of run.harnesses) {
@@ -129,8 +196,16 @@ function summarize(root) {
       if (run.date && (!item.signals.last_used || run.date > item.signals.last_used)) {
         item.signals.last_used = run.date;
       }
+      addSignalRefs(item, 'rule_refs', run.ruleRefs);
+      addSignalRefs(item, 'memory_refs', run.memoryRefs);
       addEvidence(item, path.relative(root, run.path));
       bumpCoUse(coUse, id, run.harnesses);
+    }
+    for (let index = 0; index < run.harnesses.length - 1; index += 1) {
+      bumpSequence(sequenceUse, run.harnesses[index], run.harnesses[index + 1]);
+    }
+    if (run.completed && !run.failed && !run.blocked) {
+      for (const id of run.harnesses) bumpSequence(sequenceUse, id, 'verify');
     }
   }
 
@@ -166,6 +241,12 @@ function summarize(root) {
     item.signals.co_used_with = [...(coUse.get(id) || new Map()).entries()]
       .map(([relatedId, count]) => ({ id: relatedId, count }))
       .sort((a, b) => b.count - a.count || a.id.localeCompare(b.id));
+    item.signals.sequence_hints = [...(sequenceUse.get(id) || new Map()).entries()]
+      .filter(([, count]) => count >= 2)
+      .map(([after, count]) => ({ before: id, after, count }))
+      .sort((a, b) => b.count - a.count || a.after.localeCompare(b.after));
+    item.signals.rule_refs.sort();
+    item.signals.memory_refs.sort();
 
     const repeatedTrouble = failures + blocked >= 2;
     const hasStrongEvidence = item.evidence_handles.length >= 2 || repeatedTrouble;
@@ -216,6 +297,8 @@ function summarize(root) {
     },
     sources: [
       '.tink/harnesses/index.json',
+      '.tink/rules/index.json',
+      '.tink/memory/*.md',
       '.tink/runs/*.md',
       '.tink/maintenance/weave-queue.json',
       '.tink/maintenance/friction.jsonl'

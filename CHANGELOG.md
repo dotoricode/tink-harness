@@ -4,6 +4,10 @@ All notable changes to Tink are tracked here.
 
 ## [Unreleased]
 
+### Added
+
+- Expanded the harness lifecycle summary generator with ordered harness parsing, repeated sequence hints, and rule/memory references from visible run records.
+
 ### Changed
 
 - Moved README release highlights into the changelog path and added top-level changelog links in the English and Korean README files.

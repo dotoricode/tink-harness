@@ -2046,7 +2046,7 @@ class TemplateTests(unittest.TestCase):
         for field in ['confidence', 'evidence_handles']:
             self.assertIn(field, lifecycle_summary['required'])
         signal_props = lifecycle_summary['properties']['signals']['properties']
-        for field in ['last_used', 'success_rate', 'failure_rate', 'co_used_with', 'sequence_hints']:
+        for field in ['last_used', 'success_rate', 'failure_rate', 'co_used_with', 'sequence_hints', 'rule_refs', 'memory_refs']:
             self.assertIn(field, signal_props)
         self.assertGreaterEqual(len(lifecycle_fixture['harnesses']), 4)
         self.assertIn('.tink/runs/*.md', lifecycle_fixture['sources'])
@@ -2060,6 +2060,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('delete', lifecycle_by_id['experimental-wide-context']['approval_required_for'])
         self.assertEqual(lifecycle_by_id['docs']['recommendation'], 'merge_candidate')
         self.assertTrue(lifecycle_by_id['docs']['signals']['co_used_with'])
+        self.assertTrue(lifecycle_by_id['code-change']['signals']['sequence_hints'])
+        self.assertIn('harness:code-change', lifecycle_by_id['code-change']['signals']['rule_refs'])
+        self.assertIn('.tink/memory/preferences.md', lifecycle_by_id['code-change']['signals']['memory_refs'])
         for item in lifecycle_fixture['harnesses']:
             self.assertIn(item['recommendation'], allowed_recommendations)
             self.assertIn(item['confidence'], ['low', 'medium', 'high'])
@@ -2077,13 +2080,26 @@ class TemplateTests(unittest.TestCase):
             (base / '.tink/harnesses').mkdir(parents=True)
             (base / '.tink/runs').mkdir(parents=True)
             (base / '.tink/maintenance').mkdir(parents=True)
+            (base / '.tink/rules').mkdir(parents=True)
+            (base / '.tink/memory').mkdir(parents=True)
             (base / '.tink/harnesses/index.json').write_text(json.dumps([
                 {'name': 'code-change', 'context': 'medium'},
                 {'name': 'wide-context', 'context': 'high'},
                 {'name': 'bug-fix', 'context': 'unknown'},
             ]), encoding='utf-8')
+            (base / '.tink/rules/index.json').write_text(json.dumps({
+                'nodes': [
+                    {'id': 'harness:code-change'},
+                    {'id': 'harness:wide-context'},
+                ]
+            }), encoding='utf-8')
+            (base / '.tink/memory/preferences.md').write_text('# Preferences\n', encoding='utf-8')
             (base / '.tink/runs/2026-06-01-1000-code-change.md').write_text(
-                '# Run\n\nStatus: completed\n\nSelected harnesses:\n- code-change\n',
+                '# Run\n\nStatus: completed\n\nSelected harnesses:\n- code-change\n\nLoaded rules:\n- harness:code-change\n\nMemory:\n- .tink/memory/preferences.md\n',
+                encoding='utf-8',
+            )
+            (base / '.tink/runs/2026-06-01-1100-code-change.md').write_text(
+                '# Run\n\nStatus: completed\n\nSelected harnesses:\n- code-change\n\nLoaded rules:\n- harness:code-change\n',
                 encoding='utf-8',
             )
             (base / '.tink/runs/2026-06-02-1000-wide-context.md').write_text(
@@ -2110,10 +2126,15 @@ class TemplateTests(unittest.TestCase):
             )
             generated = json.loads(output.read_text(encoding='utf-8'))
             generated_by_id = {item['id']: item for item in generated['harnesses']}
-            self.assertEqual(generated['run_window']['run_count'], 2)
+            self.assertEqual(generated['run_window']['run_count'], 3)
             self.assertEqual(generated_by_id['code-change']['recommendation'], 'keep')
             self.assertEqual(generated_by_id['wide-context']['recommendation'], 'frog_candidate')
             self.assertEqual(generated_by_id['bug-fix']['recommendation'], 'observe')
+            self.assertEqual(generated_by_id['code-change']['signals']['sequence_hints'], [
+                {'before': 'code-change', 'after': 'verify', 'count': 2}
+            ])
+            self.assertIn('harness:code-change', generated_by_id['code-change']['signals']['rule_refs'])
+            self.assertIn('.tink/memory/preferences.md', generated_by_id['code-change']['signals']['memory_refs'])
             self.assertIn('.tink/maintenance/weave-queue.json', generated_by_id['wide-context']['evidence_handles'])
         with tempfile.TemporaryDirectory() as d:
             output = Path(d) / 'harness-health-report.html'
