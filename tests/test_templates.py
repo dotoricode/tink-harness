@@ -2042,6 +2042,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('graph_node', lifecycle_schema['$defs'])
         self.assertIn('graph_edge', lifecycle_schema['$defs'])
         self.assertIn('timeline_event', lifecycle_schema['$defs'])
+        self.assertIn('candidate_score', lifecycle_schema['$defs'])
         allowed_recommendations = set(
             lifecycle_schema['$defs']['harness_summary']['properties']['recommendation']['enum']
         )
@@ -2081,10 +2082,13 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('uses_memory', graph_edge_types)
         self.assertIn('success', timeline_outcomes)
         self.assertIn('blocked', timeline_outcomes)
+        self.assertGreater(lifecycle_by_id['experimental-wide-context']['candidate_score']['total'], lifecycle_by_id['docs']['candidate_score']['total'])
+        self.assertEqual(lifecycle_by_id['bug-fix']['candidate_score']['factors'][0]['name'], 'recommendation')
         for item in lifecycle_fixture['harnesses']:
             self.assertIn(item['recommendation'], allowed_recommendations)
             self.assertIn(item['confidence'], ['low', 'medium', 'high'])
             self.assertIsInstance(item['evidence_handles'], list)
+            self.assertIn('candidate_score', item)
             self.assertIn('context_cost', item['signals'])
             self.assertGreater(len(item['reason']), 10)
         generator_script = ROOT / 'templates/tink/tools/generate-harness-lifecycle-summary.mjs'
@@ -2148,6 +2152,8 @@ class TemplateTests(unittest.TestCase):
             self.assertEqual(generated_by_id['code-change']['recommendation'], 'keep')
             self.assertEqual(generated_by_id['wide-context']['recommendation'], 'frog_candidate')
             self.assertEqual(generated_by_id['bug-fix']['recommendation'], 'observe')
+            self.assertGreater(generated_by_id['wide-context']['candidate_score']['total'], generated_by_id['code-change']['candidate_score']['total'])
+            self.assertEqual(generated_by_id['wide-context']['candidate_score']['factors'][-1]['name'], 'recommendation')
             self.assertEqual(generated_by_id['code-change']['signals']['sequence_hints'], [
                 {'before': 'code-change', 'after': 'verify', 'count': 2}
             ])
@@ -2185,6 +2191,7 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('Tink Harness Health Summary', html)
             self.assertIn('This report only prepares suggestions', html)
             self.assertIn('Recent run timeline', html)
+            self.assertIn('Candidate score', html)
             self.assertIn('blocked', html)
             self.assertIn('experimental-wide-context', html)
             self.assertIn('frog_candidate', html)

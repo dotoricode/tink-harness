@@ -130,7 +130,11 @@ function ensureSummary(id, contextCost) {
     reason: 'No run records mention this harness. Missing records are not evidence that the harness is bad.',
     evidence_handles: [],
     safe_next_action: 'Keep observing until real run, ledger, queue, or friction evidence exists.',
-    approval_required_for: []
+    approval_required_for: [],
+    candidate_score: {
+      total: 0,
+      factors: []
+    }
   };
 }
 
@@ -190,7 +194,8 @@ function buildGraph(harnessSummaries) {
       label: item.id,
       recommendation: item.recommendation,
       confidence: item.confidence,
-      weight: item.signals.uses
+      weight: item.signals.uses,
+      candidate_score: item.candidate_score?.total ?? 0
     });
 
     for (const related of item.signals.co_used_with) {
@@ -260,6 +265,46 @@ function buildGraph(harnessSummaries) {
       a.target.localeCompare(b.target) ||
       a.type.localeCompare(b.type)
     ))
+  };
+}
+
+function scoreFactor(name, value, reason) {
+  return { name, value, reason };
+}
+
+function scoreCandidate(item) {
+  const factors = [];
+  const failuresAndBlocked = (item.signals.failures || 0) + (item.signals.blocked || 0);
+  const overlapCount = Math.max(0, ...item.signals.co_used_with.map((related) => related.count || 0));
+  const evidenceValue = { weak: 0, medium: 15, strong: 25 }[item.evidence_grade] ?? 0;
+  const contextValue = { low: 0, medium: 5, high: 10, unknown: 0 }[item.signals.context_cost] ?? 0;
+  const recommendationValue = {
+    keep: 0,
+    observe: 5,
+    merge_candidate: 15,
+    weave: 25,
+    frog_candidate: 30
+  }[item.recommendation] ?? 0;
+
+  if (evidenceValue) {
+    factors.push(scoreFactor('evidence', evidenceValue, `${item.evidence_grade} evidence`));
+  }
+  if (failuresAndBlocked) {
+    factors.push(scoreFactor('trouble', Math.min(30, failuresAndBlocked * 15), `${failuresAndBlocked} failed or blocked signals`));
+  }
+  if (contextValue) {
+    factors.push(scoreFactor('context_cost', contextValue, `${item.signals.context_cost} context cost`));
+  }
+  if (overlapCount >= 2) {
+    factors.push(scoreFactor('overlap', Math.min(15, overlapCount * 5), `Repeated overlap count ${overlapCount}`));
+  }
+  if (recommendationValue) {
+    factors.push(scoreFactor('recommendation', recommendationValue, `${item.recommendation} priority`));
+  }
+
+  return {
+    total: Math.min(100, factors.reduce((sum, factor) => sum + factor.value, 0)),
+    factors
   };
 }
 
@@ -402,6 +447,8 @@ function summarize(root) {
       item.reason = 'Used with successful verification evidence.';
       item.safe_next_action = 'Keep using this harness and watch whether failures repeat.';
     }
+
+    item.candidate_score = scoreCandidate(item);
   }
 
   const datedRuns = runs.map((run) => run.date).filter(Boolean).sort();

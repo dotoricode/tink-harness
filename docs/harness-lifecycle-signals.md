@@ -42,6 +42,8 @@ Allowed recommendations:
 - `merge_candidate`
 - `observe`
 
+Each harness may also include `candidate_score`. This is an explainable sorting aid with a `total` from 0 to 100 and named factors such as evidence, trouble, context cost, overlap, and recommendation priority. It is not approval and must not trigger automatic edits.
+
 Evidence should stay conservative:
 
 - no records or weak evidence -> `observe`

@@ -53,7 +53,32 @@
         ".tink/maintenance/ledger.jsonl"
       ],
       "safe_next_action": "Keep using this harness and watch whether failures repeat.",
-      "approval_required_for": []
+      "approval_required_for": [],
+      "candidate_score": {
+        "total": 60,
+        "factors": [
+          {
+            "name": "evidence",
+            "value": 25,
+            "reason": "strong evidence"
+          },
+          {
+            "name": "trouble",
+            "value": 15,
+            "reason": "1 failed or blocked signals"
+          },
+          {
+            "name": "context_cost",
+            "value": 5,
+            "reason": "medium context cost"
+          },
+          {
+            "name": "overlap",
+            "value": 15,
+            "reason": "Repeated overlap count 3"
+          }
+        ]
+      }
     },
     {
       "id": "docs",
@@ -88,7 +113,27 @@
       "safe_next_action": "Inspect whether the overlap is real before proposing any merge.",
       "approval_required_for": [
         "merge"
-      ]
+      ],
+      "candidate_score": {
+        "total": 45,
+        "factors": [
+          {
+            "name": "evidence",
+            "value": 15,
+            "reason": "medium evidence"
+          },
+          {
+            "name": "overlap",
+            "value": 15,
+            "reason": "Repeated overlap count 3"
+          },
+          {
+            "name": "recommendation",
+            "value": 15,
+            "reason": "merge_candidate priority"
+          }
+        ]
+      }
     },
     {
       "id": "bug-fix",
@@ -112,7 +157,17 @@
       "reason": "No run records mention this harness. Missing records are not evidence that the harness is bad.",
       "evidence_handles": [],
       "safe_next_action": "Keep observing until real run or ledger evidence exists.",
-      "approval_required_for": []
+      "approval_required_for": [],
+      "candidate_score": {
+        "total": 5,
+        "factors": [
+          {
+            "name": "recommendation",
+            "value": 5,
+            "reason": "observe priority"
+          }
+        ]
+      }
     },
     {
       "id": "release-preflight",
@@ -138,7 +193,22 @@
         ".tink/runs/2026-05-26-1144-uncertainty-contract.md"
       ],
       "safe_next_action": "Keep or ask for more evidence; do not delete from this signal alone.",
-      "approval_required_for": []
+      "approval_required_for": [],
+      "candidate_score": {
+        "total": 15,
+        "factors": [
+          {
+            "name": "context_cost",
+            "value": 10,
+            "reason": "high context cost"
+          },
+          {
+            "name": "recommendation",
+            "value": 5,
+            "reason": "observe priority"
+          }
+        ]
+      }
     },
     {
       "id": "experimental-wide-context",
@@ -168,7 +238,32 @@
       "approval_required_for": [
         "archive",
         "delete"
-      ]
+      ],
+      "candidate_score": {
+        "total": 95,
+        "factors": [
+          {
+            "name": "evidence",
+            "value": 25,
+            "reason": "strong evidence"
+          },
+          {
+            "name": "trouble",
+            "value": 30,
+            "reason": "2 failed or blocked signals"
+          },
+          {
+            "name": "context_cost",
+            "value": 10,
+            "reason": "high context cost"
+          },
+          {
+            "name": "recommendation",
+            "value": 30,
+            "reason": "frog_candidate priority"
+          }
+        ]
+      }
     }
   ],
   "graph": {
@@ -179,7 +274,8 @@
         "label": "bug-fix",
         "recommendation": "observe",
         "confidence": "low",
-        "weight": 0
+        "weight": 0,
+        "candidate_score": 5
       },
       {
         "id": "harness:code-change",
@@ -187,7 +283,8 @@
         "label": "code-change",
         "recommendation": "keep",
         "confidence": "high",
-        "weight": 8
+        "weight": 8,
+        "candidate_score": 60
       },
       {
         "id": "harness:docs",
@@ -195,7 +292,8 @@
         "label": "docs",
         "recommendation": "merge_candidate",
         "confidence": "medium",
-        "weight": 6
+        "weight": 6,
+        "candidate_score": 45
       },
       {
         "id": "harness:experimental-wide-context",
@@ -203,7 +301,8 @@
         "label": "experimental-wide-context",
         "recommendation": "frog_candidate",
         "confidence": "high",
-        "weight": 2
+        "weight": 2,
+        "candidate_score": 95
       },
       {
         "id": "harness:release-preflight",
@@ -211,7 +310,8 @@
         "label": "release-preflight",
         "recommendation": "observe",
         "confidence": "low",
-        "weight": 1
+        "weight": 1,
+        "candidate_score": 15
       },
       {
         "id": "memory:.tink/memory/preferences.md",

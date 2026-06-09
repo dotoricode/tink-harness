@@ -107,6 +107,9 @@
             "type": "string",
             "enum": ["harness_edit", "rule_update", "memory_save", "merge", "delete", "archive"]
           }
+        },
+        "candidate_score": {
+          "$ref": "#/$defs/candidate_score"
         }
       },
       "additionalProperties": true
@@ -148,7 +151,30 @@
           "type": "string",
           "enum": ["low", "medium", "high"]
         },
-        "weight": { "type": "number", "minimum": 0 }
+        "weight": { "type": "number", "minimum": 0 },
+        "candidate_score": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "additionalProperties": true
+    },
+    "candidate_score": {
+      "type": "object",
+      "required": ["total", "factors"],
+      "properties": {
+        "total": { "type": "number", "minimum": 0, "maximum": 100 },
+        "factors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/score_factor" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "score_factor": {
+      "type": "object",
+      "required": ["name", "value", "reason"],
+      "properties": {
+        "name": { "type": "string" },
+        "value": { "type": "number" },
+        "reason": { "type": "string" }
       },
       "additionalProperties": true
     },
