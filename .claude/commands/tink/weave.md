@@ -26,6 +26,7 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - Auto signals from completed runs (entries where `auto: true`)
    Count auto signals per harness: `check_failed` signals count as 2, all other outcomes count as 1. Use this frequency to rank improvement candidates — harnesses with the highest signal count should be improved first. If invoked from `/tink:frog`, also read the purge output and `.tink/current/notes.md` for the weave handoff packet.
    If `.tink/maintenance/friction.jsonl` exists, read only compact recent entries and count repeated `check_failed`, `check_skipped`, `blocked`, gate denial, or rollback events. Repeated friction can justify a harness edit, rule graph update, or opt-in guard candidate.
+   If `.tink/maintenance/harness-lifecycle.json` or another summary following `.tink/schemas/harness-lifecycle.schema.json` exists, read it as a harness health summary. Prefer entries with recommendation `weave`, high or medium confidence, and concrete `evidence_handles`. Low-confidence entries should stay as observation unless the user explicitly asks to act on them.
 2. Identify one or a few active harnesses to improve using real failures and evidence:
    - repeated mistakes
    - user corrections
@@ -41,6 +42,7 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - friction entry timestamp/type
    - compact user correction snippet
    - purge handoff ID from `.tink/maintenance/weave-queue.json`
+   - lifecycle summary evidence handle plus the source run, ledger, queue, or friction entry it points to
 4. Classify the evidence as repeated or single-run. Single-run evidence may suggest a trial edit, but should not become broad policy unless the user explicitly approves.
 5. Explain why the change belongs in the harness rather than `.tink/memory/` or `.tink/current/notes.md`.
 6. Decide the right destination:

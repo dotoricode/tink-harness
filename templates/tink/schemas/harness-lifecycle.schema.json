@@ -3,9 +3,23 @@
   "$id": "https://github.com/dotoricode/tink-harness/schemas/harness-lifecycle.schema.json",
   "title": "Tink harness lifecycle summary",
   "type": "object",
-  "required": ["generated_at", "harnesses"],
+  "required": ["generated_at", "run_window", "sources", "harnesses"],
   "properties": {
     "generated_at": { "type": "string" },
+    "run_window": {
+      "type": "object",
+      "required": ["from", "to", "run_count"],
+      "properties": {
+        "from": { "type": ["string", "null"] },
+        "to": { "type": ["string", "null"] },
+        "run_count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "sources": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "harnesses": {
       "type": "array",
       "items": { "$ref": "#/$defs/harness_summary" }
@@ -14,7 +28,7 @@
   "$defs": {
     "harness_summary": {
       "type": "object",
-      "required": ["id", "signals", "recommendation", "reason"],
+      "required": ["id", "signals", "recommendation", "confidence", "reason", "evidence_handles"],
       "properties": {
         "id": { "type": "string" },
         "signals": {
@@ -24,6 +38,17 @@
             "successes": { "type": "integer", "minimum": 0 },
             "failures": { "type": "integer", "minimum": 0 },
             "blocked": { "type": "integer", "minimum": 0 },
+            "last_used": { "type": ["string", "null"] },
+            "success_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+            "failure_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+            "co_used_with": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/related_harness" }
+            },
+            "sequence_hints": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sequence_hint" }
+            },
             "context_cost": {
               "type": "string",
               "enum": ["low", "medium", "high", "unknown"]
@@ -35,7 +60,46 @@
           "type": "string",
           "enum": ["keep", "weave", "frog_candidate", "merge_candidate", "observe"]
         },
-        "reason": { "type": "string" }
+        "confidence": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "evidence_grade": {
+          "type": "string",
+          "enum": ["weak", "medium", "strong"]
+        },
+        "reason": { "type": "string" },
+        "evidence_handles": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "safe_next_action": { "type": "string" },
+        "approval_required_for": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["harness_edit", "rule_update", "memory_save", "merge", "delete", "archive"]
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "related_harness": {
+      "type": "object",
+      "required": ["id", "count"],
+      "properties": {
+        "id": { "type": "string" },
+        "count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "sequence_hint": {
+      "type": "object",
+      "required": ["before", "after", "count"],
+      "properties": {
+        "before": { "type": "string" },
+        "after": { "type": "string" },
+        "count": { "type": "integer", "minimum": 0 }
       },
       "additionalProperties": true
     }

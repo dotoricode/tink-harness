@@ -1,5 +1,17 @@
 {
   "generated_at": "2026-06-08T00:25:00+09:00",
+  "run_window": {
+    "from": "2026-05-26T10:42:00+09:00",
+    "to": "2026-06-08T00:25:00+09:00",
+    "run_count": 14
+  },
+  "sources": [
+    ".tink/runs/*.md",
+    ".tink/maintenance/ledger.jsonl",
+    ".tink/maintenance/weave-queue.json",
+    ".tink/maintenance/friction.jsonl",
+    ".tink/harnesses/index.json"
+  ],
   "harnesses": [
     {
       "id": "code-change",
@@ -8,10 +20,111 @@
         "successes": 7,
         "failures": 1,
         "blocked": 0,
+        "last_used": "2026-06-08T00:10:00+09:00",
+        "success_rate": 0.875,
+        "failure_rate": 0.125,
+        "co_used_with": [
+          {
+            "id": "docs",
+            "count": 3
+          }
+        ],
+        "sequence_hints": [
+          {
+            "before": "code-change",
+            "after": "verify",
+            "count": 7
+          }
+        ],
         "context_cost": "medium"
       },
       "recommendation": "keep",
-      "reason": "Frequently used with mostly successful verification evidence."
+      "confidence": "high",
+      "evidence_grade": "strong",
+      "reason": "Frequently used with mostly successful verification evidence.",
+      "evidence_handles": [
+        ".tink/runs/2026-05-26-1042-tink-codex-entrypoints.md",
+        ".tink/maintenance/ledger.jsonl"
+      ],
+      "safe_next_action": "Keep using this harness and watch whether failures repeat.",
+      "approval_required_for": []
+    },
+    {
+      "id": "docs",
+      "signals": {
+        "uses": 6,
+        "successes": 6,
+        "failures": 0,
+        "blocked": 0,
+        "last_used": "2026-06-07T18:30:00+09:00",
+        "success_rate": 1,
+        "failure_rate": 0,
+        "co_used_with": [
+          {
+            "id": "code-change",
+            "count": 3
+          }
+        ],
+        "sequence_hints": [],
+        "context_cost": "low"
+      },
+      "recommendation": "merge_candidate",
+      "confidence": "medium",
+      "evidence_grade": "medium",
+      "reason": "Often appears with code-change in documentation-heavy edits, so it may deserve a combined workflow note. Do not merge automatically.",
+      "evidence_handles": [
+        ".tink/runs/2026-05-26-1101-tink-philosophy-report.md"
+      ],
+      "safe_next_action": "Inspect whether the overlap is real before proposing any merge.",
+      "approval_required_for": [
+        "merge"
+      ]
+    },
+    {
+      "id": "bug-fix",
+      "signals": {
+        "uses": 0,
+        "successes": 0,
+        "failures": 0,
+        "blocked": 0,
+        "last_used": null,
+        "success_rate": null,
+        "failure_rate": null,
+        "co_used_with": [],
+        "sequence_hints": [],
+        "context_cost": "unknown"
+      },
+      "recommendation": "observe",
+      "confidence": "low",
+      "evidence_grade": "weak",
+      "reason": "No run records mention this harness. Missing records are not evidence that the harness is bad.",
+      "evidence_handles": [],
+      "safe_next_action": "Keep observing until real run or ledger evidence exists.",
+      "approval_required_for": []
+    },
+    {
+      "id": "release-preflight",
+      "signals": {
+        "uses": 1,
+        "successes": 0,
+        "failures": 0,
+        "blocked": 0,
+        "last_used": "2026-05-26T11:44:00+09:00",
+        "success_rate": 0,
+        "failure_rate": 0,
+        "co_used_with": [],
+        "sequence_hints": [],
+        "context_cost": "high"
+      },
+      "recommendation": "observe",
+      "confidence": "low",
+      "evidence_grade": "weak",
+      "reason": "Old and lightly used, but the evidence is weak. This must not become a delete recommendation.",
+      "evidence_handles": [
+        ".tink/runs/2026-05-26-1144-uncertainty-contract.md"
+      ],
+      "safe_next_action": "Keep or ask for more evidence; do not delete from this signal alone.",
+      "approval_required_for": []
     },
     {
       "id": "experimental-wide-context",
@@ -20,10 +133,26 @@
         "successes": 0,
         "failures": 1,
         "blocked": 1,
+        "last_used": "2026-06-01T12:00:00+09:00",
+        "success_rate": 0,
+        "failure_rate": 0.5,
+        "co_used_with": [],
+        "sequence_hints": [],
         "context_cost": "high"
       },
       "recommendation": "frog_candidate",
-      "reason": "Low success and high context cost make it a cleanup candidate, pending user approval."
+      "confidence": "high",
+      "evidence_grade": "strong",
+      "reason": "Repeated blocked or failed runs and high context cost make it a cleanup candidate, pending user approval.",
+      "evidence_handles": [
+        ".tink/maintenance/weave-queue.json",
+        ".tink/maintenance/friction.jsonl"
+      ],
+      "safe_next_action": "Prepare a frog approval payload before any archive, merge, or deletion.",
+      "approval_required_for": [
+        "archive",
+        "delete"
+      ]
     }
   ]
 }

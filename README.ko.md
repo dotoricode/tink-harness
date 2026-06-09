@@ -103,6 +103,8 @@ Tink는 직접 볼 수 있는 파일을 씁니다.
 - `.tink/maintenance/`: 검증, friction, weave 신호 기록
 - `.tink/memory/`: 승인된 실수, 선호, 교훈
 
+Tink는 이 기록을 읽어 하네스 건강 요약도 만들 수 있습니다. 요약은 일부러 단순하게 둡니다. 어떤 하네스가 쓰였는지, 어디서 check가 실패하거나 막혔는지, 어떤 하네스가 weave 개선 후보인지, frog 정리 검토 후보인지, 더 지켜봐야 하는지만 보여줍니다. 이것은 제안일 뿐입니다. 하네스 수정, 병합, 보관, 삭제, memory 저장, rule 업데이트는 Tink의 기존 명시적 승인 절차를 거쳐야 합니다.
+
 선택된 하네스에 따라 `.tink/current/goals.json`에는 현재 실행의 목표 체크포인트가, `.tink/current/delegation.md`에는 인수인계 패킷이 추가될 수 있습니다. Tink는 이런 브리프를 보이는 상태로 준비하지만, 별도 승인된 워크플로가 아니면 worker, tmux pane, worktree를 시작하지 않습니다.
 
 Rule graph는 작게 유지합니다. Tink는 먼저 필수 규칙을 고르고, 작업 사실이나 keyword에 맞는 선택 규칙만 가져오며, phase별로 이미 읽은 rule id를 기록해 같은 안내를 반복하지 않습니다.
