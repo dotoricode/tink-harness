@@ -8,6 +8,7 @@ All notable changes to Tink are tracked here.
 
 - Expanded the harness lifecycle summary generator with ordered harness parsing, repeated sequence hints, and rule/memory references from visible run records.
 - Added a derived graph view to harness lifecycle summaries so future reports can read harness, rule, memory, and stage relationships without adding a watcher or hidden cache.
+- Added timeline events to harness lifecycle summaries and rendered recent run history in the local harness health HTML report.
 
 ### Changed
 

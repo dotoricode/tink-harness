@@ -276,5 +276,34 @@
         "count": 1
       }
     ]
-  }
+  },
+  "timeline": [
+    {
+      "date": "2026-06-08T00:10:00+09:00",
+      "source": ".tink/runs/2026-06-08-0010-code-change.md",
+      "status": "completed",
+      "outcome": "success",
+      "harnesses": [
+        "code-change"
+      ]
+    },
+    {
+      "date": "2026-06-01T12:00:00+09:00",
+      "source": ".tink/runs/2026-06-01-1200-experimental-wide-context.md",
+      "status": "blocked",
+      "outcome": "blocked",
+      "harnesses": [
+        "experimental-wide-context"
+      ]
+    },
+    {
+      "date": "2026-05-26T11:44:00+09:00",
+      "source": ".tink/runs/2026-05-26-1144-uncertainty-contract.md",
+      "status": "unknown",
+      "outcome": "unknown",
+      "harnesses": [
+        "release-preflight"
+      ]
+    }
+  ]
 }

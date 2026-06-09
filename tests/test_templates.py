@@ -2038,8 +2038,10 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('run_window', lifecycle_schema['required'])
         self.assertIn('sources', lifecycle_schema['required'])
         self.assertIn('graph', lifecycle_schema['required'])
+        self.assertIn('timeline', lifecycle_schema['required'])
         self.assertIn('graph_node', lifecycle_schema['$defs'])
         self.assertIn('graph_edge', lifecycle_schema['$defs'])
+        self.assertIn('timeline_event', lifecycle_schema['$defs'])
         allowed_recommendations = set(
             lifecycle_schema['$defs']['harness_summary']['properties']['recommendation']['enum']
         )
@@ -2057,6 +2059,7 @@ class TemplateTests(unittest.TestCase):
         lifecycle_by_id = {item['id']: item for item in lifecycle_fixture['harnesses']}
         graph_node_ids = {item['id'] for item in lifecycle_fixture['graph']['nodes']}
         graph_edge_types = {item['type'] for item in lifecycle_fixture['graph']['edges']}
+        timeline_outcomes = {item['outcome'] for item in lifecycle_fixture['timeline']}
         self.assertEqual(lifecycle_by_id['bug-fix']['recommendation'], 'observe')
         self.assertEqual(lifecycle_by_id['bug-fix']['confidence'], 'low')
         self.assertEqual(lifecycle_by_id['release-preflight']['evidence_grade'], 'weak')
@@ -2076,6 +2079,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('sequence', graph_edge_types)
         self.assertIn('uses_rule', graph_edge_types)
         self.assertIn('uses_memory', graph_edge_types)
+        self.assertIn('success', timeline_outcomes)
+        self.assertIn('blocked', timeline_outcomes)
         for item in lifecycle_fixture['harnesses']:
             self.assertIn(item['recommendation'], allowed_recommendations)
             self.assertIn(item['confidence'], ['low', 'medium', 'high'])
@@ -2150,12 +2155,16 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('.tink/memory/preferences.md', generated_by_id['code-change']['signals']['memory_refs'])
             generated_graph_nodes = {item['id'] for item in generated['graph']['nodes']}
             generated_graph_edges = {(item['source'], item['target'], item['type']) for item in generated['graph']['edges']}
+            generated_timeline = generated['timeline']
             self.assertIn('harness:code-change', generated_graph_nodes)
             self.assertIn('rule:harness:code-change', generated_graph_nodes)
             self.assertIn('memory:.tink/memory/preferences.md', generated_graph_nodes)
             self.assertIn(('harness:code-change', 'stage:verify', 'sequence'), generated_graph_edges)
             self.assertIn(('harness:code-change', 'rule:harness:code-change', 'uses_rule'), generated_graph_edges)
             self.assertIn(('harness:code-change', 'memory:.tink/memory/preferences.md', 'uses_memory'), generated_graph_edges)
+            self.assertEqual(generated_timeline[0]['source'], '.tink/runs/2026-06-02-1000-wide-context.md')
+            self.assertEqual(generated_timeline[0]['outcome'], 'blocked')
+            self.assertEqual(generated_timeline[-1]['outcome'], 'success')
             self.assertIn('.tink/maintenance/weave-queue.json', generated_by_id['wide-context']['evidence_handles'])
         with tempfile.TemporaryDirectory() as d:
             output = Path(d) / 'harness-health-report.html'
@@ -2175,6 +2184,8 @@ class TemplateTests(unittest.TestCase):
             html = output.read_text(encoding='utf-8')
             self.assertIn('Tink Harness Health Summary', html)
             self.assertIn('This report only prepares suggestions', html)
+            self.assertIn('Recent run timeline', html)
+            self.assertIn('blocked', html)
             self.assertIn('experimental-wide-context', html)
             self.assertIn('frog_candidate', html)
         self.assertIn('changes', context_diff)
