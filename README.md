@@ -24,7 +24,7 @@
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.6.3 - Interactive install/update now offers advanced options such as preview, force overwrite, and Codex picker cleanup as real choices. Latest minor release notes: <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.6.0">v1.6.0</a>.</p>
+<p><strong>Latest package:</strong> v1.7.0 - Installer surface selection is now a clear single-choice prompt (Claude Code / Codex / Both). Latest minor release notes: <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.7.0">v1.7.0</a>.</p>
 
 **English** · [한국어](README.ko.md)
 
@@ -123,6 +123,13 @@ During update, select the installed agent surface you want to refresh.
 To quickly verify the updated install, see `docs/update-verification-recipe.md` or `docs/update-verification-recipe.ko.md`.
 
 If an update looks stale or incomplete, see `docs/update-troubleshooting.md` or `docs/update-troubleshooting.ko.md`.
+
+## What's new in 1.7.0
+
+This minor release removes two installer UX rough edges.
+
+- The surface selection step now uses a single-choice prompt — Claude Code, Codex, or Both — instead of a multi-checkbox toggle, so the selected state is immediately visible on any terminal.
+- The component selection prompt now names the surface being configured, so you see a surface-specific prompt rather than the same generic message regardless of what you selected.
 
 ## What's new in 1.6.3
 

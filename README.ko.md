@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 패키지:** v1.6.3 — interactive install/update에서 preview, force overwrite, Codex picker cleanup 같은 고급 옵션을 실제 선택지로 제공합니다. 최신 마이너 릴리스 노트: [v1.6.0](https://github.com/dotoricode/tink-harness/releases/tag/v1.6.0).
+**최신 패키지:** v1.7.0 — installer surface 선택이 단일 선택 프롬프트(Claude Code / Codex / 둘 다)로 바뀌어 선택 상태를 바로 확인할 수 있습니다. 최신 마이너 릴리스 노트: [v1.7.0](https://github.com/dotoricode/tink-harness/releases/tag/v1.7.0).
 
 [English](README.md) · **한국어**
 
@@ -58,6 +58,13 @@ npx tink-harness@latest update
 업데이트가 정상인지 빠르게 확인하려면 `docs/update-verification-recipe.ko.md` 또는 `docs/update-verification-recipe.md`를 확인하세요.
 
 업데이트 후 Codex skill, schema, Windows 경고가 이상해 보이면 `docs/update-troubleshooting.ko.md` 또는 `docs/update-troubleshooting.md`를 확인하세요.
+
+## 1.7.0에서 달라진 점
+
+이번 마이너 릴리스는 installer UX의 두 가지 불편함을 해결합니다.
+
+- surface 선택 단계가 단일 선택 프롬프트(Claude Code / Codex / 둘 다(Claude Code + Codex))로 바뀌어, 커서가 이미 선택된 항목 위에 있어도 선택 상태를 바로 알 수 있습니다.
+- 컴포넌트 선택 프롬프트가 설정 중인 surface를 명시합니다. "Claude Code 설치 항목" 또는 "Codex 설치 항목"처럼 선택한 surface에 맞는 메시지가 표시됩니다.
 
 ## 1.6.3에서 달라진 점
 

@@ -7,6 +7,14 @@ All notable changes to Tink are tracked here.
 No unreleased changes yet.
 
 
+## [1.7.0] - 2026-06-09
+
+### Changed
+
+- Agent surface selection now uses a single-choice prompt (Claude Code / Codex / Both (Claude Code + Codex)) instead of a multi-checkbox toggle, eliminating the selected-state ambiguity when the cursor is on a pre-checked item.
+- Component selection prompt now names the surface being configured — "Claude Code 설치 항목" or "Codex 설치 항목" — instead of a shared generic prompt, so users can see that the option list reflects the chosen surface.
+
+
 ## [1.6.3] - 2026-06-09
 
 ### Changed

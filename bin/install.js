@@ -102,15 +102,18 @@ const COMPONENTS = {
 const SURFACE_OPTIONS = {
   en: [
     { value: 'claude', label: 'Claude Code', hint: 'Install /tink:* commands, Claude skill, and optional hook support' },
-    { value: 'codex', label: 'Codex', hint: 'Install $tink:* skills into CODEX_HOME or ~/.codex' }
+    { value: 'codex', label: 'Codex', hint: 'Install $tink:* skills into CODEX_HOME or ~/.codex' },
+    { value: 'all', label: 'Both (Claude Code + Codex)', hint: 'Install all surfaces' }
   ],
   ko: [
     { value: 'claude', label: 'Claude Code', hint: '/tink:* 명령, Claude skill, 선택 hook 지원 설치' },
-    { value: 'codex', label: 'Codex', hint: '$tink:* skills를 CODEX_HOME 또는 ~/.codex에 설치' }
+    { value: 'codex', label: 'Codex', hint: '$tink:* skills를 CODEX_HOME 또는 ~/.codex에 설치' },
+    { value: 'all', label: '둘 다 (Claude Code + Codex)', hint: 'Claude Code와 Codex 모두 설치' }
   ],
   zh: [
-    { value: 'claude', label: 'Claude Code', hint: 'Install /tink:* commands, Claude skill, and optional hook support' },
-    { value: 'codex', label: 'Codex', hint: 'Install $tink:* skills into CODEX_HOME or ~/.codex' }
+    { value: 'claude', label: 'Claude Code', hint: '安装 /tink:* 命令、Claude skill 及可选 hook 支持' },
+    { value: 'codex', label: 'Codex', hint: '将 $tink:* skills 安装到 CODEX_HOME 或 ~/.codex' },
+    { value: 'all', label: '两者 (Claude Code + Codex)', hint: '安装所有 surface' }
   ]
 };
 
@@ -303,6 +306,22 @@ function defaultComponentValues(agent, language) {
   return componentOptionsFor(agent, language)
     .map((item) => item.value)
     .filter((value) => value !== 'hook');
+}
+
+function componentMessage(agent, language) {
+  if (language === 'ko') {
+    if (agent === 'claude') return 'Claude Code 설치 항목을 선택하세요 (space로 토글)';
+    if (agent === 'codex') return 'Codex 설치 항목을 선택하세요 (space로 토글)';
+    return '설치할 항목을 선택하세요 (space로 토글)';
+  }
+  if (language === 'zh') {
+    if (agent === 'claude') return '选择 Claude Code 安装项目（空格切换）';
+    if (agent === 'codex') return '选择 Codex 安装项目（空格切换）';
+    return '选择要安装的项目（空格切换）';
+  }
+  if (agent === 'claude') return 'Select Claude Code components to install (space to toggle)';
+  if (agent === 'codex') return 'Select Codex components to install (space to toggle)';
+  return 'Select components to install (space to toggle)';
 }
 function colorLine(line, color) {
   if (!process.stdout.isTTY && !interactive) return line;
@@ -799,20 +818,21 @@ async function resolveChoices() {
     language === 'ko' ? '항목 설명' : language === 'zh' ? '项目说明' : 'Component notes'
   );
 
-  agent = normalizeSurfaces(handleCancel(await multiselect({
+  agent = handleCancel(await select({
     message: language === 'ko'
-      ? '설치할 agent surface를 선택하세요 (space로 토글)'
-      : 'Select agent surfaces to install (space to toggle)',
+      ? '설치할 agent surface를 선택하세요'
+      : language === 'zh'
+        ? '选择要安装的 agent surface'
+        : 'Select agent surface to install',
     options: SURFACE_OPTIONS[language],
-    initialValues: agent === 'all' ? ['claude', 'codex'] : [agent],
-    required: true
-  })));
+    initialValue: agent
+  }));
   components = defaultComponentValues(agent, language);
   if (includesClaude(agent) && args.includes('--with-hook')) components.push('hook');
   advancedOptions = defaultAdvancedValues(agent);
 
   components = handleCancel(await multiselect({
-    message: copy.components,
+    message: componentMessage(agent, language),
     options: componentOptionsFor(agent, language),
     initialValues: components,
     required: true
