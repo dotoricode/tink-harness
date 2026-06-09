@@ -4,6 +4,11 @@ All notable changes to Tink are tracked here.
 
 ## [Unreleased]
 
+No unreleased changes yet.
+
+
+## [1.9.0] - 2026-06-09
+
 ### Added
 
 - Expanded the harness lifecycle summary generator with ordered harness parsing, repeated sequence hints, and rule/memory references from visible run records.
