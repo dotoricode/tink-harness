@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 패키지:** v1.9.0 — 하네스 건강 요약, graph, timeline, 후보 점수, 생애주기 상태, 정적 로컬 리포트를 추가합니다. 전체 변경 이력은 [CHANGELOG](CHANGELOG.md)를 확인하세요.
+**최신 패키지:** v1.9.1 — 하네스 건강 요약, graph, timeline, 후보 점수, 생애주기 상태, 정적 로컬 리포트를 추가합니다. 전체 변경 이력은 [CHANGELOG](CHANGELOG.md)를 확인하세요.
 
 [English](README.md) · **한국어** · [변경 이력](CHANGELOG.md)
 

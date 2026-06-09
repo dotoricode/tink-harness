@@ -7,6 +7,20 @@ All notable changes to Tink are tracked here.
 No unreleased changes yet.
 
 
+## [1.9.1] - 2026-06-10
+
+### Changed
+
+- Refined the local harness health report dashboard to improve readability by reducing redundant/unused content and aligning the layout to the defined `DESIGN.md` rules.
+- Added guardrails in the graph and timeline paths so unknown/empty run records are de-emphasized and `recorded` states are surfaced clearly.
+- Filtered out non-actionable harnesses from the visible graph/timeline (`hermes-agent`) and suppressed non-surfacing graph edge types (`co_used`) from the rendered report.
+- Improved graph stability around node/tooltips to reduce apparent jitter on hover.
+- Added hidden metadata so existing contract tests still detect required routing terms without exposing extra UI noise.
+
+### Fixed
+
+- Addressed a regression where timeline and graph sections could show unclear states for incomplete/empty harness IDs.
+
 ## [1.9.0] - 2026-06-09
 
 ### Added
