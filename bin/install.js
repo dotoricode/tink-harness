@@ -664,6 +664,7 @@ function copySelected(scope, components, agent) {
     copyDir(path.join(templateRoot, 'tink/rules'), path.join(target, '.tink/rules'), target);
     copyDir(path.join(templateRoot, 'tink/schemas'), path.join(target, '.tink/schemas'), target);
     copyDir(path.join(templateRoot, 'tink/maintenance'), path.join(target, '.tink/maintenance'), target);
+    copyDir(path.join(templateRoot, 'tink/tools'), path.join(target, '.tink/tools'), target);
     writeFileFromTemplate(path.join(templateRoot, 'tink/config.json'), path.join(target, '.tink/config.json'), target);
   }
   if (components.includes('memory')) {

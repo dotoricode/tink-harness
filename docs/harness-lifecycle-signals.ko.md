@@ -40,4 +40,20 @@ Tink가 지난 실행 기록을 읽고 다음 질문에 답할 수 있게 돕는
 
 추천은 제안일 뿐이다. reusable harness 삭제, 병합, 재작성, memory 저장, rule 업데이트는 여전히 명시적인 승인이 필요하다. 생애주기 요약은 다음 행동을 준비할 수 있지만 자동으로 적용하면 안 된다.
 
+## 로컬 HTML 리포트
+
+설치된 repo에는 작은 읽기 전용 helper도 함께 들어간다.
+
+```bash
+node .tink/tools/render-harness-health-report.mjs
+```
+
+기본값으로 `.tink/maintenance/harness-lifecycle.json`을 읽고 `.tink/maintenance/harness-health-report.html`을 쓴다. 테스트할 때는 입력과 출력 경로를 직접 줄 수 있다.
+
+```bash
+node .tink/tools/render-harness-health-report.mjs input.json output.html
+```
+
+이 리포트는 요약을 보여주기만 한다. 하네스 수정, 병합, 보관, 삭제, memory 저장, rule 업데이트는 하지 않는다.
+
 이 기능은 watcher, hidden cache, 새 public `tink index` 명령이 아니다. 기준이 되는 원본은 계속 `.tink/runs/`, `.tink/maintenance/`, `.tink/harnesses/`, `.tink/rules/` 아래의 보이는 파일이다.

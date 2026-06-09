@@ -184,6 +184,12 @@ Tink uses files you can inspect:
 
 Tink can also read those records into a harness health summary. The summary is deliberately simple: it shows which harnesses were used, where checks failed or got blocked, and which harnesses may deserve a weave improvement, a frog cleanup review, or more observation. It only prepares suggestions. It does not edit, merge, archive, delete, save memory, or update rules without the same explicit approval gates as the rest of Tink.
 
+If a lifecycle summary exists at `.tink/maintenance/harness-lifecycle.json`, the installed read-only helper can turn it into a local HTML report:
+
+```bash
+node .tink/tools/render-harness-health-report.mjs
+```
+
 When selected, current-run artifacts may also include `.tink/current/goals.json` for goal checkpoints or `.tink/current/delegation.md` for handoff packets. Tink prepares those briefs as visible state; it does not start workers, tmux panes, or worktrees unless a separate approved workflow does so.
 
 The rule graph stays small on purpose. Tink loads matching mandatory rules first, retrieves only relevant optional rules by task facts or keywords, and records loaded rule ids by phase so the same guidance is not repeated in one run.
