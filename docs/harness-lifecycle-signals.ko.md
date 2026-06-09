@@ -65,4 +65,6 @@ node .tink/tools/render-harness-health-report.mjs input.json output.html
 
 두 helper는 재사용 Tink 상태를 고치지 않는다. 요청한 요약 파일이나 리포트 파일만 쓴다. 하네스 수정, 병합, 보관, 삭제, memory 저장, rule 업데이트는 하지 않는다.
 
+`/tink:weave`와 `/tink:frog`는 생성기가 설치되어 있으면 후보를 정렬하기 전에 이 요약을 먼저 준비해야 한다. 요약은 근거 강도에 따라 후보를 보기 좋게 정렬하는 데 쓰지만, 재사용 상태를 바꾸기 전에는 여전히 기존 승인 payload를 보여줘야 한다.
+
 이 기능은 watcher, hidden cache, 새 public `tink index` 명령이 아니다. 기준이 되는 원본은 계속 `.tink/runs/`, `.tink/maintenance/`, `.tink/harnesses/`, `.tink/rules/` 아래의 보이는 파일이다.

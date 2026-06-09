@@ -22,6 +22,10 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
 
 ## Procedure
 1. Read `.tink/harnesses/index.json`.
+1b. Prepare the harness health summary:
+   - If `.tink/tools/generate-harness-lifecycle-summary.mjs` exists, run `node .tink/tools/generate-harness-lifecycle-summary.mjs` from the repo root before ranking candidates.
+   - If the generator is missing, continue with the compact evidence below and say the health summary is unavailable.
+   - Treat the generated `.tink/maintenance/harness-lifecycle.json` as a report, not as approval or reusable memory.
 2. Check compact evidence if available:
    - `.tink/runs/` summaries
    - `.tink/maintenance/ledger.jsonl`
@@ -45,6 +49,7 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - medium: one run or ledger record plus clear overlap or memory evidence
    - weak: static index, git-only evidence, stale current notes, or model judgment
    If a lifecycle summary is present, treat it as a health summary, not as authority. Use its `confidence`, `evidence_grade`, `evidence_handles`, and `safe_next_action` to explain the recommendation. A low-confidence or weak lifecycle entry must default to `keep`, `observe`, or `needs evidence`.
+   Sort lifecycle-backed candidates first by evidence strength, then by recommendation: `frog_candidate`, `merge_candidate`, `weave`, `observe`, `keep`.
 5. Identify candidates:
    - never used with strong evidence
    - not used recently with strong evidence
