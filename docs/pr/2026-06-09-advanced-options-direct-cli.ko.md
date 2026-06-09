@@ -1,0 +1,24 @@
+# Advanced options 설명과 직접 CLI 계획 정리
+
+## 문제
+
+Interactive install/update에 `--dry-run`, `--force`, `--clean-codex-picker`가 선택지로 들어갔지만, 사용자가 실제로 보는 설명은 아직 짧은 label 중심이었다.
+
+그 결과 각 옵션이 "언제 쓰는지", "무엇을 건드리는지", "주의할 점이 무엇인지"를 README나 help에서 바로 이해하기 어려웠다. 또한 사용자는 매번 `npx tink-harness@latest ...`를 입력하는 대신 `tink-harness ...`처럼 짧게 입력할 수 있는 경로를 원했다.
+
+## 해결
+
+- installer help의 usage를 `tink-harness ...` 직접 명령 중심으로 정리하고, 아직 설치 전이면 `npx tink-harness@latest ...`를 bootstrap 경로로 쓰도록 안내했다.
+- Advanced options help에 세 옵션의 의미를 쉬운 문장으로 풀어썼다.
+- README와 README.ko에 Advanced options 섹션을 추가해 각 옵션의 사용 시점과 위험을 설명했다.
+- planned-work 문서에 직접 CLI command shim 검증과 `tink-harness dashboard` 명령 계획을 추가했다.
+
+## 검증
+
+- `npm test`
+- `git diff --check`
+
+## 참고
+
+- 이번 PR은 문구와 계획 정리까지 다룬다.
+- `dashboard` 명령 실제 구현, npm publish, GitHub Release 생성은 포함하지 않는다.

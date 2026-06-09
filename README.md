@@ -120,6 +120,16 @@ npx tink-harness@latest update
 
 During update, select the installed agent surface you want to refresh.
 
+### Advanced options
+
+Interactive install/update includes an **Advanced options** step. These options used to require CLI flags, but now they are visible in the wizard:
+
+- `Preview only (--dry-run)`: use this first when you want to see the exact files Tink would write, preserve, or remove. It does not change files.
+- `Overwrite user-modified files (--force)`: use this only when an install is broken and you want official templates to replace local edits. Normal updates keep user-modified files.
+- `Clean Codex picker (--clean-codex-picker)`: use this when you are switching a repo to Codex-only Tink and Codex shows duplicate `Source Command Tink ...` entries. It is not shown for mixed Claude Code + Codex installs.
+
+The package already exposes a `tink-harness` binary. If your package manager has installed that binary on your `PATH`, you can run `tink-harness update`. If not, keep using `npx tink-harness@latest update`. A shorter direct-command path is tracked in the planned work docs so it can be verified across macOS and Windows before the README examples switch over.
+
 To quickly verify the updated install, see `docs/update-verification-recipe.md` or `docs/update-verification-recipe.ko.md`.
 
 If an update looks stale or incomplete, see `docs/update-troubleshooting.md` or `docs/update-troubleshooting.ko.md`.

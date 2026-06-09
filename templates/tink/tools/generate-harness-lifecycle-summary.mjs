@@ -40,6 +40,10 @@ function walkFiles(dirPath, suffix) {
   return found.sort();
 }
 
+function relativeRef(root, filePath) {
+  return path.relative(root, filePath).split(path.sep).join('/');
+}
+
 function parseDateFromRunPath(filePath) {
   const name = path.basename(filePath);
   const match = name.match(/^(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})-/);
@@ -375,7 +379,7 @@ function buildTimeline(runs, root) {
   return runs
     .map((run) => ({
       date: run.date,
-      source: path.relative(root, run.path),
+      source: relativeRef(root, run.path),
       status: run.status,
       outcome: runOutcome(run),
       harnesses: run.harnesses
@@ -399,7 +403,7 @@ function summarize(root) {
     ? ruleIndex.nodes.map((item) => item.id).filter(Boolean)
     : [];
   const memoryRefs = walkFiles(path.join(root, '.tink/memory'), '.md')
-    .map((filePath) => path.relative(root, filePath));
+    .map((filePath) => relativeRef(root, filePath));
   const runPaths = listFiles(path.join(root, '.tink/runs'), '.md');
   const runs = runPaths.map((filePath) => parseRun(filePath, harnessIds, ruleRefs, memoryRefs));
 
@@ -416,7 +420,7 @@ function summarize(root) {
       }
       addSignalRefs(item, 'rule_refs', run.ruleRefs);
       addSignalRefs(item, 'memory_refs', run.memoryRefs);
-      addEvidence(item, path.relative(root, run.path));
+      addEvidence(item, relativeRef(root, run.path));
       bumpCoUse(coUse, id, run.harnesses);
     }
     for (let index = 0; index < run.harnesses.length - 1; index += 1) {

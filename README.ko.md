@@ -55,6 +55,16 @@ Standalone / Codex:
 npx tink-harness@latest update
 ```
 
+### 고급 옵션
+
+Interactive install/update 중에는 **고급 옵션** 단계가 나옵니다. 예전에는 CLI flag를 직접 알아야 했지만, 이제는 선택 화면에서 볼 수 있습니다.
+
+- `Preview only (--dry-run)`: 실제 파일을 바꾸기 전에 Tink가 무엇을 쓰고, 보존하고, 지울 예정인지 먼저 보고 싶을 때 씁니다. 파일은 변경하지 않습니다.
+- `Overwrite user-modified files (--force)`: 설치가 꼬였고 공식 템플릿으로 되돌리고 싶을 때만 씁니다. 일반 업데이트는 사용자가 고친 파일을 보존합니다.
+- `Clean Codex picker (--clean-codex-picker)`: 이 repo에서 Codex만 쓸 때, Codex picker에 `Source Command Tink ...` 중복 항목이 보여서 헷갈리면 씁니다. Claude Code와 Codex를 둘 다 쓰는 설치에서는 이 옵션을 보여주지 않습니다.
+
+패키지는 이미 `tink-harness` 실행 파일 이름을 제공합니다. package manager가 이 실행 파일을 `PATH`에 설치한 환경에서는 `tink-harness update`처럼 입력할 수 있습니다. 아직 설치되어 있지 않다면 `npx tink-harness@latest update`를 계속 쓰면 됩니다. macOS와 Windows에서 직접 명령 경로를 확실히 검증한 뒤 README 예시를 더 짧게 바꾸는 작업은 계획 문서에 따로 남겨둡니다.
+
 업데이트가 정상인지 빠르게 확인하려면 `docs/update-verification-recipe.ko.md` 또는 `docs/update-verification-recipe.md`를 확인하세요.
 
 업데이트 후 Codex skill, schema, Windows 경고가 이상해 보이면 `docs/update-troubleshooting.ko.md` 또는 `docs/update-troubleshooting.md`를 확인하세요.
