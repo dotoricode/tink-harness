@@ -40,6 +40,12 @@ Map prompt content to `AskUserQuestion` fields:
 - `label`: 1–5 word option name (e.g. "승인", "조정", "취소"). Add "(권장)" to the first option label if it is recommended.
 - `description`: explanatory text for the option
 
+Label quality rules:
+- Use short, common, readable labels only. Good Korean labels are `승인`, `조정`, `취소`, `요구사항 입력`, `기본 하네스만 사용`, `새 하네스 초안 만들기`, `구조 점검`, `내용 점검`, `전체 점검`.
+- Do not invent compressed Korean labels, transliterated fragments, or unclear summaries such as `콘데의달 지질`.
+- If the idea is too specific for a clean 1-5 word label, put the detail in `description` and use a generic label such as `내용 점검` or `전체 점검`.
+- Before calling `AskUserQuestion`, reread each Korean label. If it looks misspelled, unnatural, or semantically unclear, replace it with a plain fallback label.
+
 Use Korean field values when `.tink/config.json` language is `ko` or `auto` with Korean input; use English otherwise.
 
 ## Readiness check
