@@ -15,6 +15,7 @@ All notable changes to Tink are tracked here.
 
 ### Changed
 
+- Updated README and planning docs to describe the implemented harness health summary, static report dashboard, lifecycle states, and remaining roadmap boundaries.
 - Moved README release highlights into the changelog path and added top-level changelog links in the English and Korean README files.
 
 

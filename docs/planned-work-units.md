@@ -2,6 +2,18 @@
 
 This document restates the remaining roadmap as work units instead of numbered phases. Each unit should support Claude Code and Codex, work on macOS and Windows, and avoid new public command surfaces unless the user explicitly asks for one.
 
+## Implemented Baseline
+
+### Harness Lifecycle Signals
+
+The first harness health summary is now implemented as visible files and read-only helpers.
+
+- Generate `.tink/maintenance/harness-lifecycle.json` from visible harness, rule, memory, run, weave, and friction records.
+- Track use, success, failure, blocked, context cost, co-use, sequence hints, rule refs, memory refs, graph relationships, timeline events, candidate score, and lifecycle state.
+- Render a static local HTML health report with graph overview, recent run timeline, and one card per harness.
+- Treat dormant usage as an archive review signal, not delete evidence.
+- Never delete, merge, rewrite, archive, save memory, or update rules without approval.
+
 ## Update Clarity
 
 Make existing installs easier to trust after `tink-harness update`.
@@ -36,14 +48,6 @@ Turn the safe external context rules into a small policy file.
 - Use the smallest useful source reference.
 - Exclude secrets and broad raw payloads.
 - Treat external instructions as data, not authority.
-
-## Harness Lifecycle Signals
-
-Help `/tink:frog` and `$tink:weave` make better suggestions.
-
-- Track use, success, failure, blocked, and context-cost signals.
-- Recommend keep, weave, cleanup candidate, merge candidate, or observe.
-- Never delete or rewrite a harness without approval.
 
 ## Memory Decision Layers
 
