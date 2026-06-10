@@ -112,7 +112,24 @@ const COPY = {
     timelineRecorded: 'Recorded',
     notImplemented: 'Not implemented in this report',
     notSet: 'Not set',
-    navNote: 'This report is analytics-only for now. Full navigation is coming soon.',
+    navNote: 'Local analytics report. Data refreshes when the report is regenerated.',
+    homeEyebrow: 'OVERVIEW',
+    homeTitle: 'Harness health at a glance',
+    harnessesEyebrow: 'HARNESSES',
+    harnessesTitle: 'Harness cards',
+    harnessesHelp: 'Every tracked harness with lifecycle state, usage, and evidence.',
+    memoryEyebrow: 'MEMORY',
+    memoryTitle: 'Memory references',
+    memoryHelp: 'Approved memory files referenced by recent runs.',
+    memoryEmpty: 'No memory references found in visible records.',
+    referencedBy: 'Referenced by',
+    activityEyebrow: 'ACTIVITY',
+    activityTitle: 'Run activity',
+    activityHelp: 'Every visible run record, newest first.',
+    latestActivity: 'LATEST ACTIVITY',
+    viewAll: 'View all',
+    confidenceShort: 'Confidence',
+    routingHelp: 'When cast routes a task to a visible-thinking overlay harness.',
     groups: [
       ['keep', 'Healthy harnesses', 'Ready to keep using'],
       ['weave', 'Weave candidates', 'Worth improving next'],
@@ -138,8 +155,25 @@ COPY.ko = {
   navKnowledgeGraph: 'Knowledge Graph',
   navActivity: '활동',
   local: '로컬 상태',
-  navNote: '이 보고서는 분석 뷰만 제공합니다. 네비게이션은 추후 업데이트됩니다.',
-  notImplemented: '이 보고서는 분석 뷰만 제공합니다. 네비게이션은 추후 업데이트됩니다.',
+  navNote: '로컬 분석 보고서입니다. 다시 생성하면 데이터가 갱신됩니다.',
+  notImplemented: '이 보고서에서는 제공되지 않습니다.',
+  homeEyebrow: '홈',
+  homeTitle: '하네스 건강 한눈에 보기',
+  harnessesEyebrow: '하네스',
+  harnessesTitle: '하네스 카드',
+  harnessesHelp: '추적 중인 모든 하네스의 생애주기, 사용량, 근거를 보여줍니다.',
+  memoryEyebrow: '메모리',
+  memoryTitle: '메모리 참조',
+  memoryHelp: '최근 run이 참조한 승인된 메모리 파일입니다.',
+  memoryEmpty: '보이는 기록에서 메모리 참조를 찾지 못했습니다.',
+  referencedBy: '참조한 하네스',
+  activityEyebrow: '활동',
+  activityTitle: 'Run 활동',
+  activityHelp: '보이는 모든 run 기록을 최신순으로 보여줍니다.',
+  latestActivity: '최근 활동',
+  viewAll: '전체 보기',
+  confidenceShort: '신뢰도',
+  routingHelp: 'cast가 생각 보조 overlay 하네스로 라우팅하는 기준입니다.',
   navLabel: '탐색',
   operator: '작업자',
   online: 'Tink 온라인',
@@ -674,9 +708,9 @@ function renderProjectCards(harnesses, copy) {
   `;
 }
 
-function renderTimeline(events = [], copy, harnessIds = null) {
+function dedupeTimelineEvents(events = [], harnessIds = null, limit = 8) {
   const seen = new Set();
-  const items = events
+  return events
     .map((event) => ({
       ...event,
       harnesses: normalizeTimelineHarnesses(event?.harnesses || [], harnessIds)
@@ -688,41 +722,36 @@ function renderTimeline(events = [], copy, harnessIds = null) {
       seen.add(key);
       return true;
     })
-    .slice(0, 8);
+    .slice(0, limit);
+}
+
+function renderTimelineItems(items, copy) {
+  return items.map((event) => `
+    <li>
+      <span class="dot ${escapeHtml(timelineOutcomeClass(event))}"></span>
+      <div>
+        <strong>${escapeHtml(timelineOutcomeLabel(event, copy))} - ${escapeHtml(shortDate(event.date))}</strong>
+        <p>${escapeHtml(formatHarnessList(event.harnesses) || copy.noHarnessRecorded)}</p>
+      </div>
+    </li>
+  `).join('') || `<li><span class="dot observe"></span><div><strong>${escapeHtml(copy.noRunEvents)}</strong><p>${escapeHtml(copy.runRecordsWillAppear)}</p></div></li>`;
+}
+
+function renderTimeline(events = [], copy, harnessIds = null, options = {}) {
+  const items = dedupeTimelineEvents(events, harnessIds, options.limit || 8);
+  const eyebrow = options.eyebrow || copy.recentRuns;
+  const title = options.title || copy.timeline;
   return `
     <section class="timeline">
       <div class="panel-title">
-        <p class="eyebrow">${escapeHtml(copy.recentRuns)}</p>
-        <h2>${escapeHtml(copy.timeline)}</h2>
+        <p class="eyebrow">${escapeHtml(eyebrow)}</p>
+        <h2>${escapeHtml(title)}</h2>
+        ${options.viewAllTab ? `<button class="link-button" type="button" data-goto-tab="${escapeAttr(options.viewAllTab)}">${escapeHtml(copy.viewAll || 'View all')}</button>` : ''}
       </div>
       <ol>
-        ${items.map((event) => `
-          <li>
-            <span class="dot ${escapeHtml(timelineOutcomeClass(event))}"></span>
-            <div>
-            <strong>${escapeHtml(timelineOutcomeLabel(event, copy))} - ${escapeHtml(shortDate(event.date))}</strong>
-            <p>${escapeHtml(formatHarnessList(event.harnesses) || copy.noHarnessRecorded)}</p>
-            </div>
-          </li>
-        `).join('') || `<li><span class="dot observe"></span><div><strong>${escapeHtml(copy.noRunEvents)}</strong><p>${escapeHtml(copy.runRecordsWillAppear)}</p></div></li>`}
+        ${renderTimelineItems(items, copy)}
       </ol>
     </section>
-  `;
-}
-
-function renderHeroQuickStats(summary, copy) {
-  const harnesses = Array.isArray(summary.harnesses) ? summary.harnesses : [];
-  const active = harnesses.filter((item) => item.lifecycle_state === 'active').length;
-  const checks = harnesses.reduce((sum, item) => sum + Number(item.signals?.uses || 0), 0);
-  return `
-    <div class="hero-metric">
-      <p>${escapeHtml(copy.harnesses)}</p>
-      <strong>${escapeHtml(harnesses.length)}</strong>
-      <p>${escapeHtml(copy.active)}</p>
-      <strong>${escapeHtml(active)}</strong>
-      <p>${escapeHtml(copy.uses)}</p>
-      <strong>${escapeHtml(formatNumber(checks))}</strong>
-    </div>
   `;
 }
 
@@ -862,6 +891,138 @@ function renderGraphOverview(graph = {}, copy) {
         <div><dt>${escapeHtml(copy.links)}</dt><dd>${escapeHtml(stats.edges.length)}</dd></div>
         <div><dt>${escapeHtml(copy.nodeTypes)}</dt><dd>${composition.length ? composition.join(' / ') : escapeHtml(copy.none)}</dd></div>
       </dl>
+    </section>
+  `;
+}
+
+function renderRoutingCard(copy) {
+  const rules = Array.isArray(copy.routeRules) ? copy.routeRules : [];
+  return `
+    <section class="insight-card routing-card">
+      <div class="panel-title">
+        <p class="eyebrow">${escapeHtml(copy.castRoutingRules || 'CAST ROUTING RULES')}</p>
+        <h2>${escapeHtml(copy.visibleThinking || 'Visible-thinking overlays')}</h2>
+        <p>${escapeHtml(copy.routingHelp || '')}</p>
+      </div>
+      <ul class="routing-list">
+        ${rules.map(([harnessId, rationale]) => `
+          <li>
+            <button type="button" class="routing-harness" data-select-harness="${escapeAttr(harnessId)}">${escapeHtml(harnessId)}</button>
+            <p>${escapeHtml(rationale || '')}</p>
+          </li>
+        `).join('')}
+      </ul>
+    </section>
+  `;
+}
+
+function renderHomeStats(summary, copy) {
+  const harnesses = getVisibleHarnesses(Array.isArray(summary.harnesses) ? summary.harnesses : []);
+  const graph = graphStats(summary.graph || {});
+  const active = harnesses.filter((item) => item.lifecycle_state === 'active').length;
+  const uses = harnesses.reduce((sum, item) => sum + Number(item.signals?.uses || 0), 0);
+  const withEvidence = harnesses.filter((item) => (item.evidence_handles || []).length > 0).length;
+  const confidence = harnesses.length ? Math.round((withEvidence / harnesses.length) * 100) : 0;
+  const cells = [
+    [copy.harnesses, formatNumber(harnesses.length), copy.tracked],
+    [copy.active, formatNumber(active), copy.recentState],
+    [copy.uses, formatNumber(uses), copy.visibleRecords],
+    [copy.confidenceShort || 'Confidence', `${confidence}%`, copy.mapConfidence],
+    [copy.nodes, formatNumber(graph.nodes.length), copy.graphItems],
+    [copy.links, formatNumber(graph.edges.length), copy.relations]
+  ];
+  return `
+    <section class="home-stats">
+      ${cells.map(([label, value, hint]) => `
+        <article>
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+          <small>${escapeHtml(hint)}</small>
+        </article>
+      `).join('')}
+    </section>
+  `;
+}
+
+function renderHomePage(summary, copy, harnesses, harnessIds) {
+  const generatedAt = summary.generated_at || new Date().toISOString();
+  return `
+    <section class="hero">
+      <div>
+        <p class="eyebrow">${escapeHtml(copy.localHealth)}</p>
+        <h1>${escapeHtml(copy.homeTitle || copy.localHealth)}</h1>
+        <p>${escapeHtml(copy.heroText)}</p>
+      </div>
+      <div class="hero-sidebar">
+        <p class="eyebrow">${escapeHtml(copy.generated)}</p>
+        <p class="meta-chip">${escapeHtml(generatedAt)}</p>
+      </div>
+    </section>
+    ${renderHomeStats(summary, copy)}
+    ${renderProjectCards(harnesses, copy)}
+    <div class="home-columns">
+      <div>
+        ${renderTimeline(summary.timeline || [], copy, harnessIds, { limit: 5, eyebrow: copy.latestActivity || copy.recentRuns, viewAllTab: 'activity' })}
+      </div>
+      <div>
+        ${renderRoutingCard(copy)}
+      </div>
+    </div>
+  `;
+}
+
+function renderMemoryPage(summary, copy) {
+  const harnesses = getVisibleHarnesses(Array.isArray(summary.harnesses) ? summary.harnesses : []);
+  const refs = new Map();
+  for (const harness of harnesses) {
+    for (const ref of harness.signals?.memory_refs || []) {
+      const key = normalizePath(ref);
+      if (!refs.has(key)) refs.set(key, new Set());
+      refs.get(key).add(harness.id);
+    }
+  }
+  for (const node of getRenderableNodes(summary.graph?.nodes || [])) {
+    if (node.type !== 'memory') continue;
+    const key = normalizePath(shortLabel(node.id));
+    if (!refs.has(key)) refs.set(key, new Set());
+  }
+  const entries = [...refs.entries()].sort(([a], [b]) => a.localeCompare(b));
+  return `
+    <section class="page-head">
+      <p class="eyebrow">${escapeHtml(copy.memoryEyebrow || 'MEMORY')}</p>
+      <h1>${escapeHtml(copy.memoryTitle || 'Memory references')}</h1>
+      <p>${escapeHtml(copy.memoryHelp || '')}</p>
+    </section>
+    ${entries.length ? `
+      <div class="memory-grid">
+        ${entries.map(([file, users]) => `
+          <article class="insight-card memory-card">
+            <h3><code>${escapeHtml(file)}</code></h3>
+            <dl>
+              <div>
+                <dt>${escapeHtml(copy.referencedBy || 'Referenced by')}</dt>
+                <dd>${[...users].length ? [...users].sort().map((id) => escapeHtml(id)).join(', ') : escapeHtml(copy.none || 'None')}</dd>
+              </div>
+            </dl>
+          </article>
+        `).join('')}
+      </div>
+    ` : `<p class="empty-note">${escapeHtml(copy.memoryEmpty || 'No memory references found.')}</p>`}
+  `;
+}
+
+function renderActivityPage(summary, copy, harnessIds) {
+  const items = dedupeTimelineEvents(summary.timeline || [], harnessIds, 30);
+  return `
+    <section class="page-head">
+      <p class="eyebrow">${escapeHtml(copy.activityEyebrow || 'ACTIVITY')}</p>
+      <h1>${escapeHtml(copy.activityTitle || 'Run activity')}</h1>
+      <p>${escapeHtml(copy.activityHelp || '')}</p>
+    </section>
+    <section class="timeline activity-feed">
+      <ol>
+        ${renderTimelineItems(items, copy)}
+      </ol>
     </section>
   `;
 }
@@ -1054,14 +1215,42 @@ function renderScript(harnesses, copy) {
       document.querySelectorAll('[data-mode]').forEach((button) => {
         button.addEventListener('click', () => applyMode(button.dataset.mode));
       });
-      document.querySelectorAll('.nav a').forEach((link) => {
-        if (!link.classList.contains('active') && !link.getAttribute('title')) {
-          link.setAttribute('title', copy.notImplemented || 'Not implemented in this report');
+      const VALID_TABS = ['home', 'harnesses', 'memory', 'graph', 'activity'];
+      const navLinks = Array.from(document.querySelectorAll('.nav a[data-tab]'));
+      const pages = Array.from(document.querySelectorAll('.page'));
+      const railSections = Array.from(document.querySelectorAll('[data-rail]'));
+      function switchTab(name, options) {
+        const tab = VALID_TABS.includes(name) ? name : 'home';
+        navLinks.forEach((link) => {
+          const active = link.dataset.tab === tab;
+          link.classList.toggle('active', active);
+          if (active) link.setAttribute('aria-current', 'page');
+          else link.removeAttribute('aria-current');
+        });
+        pages.forEach((page) => page.classList.toggle('is-active', page.dataset.page === tab));
+        railSections.forEach((section) => {
+          section.classList.toggle('is-rail-hidden', !section.dataset.rail.split(' ').includes(tab));
+        });
+        if (!options || options.updateHash !== false) {
+          history.replaceState(null, '', '#' + tab);
         }
-        link.addEventListener('click', (event) => event.preventDefault());
+      }
+      navLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          switchTab(link.dataset.tab);
+        });
       });
+      document.querySelectorAll('[data-goto-tab]').forEach((button) => {
+        button.addEventListener('click', () => switchTab(button.dataset.gotoTab));
+      });
+      window.addEventListener('hashchange', () => switchTab(location.hash.replace('#', ''), { updateHash: false }));
+      switchTab(location.hash.replace('#', '') || 'home', { updateHash: false });
       document.querySelectorAll('[data-select-harness]').forEach((button) => {
-        button.addEventListener('click', () => selectHarness(button.dataset.selectHarness));
+        button.addEventListener('click', () => {
+          switchTab('graph');
+          selectHarness(button.dataset.selectHarness);
+        });
       });
       cards.forEach((card) => {
         card.addEventListener('click', () => selectHarness(card.dataset.harnessId));
@@ -1129,6 +1318,9 @@ function renderStyles() {
       background: var(--bg-page);
       color: var(--text-primary);
       font-family: var(--font-ui);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
     a { color: inherit; text-decoration: none; }
@@ -1276,8 +1468,8 @@ function renderStyles() {
     }
 
     .hero h1 {
-      margin: 0 0 var(--space-1);
-      font-size: 22px;
+      margin: 0 0 var(--space-2);
+      font-size: 26px;
       font-weight: 600;
       letter-spacing: -0.03em;
       line-height: 1.2;
@@ -1288,6 +1480,8 @@ function renderStyles() {
       margin: 0;
       color: var(--text-secondary);
       max-width: 760px;
+      font-size: 13px;
+      line-height: 1.55;
     }
 
     .hero-sidebar {
@@ -1888,6 +2082,171 @@ function renderStyles() {
       margin-bottom: 8px;
     }
 
+    .page { display: none; padding-top: var(--space-2); }
+    .page[data-page="graph"].is-active { padding-top: var(--space-4); }
+    .page.is-active {
+      display: block;
+      animation: page-in 220ms ease;
+    }
+
+    @keyframes page-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    [data-rail].is-rail-hidden { display: none; }
+
+    .page-head {
+      padding: var(--space-6) 0 var(--space-4);
+      border-bottom: 1px solid var(--border-default);
+      margin-bottom: var(--space-4);
+    }
+
+    .page-head h1 {
+      margin: 0 0 var(--space-2);
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+
+    .page-head p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 12px;
+      max-width: 680px;
+    }
+
+    .page-head .eyebrow { margin-bottom: var(--space-2); }
+
+    .home-stats {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: var(--space-2);
+      padding: var(--space-4) 0;
+      border-bottom: 1px solid var(--border-default);
+    }
+
+    .home-stats article {
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      padding: var(--space-3);
+      transition: border-color 160ms ease;
+    }
+
+    .home-stats article:hover { border-color: var(--border-hover); }
+
+    .home-stats span,
+    .home-stats small {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .home-stats small {
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text-muted);
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .home-stats strong {
+      display: block;
+      margin-top: var(--space-2);
+      font-size: 24px;
+      font-family: var(--font-mono);
+      letter-spacing: -0.04em;
+      font-weight: 600;
+    }
+
+    .home-columns {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+      align-items: start;
+    }
+
+    .home-columns .timeline,
+    .routing-card { margin-bottom: 0; height: 100%; }
+
+    .home-columns .timeline { padding: var(--space-4); }
+
+    .link-button {
+      border: 0;
+      background: transparent;
+      color: var(--accent-text);
+      font-size: 12px;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      padding: 0;
+      margin-top: var(--space-2);
+    }
+
+    .link-button:hover { text-decoration: underline; }
+
+    .routing-list {
+      margin: var(--space-3) 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .routing-list li {
+      border-left: 2px solid var(--accent-dim);
+      padding-left: var(--space-3);
+    }
+
+    .routing-list li:hover { border-left-color: var(--accent); }
+
+    .routing-harness {
+      border: 0;
+      background: transparent;
+      color: var(--accent-text);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .routing-harness:hover { text-decoration: underline; }
+
+    .routing-list p {
+      margin: 3px 0 0;
+      color: var(--text-secondary);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .memory-card h3 { margin: 0 0 var(--space-2); font-size: 13px; font-weight: 500; }
+    .memory-card code { font-size: 12px; }
+
+    .empty-note {
+      color: var(--text-secondary);
+      font-size: 13px;
+      border: 1px dashed var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      text-align: center;
+    }
+
+    .activity-feed { padding: var(--space-4); }
+    .activity-feed ol { gap: var(--space-3); }
+
     @media (max-width: 1180px) {
       .app-shell { grid-template-columns: 200px minmax(0, 1fr); }
       .right-rail {
@@ -1901,6 +2260,8 @@ function renderStyles() {
       .project-strip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .harness-grid,
       .stats-grid { grid-template-columns: 1fr; }
+      .home-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .home-columns { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 760px) {
@@ -1920,6 +2281,8 @@ function renderStyles() {
       .project-strip-grid,
       .harness-grid,
       .stats-grid { grid-template-columns: 1fr; }
+      .home-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .memory-grid { grid-template-columns: 1fr; }
       .map-head { display: block; }
       .map-controls { margin-top: var(--space-2); width: max-content; }
       .right-rail { padding: var(--space-4); }
@@ -1954,50 +2317,51 @@ function renderReport(summary) {
           <span>${escapeHtml(copy.operator)}</span>
         </div>
       </div>
-      <nav class="nav">
-        <a class="nav-disabled" href="#" aria-disabled="true" tabindex="-1" title="${escapeAttr(copy.notImplemented || 'Not implemented in this report')}"><span>${escapeHtml(copy.navHome || 'Home')}</span></a>
-        <a class="nav-disabled" href="#" aria-disabled="true" tabindex="-1" title="${escapeAttr(copy.notImplemented || 'Not implemented in this report')}"><span>${escapeHtml(copy.navHarnesses || 'Harnesses')}</span></a>
-        <a class="nav-disabled" href="#" aria-disabled="true" tabindex="-1" title="${escapeAttr(copy.notImplemented || 'Not implemented in this report')}"><span>${escapeHtml(copy.navMemory || 'Memory')}</span></a>
-        <a class="active" href="#" aria-current="page"><span>${escapeHtml(copy.navKnowledgeGraph || 'Knowledge Graph')}</span></a>
-        <a class="nav-disabled" href="#" aria-disabled="true" tabindex="-1" title="${escapeAttr(copy.notImplemented || 'Not implemented in this report')}"><span>${escapeHtml(copy.navActivity || 'Activity')}</span></a>
+      <nav class="nav" id="tab-nav">
+        <a href="#home" data-tab="home"><span>${escapeHtml(copy.navHome || 'Home')}</span></a>
+        <a href="#harnesses" data-tab="harnesses"><span>${escapeHtml(copy.navHarnesses || 'Harnesses')}</span></a>
+        <a href="#memory" data-tab="memory"><span>${escapeHtml(copy.navMemory || 'Memory')}</span></a>
+        <a href="#graph" data-tab="graph"><span>${escapeHtml(copy.navKnowledgeGraph || 'Knowledge Graph')}</span></a>
+        <a href="#activity" data-tab="activity"><span>${escapeHtml(copy.navActivity || 'Activity')}</span></a>
       </nav>
-      <p class="nav-note">${escapeHtml(copy.navNote || 'This report is analytics-only for now. Full navigation is coming soon.')}</p>
+      <p class="nav-note">${escapeHtml(copy.navNote || 'Local analytics report.')}</p>
     </aside>
     <main class="main">
       <header class="topbar">
         <div><strong>${escapeHtml(copy.operator)}</strong><span>${escapeHtml(copy.local || generatedAt)}</span></div>
         <div class="status"><i></i> ${escapeHtml(copy.online)}</div>
       </header>
-      <section class="hero">
-        <div>
-          <p class="eyebrow">${escapeHtml(copy.localHealth)}</p>
-          <h1>${escapeHtml(copy.knowledgeGraph || copy.localHealth)}</h1>
-          <p>${escapeHtml(copy.heroText)}</p>
-        </div>
-        <div class="hero-sidebar">
-          <p class="eyebrow">${escapeHtml(copy.generated)}</p>
-          <p class="meta-chip">${escapeHtml(generatedAt)}</p>
-          ${renderHeroQuickStats(summary, copy)}
-        </div>
+      <section class="page" data-page="home">
+        ${renderHomePage(summary, copy, harnesses, harnessIds)}
       </section>
-      ${renderProjectCards(harnesses, copy)}
-      <section class="content-grid">
-        ${renderGraphCanvas(summary, copy)}
-        ${renderTimeline(summary.timeline || [], copy, harnessIds)}
+      <section class="page" data-page="harnesses">
+        <section class="page-head">
+          <p class="eyebrow">${escapeHtml(copy.harnessesEyebrow || 'HARNESSES')}</p>
+          <h1>${escapeHtml(copy.harnessCards)}</h1>
+          <p>${escapeHtml(copy.harnessesHelp || '')}</p>
+        </section>
         <section class="harness-section">
-          <h2>${escapeHtml(copy.harnessCards)}</h2>
           <div class="harness-grid">
             ${harnesses.map((item) => renderHarness(item, copy)).join('\n')}
           </div>
         </section>
       </section>
+      <section class="page" data-page="memory">
+        ${renderMemoryPage(summary, copy)}
+      </section>
+      <section class="page" data-page="graph">
+        ${renderGraphCanvas(summary, copy)}
+      </section>
+      <section class="page" data-page="activity">
+        ${renderActivityPage(summary, copy, harnessIds)}
+      </section>
     </main>
       <aside class="right-rail" aria-label="Insights">
-      ${renderStats(summary, copy)}
-      ${renderConfidence(summary, copy)}
-      ${renderGraphOverview(summary.graph || {}, copy)}
-      ${renderImportantHarnesses(harnesses, copy)}
-      ${renderSelectedPanel(harnesses, copy)}
+      <div data-rail="home harnesses memory activity">${renderStats(summary, copy)}</div>
+      <div data-rail="home harnesses">${renderConfidence(summary, copy)}</div>
+      <div data-rail="graph">${renderGraphOverview(summary.graph || {}, copy)}</div>
+      <div data-rail="home harnesses">${renderImportantHarnesses(harnesses, copy)}</div>
+      <div data-rail="graph">${renderSelectedPanel(harnesses, copy)}</div>
     </aside>
   </div>
   ${renderContractMetadata(copy)}

@@ -6,6 +6,20 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.2] - 2026-06-10
+
+### Added
+
+- Turned the harness health dashboard navigation into real tabs (Home, Harnesses, Memory, Knowledge Graph, Activity) with hash routing and smooth page transitions.
+- Added a dedicated Home tab with hero overview, six key stat cards, health groups, latest activity preview, and cast routing rules.
+- Added a Memory tab listing memory files referenced by visible runs, and an Activity tab with the full run feed.
+
+### Changed
+
+- The right rail now shows only sections relevant to the active tab (graph overview and selected panel appear on the graph tab only).
+- Refined base typography: larger body text, improved heading hierarchy, and consistent line heights.
+- Clicking a harness from rankings or routing rules now switches to the graph tab before selecting the node.
+
 
 ## [1.9.1] - 2026-06-10
 
