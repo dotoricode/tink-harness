@@ -614,9 +614,10 @@ function renderGraphCanvas(summary, copy) {
       <svg class="graph-canvas" viewBox="0 0 1090 680" role="img" aria-label="Harness health graph">
         <rect width="1090" height="680" fill="var(--bg-card)"/>
         <g class="edges">
-        ${edges.map((edge) => `
+        ${edges.map((edge, index) => `
               <line
                 class="graph-edge"
+                style="--edge-delay: ${Math.min(index * 5, 850)}ms"
                 data-source="${escapeAttr(edge.source)}"
                 data-target="${escapeAttr(edge.target)}"
                 x1="${edge.sourceNode.x.toFixed(1)}"
@@ -630,9 +631,17 @@ function renderGraphCanvas(summary, copy) {
           `).join('')}
         </g>
         <g class="nodes">
-          ${nodes.map((node) => `
+          ${nodes.map((node, index) => {
+            const seed = hashString(node.id);
+            const floatDuration = (5 + (seed % 50) / 10).toFixed(1);
+            const floatDelay = -(seed % 4000);
+            const floatX = ((seed % 7) - 3).toFixed(1);
+            const floatY = (((seed >> 3) % 7) - 3).toFixed(1);
+            return `
+            <g class="node-float" style="--float-dur: ${floatDuration}s; --float-delay: ${floatDelay}ms; --float-x: ${floatX}px; --float-y: ${floatY}px">
             <circle
               class="graph-node ${node.type === 'harness' ? 'is-interactive' : ''}"
+              style="--enter-delay: ${Math.min(index * 9, 1100)}ms"
               tabindex="${node.type === 'harness' ? '0' : '-1'}"
               role="${node.type === 'harness' ? 'button' : 'presentation'}"
               aria-label="${escapeAttr(`${copy.tooltipPrefix}: ${node.label}`)}"
@@ -653,7 +662,9 @@ function renderGraphCanvas(summary, copy) {
             >
               <title>${escapeHtml(node.id)}</title>
             </circle>
-          `).join('')}
+            </g>
+          `;
+          }).join('')}
         </g>
         <g class="labels">
           ${strongest.map((node) => `
@@ -665,8 +676,12 @@ function renderGraphCanvas(summary, copy) {
       <div class="map-caption">
         <span id="graph-status">${escapeHtml(copy.showingAll)}</span>
         <span>${escapeHtml(copy.nodeSize)}</span>
-        <span>${escapeHtml(copy.colorType)}</span>
         <span>${escapeHtml(copy.linesRelations)}</span>
+      </div>
+      <div class="map-legend" aria-label="${escapeAttr(copy.nodeTypes || 'Node types')}">
+        ${['harness', 'rule', 'memory', 'stage', 'signal', 'evidence', 'score'].map((type) => `
+          <span class="legend-chip"><i style="background: ${escapeAttr(TYPE_COLORS[type] || TYPE_COLORS.unknown)}"></i>${escapeHtml(type)}</span>
+        `).join('')}
       </div>
     </section>
   `;
@@ -1764,23 +1779,55 @@ function renderStyles() {
 
     .graph-canvas text {
       pointer-events: none;
+      fill: var(--text-secondary);
+      font-size: 11px;
+      font-family: var(--font-mono);
+      animation: label-in 600ms ease 900ms backwards;
+    }
+
+    @keyframes label-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .graph-edge {
       stroke: var(--chart-line);
       stroke-width: var(--chart-line-w);
       opacity: 0.24;
+      transition: opacity 220ms ease, stroke-width 220ms ease;
+      animation: edge-in 700ms ease var(--edge-delay, 0ms) backwards;
+    }
+
+    @keyframes edge-in {
+      from { opacity: 0; }
     }
 
     .graph-edge.is-related { opacity: 0.9; stroke-width: 2px; }
 
+    .node-float {
+      animation: node-float var(--float-dur, 6s) ease-in-out var(--float-delay, 0ms) infinite alternate;
+    }
+
+    @keyframes node-float {
+      from { transform: translate(0, 0); }
+      to { transform: translate(var(--float-x, 2px), var(--float-y, -2px)); }
+    }
+
     .graph-node {
       cursor: default;
       outline: none;
-      transition: none;
       vector-effect: non-scaling-stroke;
       shape-rendering: geometricPrecision;
       paint-order: stroke fill;
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: opacity 220ms ease, transform 220ms cubic-bezier(0.2, 0.8, 0.3, 1.1), stroke 160ms ease, stroke-opacity 160ms ease, fill-opacity 160ms ease;
+      animation: node-enter 500ms cubic-bezier(0.2, 0.8, 0.3, 1.2) var(--enter-delay, 0ms) backwards;
+    }
+
+    @keyframes node-enter {
+      from { opacity: 0; transform: scale(0.2); }
+      to { opacity: 1; transform: scale(1); }
     }
 
     .graph-node.is-interactive {
@@ -1793,33 +1840,87 @@ function renderStyles() {
     }
 
     .graph-node.is-interactive:hover,
-    .graph-node.is-interactive:focus-visible,
+    .graph-node.is-interactive:focus-visible {
+      stroke: var(--accent);
+      stroke-opacity: 1;
+      transform: scale(1.28);
+    }
+
     .graph-node.is-selected {
       stroke: var(--accent);
       stroke-opacity: 1;
+      animation: node-pulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes node-pulse {
+      0%, 100% { stroke-width: 1.8px; transform: scale(1.12); }
+      50% { stroke-width: 5px; transform: scale(1.2); }
     }
 
     .graph-node.is-related { opacity: 1; }
     .graph-node.is-hidden,
     .graph-edge.is-hidden,
     .graph-node.is-filtered-out,
-    .graph-edge.is-filtered-out { opacity: 0.15; pointer-events: none; }
+    .graph-edge.is-filtered-out { opacity: 0.12; pointer-events: none; }
 
     .graph-tooltip {
       position: fixed;
       z-index: 20;
-      display: none;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 160ms;
       max-width: 230px;
       padding: 8px 10px;
-      border: 1px solid var(--border-default);
+      border: 1px solid var(--border-hover);
       border-radius: var(--radius-md);
-      background: var(--bg-card);
+      background: var(--bg-selected);
       color: var(--text-primary);
       font-size: 11px;
       line-height: 1.3;
       pointer-events: none;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
     }
-    .graph-tooltip.is-visible { display: block; }
+    .graph-tooltip.is-visible {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+
+    .map-legend {
+      display: flex;
+      gap: var(--space-3);
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--border-default);
+      flex-wrap: wrap;
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    .legend-chip i {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .node-float,
+      .graph-node,
+      .graph-edge,
+      .graph-canvas text,
+      .page.is-active { animation: none; }
+      .graph-node { transition: none; }
+    }
 
     .map-caption {
       display: flex;
