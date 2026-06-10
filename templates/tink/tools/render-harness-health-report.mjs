@@ -618,8 +618,7 @@ function buildGraphLayout(summary) {
       glow: score >= 50 || radius >= 20
     };
   });
-  const augmented = [...positioned];
-  const virtualEdges = [];
+  const orbitSystems = [];
   for (const node of positioned.filter((item) => item.type === 'harness')) {
     const harnessId = shortLabel(node.id);
     const harness = harnessById.get(harnessId);
@@ -627,38 +626,25 @@ function buildGraphLayout(summary) {
     const uses = Number(harness.signals?.uses || 0);
     const evidenceCount = (harness.evidence_handles || []).length;
     const factorCount = (harness.candidate_score?.factors || []).length;
-    const satellites = [
-      ...Array.from({ length: Math.min(14, Math.ceil(uses / 2)) }, (_, index) => ({ kind: 'signal', index, total: Math.min(14, Math.ceil(uses / 2)), radius: 2.8 + Math.min(3.5, uses / 12) })),
-      ...Array.from({ length: Math.min(6, evidenceCount) }, (_, index) => ({ kind: 'evidence', index, total: Math.min(6, evidenceCount), radius: 3.5 })),
-      ...Array.from({ length: Math.min(5, factorCount) }, (_, index) => ({ kind: 'score', index, total: Math.min(5, factorCount), radius: 3.8 }))
-    ];
-    satellites.forEach((satellite, offset) => {
-      const seed = hashString(`${node.id}:${satellite.kind}:${satellite.index}`);
-      const angle = ((seed % 6283) / 1000) + offset * 0.45;
-      const distance = node.radius + 24 + (seed % 42);
-      const child = {
-        id: `${satellite.kind}:${harnessId}:${satellite.index}`,
-        type: satellite.kind,
-        label: satellite.kind,
-        weight: 1,
-        x: clamp(node.x + Math.cos(angle) * distance, 25, 1065),
-        y: clamp(node.y + Math.sin(angle) * distance, 25, 655),
-        radius: satellite.radius,
-        color: TYPE_COLORS[satellite.kind] || TYPE_COLORS.unknown,
-        glow: satellite.kind === 'score'
-      };
-      augmented.push(child);
-      virtualEdges.push({
-        source: node.id,
-        target: child.id,
-        type: satellite.kind,
-        count: 1
-      });
-    });
+    const seed = hashString(node.id);
+    const rings = [
+      { kind: 'signal', count: Math.min(10, Math.ceil(uses / 2)), distance: node.radius + 18, dotRadius: 2.4 },
+      { kind: 'evidence', count: Math.min(6, evidenceCount), distance: node.radius + 29, dotRadius: 2.9 },
+      { kind: 'score', count: Math.min(5, factorCount), distance: node.radius + 40, dotRadius: 3.2 }
+    ]
+      .filter((ring) => ring.count > 0)
+      .map((ring, ringIndex) => ({
+        ...ring,
+        duration: (28 + ((seed >> (ringIndex * 3)) % 36)).toFixed(0),
+        reverse: ringIndex % 2 === 1,
+        phase: ((seed >> (ringIndex * 5)) % 628) / 100
+      }));
+    if (rings.length) {
+      orbitSystems.push({ parentId: node.id, x: node.x, y: node.y, rings });
+    }
   }
-  const byId = new Map(augmented.map((node) => [node.id, node]));
-  const filteredEdges = getRenderableEdges(edges);
-  const drawnEdges = [...filteredEdges, ...virtualEdges]
+  const byId = new Map(positioned.map((node) => [node.id, node]));
+  const drawnEdges = getRenderableEdges(edges)
     .map((edge) => ({
       ...edge,
       sourceNode: byId.get(edge.source),
@@ -667,15 +653,26 @@ function buildGraphLayout(summary) {
     .filter((edge) => edge.sourceNode && edge.targetNode)
     .slice(0, 240);
 
-  return { nodes: augmented, edges: drawnEdges };
+  return { nodes: positioned, edges: drawnEdges, orbitSystems };
 }
 
 function renderGraphCanvas(summary, copy) {
-  const { nodes, edges } = buildGraphLayout(summary);
+  const { nodes, edges, orbitSystems } = buildGraphLayout(summary);
   const strongest = nodes
     .filter((node) => node.type === 'harness')
     .sort((a, b) => Number(b.weight || 0) - Number(a.weight || 0))
     .slice(0, 8);
+  const stars = Array.from({ length: 110 }, (_, index) => {
+    const seed = hashString(`star:${index}`);
+    return {
+      x: seed % 1090,
+      y: (seed >> 4) % 680,
+      r: (0.5 + ((seed >> 8) % 12) / 10).toFixed(1),
+      opacity: (0.1 + ((seed >> 6) % 45) / 100).toFixed(2),
+      twinkle: index % 4 === 0,
+      delay: seed % 5000
+    };
+  });
   const mapTitle = copy.knowledgeGraph || copy.harnessMap || 'Harness map';
   const mapEyebrow = copy.harnessMap && copy.harnessMap !== mapTitle ? copy.harnessMap : '';
   return `
@@ -700,9 +697,10 @@ function renderGraphCanvas(summary, copy) {
       </div>
       <svg class="graph-canvas" viewBox="0 0 1090 680" role="img" aria-label="Harness health graph">
         <defs>
-          <radialGradient id="graph-bg-grad" cx="50%" cy="42%" r="75%">
-            <stop offset="0%" style="stop-color: #16181D"/>
-            <stop offset="100%" style="stop-color: #0C0D10"/>
+          <radialGradient id="graph-bg-grad" cx="50%" cy="42%" r="80%">
+            <stop offset="0%" style="stop-color: #11141C"/>
+            <stop offset="60%" style="stop-color: #0A0C12"/>
+            <stop offset="100%" style="stop-color: #06070B"/>
           </radialGradient>
           ${Object.entries(TYPE_COLORS).map(([type, color]) => `
             <radialGradient id="node-grad-${escapeAttr(type)}" cx="32%" cy="28%" r="78%">
@@ -713,6 +711,11 @@ function renderGraphCanvas(summary, copy) {
           `).join('')}
         </defs>
         <rect class="graph-bg" width="1090" height="680" fill="url(#graph-bg-grad)"/>
+        <g class="starfield" aria-hidden="true">
+          ${stars.map((star) => `
+            <circle cx="${star.x}" cy="${star.y}" r="${star.r}" fill="#FFFFFF" opacity="${star.opacity}"${star.twinkle ? ` class="star-twinkle" style="--twinkle-delay: ${star.delay}ms"` : ''}/>
+          `).join('')}
+        </g>
         <g id="graph-viewport">
         <g class="edges">
         ${edges.map((edge, index) => `
@@ -731,6 +734,22 @@ function renderGraphCanvas(summary, copy) {
             />
           `).join('')}
         </g>
+        <g class="orbits" aria-hidden="true">
+          ${orbitSystems.map((system) => `
+            <g class="orbit-system" data-parent="${escapeAttr(system.parentId)}" transform="translate(${system.x.toFixed(1)} ${system.y.toFixed(1)})">
+              ${system.rings.map((ring) => {
+                const dots = Array.from({ length: ring.count }, (_, dotIndex) => {
+                  const angle = ring.phase + (dotIndex * Math.PI * 2) / ring.count;
+                  return `<circle class="orbit-dot" cx="${(Math.cos(angle) * ring.distance).toFixed(1)}" cy="${(Math.sin(angle) * ring.distance).toFixed(1)}" r="${ring.dotRadius}" fill="url(#node-grad-${escapeAttr(ring.kind)})"/>`;
+                }).join('');
+                return `
+                  <circle class="orbit-ring" cx="0" cy="0" r="${ring.distance.toFixed(1)}"/>
+                  <g class="orbit-spin${ring.reverse ? ' is-reverse' : ''}" style="--orbit-dur: ${ring.duration}s">${dots}</g>
+                `;
+              }).join('')}
+            </g>
+          `).join('')}
+        </g>
         <g class="nodes">
           ${nodes.map((node, index) => {
             const seed = hashString(node.id);
@@ -740,6 +759,9 @@ function renderGraphCanvas(summary, copy) {
             const floatY = (((seed >> 3) % 7) - 3).toFixed(1);
             return `
             <g class="node-float" style="--float-dur: ${floatDuration}s; --float-delay: ${floatDelay}ms; --float-x: ${floatX}px; --float-y: ${floatY}px">
+            ${node.type === 'harness' && node.radius >= 15 ? `
+              <ellipse class="planet-ring" cx="${node.x.toFixed(1)}" cy="${node.y.toFixed(1)}" rx="${(node.radius * 1.75).toFixed(1)}" ry="${(node.radius * 0.5).toFixed(1)}" transform="rotate(-16 ${node.x.toFixed(1)} ${node.y.toFixed(1)})"/>
+            ` : ''}
             <circle
               class="graph-node ${node.type === 'harness' ? 'is-interactive' : ''}"
               style="--enter-delay: ${Math.min(index * 9, 1100)}ms"
@@ -1358,14 +1380,30 @@ function renderScript(harnesses, copy) {
       const setFilterStatus = (value) => {
         if (filterStatus) filterStatus.textContent = value;
       };
+      const graphCanvas = document.querySelector('.graph-canvas');
+      const orbitSystems = Array.from(document.querySelectorAll('.orbit-system'));
+      const defaultSelectedPanel = selectedPanel ? selectedPanel.innerHTML : '';
+      function syncOrbits() {
+        const hasSelection = graphCanvas && graphCanvas.classList.contains('has-selection');
+        orbitSystems.forEach((system) => {
+          const parent = nodeById(system.dataset.parent);
+          const hidden = !parent || parent.classList.contains('is-hidden') || parent.classList.contains('is-filtered-out');
+          system.classList.toggle('is-hidden', hidden);
+          const related = parent && (parent.classList.contains('is-selected') || parent.classList.contains('is-related'));
+          system.classList.toggle('is-dimmed', Boolean(hasSelection && !related));
+        });
+      }
       function clearSelection() {
         nodes.forEach((item) => item.classList.remove('is-selected', 'is-related'));
         edges.forEach((item) => item.classList.remove('is-related'));
         cards.forEach((item) => item.classList.remove('is-selected'));
+        if (graphCanvas) graphCanvas.classList.remove('has-selection');
+        syncOrbits();
       }
       function selectNode(node) {
         clearSelection();
         node.classList.add('is-selected');
+        if (graphCanvas) graphCanvas.classList.add('has-selection');
         const id = node.dataset.nodeId;
         const item = byHarnessId.get(id);
         edges.forEach((edge) => {
@@ -1393,6 +1431,7 @@ function renderScript(harnesses, copy) {
         } else if (selectedPanel) {
           selectedPanel.innerHTML = '<p class="eyebrow">' + esc(copy.selected) + '</p><h2>' + esc(node.dataset.nodeLabel) + '</h2><p>' + esc(id) + '</p><dl><div><dt>' + esc(copy.type) + '</dt><dd>' + esc(displayValue(node.dataset.nodeType)) + '</dd></div><div><dt>' + esc(copy.weight) + '</dt><dd>' + esc(node.dataset.nodeWeight) + '</dd></div></dl>';
         }
+        syncOrbits();
       }
       function selectHarness(id) {
         const node = nodeById('harness:' + id);
@@ -1410,7 +1449,9 @@ function renderScript(harnesses, copy) {
         nodes.forEach((node) => node.classList.toggle('is-hidden', mode === 'core' && node.dataset.core !== 'true'));
         const visibleIds = new Set(nodes.filter((node) => !node.classList.contains('is-hidden')).map((node) => node.dataset.nodeId));
         edges.forEach((edge) => edge.classList.toggle('is-hidden', mode === 'core' && (!visibleIds.has(edge.dataset.source) || !visibleIds.has(edge.dataset.target))));
+        document.querySelectorAll('.orbit-system').forEach((system) => system.classList.toggle('is-mode-hidden', mode === 'core'));
         setStatus(mode === 'core' ? copy.coreMode : copy.showingAll);
+        syncOrbits();
       }
       function filterRecommendation(value, button) {
         const alreadyActive = button.classList.contains('active-filter');
@@ -1424,6 +1465,7 @@ function renderScript(harnesses, copy) {
           cards.forEach((card) => card.classList.remove('is-filtered-out'));
           setStatus(copy.showingAll);
           setFilterStatus(copy.showingAll);
+          syncOrbits();
           return;
         }
         button.classList.add('active-filter');
@@ -1438,6 +1480,7 @@ function renderScript(harnesses, copy) {
         const label = recLabelByFilter[value] || value;
         setStatus(copy.filteredTo + ': ' + label);
         setFilterStatus(copy.filteredTo + ': ' + label);
+        syncOrbits();
       }
       interactiveNodes.forEach((node) => {
         node.addEventListener('click', () => selectNode(node));
@@ -1520,12 +1563,24 @@ function renderScript(harnesses, copy) {
           panState.y = event.clientY;
           applyView();
         });
+        let suppressClick = false;
         const endPan = () => {
+          suppressClick = Boolean(panState && panState.moved);
           panState = null;
           graphSvg.classList.remove('is-panning');
         };
         graphSvg.addEventListener('pointerup', endPan);
         graphSvg.addEventListener('pointercancel', endPan);
+        graphSvg.addEventListener('click', (event) => {
+          if (suppressClick) {
+            suppressClick = false;
+            return;
+          }
+          if (event.target.classList.contains('graph-bg') || event.target.closest('.starfield')) {
+            clearSelection();
+            if (selectedPanel && defaultSelectedPanel) selectedPanel.innerHTML = defaultSelectedPanel;
+          }
+        });
         graphSvg.addEventListener('dblclick', (event) => {
           event.preventDefault();
           resetView();
@@ -2193,6 +2248,70 @@ function renderStyles() {
       transition: opacity 160ms ease, transform 160ms ease;
     }
 
+    .map-panel,
+    .graph-canvas,
+    .graph-canvas text {
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .star-twinkle {
+      animation: star-twinkle 3.4s ease-in-out var(--twinkle-delay, 0ms) infinite alternate;
+    }
+
+    @keyframes star-twinkle {
+      from { opacity: 0.08; }
+      to { opacity: 0.6; }
+    }
+
+    .orbit-ring {
+      fill: none;
+      stroke: var(--text-secondary);
+      stroke-opacity: 0.14;
+      stroke-width: 0.7;
+      stroke-dasharray: 2 5;
+    }
+
+    .orbit-spin {
+      animation: orbit-rotate var(--orbit-dur, 40s) linear infinite;
+    }
+
+    .orbit-spin.is-reverse { animation-direction: reverse; }
+
+    @keyframes orbit-rotate {
+      to { transform: rotate(360deg); }
+    }
+
+    .orbit-dot { opacity: 0.85; }
+
+    .orbit-system {
+      transition: opacity 260ms ease;
+    }
+
+    .orbit-system.is-hidden,
+    .orbit-system.is-mode-hidden { opacity: 0; pointer-events: none; }
+    .orbit-system.is-dimmed { opacity: 0.08; }
+
+    .planet-ring {
+      fill: none;
+      stroke: var(--text-secondary);
+      stroke-opacity: 0.4;
+      stroke-width: 1.4;
+      pointer-events: none;
+    }
+
+    .graph-canvas.has-selection .graph-node:not(.is-selected):not(.is-related) {
+      opacity: 0.14;
+      filter: blur(1.2px);
+    }
+
+    .graph-canvas.has-selection .graph-edge:not(.is-related) { opacity: 0.05; }
+
+    .graph-canvas.has-selection .planet-ring { stroke-opacity: 0.1; }
+
+    .graph-canvas.has-selection .labels text { opacity: 0.18; transition: opacity 220ms ease; }
+
     .map-controls-row {
       display: flex;
       gap: var(--space-2);
@@ -2300,6 +2419,8 @@ function renderStyles() {
       .graph-node,
       .graph-edge,
       .graph-canvas text,
+      .orbit-spin,
+      .star-twinkle,
       .page.is-active { animation: none; }
       .graph-node { transition: none; }
     }
