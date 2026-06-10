@@ -673,6 +673,50 @@ function renderGraphCanvas(summary, copy) {
       delay: seed % 5000
     };
   });
+  const GALAXY = { count: 760, arms: 4, radius: 360, spin: 2.3, power: 2.4, cx: 545, cy: 340, flatten: 0.6 };
+  const lerpChannel = (from, to, t) => Math.round(from + (to - from) * t);
+  const galaxyDots = Array.from({ length: GALAXY.count }, (_, index) => {
+    const s1 = (hashString(`gal:${index}:a`) % 10000) / 10000;
+    const s2 = (hashString(`gal:${index}:b`) % 10000) / 10000;
+    const s3 = (hashString(`gal:${index}:c`) % 10000) / 10000;
+    const s4 = (hashString(`gal:${index}:d`) % 10000) / 10000;
+    const radius = Math.pow(s1, GALAXY.power) * GALAXY.radius;
+    const t = radius / GALAXY.radius;
+    const branchAngle = ((index % GALAXY.arms) / GALAXY.arms) * Math.PI * 2;
+    const spinAngle = t * GALAXY.spin;
+    const randomX = (s2 - 0.5) * 0.42 * radius;
+    const randomY = (s3 - 0.5) * 0.42 * radius;
+    const totalAngle = branchAngle + spinAngle;
+    // inside #FF66FF -> outside #66FFFF, like the reference galaxy
+    const color = `rgb(${lerpChannel(255, 102, t)}, ${lerpChannel(102, 255, t)}, 255)`;
+    return {
+      x: (GALAXY.cx + (Math.cos(totalAngle) * radius + randomX)).toFixed(1),
+      y: (GALAXY.cy + (Math.sin(totalAngle) * radius + randomY) * GALAXY.flatten).toFixed(1),
+      r: (0.5 + s4 * 1.1).toFixed(1),
+      color,
+      opacity: (0.12 + s4 * 0.34).toFixed(2)
+    };
+  });
+  const nebulae = Array.from({ length: 7 }, (_, index) => {
+    const seed = hashString(`nebula:${index}`);
+    return {
+      id: index,
+      hue: seed % 360,
+      x: 80 + (seed % 930),
+      y: 60 + ((seed >> 5) % 560),
+      r: 70 + ((seed >> 3) % 150),
+      opacity: (0.05 + ((seed >> 7) % 8) / 100).toFixed(2)
+    };
+  });
+  const pulses = edges.slice(0, 120).map((edge, index) => {
+    const seed = hashString(`pulse:${edge.source}:${edge.target}:${index}`);
+    return {
+      path: `M ${edge.sourceNode.x.toFixed(1)},${edge.sourceNode.y.toFixed(1)} L ${edge.targetNode.x.toFixed(1)},${edge.targetNode.y.toFixed(1)}`,
+      dur: (3.2 + (seed % 42) / 10).toFixed(1),
+      begin: -((seed >> 4) % 7000),
+      index
+    };
+  });
   const mapTitle = copy.knowledgeGraph || copy.harnessMap || 'Harness map';
   const mapEyebrow = copy.harnessMap && copy.harnessMap !== mapTitle ? copy.harnessMap : '';
   return `
@@ -698,9 +742,25 @@ function renderGraphCanvas(summary, copy) {
       <svg class="graph-canvas" viewBox="0 0 1090 680" role="img" aria-label="Harness health graph">
         <defs>
           <radialGradient id="graph-bg-grad" cx="50%" cy="42%" r="80%">
-            <stop offset="0%" style="stop-color: #11141C"/>
-            <stop offset="60%" style="stop-color: #0A0C12"/>
-            <stop offset="100%" style="stop-color: #06070B"/>
+            <stop offset="0%" style="stop-color: #0B0E1A"/>
+            <stop offset="60%" style="stop-color: #05060F"/>
+            <stop offset="100%" style="stop-color: #000005"/>
+          </radialGradient>
+          <radialGradient id="galaxy-core-grad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style="stop-color: #FFFFFF; stop-opacity: 0.55"/>
+            <stop offset="35%" style="stop-color: #C9B8FF; stop-opacity: 0.18"/>
+            <stop offset="100%" style="stop-color: #C9B8FF; stop-opacity: 0"/>
+          </radialGradient>
+          ${nebulae.map((nebula) => `
+            <radialGradient id="nebula-grad-${nebula.id}" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" style="stop-color: hsl(${nebula.hue}, 80%, 60%); stop-opacity: 0.6"/>
+              <stop offset="100%" style="stop-color: hsl(${nebula.hue}, 80%, 60%); stop-opacity: 0"/>
+            </radialGradient>
+          `).join('')}
+          <radialGradient id="pulse-grad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style="stop-color: #FFFFFF; stop-opacity: 1"/>
+            <stop offset="45%" style="stop-color: #9DC4FF; stop-opacity: 0.85"/>
+            <stop offset="100%" style="stop-color: #5B8DEF; stop-opacity: 0"/>
           </radialGradient>
           ${Object.entries(TYPE_COLORS).map(([type, color]) => `
             <radialGradient id="node-grad-${escapeAttr(type)}" cx="32%" cy="28%" r="78%">
@@ -715,6 +775,15 @@ function renderGraphCanvas(summary, copy) {
           ${stars.map((star) => `
             <circle cx="${star.x}" cy="${star.y}" r="${star.r}" fill="#FFFFFF" opacity="${star.opacity}"${star.twinkle ? ` class="star-twinkle" style="--twinkle-delay: ${star.delay}ms"` : ''}/>
           `).join('')}
+        </g>
+        <g class="galaxy-layer" aria-hidden="true">
+          ${nebulae.map((nebula) => `
+            <circle class="nebula" cx="${nebula.x}" cy="${nebula.y}" r="${nebula.r}" fill="url(#nebula-grad-${nebula.id})" opacity="${nebula.opacity}"/>
+          `).join('')}
+          <g class="galaxy-spiral">
+            ${galaxyDots.map((dot) => `<circle cx="${dot.x}" cy="${dot.y}" r="${dot.r}" fill="${dot.color}" opacity="${dot.opacity}"/>`).join('')}
+          </g>
+          <circle class="galaxy-core" cx="${GALAXY.cx}" cy="${GALAXY.cy}" r="120" fill="url(#galaxy-core-grad)"/>
         </g>
         <g id="graph-viewport">
         <g class="edges">
@@ -732,6 +801,16 @@ function renderGraphCanvas(summary, copy) {
               stroke-opacity="0.12"
               stroke-width="${clamp(Number(edge.count || 1), 1, 5)}"
             />
+          `).join('')}
+        </g>
+        <g class="pulses" aria-hidden="true">
+          ${pulses.map((pulse) => `
+            <g class="pulse-wrap" data-pulse-index="${pulse.index}">
+              <circle class="edge-pulse" r="2.6" fill="url(#pulse-grad)" opacity="0">
+                <animateMotion dur="${pulse.dur}s" begin="${pulse.begin}ms" repeatCount="indefinite" path="${escapeAttr(pulse.path)}"/>
+                <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.12;0.85;1" dur="${pulse.dur}s" begin="${pulse.begin}ms" repeatCount="indefinite"/>
+              </circle>
+            </g>
           `).join('')}
         </g>
         <g class="orbits" aria-hidden="true">
@@ -1382,7 +1461,18 @@ function renderScript(harnesses, copy) {
       };
       const graphCanvas = document.querySelector('.graph-canvas');
       const orbitSystems = Array.from(document.querySelectorAll('.orbit-system'));
+      const pulseWraps = Array.from(document.querySelectorAll('.pulse-wrap'));
       const defaultSelectedPanel = selectedPanel ? selectedPanel.innerHTML : '';
+      function syncPulses() {
+        const hasSelection = graphCanvas && graphCanvas.classList.contains('has-selection');
+        pulseWraps.forEach((wrap) => {
+          const edge = edges[Number(wrap.dataset.pulseIndex)];
+          if (!edge) return;
+          const hidden = edge.classList.contains('is-hidden') || edge.classList.contains('is-filtered-out');
+          wrap.classList.toggle('is-hidden', hidden);
+          wrap.classList.toggle('is-dimmed', Boolean(hasSelection && !edge.classList.contains('is-related')));
+        });
+      }
       function syncOrbits() {
         const hasSelection = graphCanvas && graphCanvas.classList.contains('has-selection');
         orbitSystems.forEach((system) => {
@@ -1392,6 +1482,7 @@ function renderScript(harnesses, copy) {
           const related = parent && (parent.classList.contains('is-selected') || parent.classList.contains('is-related'));
           system.classList.toggle('is-dimmed', Boolean(hasSelection && !related));
         });
+        syncPulses();
       }
       function clearSelection() {
         nodes.forEach((item) => item.classList.remove('is-selected', 'is-related'));
@@ -1576,7 +1667,7 @@ function renderScript(harnesses, copy) {
             suppressClick = false;
             return;
           }
-          if (event.target.classList.contains('graph-bg') || event.target.closest('.starfield')) {
+          if (event.target.classList.contains('graph-bg') || event.target.closest('.starfield') || event.target.closest('.galaxy-layer')) {
             clearSelection();
             if (selectedPanel && defaultSelectedPanel) selectedPanel.innerHTML = defaultSelectedPanel;
           }
@@ -2265,6 +2356,39 @@ function renderStyles() {
       to { opacity: 0.6; }
     }
 
+    .galaxy-layer { pointer-events: none; }
+
+    .nebula { mix-blend-mode: screen; }
+
+    .galaxy-spiral {
+      transform-origin: 545px 340px;
+      transform-box: view-box;
+      animation: galaxy-rotate 420s linear infinite;
+      mix-blend-mode: screen;
+    }
+
+    @keyframes galaxy-rotate {
+      to { transform: rotate(360deg); }
+    }
+
+    .galaxy-core {
+      mix-blend-mode: screen;
+      animation: core-breathe 9s ease-in-out infinite alternate;
+    }
+
+    @keyframes core-breathe {
+      from { opacity: 0.5; }
+      to { opacity: 0.9; }
+    }
+
+    .pulse-wrap { transition: opacity 260ms ease; }
+    .pulse-wrap.is-hidden { opacity: 0; }
+    .pulse-wrap.is-dimmed { opacity: 0.08; }
+
+    .edge-pulse {
+      filter: drop-shadow(0 0 4px rgba(157, 196, 255, 0.9));
+    }
+
     .orbit-ring {
       fill: none;
       stroke: var(--text-secondary);
@@ -2421,8 +2545,11 @@ function renderStyles() {
       .graph-canvas text,
       .orbit-spin,
       .star-twinkle,
+      .galaxy-spiral,
+      .galaxy-core,
       .page.is-active { animation: none; }
       .graph-node { transition: none; }
+      .pulses { display: none; }
     }
 
     .map-caption {
