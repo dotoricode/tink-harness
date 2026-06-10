@@ -6,6 +6,17 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.8] - 2026-06-11
+
+### Added
+
+- Galaxy-styled harness map background: a slowly rotating 4-arm spiral of 760 particles (pink-to-cyan, screen-blended), 7 colored nebula glows, a breathing core glow, and a deeper space gradient — inspired by a Three.js galaxy reference while keeping the SVG map fully interactive.
+- Neural signal pulses: glowing dots travel along every edge from source to target (3.2-7.4s, staggered), so connections read like firing synapses.
+
+### Changed
+
+- Signal pulses follow the map state: they hide with core mode/filters, dim in focus mode, and stay bright only on edges related to the selected node. Clicking the galaxy background clears the selection. prefers-reduced-motion disables rotation and pulses.
+
 ## [1.9.7] - 2026-06-10
 
 ### Added
