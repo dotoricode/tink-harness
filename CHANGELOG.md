@@ -6,6 +6,17 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.4] - 2026-06-10
+
+### Added
+
+- Harness cards now sort by usage and open with a smooth expand animation showing richer details: last used, success/failure counts, context cost, co-used harness chips, score factors, safe next action, and evidence handles.
+- Added an evaluation & maintenance history section to the Harnesses tab, fed by `.tink/maintenance/ledger.jsonl` (new `maintenance_events` field in the lifecycle summary).
+
+### Fixed
+
+- The lifecycle generator now strips a UTF-8 BOM before parsing JSONL files, so the first ledger entry is no longer dropped.
+
 ## [1.9.3] - 2026-06-10
 
 ### Added

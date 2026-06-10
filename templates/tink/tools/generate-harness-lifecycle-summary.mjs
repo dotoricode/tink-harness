@@ -15,7 +15,7 @@ function readJson(filePath, fallback) {
 
 function readLines(filePath) {
   if (!fs.existsSync(filePath)) return [];
-  return fs.readFileSync(filePath, 'utf8').split(/\r?\n/).filter(Boolean);
+  return fs.readFileSync(filePath, 'utf8').replace(/^﻿/, '').split(/\r?\n/).filter(Boolean);
 }
 
 function listFiles(dirPath, suffix) {
@@ -517,6 +517,28 @@ function summarize(root) {
     item.candidate_score = scoreCandidate(item);
   }
   const harnessSummaries = [...summaries.values()].sort((a, b) => a.id.localeCompare(b.id));
+
+  const ledgerPath = path.join(root, '.tink/maintenance/ledger.jsonl');
+  const knownHarnessIds = [...summaries.keys()];
+  const maintenanceEvents = parseJsonl(ledgerPath)
+    .map((entry) => {
+      const refs = [...(Array.isArray(entry.files) ? entry.files : []), ...(Array.isArray(entry.evidence) ? entry.evidence : []), String(entry.op_id || '')];
+      const related = knownHarnessIds.filter((id) =>
+        refs.some((ref) => String(ref).includes(`${id}.md`) || String(ref).includes(`harness:${id}`) || String(ref).includes(`-${id}-`))
+      ).sort();
+      return {
+        timestamp: entry.timestamp || '',
+        op_id: entry.op_id || '',
+        type: entry.type || 'unknown',
+        files: (Array.isArray(entry.files) ? entry.files : []).slice(0, 8),
+        result: entry.result || 'unknown',
+        approval: entry.approval || '',
+        harnesses: related
+      };
+    })
+    .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)))
+    .slice(0, 60);
+
   return {
     generated_at: new Date().toISOString(),
     run_window: {
@@ -530,11 +552,13 @@ function summarize(root) {
       '.tink/memory/*.md',
       '.tink/runs/*.md',
       '.tink/maintenance/weave-queue.json',
-      '.tink/maintenance/friction.jsonl'
+      '.tink/maintenance/friction.jsonl',
+      '.tink/maintenance/ledger.jsonl'
     ],
     harnesses: harnessSummaries,
     graph: buildGraph(harnessSummaries),
-    timeline: buildTimeline(runs, root)
+    timeline: buildTimeline(runs, root),
+    maintenance_events: maintenanceEvents
   };
 }
 

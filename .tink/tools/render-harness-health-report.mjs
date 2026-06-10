@@ -130,6 +130,19 @@ const COPY = {
     viewAll: 'View all',
     confidenceShort: 'Confidence',
     routingHelp: 'When cast routes a task to a visible-thinking overlay harness.',
+    lastUsed: 'Last used',
+    successes: 'Successes',
+    failures: 'Failures',
+    contextCost: 'Context cost',
+    coUsedWith: 'Often used with',
+    safeNextAction: 'Safe next action',
+    scoreFactors: 'Score factors',
+    viewInGraph: 'View in graph',
+    historyEyebrow: 'HISTORY',
+    historyTitle: 'Evaluation & maintenance history',
+    historyHelp: 'Approved reusable-state changes from the maintenance ledger, newest first.',
+    historyEmpty: 'No ledger history yet.',
+    sortNote: 'Sorted by usage',
     groups: [
       ['keep', 'Healthy harnesses', 'Ready to keep using'],
       ['weave', 'Weave candidates', 'Worth improving next'],
@@ -174,6 +187,19 @@ COPY.ko = {
   viewAll: '전체 보기',
   confidenceShort: '신뢰도',
   routingHelp: 'cast가 생각 보조 overlay 하네스로 라우팅하는 기준입니다.',
+  lastUsed: '마지막 사용',
+  successes: '성공',
+  failures: '실패',
+  contextCost: '컨텍스트 비용',
+  coUsedWith: '함께 쓰인 하네스',
+  safeNextAction: '다음 안전 행동',
+  scoreFactors: '점수 요인',
+  viewInGraph: '그래프에서 보기',
+  historyEyebrow: '히스토리',
+  historyTitle: '평가·생성 히스토리',
+  historyHelp: '유지보수 장부에 기록된 승인 변경 이력을 최신순으로 보여줍니다.',
+  historyEmpty: '아직 장부 기록이 없습니다.',
+  sortNote: '사용량 순 정렬',
   navLabel: '탐색',
   operator: '작업자',
   online: 'Tink 온라인',
@@ -860,23 +886,78 @@ function renderSelectedPanel(harnesses, copy) {
 function renderHarness(item, copy) {
   const signals = item.signals || {};
   const score = Number(item.candidate_score?.total || 0);
+  const factors = (item.candidate_score?.factors || []).slice(0, 5);
+  const coUsed = (signals.co_used_with || []).slice(0, 5);
+  const reason = normalizeReason(item.reason, copy);
   return `
-    <article class="harness-card ${recommendationClass(item.recommendation)}" data-harness-id="${escapeAttr(item.id)}" data-recommendation="${escapeAttr(item.recommendation || 'unknown')}" tabindex="0" role="button">
-      <div>
-        <p class="eyebrow">${escapeHtml(renderCopyValue(item.recommendation, copy))}</p>
-        <h3>${escapeHtml(item.id)}</h3>
+    <article class="harness-card ${recommendationClass(item.recommendation)}" data-harness-id="${escapeAttr(item.id)}" data-recommendation="${escapeAttr(item.recommendation || 'unknown')}">
+      <button class="harness-summary" type="button" aria-expanded="false">
+        <div>
+          <p class="eyebrow">${escapeHtml(renderCopyValue(item.recommendation, copy))}</p>
+          <h3>${escapeHtml(item.id)}</h3>
+        </div>
+        <div class="harness-mini">
+          <span>${escapeHtml(copy.uses)} ${escapeHtml(signals.uses ?? 0)}</span>
+          <strong>${escapeHtml(score)}</strong>
+        </div>
+        <span class="chevron" aria-hidden="true"></span>
+      </button>
+      <div class="harness-detail">
+        <div class="harness-detail-inner">
+          ${reason ? `<p class="harness-reason">${escapeHtml(reason)}</p>` : ''}
+          <dl>
+            <div><dt>${escapeHtml(copy.lifecycleState)}</dt><dd>${escapeHtml(renderCopyValue(item.lifecycle_state, copy))}</dd></div>
+            <div><dt>${escapeHtml(copy.lastUsed || 'Last used')}</dt><dd>${escapeHtml(signals.last_used ? shortDate(signals.last_used) : renderCopyValue('', copy))}</dd></div>
+            <div><dt>${escapeHtml(copy.successes || 'Successes')}</dt><dd>${escapeHtml(signals.successes ?? 0)}</dd></div>
+            <div><dt>${escapeHtml(copy.failures || 'Failures')}</dt><dd>${escapeHtml(signals.failures ?? 0)}</dd></div>
+            <div><dt>${escapeHtml(copy.blocked)}</dt><dd>${escapeHtml(signals.blocked ?? 0)}</dd></div>
+            <div><dt>${escapeHtml(copy.contextCost || 'Context cost')}</dt><dd>${escapeHtml(renderCopyValue(signals.context_cost, copy))}</dd></div>
+          </dl>
+          ${coUsed.length ? `
+            <p class="detail-label">${escapeHtml(copy.coUsedWith || 'Often used with')}</p>
+            <div class="co-used-chips">${coUsed.map((related) => `<span class="co-chip">${escapeHtml(related.id)} ×${escapeHtml(related.count)}</span>`).join('')}</div>
+          ` : ''}
+          ${factors.length ? `
+            <p class="detail-label">${escapeHtml(copy.scoreFactors || 'Score factors')}</p>
+            <ul class="factor-list">${factors.map((factor) => `<li><span>${escapeHtml(factor.name)}</span><strong>${escapeHtml(factor.points ?? factor.value ?? '')}</strong></li>`).join('')}</ul>
+          ` : ''}
+          ${item.safe_next_action ? `
+            <p class="detail-label">${escapeHtml(copy.safeNextAction || 'Safe next action')}</p>
+            <p class="harness-next">${escapeHtml(item.safe_next_action)}</p>
+          ` : ''}
+          <p class="detail-label">${escapeHtml(copy.evidenceHandles)} (${escapeHtml(String((item.evidence_handles || []).length))})</p>
+          <ul class="evidence-list">${renderEvidence(item.evidence_handles, copy)}</ul>
+          <button class="link-button" type="button" data-select-harness="${escapeAttr(item.id)}">${escapeHtml(copy.viewInGraph || 'View in graph')} →</button>
+        </div>
       </div>
-      <strong>${escapeHtml(score)}</strong>
-      <dl>
-        <div><dt>${escapeHtml(copy.lifecycleState)}</dt><dd>${escapeHtml(renderCopyValue(item.lifecycle_state, copy))}</dd></div>
-        <div><dt>${escapeHtml(copy.uses)}</dt><dd>${escapeHtml(signals.uses ?? 0)}</dd></div>
-        <div><dt>${escapeHtml(copy.blocked)}</dt><dd>${escapeHtml(signals.blocked ?? 0)}</dd></div>
-      </dl>
-      <details>
-        <summary>${escapeHtml(copy.evidenceHandles)} (${escapeHtml(String((item.evidence_handles || []).length))})</summary>
-        <ul>${renderEvidence(item.evidence_handles, copy)}</ul>
-      </details>
     </article>
+  `;
+}
+
+function renderHistorySection(events = [], copy) {
+  const items = Array.isArray(events) ? events.slice(0, 30) : [];
+  return `
+    <section class="history-section">
+      <div class="panel-title">
+        <p class="eyebrow">${escapeHtml(copy.historyEyebrow || 'HISTORY')}</p>
+        <h2>${escapeHtml(copy.historyTitle || 'Evaluation & maintenance history')}</h2>
+        <p>${escapeHtml(copy.historyHelp || '')}</p>
+      </div>
+      ${items.length ? `
+        <ol class="history-feed">
+          ${items.map((event) => `
+            <li>
+              <span class="history-type ${escapeAttr(String(event.type || 'unknown').replace(/[^a-z0-9_-]/gi, '-'))}">${escapeHtml(event.type || 'unknown')}</span>
+              <div>
+                <strong>${escapeHtml(shortDate(event.timestamp))} · ${escapeHtml(event.result || '')}</strong>
+                ${event.harnesses?.length ? `<p class="history-harnesses">${event.harnesses.map((id) => escapeHtml(id)).join(', ')}</p>` : ''}
+                ${event.files?.length ? `<p class="history-files">${event.files.slice(0, 4).map((file) => `<code>${escapeHtml(normalizePath(file).replace(/^.*[\\/]/, ''))}</code>`).join(' ')}</p>` : ''}
+              </div>
+            </li>
+          `).join('')}
+        </ol>
+      ` : `<p class="empty-note">${escapeHtml(copy.historyEmpty || 'No ledger history yet.')}</p>`}
+    </section>
   `;
 }
 
@@ -1267,13 +1348,11 @@ function renderScript(harnesses, copy) {
           selectHarness(button.dataset.selectHarness);
         });
       });
-      cards.forEach((card) => {
-        card.addEventListener('click', () => selectHarness(card.dataset.harnessId));
-        card.addEventListener('keydown', (event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            selectHarness(card.dataset.harnessId);
-          }
+      document.querySelectorAll('.harness-summary').forEach((button) => {
+        button.addEventListener('click', () => {
+          const card = button.closest('.harness-card');
+          const expanded = card.classList.toggle('is-expanded');
+          button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
         });
       });
       document.querySelectorAll('[data-filter-rec]').forEach((button) => {
@@ -1999,23 +2078,25 @@ function renderStyles() {
 
     .harness-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--space-3);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-2);
+      align-items: start;
     }
 
     .harness-card {
-      cursor: pointer;
-      transition: opacity 120ms ease, border-color 120ms ease;
-      display: grid;
-      gap: var(--space-2);
+      transition: opacity 160ms ease, border-color 160ms ease;
+      padding: 0;
+      overflow: hidden;
     }
 
     .harness-card:hover,
-    .harness-card:focus-visible,
-    .harness-card.is-selected {
+    .harness-card.is-selected,
+    .harness-card.is-expanded {
       border-color: var(--border-hover);
       outline: none;
     }
+
+    .harness-card.is-expanded { border-color: var(--border-strong); }
 
     .harness-card.is-filtered-out { display: none; }
 
@@ -2025,31 +2106,205 @@ function renderStyles() {
     .harness-card.merge_candidate { border-top: 2px solid var(--accent); }
     .harness-card.observe { border-top: 2px solid var(--text-secondary); }
 
-    .harness-card > div { display: grid; gap: 4px; }
-
-    .harness-card h3 {
-      margin: 0;
-      font-size: 16px;
-      line-height: 1.25;
-      font-weight: 600;
+    .harness-summary {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto 14px;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-3);
+      border: 0;
+      background: transparent;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      text-align: left;
+      cursor: pointer;
     }
 
-    .harness-card > strong {
+    .harness-summary:hover { background: var(--bg-hover); }
+
+    .harness-summary .eyebrow { margin: 0 0 2px; font-size: 10px; }
+
+    .harness-summary h3 {
       margin: 0;
-      font-size: 24px;
+      font-size: 14px;
+      line-height: 1.25;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .harness-mini {
+      display: grid;
+      gap: 2px;
+      justify-items: end;
+    }
+
+    .harness-mini span {
+      color: var(--text-secondary);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .harness-mini strong {
+      font-size: 18px;
       line-height: 1;
       font-family: var(--font-mono);
       font-weight: 600;
-      color: var(--text-primary);
-      justify-self: end;
     }
 
-    .harness-card p {
+    .chevron {
+      width: 7px;
+      height: 7px;
+      border-right: 1.5px solid var(--text-secondary);
+      border-bottom: 1.5px solid var(--text-secondary);
+      transform: rotate(45deg);
+      transition: transform 240ms ease;
+      justify-self: center;
+    }
+
+    .harness-card.is-expanded .chevron { transform: rotate(225deg); }
+
+    .harness-detail {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .harness-card.is-expanded .harness-detail { grid-template-rows: 1fr; }
+
+    .harness-detail-inner {
+      overflow: hidden;
+      min-height: 0;
+      padding: 0 var(--space-3);
+      display: grid;
+      gap: var(--space-2);
+      opacity: 0;
+      transition: opacity 240ms ease 60ms, padding 320ms ease;
+    }
+
+    .harness-card.is-expanded .harness-detail-inner {
+      opacity: 1;
+      padding: var(--space-1) var(--space-3) var(--space-3);
+    }
+
+    .harness-reason {
       margin: 0;
       color: var(--text-secondary);
-      font-size: 13px;
-      line-height: 1.45;
+      font-size: 12px;
+      line-height: 1.5;
     }
+
+    .detail-label {
+      margin: var(--space-1) 0 0;
+      color: var(--text-secondary);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .co-used-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .co-chip {
+      border: 1px solid var(--border-default);
+      background: var(--bg-hover);
+      border-radius: var(--radius-sm);
+      padding: 2px 6px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+    }
+
+    .factor-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 4px;
+    }
+
+    .factor-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-2);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .factor-list strong { font-family: var(--font-mono); color: var(--text-primary); font-weight: 500; }
+
+    .harness-next {
+      margin: 0;
+      color: var(--text-primary);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .evidence-list {
+      margin: 0;
+      padding-left: 16px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .harness-card .link-button { margin-top: var(--space-1); justify-self: start; }
+
+    .history-section {
+      margin-top: var(--space-6);
+      border-top: 1px solid var(--border-default);
+      padding-top: var(--space-4);
+    }
+
+    .history-feed {
+      margin: var(--space-3) 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .history-feed li {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: var(--space-3);
+      align-items: start;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      padding: var(--space-2) var(--space-3);
+    }
+
+    .history-type {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      padding: 3px 6px;
+      margin-top: 2px;
+      text-align: center;
+    }
+
+    .history-type.memory { color: var(--accent-text); border-color: var(--accent-dim); }
+    .history-type.weave { color: var(--warning); border-color: var(--warning-dim); }
+    .history-type.frog { color: var(--danger); border-color: var(--danger-dim); }
+    .history-type.harness-create,
+    .history-type.harness-edit { color: var(--success); border-color: var(--success-dim); }
+
+    .history-feed strong { font-size: 12px; font-weight: 500; }
+
+    .history-harnesses {
+      margin: 2px 0 0;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    .history-files { margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 4px; }
 
     .harness-card dl,
     .selected dl,
@@ -2359,7 +2614,7 @@ function renderStyles() {
       }
       .hero-sidebar { width: 100%; }
       .project-strip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .harness-grid,
+      .harness-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .stats-grid { grid-template-columns: 1fr; }
       .home-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .home-columns { grid-template-columns: 1fr; }
@@ -2439,13 +2694,19 @@ function renderReport(summary) {
         <section class="page-head">
           <p class="eyebrow">${escapeHtml(copy.harnessesEyebrow || 'HARNESSES')}</p>
           <h1>${escapeHtml(copy.harnessCards)}</h1>
-          <p>${escapeHtml(copy.harnessesHelp || '')}</p>
+          <p>${escapeHtml(copy.harnessesHelp || '')} · ${escapeHtml(copy.sortNote || 'Sorted by usage')}</p>
         </section>
         <section class="harness-section">
           <div class="harness-grid">
-            ${harnesses.map((item) => renderHarness(item, copy)).join('\n')}
+            ${[...harnesses]
+              .sort((a, b) =>
+                Number(b.signals?.uses || 0) - Number(a.signals?.uses || 0) ||
+                Number(b.candidate_score?.total || 0) - Number(a.candidate_score?.total || 0) ||
+                a.id.localeCompare(b.id))
+              .map((item) => renderHarness(item, copy)).join('\n')}
           </div>
         </section>
+        ${renderHistorySection(summary.maintenance_events, copy)}
       </section>
       <section class="page" data-page="memory">
         ${renderMemoryPage(summary, copy)}
