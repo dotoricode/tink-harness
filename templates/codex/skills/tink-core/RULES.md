@@ -26,7 +26,7 @@ Accept legacy `$tink <action>` spelling for compatibility, but present `$tink:<a
 6. If `.tink/current/` exists and continuity is uncertain, read `plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, and `contract.json` when present; summarize goal, last safe point, next step, open questions, and verification; then ask resume/archive/replace/cancel before continuing.
 7. Run the synthesis probe before committing to `.tink/current/`. Strong fit keeps the harness; generic fit adds a run-only draft; no fit loads `harness-synthesis`.
 8. If too many tools, skills, agents, or harnesses are available, use `harness-curation` to choose the smallest effective set before loading more context.
-9. Treat GJC-style visible-thinking workflows as ordinary Tink harness choices, not new commands: use `requirements-interview` for ambiguous ideas, `plan-consensus` for broad plans or architecture, `goal-checkpoint` for long runs with 2-6 current-run goals, and `delegation-brief` for safe handoff or parallel-work briefs.
+9. Treat GJC-style visible-thinking workflows as ordinary Tink harness choices, not new commands. Actively consider them as small overlay harnesses: use `requirements-interview` for ambiguity, unclear scope, or missing acceptance criteria; `plan-consensus` for broad plans, architecture, migrations, API/schema/contract changes, or tradeoffs; `goal-checkpoint` for multi-file, multi-phase, resumed, release, or long runs; and `delegation-brief` for handoff, independent verification, parallel review, or another agent/human brief.
 10. Run Stitch once before committing to `.tink/current/`: evaluate every time, show exactly one proposal only for high-impact quality or safety branches, and use the configured language.
 11. For non-trivial `$tink:cast` runs, ask for current-run approval before creating `.tink/current/`, loading harness bodies, editing files, or executing the first step. Codex must not silently treat a command invocation as approval.
 12. Use `request_user_input` for choice prompts when available. Otherwise stop and ask one concise blocking approval question directly in chat. Do not continue until the user answers.
@@ -121,10 +121,11 @@ Optional current-run artifacts:
 
 GJC-style harness selection rules:
 
-- Ambiguous ideas, early product concepts, and underspecified implementation prompts should start with `requirements-interview`, usually alone until the user clarifies enough to plan or code.
-- Plan requests, architecture decisions, large refactors, migrations, or broad public contract changes should consider `plan-consensus`.
-- Runs that naturally split into multiple durable milestones should add `goal-checkpoint`.
-- Parallel review, verification, or handoff should use `delegation-brief` only to prepare briefs; worker execution needs separate user approval and tooling.
+- Ambiguous ideas, early product concepts, vague bug reports, broad "make it better" requests, and underspecified implementation prompts should start with `requirements-interview`, usually alone until the user clarifies enough to plan or code.
+- Plan requests, architecture decisions, large refactors, migrations, API/schema/contract changes, compatibility decisions, or tradeoff-heavy approaches should add `plan-consensus` before implementation.
+- Runs that span multiple files, multiple phases, release steps, a resumed thread, or more than one verification pass should add `goal-checkpoint`.
+- Parallel review, independent verification, PR handoff, another agent, or a human handoff should use `delegation-brief` only to prepare briefs; worker execution needs separate user approval and tooling.
+- Treat these four harnesses as overlay candidates that can sit beside a work harness when their trigger is present. The exception is ambiguous work, where `requirements-interview` should usually run alone until the user clarifies.
 
 When useful, enrich `context-map.json.included[]` and `context-map.json.excluded[]` entries with Context Budget Ledger fields: `role`, `cost`, `reuse_signal`, `verification_link`, `staleness`, and `evidence_kind`. Use them to keep the first context pack small, mark stale or avoid-next-time context, and connect `verification_target` entries to command checks, manual checks, evidence refs, or verification hints. Do not claim any 90% efficiency score without measurement evidence.
 

@@ -20,6 +20,15 @@ npx tink-harness@latest update --yes
 
 출력에서 `Update Result Summary`를 확인한다.
 
+repo 내 재현 테스트를 하려면 `CODEX_HOME`을 고정해서 실행하세요:
+
+```bash
+set CODEX_HOME=%CD%\.codex
+npx tink-harness@latest update --yes
+```
+
+`CODEX_HOME`을 지정하지 않으면 Windows에서는 기본적으로 `%USERPROFILE%\.codex`에 Codex skill이 설치됩니다.
+
 ## 확인 순서
 
 ### 1. Surface 확인

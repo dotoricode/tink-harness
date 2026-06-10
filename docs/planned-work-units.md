@@ -76,6 +76,17 @@ Improve update troubleshooting without adding a new command.
 - Point to the smallest verification recipe.
 - Keep user-modified files preserved unless `--force` is explicit.
 
+## Direct CLI and Dashboard Commands
+
+Make the standalone CLI easier to type and make the local health report easier to open.
+
+- Treat `tink-harness update`, `tink-harness install`, and future `tink-harness dashboard` as the preferred direct command form after the binary is installed on `PATH`.
+- Keep `npx tink-harness@latest ...` as the bootstrap path for users who have not installed the binary yet.
+- Verify direct `tink-harness` command shims on Windows and macOS before replacing README examples wholesale.
+- Add a `dashboard` command that runs the existing lifecycle summary generator and HTML report renderer in one step.
+- Keep `dashboard` local and static by default: no server, watcher, hidden cache, or automatic harness edits.
+- Allow an optional open/export flag only after the generated file path behavior is stable across platforms.
+
 ## Excluded
 
 Release evidence bundling remains excluded. Release history, public release notes, and portfolio framing belong to the user or team. Tink may keep verification artifacts, but it should not decide how public release evidence is packaged.

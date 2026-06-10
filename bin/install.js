@@ -124,7 +124,7 @@ function argValue(name) {
 }
 
 function usage() {
-  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  npx tink-harness@latest [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--clean-codex-picker] [--dry-run] [--force]\n  npx tink-harness@latest update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--clean-codex-picker] [--dry-run] [--force]\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Keeps user-modified files.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select git tracking policy for project state\n\nOptions:\n  --clean-codex-picker  Remove repo-local Claude Tink command/skill surfaces from the current repo so Codex shows focused Tink skills instead of Source Command Tink entries.\n\nEnvironment:\n  TINK_INSTALL_SURFACES=claude|codex|all\n  TINK_CLEAN_CODEX_PICKER=1\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
+  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  tink-harness [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--clean-codex-picker] [--dry-run] [--force]\n\nIf the command is not installed yet, use:\n  npx tink-harness@latest [install]\n  npx tink-harness@latest update\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Keeps user-modified files.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select Advanced options\n  7. Select git tracking policy for project state\n\nAdvanced options:\n  --dry-run             Preview only. Show what would be written or removed, but do not change files.\n  --force               Overwrite user-modified files. Use only when you want official templates to replace local edits.\n  --clean-codex-picker  Codex-only cleanup. Remove repo-local Claude Tink surfaces that show as Source Command Tink entries.\n\nEnvironment:\n  TINK_INSTALL_SURFACES=claude|codex|all\n  TINK_CLEAN_CODEX_PICKER=1\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
 }
 
 function normalizeSurfaces(surfaces) {
@@ -244,15 +244,15 @@ function advancedOptionChoices(agent, language) {
       value: 'dry-run',
       label: 'Preview only (--dry-run)',
       hint: language === 'ko'
-        ? '파일을 쓰거나 지우지 않고 어떤 작업을 할지만 보여줍니다.'
-        : 'Show planned writes/removals without changing files.'
+        ? '파일을 바꾸기 전에 무엇을 쓸지, 지울지 미리 보여줍니다.'
+        : 'Preview what will be written or removed before changing files.'
     },
     {
       value: 'force',
       label: 'Overwrite user-modified files (--force)',
       hint: language === 'ko'
-        ? '사용자가 수정한 파일도 덮어쓸 수 있는 위험 옵션입니다.'
-        : 'Risky. Allows overwriting user-modified files.'
+        ? '로컬에서 고친 파일도 공식 템플릿으로 덮어씁니다. 복구용일 때만 쓰세요.'
+        : 'Replace local edits with official templates. Use only for recovery.'
     }
   ];
   if (agent === 'codex') {
@@ -260,8 +260,8 @@ function advancedOptionChoices(agent, language) {
       value: 'clean-codex-picker',
       label: 'Clean Codex picker (--clean-codex-picker)',
       hint: language === 'ko'
-        ? '현재 repo의 repo-local Claude Tink surface를 정리해 Source Command Tink 항목을 줄입니다.'
-        : 'Remove repo-local Claude Tink surfaces that show as Source Command Tink entries.'
+        ? 'Codex만 쓸 때 Source Command Tink 중복 항목을 줄입니다.'
+        : 'For Codex-only use. Reduce duplicate Source Command Tink entries.'
     });
   }
   return choices;

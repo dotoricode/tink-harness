@@ -17,14 +17,14 @@
 </p>
 
 <p>
-  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.9.0"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.9.1"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.9.0 - Adds harness health summaries with graph, timeline, scoring, lifecycle states, and a static local report. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
+<p><strong>Latest package:</strong> v1.9.1 - Adds harness health summaries with graph, timeline, scoring, lifecycle states, and a static local report. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
 
 **English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
 
@@ -80,6 +80,13 @@ npx tink-harness@latest install
 
 During install, select `Codex` when asked which agent surface to install. You can select both `Claude Code` and `Codex` in the same run. Then open Codex and use `$tink:cast <task>`.
 
+For repo-local smoke testing, fix the target with `CODEX_HOME`:
+
+```bash
+set CODEX_HOME=%CD%/.codex
+npx tink-harness@latest install --yes
+```
+
 ## Update
 
 Claude Code plugin users:
@@ -119,6 +126,18 @@ npx tink-harness@latest update
 ```
 
 During update, select the installed agent surface you want to refresh.
+
+If `CODEX_HOME` is not set, Codex skills default to `%USERPROFILE%\.codex` on Windows and `~/.codex` on macOS/Linux.
+
+### Advanced options
+
+Interactive install/update includes an **Advanced options** step. These options used to require CLI flags, but now they are visible in the wizard:
+
+- `Preview only (--dry-run)`: use this first when you want to see the exact files Tink would write, preserve, or remove. It does not change files.
+- `Overwrite user-modified files (--force)`: use this only when an install is broken and you want official templates to replace local edits. Normal updates keep user-modified files.
+- `Clean Codex picker (--clean-codex-picker)`: use this when you are switching a repo to Codex-only Tink and Codex shows duplicate `Source Command Tink ...` entries. It is not shown for mixed Claude Code + Codex installs.
+
+The package already exposes a `tink-harness` binary. If your package manager has installed that binary on your `PATH`, you can run `tink-harness update`. If not, keep using `npx tink-harness@latest update`. A shorter direct-command path is tracked in the planned work docs so it can be verified across macOS and Windows before the README examples switch over.
 
 To quickly verify the updated install, see `docs/update-verification-recipe.md` or `docs/update-verification-recipe.ko.md`.
 

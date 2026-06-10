@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dotoricode/tink-harness/schemas/context-metrics-evaluation.schema.json",
+  "title": "Tink current run context metrics evaluation",
+  "type": "object",
+  "required": ["run", "evaluator", "target_threshold_percent", "measurement_status", "scope", "scores"],
+  "properties": {
+    "run": {
+      "type": "string",
+      "description": "Run state path, usually .tink/current."
+    },
+    "evaluator": {
+      "type": "string",
+      "description": "Stable evaluator id, such as fixture-ratio-v1."
+    },
+    "target_threshold_percent": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "measurement_status": {
+      "type": "string",
+      "enum": ["estimated", "measured", "mixed"]
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["fixture", "current_run", "run_history", "production_telemetry"]
+    },
+    "limits": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "scores": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/metric_score" }
+    }
+  },
+  "$defs": {
+    "metric_score": {
+      "type": "object",
+      "required": [
+        "name",
+        "score_percent",
+        "formula",
+        "numerator",
+        "denominator",
+        "evidence_refs"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "unnecessary_context_reduction",
+            "initial_context_pack_size_reduction",
+            "review_evidence_lookup_time_reduction",
+            "verification_omission_detection",
+            "repeated_context_reuse_accuracy",
+            "rework_probability_reduction"
+          ]
+        },
+        "score_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "formula": {
+          "type": "string"
+        },
+        "numerator": {
+          "type": "number",
+          "minimum": 0
+        },
+        "denominator": {
+          "type": "number",
+          "minimum": 0
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "limit": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

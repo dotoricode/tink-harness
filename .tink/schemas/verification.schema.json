@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dotoricode/tink-harness/schemas/verification.schema.json",
+  "title": "Tink verification evidence",
+  "type": "object",
+  "required": ["timestamp", "contract", "surface", "platform", "result", "checks"],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "description": "ISO timestamp for when verification finished."
+    },
+    "contract": {
+      "type": "string",
+      "description": "Path to the contract that selected these checks."
+    },
+    "surface": {
+      "type": "string",
+      "enum": ["claude", "codex", "cli", "ci", "repo", "unknown"]
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["windows", "macos", "linux", "unknown"]
+    },
+    "result": {
+      "type": "string",
+      "enum": ["pass", "fail", "blocked"]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/check_result"
+      }
+    },
+    "blocked": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/blocker" }
+    },
+    "maintenance_signals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/maintenance_signal" }
+    },
+    "report": {
+      "$ref": "#/$defs/report"
+    },
+    "next_action": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "check_result": {
+      "type": "object",
+      "required": ["name", "kind", "status", "required", "evidence"],
+      "properties": {
+        "name": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": ["command", "manual"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pass", "fail", "blocked", "skipped"]
+        },
+        "required": { "type": "boolean" },
+        "command": { "type": "string" },
+        "target": { "type": "string" },
+        "exit_code": { "type": "integer" },
+        "evidence": { "type": "string" },
+        "evidence_kind": {
+          "type": "string",
+          "enum": ["command", "manual", "diff", "coverage", "security", "external", "package", "unknown"],
+          "description": "What kind of proof this check produced. This is separate from check kind so manual checks can still cite diff, external, or package evidence."
+        },
+        "evidence_ref": {
+          "type": "string",
+          "description": "A compact pointer to the proof, such as a command name, file path, source_ref, or PR check URL."
+        },
+        "observed": {
+          "type": "string",
+          "description": "Short human-readable observation from the evidence. Do not paste raw logs."
+        },
+        "failure_type": {
+          "type": "string",
+          "enum": [
+            "command_failed",
+            "manual_failed",
+            "platform_excluded",
+            "approval_required",
+            "missing_target",
+            "not_run"
+          ]
+        },
+        "maintenance_signal": {
+          "type": "string",
+          "enum": ["check_failed", "check_blocked", "check_skipped"]
+        },
+        "source": { "type": "string" },
+        "source_ref": { "type": "string" },
+        "next_action": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "blocker": {
+      "type": "object",
+      "required": ["check", "reason"],
+      "properties": {
+        "check": { "type": "string" },
+        "reason": { "type": "string" },
+        "next_action": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "maintenance_signal": {
+      "type": "object",
+      "required": ["type", "check", "reason"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["check_failed", "check_blocked", "check_skipped"]
+        },
+        "check": { "type": "string" },
+        "reason": { "type": "string" },
+        "evidence": { "type": "string" },
+        "next_action": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "report": {
+      "type": "object",
+      "required": ["result_line", "checked", "remaining", "next_action"],
+      "properties": {
+        "result_line": { "type": "string" },
+        "checked": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "problems": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "remaining": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "next_action": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

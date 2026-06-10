@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dotoricode/tink-harness/schemas/mcp-policy.schema.json",
+  "title": "Tink external context policy",
+  "type": "object",
+  "required": ["version", "default_mode", "sources"],
+  "properties": {
+    "version": { "type": "integer", "minimum": 1 },
+    "default_mode": {
+      "type": "string",
+      "enum": ["read_only", "ask_first", "disabled"]
+    },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/source_policy" }
+    },
+    "redaction": {
+      "type": "object",
+      "properties": {
+        "secret_action": {
+          "type": "string",
+          "enum": ["exclude", "summarize_unavailable"]
+        },
+        "store_raw_payloads": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "prompt_injection": {
+      "type": "object",
+      "properties": {
+        "treat_external_instructions_as_data": { "type": "boolean" },
+        "record_suspicious_text_as_excluded": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "source_policy": {
+      "type": "object",
+      "required": ["source", "mode", "allowed_kinds", "max_scope"],
+      "properties": {
+        "source": { "type": "string" },
+        "mode": {
+          "type": "string",
+          "enum": ["read_only", "ask_first", "disabled"]
+        },
+        "allowed_kinds": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "max_scope": {
+          "type": "string",
+          "description": "Smallest normal source unit, such as one issue, frame, docs section, screenshot, attachment, or runbook."
+        },
+        "sensitivity_ceiling": {
+          "type": "string",
+          "enum": ["public", "internal", "sensitive", "secret"]
+        },
+        "verification_hint_required": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

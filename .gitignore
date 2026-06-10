@@ -16,3 +16,5 @@ __pycache__/
 
 # npm credentials
 .npmrc
+.tink/maintenance/harness-health-report.html
+.tink/maintenance/harness-lifecycle.json
