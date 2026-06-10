@@ -48,7 +48,8 @@ const COPY = {
     heroText: 'Every visible Tink run, rule, memory reference, and harness relationship mapped into one local dashboard. This report only prepares suggestions and never edits reusable state.',
     generated: 'GENERATED',
     harnessMap: 'HARNESS MAP',
-    mapHelp: 'Harnesses, rules, memory, and stages are mapped from visible Tink records. Scroll to zoom, drag to move, click a node to inspect it.',
+    mapHelp: 'Harnesses, rules, memory, and stages are mapped from visible Tink records in 3D. Drag to orbit, scroll to zoom, click a planet to inspect it.',
+    graph3dOffline: 'The 3D map needs an internet connection to load three.js. Reconnect and refresh this report.',
     graphControls: 'Graph controls',
     full: 'Full',
     core: 'Core',
@@ -262,7 +263,8 @@ COPY.ko = {
   heroText: '보이는 Tink run, rule, memory reference, harness 관계를 하나의 로컬 대시보드로 보여줍니다. 이 보고서는 제안만 준비하며 재사용 상태를 직접 수정하지 않습니다.',
   generated: '생성 시각',
   harnessMap: '하네스 지도',
-  mapHelp: '보이는 Tink 기록에서 하네스, rule, memory, stage 관계를 그립니다. 휠로 확대, 드래그로 이동, 노드를 클릭하면 자세히 볼 수 있습니다.',
+  mapHelp: '보이는 Tink 기록에서 하네스, rule, memory, stage 관계를 3D로 그립니다. 드래그로 회전, 휠로 확대, 행성을 클릭하면 자세히 볼 수 있습니다.',
+  graph3dOffline: '3D 지도를 불러오려면 인터넷 연결이 필요합니다 (three.js CDN). 연결 후 보고서를 새로고침하세요.',
   graphControls: '그래프 조작',
   full: '전체',
   core: '핵심',
@@ -618,32 +620,19 @@ function buildGraphLayout(summary) {
       glow: score >= 50 || radius >= 20
     };
   });
-  const orbitSystems = [];
-  for (const node of positioned.filter((item) => item.type === 'harness')) {
-    const harnessId = shortLabel(node.id);
-    const harness = harnessById.get(harnessId);
-    if (!harness) continue;
-    const uses = Number(harness.signals?.uses || 0);
-    const evidenceCount = (harness.evidence_handles || []).length;
-    const factorCount = (harness.candidate_score?.factors || []).length;
-    const seed = hashString(node.id);
-    const rings = [
-      { kind: 'signal', count: Math.min(10, Math.ceil(uses / 2)), distance: node.radius + 18, dotRadius: 2.4 },
-      { kind: 'evidence', count: Math.min(6, evidenceCount), distance: node.radius + 29, dotRadius: 2.9 },
-      { kind: 'score', count: Math.min(5, factorCount), distance: node.radius + 40, dotRadius: 3.2 }
-    ]
-      .filter((ring) => ring.count > 0)
-      .map((ring, ringIndex) => ({
-        ...ring,
-        duration: (28 + ((seed >> (ringIndex * 3)) % 36)).toFixed(0),
-        reverse: ringIndex % 2 === 1,
-        phase: ((seed >> (ringIndex * 5)) % 628) / 100
-      }));
-    if (rings.length) {
-      orbitSystems.push({ parentId: node.id, x: node.x, y: node.y, rings });
-    }
-  }
-  const byId = new Map(positioned.map((node) => [node.id, node]));
+  const spatial = positioned.map((node) => {
+    const hash = hashString(`y3:${node.id}`);
+    const ySpread = node.type === 'harness' ? 7 : 11;
+    return {
+      ...node,
+      x3: Number(((node.x - 545) * 0.055).toFixed(2)),
+      y3: Number((((hash % 200) / 200 - 0.5) * 2 * ySpread).toFixed(2)),
+      z3: Number(((node.y - 340) * 0.055).toFixed(2)),
+      r3: Number((0.4 + node.radius * 0.085).toFixed(2)),
+      spin: Number((0.04 + ((hash >> 6) % 100) / 100 * 0.14).toFixed(3))
+    };
+  });
+  const byId = new Map(spatial.map((node) => [node.id, node]));
   const drawnEdges = getRenderableEdges(edges)
     .map((edge) => ({
       ...edge,
@@ -653,70 +642,32 @@ function buildGraphLayout(summary) {
     .filter((edge) => edge.sourceNode && edge.targetNode)
     .slice(0, 240);
 
-  return { nodes: positioned, edges: drawnEdges, orbitSystems };
+  return { nodes: spatial, edges: drawnEdges };
 }
 
 function renderGraphCanvas(summary, copy) {
-  const { nodes, edges, orbitSystems } = buildGraphLayout(summary);
-  const strongest = nodes
-    .filter((node) => node.type === 'harness')
-    .sort((a, b) => Number(b.weight || 0) - Number(a.weight || 0))
-    .slice(0, 8);
-  const stars = Array.from({ length: 110 }, (_, index) => {
-    const seed = hashString(`star:${index}`);
-    return {
-      x: seed % 1090,
-      y: (seed >> 4) % 680,
-      r: (0.5 + ((seed >> 8) % 12) / 10).toFixed(1),
-      opacity: (0.1 + ((seed >> 6) % 45) / 100).toFixed(2),
-      twinkle: index % 4 === 0,
-      delay: seed % 5000
-    };
-  });
-  const GALAXY = { count: 760, arms: 4, radius: 360, spin: 2.3, power: 2.4, cx: 545, cy: 340, flatten: 0.6 };
-  const lerpChannel = (from, to, t) => Math.round(from + (to - from) * t);
-  const galaxyDots = Array.from({ length: GALAXY.count }, (_, index) => {
-    const s1 = (hashString(`gal:${index}:a`) % 10000) / 10000;
-    const s2 = (hashString(`gal:${index}:b`) % 10000) / 10000;
-    const s3 = (hashString(`gal:${index}:c`) % 10000) / 10000;
-    const s4 = (hashString(`gal:${index}:d`) % 10000) / 10000;
-    const radius = Math.pow(s1, GALAXY.power) * GALAXY.radius;
-    const t = radius / GALAXY.radius;
-    const branchAngle = ((index % GALAXY.arms) / GALAXY.arms) * Math.PI * 2;
-    const spinAngle = t * GALAXY.spin;
-    const randomX = (s2 - 0.5) * 0.42 * radius;
-    const randomY = (s3 - 0.5) * 0.42 * radius;
-    const totalAngle = branchAngle + spinAngle;
-    // inside #FF66FF -> outside #66FFFF, like the reference galaxy
-    const color = `rgb(${lerpChannel(255, 102, t)}, ${lerpChannel(102, 255, t)}, 255)`;
-    return {
-      x: (GALAXY.cx + (Math.cos(totalAngle) * radius + randomX)).toFixed(1),
-      y: (GALAXY.cy + (Math.sin(totalAngle) * radius + randomY) * GALAXY.flatten).toFixed(1),
-      r: (0.5 + s4 * 1.1).toFixed(1),
-      color,
-      opacity: (0.12 + s4 * 0.34).toFixed(2)
-    };
-  });
-  const nebulae = Array.from({ length: 7 }, (_, index) => {
-    const seed = hashString(`nebula:${index}`);
-    return {
-      id: index,
-      hue: seed % 360,
-      x: 80 + (seed % 930),
-      y: 60 + ((seed >> 5) % 560),
-      r: 70 + ((seed >> 3) % 150),
-      opacity: (0.05 + ((seed >> 7) % 8) / 100).toFixed(2)
-    };
-  });
-  const pulses = edges.slice(0, 120).map((edge, index) => {
-    const seed = hashString(`pulse:${edge.source}:${edge.target}:${index}`);
-    return {
-      path: `M ${edge.sourceNode.x.toFixed(1)},${edge.sourceNode.y.toFixed(1)} L ${edge.targetNode.x.toFixed(1)},${edge.targetNode.y.toFixed(1)}`,
-      dur: (3.2 + (seed % 42) / 10).toFixed(1),
-      begin: -((seed >> 4) % 7000),
-      index
-    };
-  });
+  const { nodes, edges } = buildGraphLayout(summary);
+  const graphPayload = JSON.stringify({
+    nodes: nodes.map((node) => ({
+      id: node.id,
+      label: node.label,
+      type: TYPE_COLORS[node.type] ? node.type : 'unknown',
+      weight: Number(node.weight || 0),
+      recommendation: node.recommendation || '',
+      core: node.type === 'harness' || node.type === 'rule' || Number(node.weight || 0) > 1,
+      x: node.x3,
+      y: node.y3,
+      z: node.z3,
+      r: node.r3,
+      spin: node.spin,
+      glow: Boolean(node.glow)
+    })),
+    edges: edges.map((edge) => ({
+      source: edge.source,
+      target: edge.target,
+      count: Number(edge.count || 1)
+    }))
+  }).replaceAll('<', '\\u003c');
   const mapTitle = copy.knowledgeGraph || copy.harnessMap || 'Harness map';
   const mapEyebrow = copy.harnessMap && copy.harnessMap !== mapTitle ? copy.harnessMap : '';
   return `
@@ -739,142 +690,10 @@ function renderGraphCanvas(summary, copy) {
           </div>
         </div>
       </div>
-      <svg class="graph-canvas" viewBox="0 0 1090 680" role="img" aria-label="Harness health graph">
-        <defs>
-          <radialGradient id="graph-bg-grad" cx="50%" cy="42%" r="80%">
-            <stop offset="0%" style="stop-color: #0B0E1A"/>
-            <stop offset="60%" style="stop-color: #05060F"/>
-            <stop offset="100%" style="stop-color: #000005"/>
-          </radialGradient>
-          <radialGradient id="galaxy-core-grad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" style="stop-color: #FFFFFF; stop-opacity: 0.55"/>
-            <stop offset="35%" style="stop-color: #C9B8FF; stop-opacity: 0.18"/>
-            <stop offset="100%" style="stop-color: #C9B8FF; stop-opacity: 0"/>
-          </radialGradient>
-          ${nebulae.map((nebula) => `
-            <radialGradient id="nebula-grad-${nebula.id}" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" style="stop-color: hsl(${nebula.hue}, 80%, 60%); stop-opacity: 0.6"/>
-              <stop offset="100%" style="stop-color: hsl(${nebula.hue}, 80%, 60%); stop-opacity: 0"/>
-            </radialGradient>
-          `).join('')}
-          <radialGradient id="pulse-grad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" style="stop-color: #FFFFFF; stop-opacity: 1"/>
-            <stop offset="45%" style="stop-color: #9DC4FF; stop-opacity: 0.85"/>
-            <stop offset="100%" style="stop-color: #5B8DEF; stop-opacity: 0"/>
-          </radialGradient>
-          ${Object.entries(TYPE_COLORS).map(([type, color]) => `
-            <radialGradient id="node-grad-${escapeAttr(type)}" cx="32%" cy="28%" r="78%">
-              <stop offset="0%" style="stop-color: #FFFFFF; stop-opacity: 0.42"/>
-              <stop offset="38%" style="stop-color: ${escapeAttr(color)}; stop-opacity: 0.98"/>
-              <stop offset="100%" style="stop-color: ${escapeAttr(color)}; stop-opacity: 0.78"/>
-            </radialGradient>
-          `).join('')}
-        </defs>
-        <rect class="graph-bg" width="1090" height="680" fill="url(#graph-bg-grad)"/>
-        <g class="starfield" aria-hidden="true">
-          ${stars.map((star) => `
-            <circle cx="${star.x}" cy="${star.y}" r="${star.r}" fill="#FFFFFF" opacity="${star.opacity}"${star.twinkle ? ` class="star-twinkle" style="--twinkle-delay: ${star.delay}ms"` : ''}/>
-          `).join('')}
-        </g>
-        <g class="galaxy-layer" aria-hidden="true">
-          ${nebulae.map((nebula) => `
-            <circle class="nebula" cx="${nebula.x}" cy="${nebula.y}" r="${nebula.r}" fill="url(#nebula-grad-${nebula.id})" opacity="${nebula.opacity}"/>
-          `).join('')}
-          <g class="galaxy-spiral">
-            ${galaxyDots.map((dot) => `<circle cx="${dot.x}" cy="${dot.y}" r="${dot.r}" fill="${dot.color}" opacity="${dot.opacity}"/>`).join('')}
-          </g>
-          <circle class="galaxy-core" cx="${GALAXY.cx}" cy="${GALAXY.cy}" r="120" fill="url(#galaxy-core-grad)"/>
-        </g>
-        <g id="graph-viewport">
-        <g class="edges">
-        ${edges.map((edge, index) => `
-              <line
-                class="graph-edge"
-                style="--edge-delay: ${Math.min(index * 5, 850)}ms"
-                data-source="${escapeAttr(edge.source)}"
-                data-target="${escapeAttr(edge.target)}"
-                x1="${edge.sourceNode.x.toFixed(1)}"
-              y1="${edge.sourceNode.y.toFixed(1)}"
-              x2="${edge.targetNode.x.toFixed(1)}"
-              y2="${edge.targetNode.y.toFixed(1)}"
-              stroke="${escapeAttr(edge.sourceNode.color)}"
-              stroke-opacity="0.12"
-              stroke-width="${clamp(Number(edge.count || 1), 1, 5)}"
-            />
-          `).join('')}
-        </g>
-        <g class="pulses" aria-hidden="true">
-          ${pulses.map((pulse) => `
-            <g class="pulse-wrap" data-pulse-index="${pulse.index}">
-              <circle class="edge-pulse" r="2.6" fill="url(#pulse-grad)" opacity="0">
-                <animateMotion dur="${pulse.dur}s" begin="${pulse.begin}ms" repeatCount="indefinite" path="${escapeAttr(pulse.path)}"/>
-                <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.12;0.85;1" dur="${pulse.dur}s" begin="${pulse.begin}ms" repeatCount="indefinite"/>
-              </circle>
-            </g>
-          `).join('')}
-        </g>
-        <g class="orbits" aria-hidden="true">
-          ${orbitSystems.map((system) => `
-            <g class="orbit-system" data-parent="${escapeAttr(system.parentId)}" transform="translate(${system.x.toFixed(1)} ${system.y.toFixed(1)})">
-              ${system.rings.map((ring) => {
-                const dots = Array.from({ length: ring.count }, (_, dotIndex) => {
-                  const angle = ring.phase + (dotIndex * Math.PI * 2) / ring.count;
-                  return `<circle class="orbit-dot" cx="${(Math.cos(angle) * ring.distance).toFixed(1)}" cy="${(Math.sin(angle) * ring.distance).toFixed(1)}" r="${ring.dotRadius}" fill="url(#node-grad-${escapeAttr(ring.kind)})"/>`;
-                }).join('');
-                return `
-                  <circle class="orbit-ring" cx="0" cy="0" r="${ring.distance.toFixed(1)}"/>
-                  <g class="orbit-spin${ring.reverse ? ' is-reverse' : ''}" style="--orbit-dur: ${ring.duration}s">${dots}</g>
-                `;
-              }).join('')}
-            </g>
-          `).join('')}
-        </g>
-        <g class="nodes">
-          ${nodes.map((node, index) => {
-            const seed = hashString(node.id);
-            const floatDuration = (5 + (seed % 50) / 10).toFixed(1);
-            const floatDelay = -(seed % 4000);
-            const floatX = ((seed % 7) - 3).toFixed(1);
-            const floatY = (((seed >> 3) % 7) - 3).toFixed(1);
-            return `
-            <g class="node-float" style="--float-dur: ${floatDuration}s; --float-delay: ${floatDelay}ms; --float-x: ${floatX}px; --float-y: ${floatY}px">
-            ${node.type === 'harness' && node.radius >= 15 ? `
-              <ellipse class="planet-ring" cx="${node.x.toFixed(1)}" cy="${node.y.toFixed(1)}" rx="${(node.radius * 1.75).toFixed(1)}" ry="${(node.radius * 0.5).toFixed(1)}" transform="rotate(-16 ${node.x.toFixed(1)} ${node.y.toFixed(1)})"/>
-            ` : ''}
-            <circle
-              class="graph-node ${node.type === 'harness' ? 'is-interactive' : ''}"
-              style="--enter-delay: ${Math.min(index * 9, 1100)}ms"
-              tabindex="${node.type === 'harness' ? '0' : '-1'}"
-              role="${node.type === 'harness' ? 'button' : 'presentation'}"
-              aria-label="${escapeAttr(`${copy.tooltipPrefix}: ${node.label}`)}"
-              data-node-id="${escapeAttr(node.id)}"
-              data-node-type="${escapeAttr(node.type)}"
-              data-node-label="${escapeAttr(node.label)}"
-              data-node-weight="${escapeAttr(node.weight || 0)}"
-              data-core="${node.type === 'harness' || node.type === 'rule' || Number(node.weight || 0) > 1 ? 'true' : 'false'}"
-              data-recommendation="${escapeAttr(node.recommendation || '')}"
-              cx="${node.x.toFixed(1)}"
-              cy="${node.y.toFixed(1)}"
-              r="${node.radius.toFixed(1)}"
-              fill="url(#node-grad-${escapeAttr(TYPE_COLORS[node.type] ? node.type : 'unknown')})"
-              fill-opacity="${node.type === 'harness' ? '1' : '0.85'}"
-              stroke="${escapeAttr('var(--text-secondary)')}"
-              stroke-opacity="${node.glow ? '0.9' : '0.18'}"
-              stroke-width="${node.glow ? '1.8' : '0.8'}"
-            >
-              <title>${escapeHtml(node.id)}</title>
-            </circle>
-            </g>
-          `;
-          }).join('')}
-        </g>
-        <g class="labels">
-          ${strongest.map((node) => `
-            <text x="${(node.x + node.radius + 7).toFixed(1)}" y="${(node.y + 4).toFixed(1)}">${escapeHtml(node.label)}</text>
-          `).join('')}
-        </g>
-        </g>
-      </svg>
+      <div class="graph-3d" id="graph-3d" role="img" aria-label="Harness health graph">
+        <p class="graph-3d-fallback" id="graph-3d-fallback" hidden>${escapeHtml(copy.graph3dOffline || 'The 3D map needs an internet connection to load three.js.')}</p>
+      </div>
+      <script type="application/json" id="graph-data">${graphPayload}</script>
       <div class="graph-tooltip" id="graph-tooltip" role="status" aria-live="polite"></div>
       <div class="map-caption">
         <span id="graph-status">${escapeHtml(copy.showingAll)}</span>
@@ -882,8 +701,8 @@ function renderGraphCanvas(summary, copy) {
         <span>${escapeHtml(copy.linesRelations)}</span>
       </div>
       <div class="map-legend" aria-label="${escapeAttr(copy.nodeTypes || 'Node types')}">
-        ${['harness', 'rule', 'memory', 'stage', 'signal', 'evidence', 'score'].map((type) => `
-          <span class="legend-chip"><i style="background: ${escapeAttr(TYPE_COLORS[type] || TYPE_COLORS.unknown)}"></i>${escapeHtml(type)}</span>
+        ${[['harness', 'var(--accent)'], ['rule', '#9B8CFF'], ['memory', '#4EC9B0'], ['stage', '#D7A65A']].map(([type, color]) => `
+          <span class="legend-chip"><i style="background: ${escapeAttr(color)}"></i>${escapeHtml(type)}</span>
         `).join('')}
       </div>
     </section>
@@ -1429,11 +1248,7 @@ function renderScript(harnesses, copy) {
       const byHarnessId = new Map(harnessData.map((item) => ['harness:' + item.id, item]));
       const selectedPanel = document.getElementById('selected-panel');
       const graphStatus = document.getElementById('graph-status');
-      const tooltip = document.getElementById('graph-tooltip');
       const filterStatus = document.getElementById('recommendation-filter-status');
-      const nodes = Array.from(document.querySelectorAll('.graph-node'));
-      const interactiveNodes = nodes.filter((item) => item.classList.contains('is-interactive'));
-      const edges = Array.from(document.querySelectorAll('.graph-edge'));
       const cards = Array.from(document.querySelectorAll('.harness-card'));
       const recLabelByFilter = Object.fromEntries(
         Array.from(document.querySelectorAll('[data-filter-rec]')).map((button) => [
@@ -1452,63 +1267,25 @@ function renderScript(harnesses, copy) {
         const text = String(value ?? '').trim();
         return text && text.toLowerCase() !== 'unknown' ? text : (copy.notSet || 'Not set');
       };
-      const nodeById = (id) => nodes.find((node) => node.dataset.nodeId === id);
       const setStatus = (value) => {
         if (graphStatus) graphStatus.textContent = value;
       };
       const setFilterStatus = (value) => {
         if (filterStatus) filterStatus.textContent = value;
       };
-      const graphCanvas = document.querySelector('.graph-canvas');
-      const orbitSystems = Array.from(document.querySelectorAll('.orbit-system'));
-      const pulseWraps = Array.from(document.querySelectorAll('.pulse-wrap'));
       const defaultSelectedPanel = selectedPanel ? selectedPanel.innerHTML : '';
-      function syncPulses() {
-        const hasSelection = graphCanvas && graphCanvas.classList.contains('has-selection');
-        pulseWraps.forEach((wrap) => {
-          const edge = edges[Number(wrap.dataset.pulseIndex)];
-          if (!edge) return;
-          const hidden = edge.classList.contains('is-hidden') || edge.classList.contains('is-filtered-out');
-          wrap.classList.toggle('is-hidden', hidden);
-          wrap.classList.toggle('is-dimmed', Boolean(hasSelection && !edge.classList.contains('is-related')));
-        });
-      }
-      function syncOrbits() {
-        const hasSelection = graphCanvas && graphCanvas.classList.contains('has-selection');
-        orbitSystems.forEach((system) => {
-          const parent = nodeById(system.dataset.parent);
-          const hidden = !parent || parent.classList.contains('is-hidden') || parent.classList.contains('is-filtered-out');
-          system.classList.toggle('is-hidden', hidden);
-          const related = parent && (parent.classList.contains('is-selected') || parent.classList.contains('is-related'));
-          system.classList.toggle('is-dimmed', Boolean(hasSelection && !related));
-        });
-        syncPulses();
-      }
-      function clearSelection() {
-        nodes.forEach((item) => item.classList.remove('is-selected', 'is-related'));
-        edges.forEach((item) => item.classList.remove('is-related'));
-        cards.forEach((item) => item.classList.remove('is-selected'));
-        if (graphCanvas) graphCanvas.classList.remove('has-selection');
-        syncOrbits();
-      }
-      function selectNode(node) {
-        clearSelection();
-        node.classList.add('is-selected');
-        if (graphCanvas) graphCanvas.classList.add('has-selection');
-        const id = node.dataset.nodeId;
-        const item = byHarnessId.get(id);
-        edges.forEach((edge) => {
-          const related = edge.dataset.source === id || edge.dataset.target === id;
-          edge.classList.toggle('is-related', related);
-          if (related) {
-            const otherId = edge.dataset.source === id ? edge.dataset.target : edge.dataset.source;
-            const other = nodeById(otherId);
-            if (other) other.classList.add('is-related');
+      window.__tinkGraphState = { mode: 'full', filter: null, pendingSelect: null };
+      window.__tinkGraphBridge = {
+        onSelect(info) {
+          if (!info) {
+            cards.forEach((card) => card.classList.remove('is-selected'));
+            if (selectedPanel && defaultSelectedPanel) selectedPanel.innerHTML = defaultSelectedPanel;
+            return;
           }
-        });
-      if (item) {
-          cards.forEach((card) => card.classList.toggle('is-selected', card.dataset.harnessId === item.id));
-          if (selectedPanel) {
+          const item = byHarnessId.get(info.id);
+          cards.forEach((card) => card.classList.toggle('is-selected', Boolean(item) && card.dataset.harnessId === item.id));
+          if (!selectedPanel) return;
+          if (item) {
             selectedPanel.innerHTML = '<p class="eyebrow">' + esc(copy.selected) + '</p>' +
               '<h2>' + esc(item.id) + '</h2>' +
               '<p>' + esc((item.reason || copy.clickNode)) + '</p>' +
@@ -1518,32 +1295,29 @@ function renderScript(harnesses, copy) {
               '<div><dt>' + esc(copy.uses) + '</dt><dd>' + esc(item.uses) + '</dd></div>' +
               '<div><dt>' + esc(copy.score) + '</dt><dd>' + esc(item.score) + '</dd></div>' +
               '</dl>';
+          } else {
+            selectedPanel.innerHTML = '<p class="eyebrow">' + esc(copy.selected) + '</p><h2>' + esc(info.label) + '</h2><p>' + esc(info.id) + '</p><dl><div><dt>' + esc(copy.type) + '</dt><dd>' + esc(displayValue(info.type)) + '</dd></div><div><dt>' + esc(copy.weight) + '</dt><dd>' + esc(info.weight) + '</dd></div></dl>';
           }
-        } else if (selectedPanel) {
-          selectedPanel.innerHTML = '<p class="eyebrow">' + esc(copy.selected) + '</p><h2>' + esc(node.dataset.nodeLabel) + '</h2><p>' + esc(id) + '</p><dl><div><dt>' + esc(copy.type) + '</dt><dd>' + esc(displayValue(node.dataset.nodeType)) + '</dd></div><div><dt>' + esc(copy.weight) + '</dt><dd>' + esc(node.dataset.nodeWeight) + '</dd></div></dl>';
         }
-        syncOrbits();
-      }
+      };
       function selectHarness(id) {
-        const node = nodeById('harness:' + id);
-        if (node) {
-          selectNode(node);
-          node.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
-        }
+        const nodeId = 'harness:' + id;
+        if (window.__tinkGraph) window.__tinkGraph.select(nodeId);
+        else window.__tinkGraphState.pendingSelect = nodeId;
       }
-      function applyMode(mode) {
-        document.querySelectorAll('[data-mode]').forEach((button) => {
-          const active = button.dataset.mode === mode;
-          button.classList.toggle('active', active);
-          button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      document.querySelectorAll('[data-mode]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const mode = button.dataset.mode;
+          document.querySelectorAll('[data-mode]').forEach((item) => {
+            const active = item.dataset.mode === mode;
+            item.classList.toggle('active', active);
+            item.setAttribute('aria-pressed', active ? 'true' : 'false');
+          });
+          window.__tinkGraphState.mode = mode;
+          if (window.__tinkGraph) window.__tinkGraph.setMode(mode);
+          setStatus(mode === 'core' ? copy.coreMode : copy.showingAll);
         });
-        nodes.forEach((node) => node.classList.toggle('is-hidden', mode === 'core' && node.dataset.core !== 'true'));
-        const visibleIds = new Set(nodes.filter((node) => !node.classList.contains('is-hidden')).map((node) => node.dataset.nodeId));
-        edges.forEach((edge) => edge.classList.toggle('is-hidden', mode === 'core' && (!visibleIds.has(edge.dataset.source) || !visibleIds.has(edge.dataset.target))));
-        document.querySelectorAll('.orbit-system').forEach((system) => system.classList.toggle('is-mode-hidden', mode === 'core'));
-        setStatus(mode === 'core' ? copy.coreMode : copy.showingAll);
-        syncOrbits();
-      }
+      });
       function filterRecommendation(value, button) {
         const alreadyActive = button.classList.contains('active-filter');
         document.querySelectorAll('[data-filter-rec]').forEach((item) => {
@@ -1551,138 +1325,29 @@ function renderScript(harnesses, copy) {
           item.setAttribute('aria-pressed', 'false');
         });
         if (alreadyActive) {
-          nodes.forEach((node) => node.classList.remove('is-filtered-out'));
-          edges.forEach((edge) => edge.classList.remove('is-filtered-out'));
           cards.forEach((card) => card.classList.remove('is-filtered-out'));
+          window.__tinkGraphState.filter = null;
+          if (window.__tinkGraph) window.__tinkGraph.setFilter(null);
           setStatus(copy.showingAll);
           setFilterStatus(copy.showingAll);
-          syncOrbits();
           return;
         }
         button.classList.add('active-filter');
         button.setAttribute('aria-pressed', 'true');
-        nodes.forEach((node) => {
-          const hide = node.dataset.nodeType === 'harness' && node.dataset.recommendation !== value;
-          node.classList.toggle('is-filtered-out', hide);
-        });
-        const visibleIds = new Set(nodes.filter((node) => !node.classList.contains('is-filtered-out')).map((node) => node.dataset.nodeId));
-        edges.forEach((edge) => edge.classList.toggle('is-filtered-out', !visibleIds.has(edge.dataset.source) || !visibleIds.has(edge.dataset.target)));
         cards.forEach((card) => card.classList.toggle('is-filtered-out', card.dataset.recommendation !== value));
+        window.__tinkGraphState.filter = value;
+        if (window.__tinkGraph) window.__tinkGraph.setFilter(value);
         const label = recLabelByFilter[value] || value;
         setStatus(copy.filteredTo + ': ' + label);
         setFilterStatus(copy.filteredTo + ': ' + label);
-        syncOrbits();
       }
-      interactiveNodes.forEach((node) => {
-        node.addEventListener('click', () => selectNode(node));
-        node.addEventListener('keydown', (event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            selectNode(node);
-          }
-        });
-        node.addEventListener('pointerenter', () => {
-          if (!tooltip) return;
-          const box = node.getBoundingClientRect();
-          const label = copy.tooltipPrefix + ': ' + node.dataset.nodeLabel;
-          const typeLabel = node.dataset.nodeType ? ' - ' + node.dataset.nodeType : '';
-          tooltip.textContent = label + typeLabel;
-          tooltip.style.left = (Math.min(Math.ceil(box.right + 12), window.innerWidth - 220)) + 'px';
-          tooltip.style.top = (Math.max(Math.ceil(box.top - 12), 12)) + 'px';
-          tooltip.classList.add('is-visible');
-        });
-        node.addEventListener('pointerleave', () => {
-          if (tooltip) {
-            tooltip.classList.remove('is-visible');
-            tooltip.textContent = '';
-          }
+      document.querySelectorAll('[data-zoom]').forEach((button) => {
+        button.addEventListener('click', () => {
+          if (!window.__tinkGraph) return;
+          if (button.dataset.zoom === 'reset') window.__tinkGraph.reset();
+          else window.__tinkGraph.zoom(button.dataset.zoom === 'in' ? 0.78 : 1.28);
         });
       });
-      document.querySelectorAll('[data-mode]').forEach((button) => {
-        button.addEventListener('click', () => applyMode(button.dataset.mode));
-      });
-      const graphSvg = document.querySelector('.graph-canvas');
-      const graphViewport = document.getElementById('graph-viewport');
-      if (graphSvg && graphViewport) {
-        const view = { x: 0, y: 0, k: 1 };
-        graphViewport.style.transformOrigin = '0 0';
-        const applyView = () => {
-          graphViewport.style.transform = 'translate(' + view.x + 'px, ' + view.y + 'px) scale(' + view.k + ')';
-        };
-        const svgPoint = (event) => {
-          const pt = graphSvg.createSVGPoint();
-          pt.x = event.clientX;
-          pt.y = event.clientY;
-          return pt.matrixTransform(graphSvg.getScreenCTM().inverse());
-        };
-        const zoomAt = (factor, cx, cy) => {
-          const k = Math.min(5, Math.max(0.4, view.k * factor));
-          const real = k / view.k;
-          view.x = cx - (cx - view.x) * real;
-          view.y = cy - (cy - view.y) * real;
-          view.k = k;
-          applyView();
-        };
-        const resetView = () => {
-          graphViewport.classList.add('is-resetting');
-          view.x = 0; view.y = 0; view.k = 1;
-          applyView();
-          setTimeout(() => graphViewport.classList.remove('is-resetting'), 360);
-        };
-        graphSvg.addEventListener('wheel', (event) => {
-          event.preventDefault();
-          const point = svgPoint(event);
-          zoomAt(event.deltaY < 0 ? 1.15 : 1 / 1.15, point.x, point.y);
-        }, { passive: false });
-        let panState = null;
-        graphSvg.addEventListener('pointerdown', (event) => {
-          if (event.button !== 0) return;
-          panState = { x: event.clientX, y: event.clientY, moved: false };
-          graphSvg.setPointerCapture(event.pointerId);
-        });
-        graphSvg.addEventListener('pointermove', (event) => {
-          if (!panState) return;
-          const dx = event.clientX - panState.x;
-          const dy = event.clientY - panState.y;
-          if (!panState.moved && Math.abs(dx) + Math.abs(dy) < 3) return;
-          panState.moved = true;
-          graphSvg.classList.add('is-panning');
-          const scale = 1090 / graphSvg.clientWidth;
-          view.x += dx * scale;
-          view.y += dy * scale;
-          panState.x = event.clientX;
-          panState.y = event.clientY;
-          applyView();
-        });
-        let suppressClick = false;
-        const endPan = () => {
-          suppressClick = Boolean(panState && panState.moved);
-          panState = null;
-          graphSvg.classList.remove('is-panning');
-        };
-        graphSvg.addEventListener('pointerup', endPan);
-        graphSvg.addEventListener('pointercancel', endPan);
-        graphSvg.addEventListener('click', (event) => {
-          if (suppressClick) {
-            suppressClick = false;
-            return;
-          }
-          if (event.target.classList.contains('graph-bg') || event.target.closest('.starfield') || event.target.closest('.galaxy-layer')) {
-            clearSelection();
-            if (selectedPanel && defaultSelectedPanel) selectedPanel.innerHTML = defaultSelectedPanel;
-          }
-        });
-        graphSvg.addEventListener('dblclick', (event) => {
-          event.preventDefault();
-          resetView();
-        });
-        document.querySelectorAll('[data-zoom]').forEach((button) => {
-          button.addEventListener('click', () => {
-            if (button.dataset.zoom === 'reset') return resetView();
-            zoomAt(button.dataset.zoom === 'in' ? 1.3 : 1 / 1.3, 545, 340);
-          });
-        });
-      }
       const VALID_TABS = ['home', 'harnesses', 'memory', 'graph', 'activity'];
       const navLinks = Array.from(document.querySelectorAll('.nav a[data-tab]'));
       const pages = Array.from(document.querySelectorAll('.page'));
@@ -1730,6 +1395,448 @@ function renderScript(harnesses, copy) {
       document.querySelectorAll('[data-filter-rec]').forEach((button) => {
         button.addEventListener('click', () => filterRecommendation(button.dataset.filterRec, button));
       });
+    </script>
+  `;
+}
+
+function renderGraph3DModule(copy) {
+  const copyPayload = JSON.stringify({
+    tooltipPrefix: copy.tooltipPrefix,
+    type: copy.type
+  }).replaceAll('<', '\\u003c');
+  return `
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.162.0/examples/jsm/"
+      }
+    }
+    </script>
+    <script type="module">
+    (async () => {
+      const container = document.getElementById('graph-3d');
+      const dataEl = document.getElementById('graph-data');
+      if (!container || !dataEl) return;
+      let THREE, OrbitControls;
+      try {
+        THREE = await import('three');
+        ({ OrbitControls } = await import('three/addons/controls/OrbitControls.js'));
+      } catch (error) {
+        const fallback = document.getElementById('graph-3d-fallback');
+        if (fallback) fallback.hidden = false;
+        return;
+      }
+      const data = JSON.parse(dataEl.textContent);
+      const copy3d = ${copyPayload};
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const rootStyle = getComputedStyle(document.documentElement);
+      const cssColor = (name, fallbackColor) => (rootStyle.getPropertyValue(name) || '').trim() || fallbackColor;
+      const TYPE_HEX = {
+        harness: cssColor('--accent', '#5B8DEF'),
+        rule: '#9B8CFF',
+        memory: '#4EC9B0',
+        stage: '#D7A65A',
+        unknown: '#7A8194'
+      };
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x000000, 0.0019);
+      const camera = new THREE.PerspectiveCamera(60, 16 / 9, 0.1, 1000);
+      const INITIAL_CAM = new THREE.Vector3(0, 24, 52);
+      const INITIAL_TARGET = new THREE.Vector3(0, 0, 0);
+      camera.position.copy(INITIAL_CAM);
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setClearColor(0x000005, 1);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      container.appendChild(renderer.domElement);
+      const labelLayer = document.createElement('div');
+      labelLayer.className = 'graph3d-labels';
+      container.appendChild(labelLayer);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.autoRotate = !reducedMotion;
+      controls.autoRotateSpeed = 0.12;
+      controls.minDistance = 14;
+      controls.maxDistance = 160;
+
+      scene.add(new THREE.AmbientLight(0x8e9ab8, 0.85));
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.25);
+      keyLight.position.set(30, 45, 25);
+      scene.add(keyLight);
+      const coreLight = new THREE.PointLight(0xffe8ff, 0.5, 260);
+      coreLight.position.set(0, -14, 0);
+      scene.add(coreLight);
+
+      function glowTexture(color) {
+        const size = 128;
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = size;
+        const context = canvas.getContext('2d');
+        const gradient = context.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+        gradient.addColorStop(0, color);
+        gradient.addColorStop(1, 'rgba(0,0,0,0)');
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, size, size);
+        return new THREE.CanvasTexture(canvas);
+      }
+      function glowSprite(color, scale) {
+        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: glowTexture(color),
+          transparent: true,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending
+        }));
+        sprite.scale.set(scale, scale, 1);
+        return sprite;
+      }
+
+      // --- galaxy backdrop (same recipe as the three.js reference) ---
+      const GALAXY = { count: 70000, arms: 4, radius: 95, spin: 1.9, randomness: 0.28, power: 3, y: -16, flatten: 0.22 };
+      const galaxyPositions = new Float32Array(GALAXY.count * 3);
+      const galaxyColors = new Float32Array(GALAXY.count * 3);
+      const insideColor = new THREE.Color(0xff66ff);
+      const outsideColor = new THREE.Color(0x66ffff);
+      for (let i = 0; i < GALAXY.count; i += 1) {
+        const i3 = i * 3;
+        const radius = Math.pow(Math.random(), GALAXY.power) * GALAXY.radius;
+        const branchAngle = ((i % GALAXY.arms) / GALAXY.arms) * Math.PI * 2;
+        const spinAngle = (radius / GALAXY.radius) * GALAXY.spin * Math.PI;
+        const randomX = (Math.random() - 0.5) * GALAXY.randomness * radius;
+        const randomY = (Math.random() - 0.5) * GALAXY.randomness * radius * GALAXY.flatten;
+        const randomZ = (Math.random() - 0.5) * GALAXY.randomness * radius;
+        galaxyPositions[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
+        galaxyPositions[i3 + 1] = GALAXY.y + randomY;
+        galaxyPositions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
+        const mixed = insideColor.clone().lerp(outsideColor, radius / GALAXY.radius);
+        mixed.multiplyScalar(0.55 + 0.35 * Math.random());
+        galaxyColors[i3] = mixed.r;
+        galaxyColors[i3 + 1] = mixed.g;
+        galaxyColors[i3 + 2] = mixed.b;
+      }
+      const galaxyGeometry = new THREE.BufferGeometry();
+      galaxyGeometry.setAttribute('position', new THREE.BufferAttribute(galaxyPositions, 3));
+      galaxyGeometry.setAttribute('color', new THREE.BufferAttribute(galaxyColors, 3));
+      const galaxy = new THREE.Points(galaxyGeometry, new THREE.PointsMaterial({
+        size: 0.16,
+        vertexColors: true,
+        depthWrite: false,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+      }));
+      scene.add(galaxy);
+
+      const starGeometry = new THREE.BufferGeometry();
+      const starCount = 4000;
+      const starPositions = new Float32Array(starCount * 3);
+      for (let i = 0; i < starCount; i += 1) {
+        starPositions[i * 3] = (Math.random() - 0.5) * 520;
+        starPositions[i * 3 + 1] = (Math.random() - 0.5) * 520;
+        starPositions[i * 3 + 2] = (Math.random() - 0.5) * 520;
+      }
+      starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+      const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.5,
+        sizeAttenuation: true,
+        transparent: true,
+        opacity: 0.85
+      }));
+      scene.add(stars);
+
+      for (let i = 0; i < 10; i += 1) {
+        const hue = Math.floor(Math.random() * 360);
+        const nebula = glowSprite('hsla(' + hue + ', 80%, 55%, 0.4)', 50 + Math.random() * 70);
+        nebula.position.set((Math.random() - 0.5) * 260, (Math.random() - 0.5) * 150 - 20, (Math.random() - 0.5) * 260);
+        scene.add(nebula);
+      }
+      const coreGlow = glowSprite('rgba(255,240,255,0.85)', 26);
+      coreGlow.position.set(0, GALAXY.y, 0);
+      scene.add(coreGlow);
+
+      // --- harness map: spheres, edges, pulses, labels ---
+      function surfaceTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 128;
+        const context = canvas.getContext('2d');
+        context.fillStyle = '#B9BDC6';
+        context.fillRect(0, 0, 256, 128);
+        for (let i = 0; i < 70; i += 1) {
+          const shade = 150 + Math.floor(Math.random() * 105);
+          context.fillStyle = 'rgba(' + shade + ',' + shade + ',' + (shade + 8) + ',0.35)';
+          context.beginPath();
+          context.ellipse(Math.random() * 256, Math.random() * 128, 5 + Math.random() * 26, 3 + Math.random() * 10, Math.random() * Math.PI, 0, Math.PI * 2);
+          context.fill();
+        }
+        for (let band = 0; band < 4; band += 1) {
+          context.fillStyle = 'rgba(90,96,110,0.18)';
+          context.fillRect(0, 16 + band * 30 + Math.random() * 8, 256, 5 + Math.random() * 8);
+        }
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.wrapS = THREE.RepeatWrapping;
+        return texture;
+      }
+      const sphereTexture = surfaceTexture();
+      const sphereGeometry = new THREE.SphereGeometry(1, 32, 24);
+      const graphGroup = new THREE.Group();
+      scene.add(graphGroup);
+
+      const nodeEntries = data.nodes.map((node) => {
+        const colorHex = TYPE_HEX[node.type] || TYPE_HEX.unknown;
+        const color = new THREE.Color(colorHex);
+        const material = new THREE.MeshStandardMaterial({
+          color,
+          map: sphereTexture,
+          roughness: 0.55,
+          metalness: 0.1,
+          emissive: color,
+          emissiveIntensity: 0.25,
+          transparent: true,
+          opacity: 1
+        });
+        const mesh = new THREE.Mesh(sphereGeometry, material);
+        mesh.position.set(node.x, node.y, node.z);
+        mesh.scale.setScalar(node.r);
+        mesh.userData = node;
+        graphGroup.add(mesh);
+        let ring = null;
+        if (node.type === 'harness' && node.glow) {
+          ring = new THREE.Mesh(
+            new THREE.RingGeometry(node.r * 1.5, node.r * 2.15, 48),
+            new THREE.MeshBasicMaterial({ color: 0x9aa6c0, side: THREE.DoubleSide, transparent: true, opacity: 0.3, depthWrite: false })
+          );
+          ring.position.copy(mesh.position);
+          ring.rotation.x = Math.PI / 2.4;
+          graphGroup.add(ring);
+        }
+        const label = document.createElement('span');
+        label.className = 'graph3d-label' + (node.type === 'harness' ? '' : ' is-minor');
+        label.textContent = node.label;
+        labelLayer.appendChild(label);
+        return { node, mesh, ring, label };
+      });
+      const entryById = new Map(nodeEntries.map((entry) => [entry.node.id, entry]));
+
+      const edgeEntries = data.edges.map((edge) => {
+        const source = entryById.get(edge.source);
+        const target = entryById.get(edge.target);
+        if (!source || !target) return null;
+        const geometry = new THREE.BufferGeometry().setFromPoints([source.mesh.position, target.mesh.position]);
+        const material = new THREE.LineBasicMaterial({
+          color: new THREE.Color(TYPE_HEX[source.node.type] || TYPE_HEX.unknown),
+          transparent: true,
+          opacity: 0.3,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending
+        });
+        const line = new THREE.Line(geometry, material);
+        graphGroup.add(line);
+        const pulse = glowSprite('rgba(190,215,255,0.95)', 1.5);
+        pulse.material.opacity = 0;
+        graphGroup.add(pulse);
+        return {
+          edge,
+          source,
+          target,
+          line,
+          pulse,
+          dur: 2.6 + Math.random() * 3.2,
+          phase: Math.random()
+        };
+      }).filter(Boolean);
+
+      // --- state: selection, mode, filter ---
+      const state = window.__tinkGraphState || { mode: 'full', filter: null, pendingSelect: null };
+      let selectedId = null;
+      function relatedIds(id) {
+        const related = new Set([id]);
+        edgeEntries.forEach((entry) => {
+          if (entry.edge.source === id) related.add(entry.edge.target);
+          if (entry.edge.target === id) related.add(entry.edge.source);
+        });
+        return related;
+      }
+      function applyState() {
+        const related = selectedId ? relatedIds(selectedId) : null;
+        nodeEntries.forEach((entry) => {
+          const visible = state.mode !== 'core' || entry.node.core;
+          entry.mesh.visible = visible;
+          let dim = 1;
+          if (state.filter && entry.node.type === 'harness' && entry.node.recommendation !== state.filter) dim = 0.12;
+          if (related && !related.has(entry.node.id)) dim = Math.min(dim, 0.1);
+          const isSelected = entry.node.id === selectedId;
+          entry.mesh.material.opacity = dim;
+          entry.mesh.material.emissiveIntensity = isSelected ? 0.85 : (related && related.has(entry.node.id) ? 0.45 : 0.25);
+          entry.mesh.scale.setScalar(entry.node.r * (isSelected ? 1.3 : 1));
+          if (entry.ring) {
+            entry.ring.visible = visible;
+            entry.ring.material.opacity = 0.3 * dim;
+          }
+          entry.label.style.opacity = visible ? String(Math.max(dim, isSelected ? 1 : 0)) : '0';
+          entry.label.classList.toggle('is-selected', isSelected);
+        });
+        edgeEntries.forEach((entry) => {
+          const visible = entry.source.mesh.visible && entry.target.mesh.visible;
+          entry.line.visible = visible;
+          entry.pulse.visible = visible && !reducedMotion;
+          const isRelated = related && (entry.edge.source === selectedId || entry.edge.target === selectedId);
+          const filtered = state.filter && (entry.source.mesh.material.opacity < 0.2 || entry.target.mesh.material.opacity < 0.2);
+          entry.line.material.opacity = related ? (isRelated ? 0.85 : 0.04) : (filtered ? 0.05 : 0.3);
+          entry.pulseFactor = related ? (isRelated ? 1 : 0.05) : (filtered ? 0.08 : 1);
+        });
+      }
+      function emitSelection() {
+        if (!window.__tinkGraphBridge) return;
+        if (!selectedId) {
+          window.__tinkGraphBridge.onSelect(null);
+          return;
+        }
+        const entry = entryById.get(selectedId);
+        window.__tinkGraphBridge.onSelect(entry ? {
+          id: entry.node.id,
+          label: entry.node.label,
+          type: entry.node.type,
+          weight: entry.node.weight
+        } : null);
+      }
+      window.__tinkGraph = {
+        select(id) {
+          if (!entryById.has(id)) return;
+          selectedId = id;
+          applyState();
+          emitSelection();
+        },
+        clear() {
+          selectedId = null;
+          applyState();
+          emitSelection();
+        },
+        setMode(mode) {
+          state.mode = mode;
+          applyState();
+        },
+        setFilter(value) {
+          state.filter = value;
+          applyState();
+        },
+        zoom(factor) {
+          camera.position.sub(controls.target).multiplyScalar(factor).add(controls.target);
+          controls.update();
+        },
+        reset() {
+          camera.position.copy(INITIAL_CAM);
+          controls.target.copy(INITIAL_TARGET);
+          controls.update();
+        }
+      };
+      applyState();
+      if (state.pendingSelect) {
+        window.__tinkGraph.select(state.pendingSelect);
+        state.pendingSelect = null;
+      }
+
+      // --- picking: hover tooltip + click selection ---
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2();
+      const tooltip = document.getElementById('graph-tooltip');
+      let downAt = null;
+      function pick(event) {
+        const rect = renderer.domElement.getBoundingClientRect();
+        pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(pointer, camera);
+        const meshes = nodeEntries.filter((entry) => entry.mesh.visible && entry.mesh.material.opacity > 0.2).map((entry) => entry.mesh);
+        const hits = raycaster.intersectObjects(meshes, false);
+        return hits.length ? hits[0].object.userData : null;
+      }
+      renderer.domElement.addEventListener('pointerdown', (event) => {
+        downAt = { x: event.clientX, y: event.clientY };
+      });
+      renderer.domElement.addEventListener('pointerup', (event) => {
+        if (!downAt) return;
+        const moved = Math.abs(event.clientX - downAt.x) + Math.abs(event.clientY - downAt.y);
+        downAt = null;
+        if (moved > 6) return;
+        const hit = pick(event);
+        if (hit) window.__tinkGraph.select(hit.id);
+        else window.__tinkGraph.clear();
+      });
+      renderer.domElement.addEventListener('pointermove', (event) => {
+        const hit = pick(event);
+        renderer.domElement.style.cursor = hit ? 'pointer' : 'grab';
+        if (!tooltip) return;
+        if (hit) {
+          tooltip.textContent = copy3d.tooltipPrefix + ': ' + hit.label + ' - ' + hit.type;
+          tooltip.style.left = Math.min(event.clientX + 14, window.innerWidth - 240) + 'px';
+          tooltip.style.top = Math.max(event.clientY - 12, 12) + 'px';
+          tooltip.classList.add('is-visible');
+        } else {
+          tooltip.classList.remove('is-visible');
+        }
+      });
+      renderer.domElement.addEventListener('pointerleave', () => {
+        if (tooltip) tooltip.classList.remove('is-visible');
+      });
+      renderer.domElement.addEventListener('dblclick', () => window.__tinkGraph.reset());
+
+      // --- sizing ---
+      function resize() {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        if (!width || !height) return;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+      }
+      new ResizeObserver(resize).observe(container);
+      resize();
+
+      // --- animate ---
+      const clock = new THREE.Clock();
+      const projection = new THREE.Vector3();
+      function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+        const elapsed = clock.elapsedTime;
+        if (!container.clientWidth) return;
+        controls.update();
+        if (!reducedMotion) {
+          galaxy.rotation.y += delta * 0.012;
+          stars.rotation.y += delta * 0.004;
+          nodeEntries.forEach((entry) => {
+            entry.mesh.rotation.y += delta * entry.node.spin;
+          });
+          edgeEntries.forEach((entry) => {
+            const t = ((elapsed / entry.dur) + entry.phase) % 1;
+            entry.pulse.position.lerpVectors(entry.source.mesh.position, entry.target.mesh.position, t);
+            entry.pulse.material.opacity = Math.sin(Math.PI * t) * 0.9 * (entry.pulseFactor ?? 1);
+          });
+        }
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        nodeEntries.forEach((entry) => {
+          projection.copy(entry.mesh.position);
+          projection.y += entry.mesh.scale.x + 0.6;
+          projection.project(camera);
+          const behind = projection.z > 1;
+          if (behind || !entry.mesh.visible) {
+            entry.label.style.display = 'none';
+            return;
+          }
+          entry.label.style.display = '';
+          const x = (projection.x * 0.5 + 0.5) * width;
+          const y = (-projection.y * 0.5 + 0.5) * height;
+          entry.label.style.transform = 'translate(-50%, -100%) translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
+        });
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
     </script>
   `;
 }
@@ -2435,6 +2542,64 @@ function renderStyles() {
     .graph-canvas.has-selection .planet-ring { stroke-opacity: 0.1; }
 
     .graph-canvas.has-selection .labels text { opacity: 0.18; transition: opacity 220ms ease; }
+
+    .graph-3d {
+      position: relative;
+      height: 620px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: #000005;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    .graph-3d:active { cursor: grabbing; }
+
+    .graph-3d canvas { display: block; }
+
+    .graph3d-labels {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .graph3d-label {
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: rgba(222, 230, 248, 0.88);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
+      white-space: nowrap;
+      transition: opacity 220ms ease;
+      will-change: transform;
+    }
+
+    .graph3d-label.is-minor {
+      font-size: 10px;
+      color: rgba(168, 178, 200, 0.6);
+    }
+
+    .graph3d-label.is-selected {
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+
+    .graph-3d-fallback {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      padding: var(--space-4);
+      color: var(--text-secondary);
+      font-size: 13px;
+      text-align: center;
+    }
 
     .map-controls-row {
       display: flex;
@@ -3356,6 +3521,7 @@ function renderReport(summary) {
   </div>
   ${renderContractMetadata(copy)}
   ${renderScript(harnesses, copy)}
+  ${renderGraph3DModule(copy)}
 </body>
 </html>
 `;
