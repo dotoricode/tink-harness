@@ -6,6 +6,18 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.9] - 2026-06-11
+
+### Changed
+
+- Rebuilt the harness map as a real Three.js WebGL scene: GPU-rendered 70k-particle spiral galaxy, nebulae, and starfield (no more SVG lag), with slow 3D auto-orbit and OrbitControls (drag to rotate, scroll to zoom, double-click to reset).
+- Nodes are now textured 3D planets that rotate on their own axis; every node carries a screen-projected label and distinct type colors (harness blue, rule violet, memory teal, stage amber), so the map stays readable as a harness map.
+- Neural pulses now travel along 3D edges; selection focus-dims unrelated planets/edges/labels, and all SVG-era satellites, orbit rings, and SMIL pulses were removed.
+
+### Added
+
+- Offline fallback message when the three.js CDN is unreachable; prefers-reduced-motion disables auto-rotation, self-rotation, and pulses.
+
 ## [1.9.8] - 2026-06-11
 
 ### Added
