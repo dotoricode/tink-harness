@@ -6,6 +6,17 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.7] - 2026-06-10
+
+### Added
+
+- The harness map now looks like a planetary system: usage/evidence/score satellites orbit their harness slowly (28-63s per revolution, alternating directions) along dashed orbit rings, top harnesses get a Saturn-style ring, and a starfield with twinkling stars sits behind the graph.
+- Selecting a node now dims and blurs everything unrelated (focus mode); clicking the background clears the selection and restores the detail panel.
+
+### Fixed
+
+- Dragging the map no longer triggers text selection on labels and captions (user-select disabled on the map panel).
+
 ## [1.9.6] - 2026-06-10
 
 ### Added
