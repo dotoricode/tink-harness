@@ -1,7 +1,7 @@
 {
   "name": "tink",
   "description": "A small harness layer for Claude Code and Codex.",
-  "version": "1.9.5",
+  "version": "1.9.6",
   "author": {
     "name": "dotori"
   }

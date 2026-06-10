@@ -48,7 +48,7 @@ const COPY = {
     heroText: 'Every visible Tink run, rule, memory reference, and harness relationship mapped into one local dashboard. This report only prepares suggestions and never edits reusable state.',
     generated: 'GENERATED',
     harnessMap: 'HARNESS MAP',
-    mapHelp: 'Harnesses, rules, memory, and stages are mapped from visible Tink records. Click a node to inspect it.',
+    mapHelp: 'Harnesses, rules, memory, and stages are mapped from visible Tink records. Scroll to zoom, drag to move, click a node to inspect it.',
     graphControls: 'Graph controls',
     full: 'Full',
     core: 'Core',
@@ -146,6 +146,30 @@ const COPY = {
     runWindow: 'Run window',
     totalRuns: 'Runs',
     refCount: 'References',
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
+    zoomReset: 'Reset view',
+    mapGuideEyebrow: 'HOW TO READ',
+    mapGuideTitle: 'What is this map?',
+    mapGuideText: 'Each circle is something Tink knows about: a harness, a rule it loads, or a memory file it reads. The map is drawn only from visible local records.',
+    guideItems: [
+      ['Big circle', 'The more a harness is used, the bigger its circle.'],
+      ['Color', 'Blue circles are harnesses; gray ones are rules, memory, and stages.'],
+      ['Line', 'A line means "works together": a harness using a rule, reading memory, or leading to a next step.'],
+      ['Small dots', 'Tiny satellites around a harness are its usage, evidence, and score signals.']
+    ],
+    controlItems: [
+      ['Wheel / + −', 'Zoom in and out'],
+      ['Drag', 'Move around the map'],
+      ['Double-click', 'Back to full view'],
+      ['Click a circle', 'See its details below']
+    ],
+    relationTitle: 'What the lines mean',
+    relationItems: [
+      ['uses_rule', 'This harness loads that rule'],
+      ['uses_memory', 'This harness reads that memory file'],
+      ['sequence', 'This harness is usually followed by that step']
+    ],
     groups: [
       ['keep', 'Healthy harnesses', 'Ready to keep using'],
       ['weave', 'Weave candidates', 'Worth improving next'],
@@ -206,6 +230,30 @@ COPY.ko = {
   runWindow: '기록 기간',
   totalRuns: 'Run 수',
   refCount: '참조 횟수',
+  zoomIn: '확대',
+  zoomOut: '축소',
+  zoomReset: '전체 보기',
+  mapGuideEyebrow: '지도 읽는 법',
+  mapGuideTitle: '이 지도는 무엇인가요?',
+  mapGuideText: '원 하나하나가 Tink가 알고 있는 것입니다: 하네스, 하네스가 쓰는 규칙, 읽는 메모리 파일. 로컬에 보이는 기록만으로 그려집니다.',
+  guideItems: [
+    ['큰 원', '하네스를 많이 쓸수록 원이 커집니다.'],
+    ['색상', '파란 원이 하네스이고, 회색 계열은 규칙·메모리·단계입니다.'],
+    ['선', '"함께 일한다"는 뜻입니다. 하네스가 규칙을 쓰거나, 메모리를 읽거나, 다음 단계로 이어질 때 선이 생깁니다.'],
+    ['작은 점', '하네스 주변의 작은 점들은 사용·근거·점수 신호입니다.']
+  ],
+  controlItems: [
+    ['휠 / + −', '확대·축소'],
+    ['드래그', '지도 이동'],
+    ['더블클릭', '전체 보기로 복귀'],
+    ['원 클릭', '아래에서 상세 보기']
+  ],
+  relationTitle: '선의 의미',
+  relationItems: [
+    ['uses_rule', '이 하네스가 그 규칙을 불러옵니다'],
+    ['uses_memory', '이 하네스가 그 메모리 파일을 읽습니다'],
+    ['sequence', '이 하네스 다음에 그 단계가 자주 이어집니다']
+  ],
   navLabel: '탐색',
   operator: '작업자',
   online: 'Tink 온라인',
@@ -214,7 +262,7 @@ COPY.ko = {
   heroText: '보이는 Tink run, rule, memory reference, harness 관계를 하나의 로컬 대시보드로 보여줍니다. 이 보고서는 제안만 준비하며 재사용 상태를 직접 수정하지 않습니다.',
   generated: '생성 시각',
   harnessMap: '하네스 지도',
-  mapHelp: '보이는 Tink 기록에서 하네스, rule, memory, stage 관계를 그립니다. 노드를 클릭하면 자세히 볼 수 있습니다.',
+  mapHelp: '보이는 Tink 기록에서 하네스, rule, memory, stage 관계를 그립니다. 휠로 확대, 드래그로 이동, 노드를 클릭하면 자세히 볼 수 있습니다.',
   graphControls: '그래프 조작',
   full: '전체',
   core: '핵심',
@@ -638,13 +686,34 @@ function renderGraphCanvas(summary, copy) {
           <h2 id="map-title">${escapeHtml(mapTitle)}</h2>
           <p>${escapeHtml(copy.mapHelp)}</p>
         </div>
-        <div class="map-controls" aria-label="${escapeAttr(copy.graphControls)}">
-          <button class="active" type="button" data-mode="full" aria-pressed="true">${escapeHtml(copy.full)}</button>
-          <button type="button" data-mode="core" aria-pressed="false">${escapeHtml(copy.core)}</button>
+        <div class="map-controls-row">
+          <div class="map-controls" aria-label="${escapeAttr(copy.graphControls)}">
+            <button class="active" type="button" data-mode="full" aria-pressed="true">${escapeHtml(copy.full)}</button>
+            <button type="button" data-mode="core" aria-pressed="false">${escapeHtml(copy.core)}</button>
+          </div>
+          <div class="map-controls" aria-label="zoom">
+            <button type="button" data-zoom="in" aria-label="${escapeAttr(copy.zoomIn || 'Zoom in')}" title="${escapeAttr(copy.zoomIn || 'Zoom in')}">+</button>
+            <button type="button" data-zoom="out" aria-label="${escapeAttr(copy.zoomOut || 'Zoom out')}" title="${escapeAttr(copy.zoomOut || 'Zoom out')}">−</button>
+            <button type="button" data-zoom="reset" title="${escapeAttr(copy.zoomReset || 'Reset view')}">${escapeHtml(copy.zoomReset || 'Reset')}</button>
+          </div>
         </div>
       </div>
       <svg class="graph-canvas" viewBox="0 0 1090 680" role="img" aria-label="Harness health graph">
-        <rect width="1090" height="680" fill="var(--bg-card)"/>
+        <defs>
+          <radialGradient id="graph-bg-grad" cx="50%" cy="42%" r="75%">
+            <stop offset="0%" style="stop-color: #16181D"/>
+            <stop offset="100%" style="stop-color: #0C0D10"/>
+          </radialGradient>
+          ${Object.entries(TYPE_COLORS).map(([type, color]) => `
+            <radialGradient id="node-grad-${escapeAttr(type)}" cx="32%" cy="28%" r="78%">
+              <stop offset="0%" style="stop-color: #FFFFFF; stop-opacity: 0.42"/>
+              <stop offset="38%" style="stop-color: ${escapeAttr(color)}; stop-opacity: 0.98"/>
+              <stop offset="100%" style="stop-color: ${escapeAttr(color)}; stop-opacity: 0.78"/>
+            </radialGradient>
+          `).join('')}
+        </defs>
+        <rect class="graph-bg" width="1090" height="680" fill="url(#graph-bg-grad)"/>
+        <g id="graph-viewport">
         <g class="edges">
         ${edges.map((edge, index) => `
               <line
@@ -686,8 +755,8 @@ function renderGraphCanvas(summary, copy) {
               cx="${node.x.toFixed(1)}"
               cy="${node.y.toFixed(1)}"
               r="${node.radius.toFixed(1)}"
-              fill="${escapeAttr(node.color)}"
-              fill-opacity="${node.type === 'harness' ? '0.96' : '0.82'}"
+              fill="url(#node-grad-${escapeAttr(TYPE_COLORS[node.type] ? node.type : 'unknown')})"
+              fill-opacity="${node.type === 'harness' ? '1' : '0.85'}"
               stroke="${escapeAttr('var(--text-secondary)')}"
               stroke-opacity="${node.glow ? '0.9' : '0.18'}"
               stroke-width="${node.glow ? '1.8' : '0.8'}"
@@ -702,6 +771,7 @@ function renderGraphCanvas(summary, copy) {
           ${strongest.map((node) => `
             <text x="${(node.x + node.radius + 7).toFixed(1)}" y="${(node.y + 4).toFixed(1)}">${escapeHtml(node.label)}</text>
           `).join('')}
+        </g>
         </g>
       </svg>
       <div class="graph-tooltip" id="graph-tooltip" role="status" aria-live="polite"></div>
@@ -1004,6 +1074,39 @@ function renderGraphOverview(graph = {}, copy) {
         <div><dt>${escapeHtml(copy.links)}</dt><dd>${escapeHtml(stats.edges.length)}</dd></div>
         <div><dt>${escapeHtml(copy.nodeTypes)}</dt><dd>${composition.length ? composition.join(' / ') : escapeHtml(copy.none)}</dd></div>
       </dl>
+    </section>
+  `;
+}
+
+function renderMapGuide(copy) {
+  const guideItems = Array.isArray(copy.guideItems) ? copy.guideItems : [];
+  const controlItems = Array.isArray(copy.controlItems) ? copy.controlItems : [];
+  const relationItems = Array.isArray(copy.relationItems) ? copy.relationItems : [];
+  return `
+    <section class="insight-card map-guide">
+      <div class="panel-title">
+        <p class="eyebrow">${escapeHtml(copy.mapGuideEyebrow || 'HOW TO READ')}</p>
+        <h2>${escapeHtml(copy.mapGuideTitle || 'What is this map?')}</h2>
+        <p>${escapeHtml(copy.mapGuideText || '')}</p>
+      </div>
+      <ul class="guide-list">
+        ${guideItems.map(([term, text]) => `
+          <li><strong>${escapeHtml(term)}</strong><span>${escapeHtml(text)}</span></li>
+        `).join('')}
+      </ul>
+      <ul class="guide-list guide-controls">
+        ${controlItems.map(([key, text]) => `
+          <li><kbd>${escapeHtml(key)}</kbd><span>${escapeHtml(text)}</span></li>
+        `).join('')}
+      </ul>
+      ${relationItems.length ? `
+        <p class="detail-label">${escapeHtml(copy.relationTitle || 'What the lines mean')}</p>
+        <ul class="guide-list guide-relations">
+          ${relationItems.map(([type, text]) => `
+            <li><code>${escapeHtml(type)}</code><span>${escapeHtml(text)}</span></li>
+          `).join('')}
+        </ul>
+      ` : ''}
     </section>
   `;
 }
@@ -1364,6 +1467,76 @@ function renderScript(harnesses, copy) {
       document.querySelectorAll('[data-mode]').forEach((button) => {
         button.addEventListener('click', () => applyMode(button.dataset.mode));
       });
+      const graphSvg = document.querySelector('.graph-canvas');
+      const graphViewport = document.getElementById('graph-viewport');
+      if (graphSvg && graphViewport) {
+        const view = { x: 0, y: 0, k: 1 };
+        graphViewport.style.transformOrigin = '0 0';
+        const applyView = () => {
+          graphViewport.style.transform = 'translate(' + view.x + 'px, ' + view.y + 'px) scale(' + view.k + ')';
+        };
+        const svgPoint = (event) => {
+          const pt = graphSvg.createSVGPoint();
+          pt.x = event.clientX;
+          pt.y = event.clientY;
+          return pt.matrixTransform(graphSvg.getScreenCTM().inverse());
+        };
+        const zoomAt = (factor, cx, cy) => {
+          const k = Math.min(5, Math.max(0.4, view.k * factor));
+          const real = k / view.k;
+          view.x = cx - (cx - view.x) * real;
+          view.y = cy - (cy - view.y) * real;
+          view.k = k;
+          applyView();
+        };
+        const resetView = () => {
+          graphViewport.classList.add('is-resetting');
+          view.x = 0; view.y = 0; view.k = 1;
+          applyView();
+          setTimeout(() => graphViewport.classList.remove('is-resetting'), 360);
+        };
+        graphSvg.addEventListener('wheel', (event) => {
+          event.preventDefault();
+          const point = svgPoint(event);
+          zoomAt(event.deltaY < 0 ? 1.15 : 1 / 1.15, point.x, point.y);
+        }, { passive: false });
+        let panState = null;
+        graphSvg.addEventListener('pointerdown', (event) => {
+          if (event.button !== 0) return;
+          panState = { x: event.clientX, y: event.clientY, moved: false };
+          graphSvg.setPointerCapture(event.pointerId);
+        });
+        graphSvg.addEventListener('pointermove', (event) => {
+          if (!panState) return;
+          const dx = event.clientX - panState.x;
+          const dy = event.clientY - panState.y;
+          if (!panState.moved && Math.abs(dx) + Math.abs(dy) < 3) return;
+          panState.moved = true;
+          graphSvg.classList.add('is-panning');
+          const scale = 1090 / graphSvg.clientWidth;
+          view.x += dx * scale;
+          view.y += dy * scale;
+          panState.x = event.clientX;
+          panState.y = event.clientY;
+          applyView();
+        });
+        const endPan = () => {
+          panState = null;
+          graphSvg.classList.remove('is-panning');
+        };
+        graphSvg.addEventListener('pointerup', endPan);
+        graphSvg.addEventListener('pointercancel', endPan);
+        graphSvg.addEventListener('dblclick', (event) => {
+          event.preventDefault();
+          resetView();
+        });
+        document.querySelectorAll('[data-zoom]').forEach((button) => {
+          button.addEventListener('click', () => {
+            if (button.dataset.zoom === 'reset') return resetView();
+            zoomAt(button.dataset.zoom === 'in' ? 1.3 : 1 / 1.3, 545, 340);
+          });
+        });
+      }
       const VALID_TABS = ['home', 'harnesses', 'memory', 'graph', 'activity'];
       const navLinks = Array.from(document.querySelectorAll('.nav a[data-tab]'));
       const pages = Array.from(document.querySelectorAll('.page'));
@@ -2019,6 +2192,83 @@ function renderStyles() {
       transform: translateY(0);
       transition: opacity 160ms ease, transform 160ms ease;
     }
+
+    .map-controls-row {
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .graph-canvas {
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .graph-canvas.is-panning { cursor: grabbing; }
+
+    #graph-viewport {
+      will-change: transform;
+    }
+
+    #graph-viewport.is-resetting {
+      transition: transform 340ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .graph-node.is-interactive {
+      filter: drop-shadow(0 5px 7px rgba(0, 0, 0, 0.55));
+    }
+
+    .graph-node.is-interactive:hover,
+    .graph-node.is-interactive:focus-visible {
+      filter: drop-shadow(0 9px 14px rgba(0, 0, 0, 0.65));
+    }
+
+    .map-guide .panel-title p:last-child {
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .guide-list {
+      margin: var(--space-3) 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .guide-list li {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: var(--space-2);
+      align-items: start;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-secondary);
+    }
+
+    .guide-list strong {
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .guide-list kbd {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--accent-text);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      background: var(--bg-hover);
+      padding: 2px 5px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .guide-controls { border-top: 1px solid var(--border-default); padding-top: var(--space-3); }
+
+    .guide-relations li { grid-template-columns: 96px 1fr; }
+    .guide-relations code { font-size: 10px; }
 
     .map-legend {
       display: flex;
@@ -2850,9 +3100,10 @@ function renderReport(summary) {
       <aside class="right-rail" aria-label="Insights">
       <div data-rail="home harnesses memory activity">${renderStats(summary, copy)}</div>
       <div data-rail="home harnesses">${renderConfidence(summary, copy)}</div>
-      <div data-rail="graph">${renderGraphOverview(summary.graph || {}, copy)}</div>
-      <div data-rail="home harnesses">${renderImportantHarnesses(harnesses, copy)}</div>
+      <div data-rail="graph">${renderMapGuide(copy)}</div>
       <div data-rail="graph">${renderSelectedPanel(harnesses, copy)}</div>
+      <div data-rail="home harnesses">${renderImportantHarnesses(harnesses, copy)}</div>
+      <div data-rail="graph">${renderGraphOverview(summary.graph || {}, copy)}</div>
     </aside>
   </div>
   ${renderContractMetadata(copy)}

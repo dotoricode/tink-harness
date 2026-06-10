@@ -6,6 +6,19 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.6] - 2026-06-10
+
+### Added
+
+- The harness map is now fully navigable: wheel zoom toward the cursor (0.4x–5x), drag to pan, +/− and reset controls, and double-click to return to the full view.
+- Nodes render as 3D-style spheres with radial gradients, depth shadows on interactive nodes, and a vignette background for depth.
+- Added a "How to read this map" card to the graph tab's right rail with plain-language explanations of circles, colors, lines, satellites, controls, and edge types.
+
+### Changed
+
+- Reordered the graph right rail: reading guide → selected node → graph overview.
+- Map help text now mentions zoom and drag controls.
+
 ## [1.9.5] - 2026-06-10
 
 ### Added
