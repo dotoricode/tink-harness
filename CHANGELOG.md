@@ -6,6 +6,19 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.3] - 2026-06-10
+
+### Added
+
+- Graph nodes now drift gently with per-node organic float motion, staggered entrance animation, and a pulse ring on the selected node.
+- Edges fade in progressively and respond to selection with smooth opacity/width transitions.
+- Added a node-type color legend under the graph and polished the tooltip with fade/slide motion.
+
+### Changed
+
+- Graph hover now scales the node smoothly instead of only changing the stroke.
+- The graph tab shows only graph-related information; honors prefers-reduced-motion.
+
 ## [1.9.2] - 2026-06-10
 
 ### Added
