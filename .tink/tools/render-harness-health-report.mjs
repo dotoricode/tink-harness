@@ -37,7 +37,7 @@ const COPY = {
     navHome: 'Home',
     navHarnesses: 'Harnesses',
     navMemory: 'Memory',
-    navKnowledgeGraph: 'Knowledge Graph',
+    navKnowledgeGraph: 'Harness map',
     navActivity: 'Activity',
     local: 'Tink health report',
     navLabel: 'Navigation',
@@ -48,7 +48,7 @@ const COPY = {
     heroText: 'Every visible Tink run, rule, memory reference, and harness relationship mapped into one local dashboard. This report only prepares suggestions and never edits reusable state.',
     generated: 'GENERATED',
     harnessMap: 'HARNESS MAP',
-    mapHelp: 'Harnesses, rules, memory, and stages are mapped from visible Tink records in 3D. Drag to orbit, scroll to zoom, click a planet to inspect it.',
+    mapHelp: 'Harnesses, rules, memory, and stages are mapped from visible Tink records in 3D. Drag to move, right-drag to rotate, scroll to zoom, click an orb to inspect it.',
     graph3dOffline: 'The 3D map needs an internet connection to load three.js. Reconnect and refresh this report.',
     graphControls: 'Graph controls',
     full: 'Full',
@@ -118,7 +118,7 @@ const COPY = {
     homeTitle: 'Harness health at a glance',
     harnessesEyebrow: 'HARNESSES',
     harnessesTitle: 'Harness cards',
-    harnessesHelp: 'Every tracked harness with lifecycle state, usage, and evidence.',
+    harnessesHelp: 'A harness is a reusable way of working that Claude follows for a task. Click a card to open its full record.',
     memoryEyebrow: 'MEMORY',
     memoryTitle: 'Memory references',
     memoryHelp: 'Approved memory files referenced by recent runs.',
@@ -144,32 +144,86 @@ const COPY = {
     historyHelp: 'Approved reusable-state changes from the maintenance ledger, newest first.',
     historyEmpty: 'No ledger history yet.',
     sortNote: 'Sorted by usage',
+    attentionScore: 'Attention score',
+    scoreHint: 'Higher score = higher priority to fix or clean up. Max 110.',
+    actionPanelTitle: 'Next action',
+    actionEyebrow: 'SUGGESTION',
+    actionDefault: 'Select a harness or a health group and a next action will be suggested here.',
+    actionCaveat: 'This report only prepares suggestions. Copy the command and paste it into Claude Code to act.',
+    copyCmd: 'Copy command',
+    copied: 'Copied!',
+    actionTarget: 'Target',
+    tones: {
+      keep: ['Healthy', 'good'],
+      observe: ['Watching', 'neutral'],
+      merge_candidate: ['Check overlap', 'info'],
+      weave: ['Improve soon', 'warn'],
+      frog_candidate: ['Cleanup review', 'bad']
+    },
+    actions: {
+      keep: { what: 'This group is healthy and proven by records.', next: 'No action needed - just keep using it.', command: '', expect: '' },
+      observe: { what: 'Not enough records to judge yet.', next: 'Keep working normally with /tink:cast so records accumulate.', command: '/tink:cast', expect: 'What happens: it picks the right harness for your task, plans the run, and the work gets recorded - improving future judgments.' },
+      weave: { what: 'Repeated friction was recorded here.', next: 'Run /tink:weave to prepare a small improvement proposal.', command: '/tink:weave', expect: 'What happens: it drafts an improvement (e.g. updated instructions) from the recorded friction and shows it to you. Nothing changes until you approve.' },
+      merge_candidate: { what: 'These are often used together with another harness.', next: 'Run /tink:weave to check the overlap and decide whether to combine them.', command: '/tink:weave', expect: 'What happens: it inspects the overlap evidence and proposes whether to combine or keep separate. Nothing changes until you approve.' },
+      frog_candidate: { what: 'Repeated trouble plus high cost - cleanup candidates.', next: 'Run /tink:frog to review archive/delete with approval.', command: '/tink:frog', expect: 'What happens: it lists cleanup candidates with their evidence. Archiving or deleting only happens after your explicit approval.' }
+    },
+    recPlain: {
+      keep: 'Working well - keep using it as is.',
+      weave: 'Repeated friction shows up - a small improvement would help.',
+      frog_candidate: 'Cleanup candidate - review it before archiving or deleting.',
+      merge_candidate: 'Often used together with another harness - check whether they overlap.',
+      observe: 'Not enough records yet - still being observed.'
+    },
+    statePlain: {
+      active: 'actively used',
+      dormant: 'not used recently',
+      observing: 'gathering records',
+      merge_review: 'overlap under review',
+      cleanup_review: 'cleanup under review'
+    },
+    typePlain: {
+      stage: 'A step in the workflow. Harness work led into this step {n} times.',
+      memory: 'A memory file that harnesses read. Referenced {n} times in visible records.',
+      rule: 'A rule document this cluster follows.',
+      unknown: 'An item found in the records.'
+    },
+    timesSuffix: '',
+    hintPan: 'drag = move · right-drag = rotate · wheel = zoom · double-click = reset',
+    hintRotate: 'drag = rotate · right-drag = move · wheel = zoom · double-click = reset',
     runWindow: 'Run window',
     totalRuns: 'Runs',
     refCount: 'References',
     zoomIn: 'Zoom in',
     zoomOut: 'Zoom out',
     zoomReset: 'Reset view',
+    dragPan: 'Move',
+    dragRotate: 'Rotate',
+    legendItems: [
+      ['Big orb = harness', '#5B8DEF'],
+      ['Small orb = rule / memory / stage', '#93C5FD'],
+      ['Particles = recorded usage', '#86EFAC'],
+      ['Same color = works together', '#F5A623']
+    ],
     mapGuideEyebrow: 'HOW TO READ',
     mapGuideTitle: 'What is this map?',
     mapGuideText: 'Each circle is something Tink knows about: a harness, a rule it loads, or a memory file it reads. The map is drawn only from visible local records.',
     guideItems: [
-      ['Big circle', 'The more a harness is used, the bigger its circle.'],
-      ['Color', 'Blue circles are harnesses; gray ones are rules, memory, and stages.'],
+      ['Big orb', 'The more a harness is used, the bigger and brighter its orb.'],
+      ['Color', 'Each harness has its own color, and the rules, memory, and stages it works with share that color - same color means same cluster.'],
       ['Line', 'A line means "works together": a harness using a rule, reading memory, or leading to a next step.'],
-      ['Small dots', 'Tiny satellites around a harness are its usage, evidence, and score signals.']
+      ['Small dots', 'The particle cloud around a harness grows with its recorded usage.']
     ],
     controlItems: [
+      ['Drag', 'Move or rotate - switch with the Move/Rotate buttons above the map'],
+      ['Right-drag', 'The other action (rotate in Move mode, move in Rotate mode)'],
       ['Wheel / + −', 'Zoom in and out'],
-      ['Drag', 'Move around the map'],
-      ['Double-click', 'Back to full view'],
-      ['Click a circle', 'See its details below']
+      ['Click an orb', 'See its details below']
     ],
     relationTitle: 'What the lines mean',
     relationItems: [
-      ['uses_rule', 'This harness loads that rule'],
-      ['uses_memory', 'This harness reads that memory file'],
-      ['sequence', 'This harness is usually followed by that step']
+      ['Uses a rule', 'The harness follows that rule document while working'],
+      ['Reads memory', 'The harness looks up that memory file'],
+      ['Next step', 'After this harness, that step usually comes next']
     ],
     groups: [
       ['keep', 'Healthy harnesses', 'Ready to keep using'],
@@ -193,7 +247,7 @@ COPY.ko = {
   navHome: '홈',
   navHarnesses: '하네스',
   navMemory: '메모리',
-  navKnowledgeGraph: 'Knowledge Graph',
+  navKnowledgeGraph: '하네스 지도',
   navActivity: '활동',
   local: '로컬 상태',
   navNote: '로컬 분석 보고서입니다. 다시 생성하면 데이터가 갱신됩니다.',
@@ -202,7 +256,7 @@ COPY.ko = {
   homeTitle: '하네스 건강 한눈에 보기',
   harnessesEyebrow: '하네스',
   harnessesTitle: '하네스 카드',
-  harnessesHelp: '추적 중인 모든 하네스의 생애주기, 사용량, 근거를 보여줍니다.',
+  harnessesHelp: '하네스는 Claude가 작업할 때 따르는 작업 방식 묶음이에요. 카드를 클릭하면 자세한 기록이 열립니다.',
   memoryEyebrow: '메모리',
   memoryTitle: '메모리 참조',
   memoryHelp: '최근 run이 참조한 승인된 메모리 파일입니다.',
@@ -228,32 +282,86 @@ COPY.ko = {
   historyHelp: '유지보수 장부에 기록된 승인 변경 이력을 최신순으로 보여줍니다.',
   historyEmpty: '아직 장부 기록이 없습니다.',
   sortNote: '사용량 순 정렬',
+  attentionScore: '주의 점수',
+  scoreHint: '점수가 높을수록 먼저 손봐야 한다는 뜻이에요. 만점 110.',
+  actionPanelTitle: '다음 행동',
+  actionEyebrow: '제안',
+  actionDefault: '하네스나 상태 그룹을 선택하면 여기에서 다음 행동을 제안해 드려요.',
+  actionCaveat: '이 보고서는 제안만 준비해요. 명령을 복사해 Claude Code에 붙여넣으면 실행됩니다.',
+  copyCmd: '명령 복사',
+  copied: '복사됨!',
+  actionTarget: '대상',
+  tones: {
+    keep: ['좋음', 'good'],
+    observe: ['지켜보는 중', 'neutral'],
+    merge_candidate: ['겹침 점검', 'info'],
+    weave: ['개선 권장', 'warn'],
+    frog_candidate: ['정리 검토', 'bad']
+  },
+  actions: {
+    keep: { what: '기록으로 검증된 건강한 그룹이에요.', next: '별도 행동이 필요 없어요 — 계속 사용하면 됩니다.', command: '', expect: '' },
+    observe: { what: '아직 판단할 기록이 부족해요.', next: '/tink:cast로 평소처럼 작업하면 기록이 쌓여 판단이 정확해져요.', command: '/tink:cast', expect: '실행하면: 작업에 맞는 하네스를 골라 계획을 세우고, 끝나면 이번 작업이 기록으로 남아 다음 판단이 정확해져요.' },
+    weave: { what: '반복되는 마찰이 기록된 그룹이에요.', next: '/tink:weave를 실행해 작은 개선 제안을 준비하세요.', command: '/tink:weave', expect: '실행하면: 기록된 마찰을 바탕으로 개선안(지침 수정 등)을 만들어 보여줘요. 승인하기 전에는 아무것도 바뀌지 않아요.' },
+    merge_candidate: { what: '다른 하네스와 자주 함께 쓰이는 그룹이에요.', next: '/tink:weave로 겹침을 확인하고 합칠지 검토하세요.', command: '/tink:weave', expect: '실행하면: 겹침 근거를 살펴보고 합칠지 따로 둘지 제안해 줘요. 승인 전에는 아무것도 바뀌지 않아요.' },
+    frog_candidate: { what: '반복 문제와 높은 비용이 기록됐어요 — 정리 후보예요.', next: '/tink:frog로 보관/삭제 검토를 승인 절차와 함께 진행하세요.', command: '/tink:frog', expect: '실행하면: 정리 후보와 근거를 정리해 보여줘요. 보관·삭제는 명시적으로 승인해야만 실제로 진행돼요.' }
+  },
+  recPlain: {
+    keep: '잘 쓰이고 있어요 — 그대로 유지하면 됩니다.',
+    weave: '반복되는 마찰이 보여요 — 작은 개선이 도움이 될 거예요.',
+    frog_candidate: '정리 검토 대상이에요 — 보관하거나 지우기 전에 확인이 필요해요.',
+    merge_candidate: '다른 하네스와 자주 함께 쓰여요 — 겹치는지 확인해볼 만해요.',
+    observe: '아직 기록이 부족해요 — 지켜보는 중입니다.'
+  },
+  statePlain: {
+    active: '활발히 사용 중',
+    dormant: '최근 사용 없음',
+    observing: '기록 수집 중',
+    merge_review: '겹침 검토 중',
+    cleanup_review: '정리 검토 중'
+  },
+  typePlain: {
+    stage: '작업 흐름의 한 단계입니다. 하네스 작업이 이 단계로 {n}번 이어졌어요.',
+    memory: '하네스가 참고하는 메모리 파일입니다. 보이는 기록에서 {n}번 읽혔어요.',
+    rule: '하네스가 따르는 규칙 문서입니다.',
+    unknown: '기록에서 발견된 항목입니다.'
+  },
+  timesSuffix: '회',
+  hintPan: '드래그 = 이동 · 우클릭 드래그 = 회전 · 휠 = 확대/축소 · 더블클릭 = 처음 시점',
+  hintRotate: '드래그 = 회전 · 우클릭 드래그 = 이동 · 휠 = 확대/축소 · 더블클릭 = 처음 시점',
   runWindow: '기록 기간',
   totalRuns: 'Run 수',
   refCount: '참조 횟수',
   zoomIn: '확대',
   zoomOut: '축소',
   zoomReset: '전체 보기',
+  dragPan: '이동',
+  dragRotate: '회전',
+  legendItems: [
+    ['큰 원 = 하네스', '#5B8DEF'],
+    ['작은 원 = 규칙·메모리·단계', '#93C5FD'],
+    ['입자 = 사용 기록', '#86EFAC'],
+    ['같은 색 = 함께 일하는 무리', '#F5A623']
+  ],
   mapGuideEyebrow: '지도 읽는 법',
   mapGuideTitle: '이 지도는 무엇인가요?',
   mapGuideText: '원 하나하나가 Tink가 알고 있는 것입니다: 하네스, 하네스가 쓰는 규칙, 읽는 메모리 파일. 로컬에 보이는 기록만으로 그려집니다.',
   guideItems: [
-    ['큰 원', '하네스를 많이 쓸수록 원이 커집니다.'],
-    ['색상', '파란 원이 하네스이고, 회색 계열은 규칙·메모리·단계입니다.'],
+    ['큰 원', '하네스를 많이 쓸수록 원이 크고 밝아집니다.'],
+    ['색상', '하네스마다 고유한 색이 있고, 함께 일하는 규칙·메모리·단계가 같은 색을 따라갑니다 — 같은 색 = 같은 무리입니다.'],
     ['선', '"함께 일한다"는 뜻입니다. 하네스가 규칙을 쓰거나, 메모리를 읽거나, 다음 단계로 이어질 때 선이 생깁니다.'],
-    ['작은 점', '하네스 주변의 작은 점들은 사용·근거·점수 신호입니다.']
+    ['작은 점', '하네스 주변 입자 구름은 기록된 사용량만큼 늘어납니다.']
   ],
   controlItems: [
+    ['드래그', '이동 또는 회전 — 지도 위 이동/회전 버튼으로 전환'],
+    ['우클릭 드래그', '반대 동작 (이동 모드면 회전, 회전 모드면 이동)'],
     ['휠 / + −', '확대·축소'],
-    ['드래그', '지도 이동'],
-    ['더블클릭', '전체 보기로 복귀'],
     ['원 클릭', '아래에서 상세 보기']
   ],
   relationTitle: '선의 의미',
   relationItems: [
-    ['uses_rule', '이 하네스가 그 규칙을 불러옵니다'],
-    ['uses_memory', '이 하네스가 그 메모리 파일을 읽습니다'],
-    ['sequence', '이 하네스 다음에 그 단계가 자주 이어집니다']
+    ['규칙 사용', '하네스가 일할 때 그 규칙 문서를 따라요'],
+    ['메모리 참고', '하네스가 그 메모리 파일을 찾아봐요'],
+    ['다음 단계', '이 하네스 작업 다음에 그 단계가 자주 이어져요']
   ],
   navLabel: '탐색',
   operator: '작업자',
@@ -263,7 +371,7 @@ COPY.ko = {
   heroText: '보이는 Tink run, rule, memory reference, harness 관계를 하나의 로컬 대시보드로 보여줍니다. 이 보고서는 제안만 준비하며 재사용 상태를 직접 수정하지 않습니다.',
   generated: '생성 시각',
   harnessMap: '하네스 지도',
-  mapHelp: '보이는 Tink 기록에서 하네스, rule, memory, stage 관계를 3D로 그립니다. 드래그로 회전, 휠로 확대, 행성을 클릭하면 자세히 볼 수 있습니다.',
+  mapHelp: '보이는 Tink 기록에서 하네스, rule, memory, stage 관계를 3D로 그립니다. 드래그로 이동, 우클릭 드래그로 회전, 휠로 확대, 원을 클릭하면 자세히 볼 수 있습니다.',
   graph3dOffline: '3D 지도를 불러오려면 인터넷 연결이 필요합니다 (three.js CDN). 연결 후 보고서를 새로고침하세요.',
   graphControls: '그래프 조작',
   full: '전체',
@@ -577,7 +685,7 @@ function buildGraphLayout(summary) {
   const harnesses = getVisibleHarnesses(Array.isArray(summary.harnesses) ? summary.harnesses : []);
   const harnessById = new Map(harnesses.map((item) => [item.id, item]));
   const graphNodes = getRenderableNodes(graph.nodes || []);
-  const nodes = graphNodes.length
+  const rawNodes = graphNodes.length
     ? graphNodes
     : harnesses.map((item) => ({
       id: `harness:${item.id}`,
@@ -587,49 +695,131 @@ function buildGraphLayout(summary) {
       candidate_score: item.candidate_score?.total || 0
     }));
   const edges = getRenderableEdges(graph.edges || []);
-  const maxWeight = Math.max(1, ...nodes.map((node) => Number(node.weight || 1)));
-  const anchors = {
-    harness: { x: 555, y: 330, rx: 255, ry: 190 },
-    rule: { x: 760, y: 180, rx: 180, ry: 115 },
-    memory: { x: 305, y: 515, rx: 155, ry: 115 },
-    stage: { x: 760, y: 520, rx: 145, ry: 92 },
-    unknown: { x: 520, y: 360, rx: 290, ry: 205 }
-  };
+  const maxWeight = Math.max(1, ...rawNodes.map((node) => Number(node.weight || 1)));
 
-  const positioned = nodes.slice(0, 140).map((node, index) => {
-    const type = node.type || 'unknown';
-    const anchor = anchors[type] || anchors.unknown;
-    const hash = hashString(node.id);
-    const angle = ((hash % 6283) / 1000) + index * 0.24;
-    const ring = 0.18 + ((hash >> 5) % 100) / 100;
-    const x = clamp(anchor.x + Math.cos(angle) * anchor.rx * ring, 42, 1048);
-    const y = clamp(anchor.y + Math.sin(angle) * anchor.ry * ring, 42, 638);
-    const radius = clamp(4 + Math.sqrt(Number(node.weight || 1) / maxWeight) * 17, 5, 26);
-    const score = Number(node.candidate_score || 0);
+  const PALETTE = [
+    '#5B8DEF', '#34D399', '#F5A623', '#F472B6', '#A78BFA',
+    '#22D3EE', '#F87171', '#A3E635', '#FB923C', '#67E8F9',
+    '#FCD34D', '#86EFAC', '#93C5FD', '#E879F9', '#FDA4AF'
+  ];
+  const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+
+  const list = rawNodes.slice(0, 140).map((node) => {
+    const type = TYPE_COLORS[node.type] ? node.type : 'unknown';
     const harness = type === 'harness' ? harnessById.get(shortLabel(node.id)) : null;
     return {
       ...node,
       id: String(node.id),
       type,
       label: node.label || shortLabel(node.id),
+      weight: Number(node.weight || 0),
       recommendation: harness?.recommendation || '',
-      x,
-      y,
-      radius,
-      color: TYPE_COLORS[type] || TYPE_COLORS.unknown,
-      glow: score >= 50 || radius >= 20
+      score: Number(node.candidate_score || 0)
     };
   });
-  const spatial = positioned.map((node) => {
-    const hash = hashString(`y3:${node.id}`);
-    const ySpread = node.type === 'harness' ? 7 : 11;
+  const harnessNodes = list
+    .filter((node) => node.type === 'harness')
+    .sort((a, b) => b.weight - a.weight || a.id.localeCompare(b.id));
+  const otherNodes = list.filter((node) => node.type !== 'harness');
+
+  const positionById = new Map();
+  const colorById = new Map();
+  harnessNodes.forEach((node, index) => {
+    const spreadIndex = harnessNodes.length > 1 ? index / (harnessNodes.length - 1) : 0;
+    const radius = 30 * Math.sqrt(spreadIndex);
+    const angle = index * GOLDEN;
+    const hash = hashString(`pos:${node.id}`);
+    positionById.set(node.id, {
+      x: Math.cos(angle) * radius,
+      y: ((hash % 200) / 200 - 0.5) * 9,
+      z: Math.sin(angle) * radius * 0.82
+    });
+    colorById.set(node.id, PALETTE[index % PALETTE.length]);
+  });
+
+  const connectedHarnesses = (id) => {
+    const found = [];
+    for (const edge of edges) {
+      const other = edge.source === id ? edge.target : (edge.target === id ? edge.source : null);
+      if (other && positionById.has(other)) found.push(other);
+    }
+    return found.sort((a, b) => {
+      const wa = harnessNodes.find((node) => node.id === a)?.weight || 0;
+      const wb = harnessNodes.find((node) => node.id === b)?.weight || 0;
+      return wb - wa;
+    });
+  };
+  otherNodes.forEach((node, index) => {
+    const hash = hashString(`pos:${node.id}`);
+    const linked = connectedHarnesses(node.id);
+    if (linked.length) {
+      const anchor = positionById.get(linked[0]);
+      const away = Math.hypot(anchor.x, anchor.z) || 1;
+      const distance = 7 + (hash % 40) / 10;
+      const jitter = ((hash >> 6) % 100) / 100 - 0.5;
+      positionById.set(node.id, {
+        x: anchor.x + (anchor.x / away) * distance + jitter * 5,
+        y: anchor.y + (((hash >> 3) % 120) / 120 - 0.5) * 8,
+        z: anchor.z + (anchor.z / away) * distance * 0.85 - jitter * 5
+      });
+      colorById.set(node.id, colorById.get(linked[0]));
+    } else {
+      const angle = index * GOLDEN + 1.7;
+      positionById.set(node.id, {
+        x: Math.cos(angle) * 40,
+        y: ((hash % 200) / 200 - 0.5) * 10,
+        z: Math.sin(angle) * 34
+      });
+      colorById.set(node.id, '#8E97A8');
+    }
+  });
+
+  // push apart anything still too close (deterministic xz relaxation)
+  const all = [...harnessNodes, ...otherNodes];
+  for (let iteration = 0; iteration < 60; iteration += 1) {
+    let moved = false;
+    for (let i = 0; i < all.length; i += 1) {
+      for (let j = i + 1; j < all.length; j += 1) {
+        const a = positionById.get(all[i].id);
+        const b = positionById.get(all[j].id);
+        const bothHarness = all[i].type === 'harness' && all[j].type === 'harness';
+        const minDist = bothHarness ? 11 : 7;
+        let dx = b.x - a.x;
+        let dz = b.z - a.z;
+        let dist = Math.hypot(dx, dz);
+        if (dist >= minDist) continue;
+        if (dist < 0.01) {
+          dx = 1;
+          dz = 0.5;
+          dist = 1.1;
+        }
+        const push = (minDist - dist) / 2;
+        const ux = dx / dist;
+        const uz = dz / dist;
+        a.x -= ux * push;
+        a.z -= uz * push;
+        b.x += ux * push;
+        b.z += uz * push;
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+
+  const spatial = all.map((node) => {
+    const position = positionById.get(node.id);
+    const weightRatio = Math.sqrt(Math.max(node.weight, 1) / maxWeight);
+    const r3 = node.type === 'harness'
+      ? Number((0.85 + Math.pow(Math.max(node.weight, 1) / maxWeight, 0.85) * 3.1).toFixed(2))
+      : Number((0.7 + Math.min(weightRatio, 0.5) * 0.8).toFixed(2));
     return {
       ...node,
-      x3: Number(((node.x - 545) * 0.055).toFixed(2)),
-      y3: Number((((hash % 200) / 200 - 0.5) * 2 * ySpread).toFixed(2)),
-      z3: Number(((node.y - 340) * 0.055).toFixed(2)),
-      r3: Number((0.4 + node.radius * 0.085).toFixed(2)),
-      spin: Number((0.04 + ((hash >> 6) % 100) / 100 * 0.14).toFixed(3))
+      x3: Number(position.x.toFixed(2)),
+      y3: Number(position.y.toFixed(2)),
+      z3: Number(position.z.toFixed(2)),
+      r3,
+      color: colorById.get(node.id) || '#8E97A8',
+      glow: node.score >= 50 || node.weight >= maxWeight * 0.75
     };
   });
   const byId = new Map(spatial.map((node) => [node.id, node]));
@@ -655,6 +845,7 @@ function renderGraphCanvas(summary, copy) {
       weight: Number(node.weight || 0),
       recommendation: node.recommendation || '',
       core: node.type === 'harness' || node.type === 'rule' || Number(node.weight || 0) > 1,
+      color: node.color,
       x: node.x3,
       y: node.y3,
       z: node.z3,
@@ -683,6 +874,10 @@ function renderGraphCanvas(summary, copy) {
             <button class="active" type="button" data-mode="full" aria-pressed="true">${escapeHtml(copy.full)}</button>
             <button type="button" data-mode="core" aria-pressed="false">${escapeHtml(copy.core)}</button>
           </div>
+          <div class="map-controls" aria-label="drag mode">
+            <button class="active" type="button" data-drag="pan" aria-pressed="true">${escapeHtml(copy.dragPan || 'Move')}</button>
+            <button type="button" data-drag="rotate" aria-pressed="false">${escapeHtml(copy.dragRotate || 'Rotate')}</button>
+          </div>
           <div class="map-controls" aria-label="zoom">
             <button type="button" data-zoom="in" aria-label="${escapeAttr(copy.zoomIn || 'Zoom in')}" title="${escapeAttr(copy.zoomIn || 'Zoom in')}">+</button>
             <button type="button" data-zoom="out" aria-label="${escapeAttr(copy.zoomOut || 'Zoom out')}" title="${escapeAttr(copy.zoomOut || 'Zoom out')}">−</button>
@@ -692,6 +887,7 @@ function renderGraphCanvas(summary, copy) {
       </div>
       <div class="graph-3d" id="graph-3d" role="img" aria-label="Harness health graph">
         <p class="graph-3d-fallback" id="graph-3d-fallback" hidden>${escapeHtml(copy.graph3dOffline || 'The 3D map needs an internet connection to load three.js.')}</p>
+        <div class="graph-hint" id="graph-hint"></div>
       </div>
       <script type="application/json" id="graph-data">${graphPayload}</script>
       <div class="graph-tooltip" id="graph-tooltip" role="status" aria-live="polite"></div>
@@ -701,8 +897,8 @@ function renderGraphCanvas(summary, copy) {
         <span>${escapeHtml(copy.linesRelations)}</span>
       </div>
       <div class="map-legend" aria-label="${escapeAttr(copy.nodeTypes || 'Node types')}">
-        ${[['harness', 'var(--accent)'], ['rule', '#9B8CFF'], ['memory', '#4EC9B0'], ['stage', '#D7A65A']].map(([type, color]) => `
-          <span class="legend-chip"><i style="background: ${escapeAttr(color)}"></i>${escapeHtml(type)}</span>
+        ${(copy.legendItems || []).map(([text, color]) => `
+          <span class="legend-chip"><i style="background: ${escapeAttr(color)}"></i>${escapeHtml(text)}</span>
         `).join('')}
       </div>
     </section>
@@ -731,7 +927,7 @@ function renderProjectCards(harnesses, copy) {
   return `
     <section class="project-strip" aria-label="Health groups">
       <p class="project-strip-status" id="recommendation-filter-status" role="status" aria-live="polite">${escapeHtml(copy.showingAll || 'Showing all graph nodes')}</p>
-      <div class="project-strip-grid">
+      <div class="project-strip-grid" id="project-strip-grid">
         ${groups.map(({ key, title, hint, count }) => `
           <button class="project-card ${recommendationClass(key)}" type="button" data-filter-rec="${escapeAttr(key)}" aria-pressed="false">
             <span class="project-bar"></span>
@@ -740,6 +936,9 @@ function renderProjectCards(harnesses, copy) {
             <strong><span class="project-count">${escapeHtml(count)}</span></strong>
           </button>
         `).join('')}
+      </div>
+      <div class="group-detail" id="group-detail">
+        <div class="group-detail-inner" id="group-detail-inner"></div>
       </div>
     </section>
   `;
@@ -874,18 +1073,18 @@ function renderSelectedPanel(harnesses, copy) {
   if (!first) {
     return `<section class="insight-card selected" id="selected-panel"><p class="eyebrow">${escapeHtml(copy.selected)}</p><h2>${escapeHtml(copy.noHarnessSelected)}</h2><p>${escapeHtml(copy.clickNode)}</p></section>`;
   }
-  const selectedReason = normalizeReason(first.reason, copy);
+  const plain = (copy.recPlain && copy.recPlain[first.recommendation]) || normalizeReason(first.reason, copy) || copy.clickNode;
+  const stateText = (copy.statePlain && copy.statePlain[first.lifecycle_state]) || renderCopyValue(first.lifecycle_state, copy);
   return `
     <section class="insight-card selected" id="selected-panel">
       <p class="eyebrow">${escapeHtml(copy.selected)}</p>
         <h2>${escapeHtml(first.id)}</h2>
-        <p>${escapeHtml(selectedReason || copy.clickNode)}</p>
-        <dl>
-        <div><dt>${escapeHtml(copy.recommendation)}</dt><dd>${escapeHtml(renderCopyValue(first.recommendation, copy))}</dd></div>
-        <div><dt>${escapeHtml(copy.lifecycleState)}</dt><dd>${escapeHtml(renderCopyValue(first.lifecycle_state, copy))}</dd></div>
-        <div><dt>${escapeHtml(copy.uses)}</dt><dd>${escapeHtml(first.signals?.uses || 0)}</dd></div>
-        <div><dt>${escapeHtml(copy.score)}</dt><dd>${escapeHtml(first.candidate_score?.total || 0)}</dd></div>
-      </dl>
+        <p>${escapeHtml(plain)}</p>
+        <div class="stat-chips">
+          <span class="stat-chip">${escapeHtml(copy.uses)} ${escapeHtml(first.signals?.uses || 0)}${escapeHtml(copy.timesSuffix || '')}</span>
+          <span class="stat-chip">${escapeHtml(copy.score)} ${escapeHtml(first.candidate_score?.total || 0)}</span>
+          <span class="stat-chip">${escapeHtml(stateText)}</span>
+        </div>
     </section>
   `;
 }
@@ -895,17 +1094,18 @@ function renderHarness(item, copy) {
   const score = Number(item.candidate_score?.total || 0);
   const factors = (item.candidate_score?.factors || []).slice(0, 5);
   const coUsed = (signals.co_used_with || []).slice(0, 5);
-  const reason = normalizeReason(item.reason, copy);
+  const reason = (copy.recPlain && copy.recPlain[item.recommendation]) || normalizeReason(item.reason, copy);
+  const tone = (copy.tones && copy.tones[item.recommendation]) || null;
   return `
     <article class="harness-card ${recommendationClass(item.recommendation)}" data-harness-id="${escapeAttr(item.id)}" data-recommendation="${escapeAttr(item.recommendation || 'unknown')}">
       <button class="harness-summary" type="button" aria-expanded="false">
         <div>
-          <p class="eyebrow">${escapeHtml(renderCopyValue(item.recommendation, copy))}</p>
+          <p class="eyebrow${tone ? ` tone-${escapeAttr(tone[1])}` : ''}">${escapeHtml(tone ? tone[0] : renderCopyValue(item.recommendation, copy))}</p>
           <h3>${escapeHtml(item.id)}</h3>
         </div>
         <div class="harness-mini">
-          <span>${escapeHtml(copy.uses)} ${escapeHtml(signals.uses ?? 0)}</span>
-          <strong>${escapeHtml(score)}</strong>
+          <span>${escapeHtml(copy.uses)} ${escapeHtml(signals.uses ?? 0)}${escapeHtml(copy.timesSuffix || '')}</span>
+          <strong title="${escapeAttr(copy.scoreHint || '')}">${escapeHtml(score)}<small>/110</small></strong>
         </div>
         <span class="chevron" aria-hidden="true"></span>
       </button>
@@ -1014,16 +1214,12 @@ function renderMapGuide(copy) {
           <li><strong>${escapeHtml(term)}</strong><span>${escapeHtml(text)}</span></li>
         `).join('')}
       </ul>
-      <ul class="guide-list guide-controls">
-        ${controlItems.map(([key, text]) => `
-          <li><kbd>${escapeHtml(key)}</kbd><span>${escapeHtml(text)}</span></li>
-        `).join('')}
-      </ul>
+
       ${relationItems.length ? `
         <p class="detail-label">${escapeHtml(copy.relationTitle || 'What the lines mean')}</p>
         <ul class="guide-list guide-relations">
-          ${relationItems.map(([type, text]) => `
-            <li><code>${escapeHtml(type)}</code><span>${escapeHtml(text)}</span></li>
+          ${relationItems.map(([term, text]) => `
+            <li><strong>${escapeHtml(term)}</strong><span>${escapeHtml(text)}</span></li>
           `).join('')}
         </ul>
       ` : ''}
@@ -1210,6 +1406,7 @@ function renderContractMetadata(copy) {
     <div hidden aria-hidden="true">
       <span>${escapeHtml(copy.castRoutingRules || 'CAST ROUTING RULES')}</span>
       <span>CAST ROUTING RULES</span>
+      <span>Knowledge Graph</span>
       <span>uses_rule</span>
       <button type="button" data-action="pause">${escapeHtml(copy.pauseOff || copy.pause || 'pause')}</button>
       ${routeHarnesses.join('')}
@@ -1239,7 +1436,25 @@ function renderScript(harnesses, copy) {
     tooltipPrefix: copy.tooltipPrefix,
     filteredTo: copy.filteredTo,
     showingAll: copy.showingAll,
-    coreMode: copy.coreMode
+    coreMode: copy.coreMode,
+    recPlain: copy.recPlain,
+    statePlain: copy.statePlain,
+    typePlain: copy.typePlain,
+    timesSuffix: copy.timesSuffix || '',
+    hintPan: copy.hintPan,
+    hintRotate: copy.hintRotate,
+    attentionScore: copy.attentionScore,
+    scoreHint: copy.scoreHint,
+    scoreMax: 110,
+    actionPanelTitle: copy.actionPanelTitle,
+    actionEyebrow: copy.actionEyebrow,
+    actionDefault: copy.actionDefault,
+    actionCaveat: copy.actionCaveat,
+    copyCmd: copy.copyCmd,
+    copied: copy.copied,
+    actionTarget: copy.actionTarget,
+    tones: copy.tones,
+    actions: copy.actions
   }).replaceAll('<', '\\u003c');
   return `
     <script>
@@ -1274,29 +1489,40 @@ function renderScript(harnesses, copy) {
         if (filterStatus) filterStatus.textContent = value;
       };
       const defaultSelectedPanel = selectedPanel ? selectedPanel.innerHTML : '';
-      window.__tinkGraphState = { mode: 'full', filter: null, pendingSelect: null };
+      window.__tinkGraphState = { mode: 'full', filter: null, pendingSelect: null, dragMode: 'pan' };
       window.__tinkGraphBridge = {
         onSelect(info) {
           if (!info) {
             cards.forEach((card) => card.classList.remove('is-selected'));
             if (selectedPanel && defaultSelectedPanel) selectedPanel.innerHTML = defaultSelectedPanel;
+            updateActionPanel(null, null);
             return;
           }
           const item = byHarnessId.get(info.id);
           cards.forEach((card) => card.classList.toggle('is-selected', Boolean(item) && card.dataset.harnessId === item.id));
           if (!selectedPanel) return;
           if (item) {
+            const plain = (copy.recPlain && copy.recPlain[item.recommendation]) || item.reason || copy.clickNode;
+            const stateText = (copy.statePlain && copy.statePlain[item.lifecycle_state]) || displayValue(item.lifecycle_state);
+            const tone = (copy.tones && copy.tones[item.recommendation]) || null;
             selectedPanel.innerHTML = '<p class="eyebrow">' + esc(copy.selected) + '</p>' +
               '<h2>' + esc(item.id) + '</h2>' +
-              '<p>' + esc((item.reason || copy.clickNode)) + '</p>' +
-              '<dl>' +
-              '<div><dt>' + esc(copy.recommendation) + '</dt><dd>' + esc(displayValue(item.recommendation)) + '</dd></div>' +
-              '<div><dt>' + esc(copy.lifecycleState) + '</dt><dd>' + esc(displayValue(item.lifecycle_state)) + '</dd></div>' +
-              '<div><dt>' + esc(copy.uses) + '</dt><dd>' + esc(item.uses) + '</dd></div>' +
-              '<div><dt>' + esc(copy.score) + '</dt><dd>' + esc(item.score) + '</dd></div>' +
-              '</dl>';
+              '<p>' + esc(plain) + '</p>' +
+              '<div class="stat-chips">' +
+              (tone ? '<span class="stat-chip tone-' + esc(tone[1]) + '">' + esc(tone[0]) + '</span>' : '') +
+              '<span class="stat-chip">' + esc(copy.uses) + ' ' + esc(item.uses) + esc(copy.timesSuffix || '') + '</span>' +
+              '<span class="stat-chip" title="' + esc(copy.scoreHint || '') + '">' + esc(copy.attentionScore || copy.score) + ' ' + esc(item.score) + ' / ' + esc(copy.scoreMax || 110) + '</span>' +
+              '<span class="stat-chip">' + esc(stateText) + '</span>' +
+              '</div>' +
+              '<p class="score-hint">' + esc(copy.scoreHint || '') + '</p>';
+            updateActionPanel(item.recommendation, item.id);
           } else {
-            selectedPanel.innerHTML = '<p class="eyebrow">' + esc(copy.selected) + '</p><h2>' + esc(info.label) + '</h2><p>' + esc(info.id) + '</p><dl><div><dt>' + esc(copy.type) + '</dt><dd>' + esc(displayValue(info.type)) + '</dd></div><div><dt>' + esc(copy.weight) + '</dt><dd>' + esc(info.weight) + '</dd></div></dl>';
+            const template = (copy.typePlain && (copy.typePlain[info.type] || copy.typePlain.unknown)) || '';
+            const plainType = template.replaceAll('{n}', String(info.weight ?? 0));
+            selectedPanel.innerHTML = '<p class="eyebrow">' + esc(copy.selected) + '</p>' +
+              '<h2>' + esc(info.label) + '</h2>' +
+              '<p>' + esc(plainType) + '</p>';
+            updateActionPanel(null, null);
           }
         }
       };
@@ -1318,6 +1544,84 @@ function renderScript(harnesses, copy) {
           setStatus(mode === 'core' ? copy.coreMode : copy.showingAll);
         });
       });
+      const groupDetail = document.getElementById('group-detail');
+      const groupDetailInner = document.getElementById('group-detail-inner');
+      function updateGroupDetail(rec) {
+        if (!groupDetail || !groupDetailInner) return;
+        if (!rec) {
+          groupDetail.classList.remove('is-open');
+          return;
+        }
+        const items = harnessData
+          .filter((item) => item.recommendation === rec)
+          .sort((a, b) => b.uses - a.uses || a.id.localeCompare(b.id));
+        groupDetailInner.innerHTML = items.map((item) =>
+          '<button class="group-item" type="button" data-group-harness="' + esc(item.id) + '">' +
+          '<code>' + esc(item.id) + '</code>' +
+          '<span class="gi-uses">' + esc(copy.uses) + ' ' + esc(item.uses) + esc(copy.timesSuffix || '') + '</span>' +
+          '<span class="gi-go">' + esc(copy.viewInGraph || 'View in graph') + ' →</span>' +
+          '</button>').join('');
+        groupDetail.classList.add('is-open');
+        groupDetailInner.querySelectorAll('[data-group-harness]').forEach((button) => {
+          button.addEventListener('click', () => {
+            switchTab('graph');
+            selectHarness(button.dataset.groupHarness.replace(/^harness:/, ''));
+          });
+        });
+      }
+      const actionPanel = document.getElementById('action-panel');
+      function updateActionPanel(rec, harnessId) {
+        if (!actionPanel) return;
+        const head = '<p class="eyebrow">' + esc(copy.actionEyebrow || 'SUGGESTION') + '</p>' +
+          '<h2>' + esc(copy.actionPanelTitle || 'Next action') + '</h2>';
+        const action = rec && copy.actions ? copy.actions[rec] : null;
+        if (!action) {
+          actionPanel.innerHTML = head + '<p class="action-body">' + esc(copy.actionDefault || '') + '</p>';
+          return;
+        }
+        const command = action.command ? (harnessId ? action.command + ' ' + harnessId : action.command) : '';
+        actionPanel.innerHTML = head +
+          (harnessId ? '<p class="action-target">' + esc(copy.actionTarget || 'Target') + ': <strong>' + esc(harnessId) + '</strong></p>' : '') +
+          '<p class="action-body">' + esc(action.what || '') + '</p>' +
+          '<p class="action-next">' + esc(action.next || '') + '</p>' +
+          (command
+            ? '<div class="cmd-row"><code>' + esc(command) + '</code>' +
+              '<button class="copy-btn" type="button" data-copy-cmd="' + esc(command) + '">' + esc(copy.copyCmd || 'Copy') + '</button></div>' +
+              (action.expect ? '<p class="action-expect">' + esc(action.expect) + '</p>' : '') +
+              '<p class="action-caveat">' + esc(copy.actionCaveat || '') + '</p>'
+            : '');
+      }
+      function legacyCopy(value) {
+        const area = document.createElement('textarea');
+        area.value = value;
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        try {
+          document.execCommand('copy');
+        } finally {
+          area.remove();
+        }
+        return Promise.resolve();
+      }
+      function copyTextToClipboard(value) {
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(value).catch(() => legacyCopy(value));
+        }
+        return legacyCopy(value);
+      }
+      if (actionPanel) {
+        actionPanel.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-copy-cmd]');
+          if (!button) return;
+          copyTextToClipboard(button.dataset.copyCmd).then(() => {
+            const original = button.textContent;
+            button.textContent = copy.copied || 'Copied!';
+            setTimeout(() => { button.textContent = original; }, 1400);
+          }).catch(() => {});
+        });
+      }
       function filterRecommendation(value, button) {
         const alreadyActive = button.classList.contains('active-filter');
         document.querySelectorAll('[data-filter-rec]').forEach((item) => {
@@ -1330,6 +1634,8 @@ function renderScript(harnesses, copy) {
           if (window.__tinkGraph) window.__tinkGraph.setFilter(null);
           setStatus(copy.showingAll);
           setFilterStatus(copy.showingAll);
+          updateActionPanel(null, null);
+          updateGroupDetail(null);
           return;
         }
         button.classList.add('active-filter');
@@ -1340,6 +1646,8 @@ function renderScript(harnesses, copy) {
         const label = recLabelByFilter[value] || value;
         setStatus(copy.filteredTo + ': ' + label);
         setFilterStatus(copy.filteredTo + ': ' + label);
+        updateActionPanel(value, null);
+        updateGroupDetail(value);
       }
       document.querySelectorAll('[data-zoom]').forEach((button) => {
         button.addEventListener('click', () => {
@@ -1348,6 +1656,52 @@ function renderScript(harnesses, copy) {
           else window.__tinkGraph.zoom(button.dataset.zoom === 'in' ? 0.78 : 1.28);
         });
       });
+      document.querySelectorAll('[data-drag]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const mode = button.dataset.drag;
+          document.querySelectorAll('[data-drag]').forEach((item) => {
+            const active = item.dataset.drag === mode;
+            item.classList.toggle('active', active);
+            item.setAttribute('aria-pressed', active ? 'true' : 'false');
+          });
+          window.__tinkGraphState.dragMode = mode;
+          if (window.__tinkGraph) window.__tinkGraph.setDragMode(mode);
+          updateGraphHint();
+        });
+      });
+      const graphHint = document.getElementById('graph-hint');
+      function updateGraphHint() {
+        if (graphHint) graphHint.textContent = window.__tinkGraphState.dragMode === 'rotate' ? (copy.hintRotate || '') : (copy.hintPan || '');
+      }
+      updateGraphHint();
+      const rail = document.querySelector('.right-rail');
+      const railResizer = document.getElementById('rail-resizer');
+      if (rail && railResizer) {
+        const savedWidth = Number(localStorage.getItem('tink-rail-w') || 0);
+        if (savedWidth >= 260 && savedWidth <= 620) {
+          document.documentElement.style.setProperty('--rail-w', savedWidth + 'px');
+        }
+        let railDrag = null;
+        railResizer.addEventListener('pointerdown', (event) => {
+          railDrag = { x: event.clientX, width: rail.getBoundingClientRect().width };
+          railResizer.classList.add('is-dragging');
+          railResizer.setPointerCapture(event.pointerId);
+          event.preventDefault();
+        });
+        railResizer.addEventListener('pointermove', (event) => {
+          if (!railDrag) return;
+          const width = Math.min(620, Math.max(260, railDrag.width + (railDrag.x - event.clientX)));
+          document.documentElement.style.setProperty('--rail-w', width + 'px');
+        });
+        const endRailDrag = () => {
+          if (!railDrag) return;
+          railDrag = null;
+          railResizer.classList.remove('is-dragging');
+          localStorage.setItem('tink-rail-w', String(Math.round(rail.getBoundingClientRect().width)));
+        };
+        railResizer.addEventListener('pointerup', endRailDrag);
+        railResizer.addEventListener('pointercancel', endRailDrag);
+      }
       const VALID_TABS = ['home', 'harnesses', 'memory', 'graph', 'activity'];
       const navLinks = Array.from(document.querySelectorAll('.nav a[data-tab]'));
       const pages = Array.from(document.querySelectorAll('.page'));
@@ -1402,7 +1756,7 @@ function renderScript(harnesses, copy) {
 function renderGraph3DModule(copy) {
   const copyPayload = JSON.stringify({
     tooltipPrefix: copy.tooltipPrefix,
-    type: copy.type
+    uses: copy.uses
   }).replaceAll('<', '\\u003c');
   return `
     <script type="importmap">
@@ -1418,37 +1772,33 @@ function renderGraph3DModule(copy) {
       const container = document.getElementById('graph-3d');
       const dataEl = document.getElementById('graph-data');
       if (!container || !dataEl) return;
+      const fallback = document.getElementById('graph-3d-fallback');
       let THREE, OrbitControls;
       try {
         THREE = await import('three');
         ({ OrbitControls } = await import('three/addons/controls/OrbitControls.js'));
       } catch (error) {
-        const fallback = document.getElementById('graph-3d-fallback');
         if (fallback) fallback.hidden = false;
         return;
       }
+      if (fallback) fallback.hidden = true;
       const data = JSON.parse(dataEl.textContent);
       const copy3d = ${copyPayload};
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const rootStyle = getComputedStyle(document.documentElement);
       const cssColor = (name, fallbackColor) => (rootStyle.getPropertyValue(name) || '').trim() || fallbackColor;
-      const TYPE_HEX = {
-        harness: cssColor('--accent', '#5B8DEF'),
-        rule: '#9B8CFF',
-        memory: '#4EC9B0',
-        stage: '#D7A65A',
-        unknown: '#7A8194'
-      };
+      const accent = cssColor('--accent', '#5B8DEF');
+      const nodeColor = (node) => node.color || accent;
 
       const scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(0x000000, 0.0019);
-      const camera = new THREE.PerspectiveCamera(60, 16 / 9, 0.1, 1000);
-      const INITIAL_CAM = new THREE.Vector3(0, 24, 52);
+      scene.background = new THREE.Color(0x000000);
+      const camera = new THREE.PerspectiveCamera(58, 16 / 9, 0.1, 600);
+      const INITIAL_CAM = new THREE.Vector3(0, 16, 76);
       const INITIAL_TARGET = new THREE.Vector3(0, 0, 0);
       camera.position.copy(INITIAL_CAM);
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setClearColor(0x000005, 1);
+      renderer.setClearColor(0x000000, 1);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       container.appendChild(renderer.domElement);
       const labelLayer = document.createElement('div');
@@ -1457,170 +1807,231 @@ function renderGraph3DModule(copy) {
 
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
-      controls.dampingFactor = 0.08;
-      controls.autoRotate = !reducedMotion;
-      controls.autoRotateSpeed = 0.12;
-      controls.minDistance = 14;
-      controls.maxDistance = 160;
+      controls.dampingFactor = 0.1;
+      controls.enableZoom = true;
+      controls.zoomSpeed = 1.1;
+      controls.screenSpacePanning = true;
+      controls.panSpeed = 1.1;
+      function applyDragMode(mode) {
+        const rotate = mode === 'rotate';
+        controls.mouseButtons = {
+          LEFT: rotate ? THREE.MOUSE.ROTATE : THREE.MOUSE.PAN,
+          MIDDLE: THREE.MOUSE.DOLLY,
+          RIGHT: rotate ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE
+        };
+        controls.touches = {
+          ONE: rotate ? THREE.TOUCH.ROTATE : THREE.TOUCH.PAN,
+          TWO: THREE.TOUCH.DOLLY_ROTATE
+        };
+      }
+      applyDragMode((window.__tinkGraphState && window.__tinkGraphState.dragMode) || 'pan');
+      controls.autoRotate = false;
+      controls.minDistance = 8;
+      controls.maxDistance = 220;
 
-      scene.add(new THREE.AmbientLight(0x8e9ab8, 0.85));
-      const keyLight = new THREE.DirectionalLight(0xffffff, 1.25);
-      keyLight.position.set(30, 45, 25);
+      scene.add(new THREE.AmbientLight(0xb8c0d8, 1.1));
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+      keyLight.position.set(24, 38, 30);
       scene.add(keyLight);
-      const coreLight = new THREE.PointLight(0xffe8ff, 0.5, 260);
-      coreLight.position.set(0, -14, 0);
-      scene.add(coreLight);
 
-      function glowTexture(color) {
+      function glowTexture(stops) {
         const size = 128;
         const canvas = document.createElement('canvas');
         canvas.width = canvas.height = size;
         const context = canvas.getContext('2d');
         const gradient = context.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-        gradient.addColorStop(0, color);
-        gradient.addColorStop(1, 'rgba(0,0,0,0)');
+        stops.forEach(([offset, color]) => gradient.addColorStop(offset, color));
         context.fillStyle = gradient;
         context.fillRect(0, 0, size, size);
         return new THREE.CanvasTexture(canvas);
       }
-      function glowSprite(color, scale) {
-        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
-          map: glowTexture(color),
-          transparent: true,
-          depthWrite: false,
-          blending: THREE.AdditiveBlending
-        }));
-        sprite.scale.set(scale, scale, 1);
-        return sprite;
-      }
+      const haloTexture = glowTexture([[0, 'rgba(255,255,255,0.85)'], [0.25, 'rgba(255,255,255,0.32)'], [1, 'rgba(255,255,255,0)']]);
+      const dotTexture = glowTexture([[0, 'rgba(255,255,255,1)'], [0.4, 'rgba(255,255,255,0.85)'], [1, 'rgba(255,255,255,0)']]);
+      const sparkTexture = glowTexture([[0, 'rgba(255,255,255,1)'], [0.18, 'rgba(220,238,255,0.95)'], [0.45, 'rgba(140,190,255,0.55)'], [1, 'rgba(80,140,255,0)']]);
 
-      // --- galaxy backdrop (same recipe as the three.js reference) ---
-      const GALAXY = { count: 70000, arms: 4, radius: 95, spin: 1.9, randomness: 0.28, power: 3, y: -16, flatten: 0.22 };
-      const galaxyPositions = new Float32Array(GALAXY.count * 3);
-      const galaxyColors = new Float32Array(GALAXY.count * 3);
-      const insideColor = new THREE.Color(0xff66ff);
-      const outsideColor = new THREE.Color(0x66ffff);
-      for (let i = 0; i < GALAXY.count; i += 1) {
-        const i3 = i * 3;
-        const radius = Math.pow(Math.random(), GALAXY.power) * GALAXY.radius;
-        const branchAngle = ((i % GALAXY.arms) / GALAXY.arms) * Math.PI * 2;
-        const spinAngle = (radius / GALAXY.radius) * GALAXY.spin * Math.PI;
-        const randomX = (Math.random() - 0.5) * GALAXY.randomness * radius;
-        const randomY = (Math.random() - 0.5) * GALAXY.randomness * radius * GALAXY.flatten;
-        const randomZ = (Math.random() - 0.5) * GALAXY.randomness * radius;
-        galaxyPositions[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
-        galaxyPositions[i3 + 1] = GALAXY.y + randomY;
-        galaxyPositions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
-        const mixed = insideColor.clone().lerp(outsideColor, radius / GALAXY.radius);
-        mixed.multiplyScalar(0.55 + 0.35 * Math.random());
-        galaxyColors[i3] = mixed.r;
-        galaxyColors[i3 + 1] = mixed.g;
-        galaxyColors[i3 + 2] = mixed.b;
-      }
-      const galaxyGeometry = new THREE.BufferGeometry();
-      galaxyGeometry.setAttribute('position', new THREE.BufferAttribute(galaxyPositions, 3));
-      galaxyGeometry.setAttribute('color', new THREE.BufferAttribute(galaxyColors, 3));
-      const galaxy = new THREE.Points(galaxyGeometry, new THREE.PointsMaterial({
-        size: 0.16,
-        vertexColors: true,
-        depthWrite: false,
-        transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending
-      }));
-      scene.add(galaxy);
-
-      const starGeometry = new THREE.BufferGeometry();
-      const starCount = 4000;
-      const starPositions = new Float32Array(starCount * 3);
-      for (let i = 0; i < starCount; i += 1) {
-        starPositions[i * 3] = (Math.random() - 0.5) * 520;
-        starPositions[i * 3 + 1] = (Math.random() - 0.5) * 520;
-        starPositions[i * 3 + 2] = (Math.random() - 0.5) * 520;
-      }
-      starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-      const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 0.5,
-        sizeAttenuation: true,
-        transparent: true,
-        opacity: 0.85
-      }));
-      scene.add(stars);
-
-      for (let i = 0; i < 10; i += 1) {
-        const hue = Math.floor(Math.random() * 360);
-        const nebula = glowSprite('hsla(' + hue + ', 80%, 55%, 0.4)', 50 + Math.random() * 70);
-        nebula.position.set((Math.random() - 0.5) * 260, (Math.random() - 0.5) * 150 - 20, (Math.random() - 0.5) * 260);
-        scene.add(nebula);
-      }
-      const coreGlow = glowSprite('rgba(255,240,255,0.85)', 26);
-      coreGlow.position.set(0, GALAXY.y, 0);
-      scene.add(coreGlow);
-
-      // --- harness map: spheres, edges, pulses, labels ---
-      function surfaceTexture() {
+      function planetTexture(colorHex, seed) {
+        let s = seed >>> 0;
+        const rand = () => {
+          s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+          return s / 4294967296;
+        };
+        const base = new THREE.Color(colorHex);
+        const hsl = { h: 0, s: 0, l: 0 };
+        base.getHSL(hsl);
+        const paint = (l, s2, alpha) => 'hsla(' + Math.round(hsl.h * 360) + ',' + Math.round(Math.min(1, (s2 === undefined ? hsl.s : s2)) * 100) + '%,' + Math.round(Math.max(0.06, Math.min(0.92, l)) * 100) + '%,' + (alpha === undefined ? 1 : alpha) + ')';
+        const W = 256;
+        const H = 128;
         const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 128;
+        canvas.width = W;
+        canvas.height = H;
         const context = canvas.getContext('2d');
-        context.fillStyle = '#B9BDC6';
-        context.fillRect(0, 0, 256, 128);
-        for (let i = 0; i < 70; i += 1) {
-          const shade = 150 + Math.floor(Math.random() * 105);
-          context.fillStyle = 'rgba(' + shade + ',' + shade + ',' + (shade + 8) + ',0.35)';
-          context.beginPath();
-          context.ellipse(Math.random() * 256, Math.random() * 128, 5 + Math.random() * 26, 3 + Math.random() * 10, Math.random() * Math.PI, 0, Math.PI * 2);
-          context.fill();
+        context.fillStyle = paint(hsl.l * 0.92);
+        context.fillRect(0, 0, W, H);
+        const kind = seed % 3;
+        if (kind === 0) {
+          let y = 0;
+          while (y < H) {
+            const bandHeight = 5 + rand() * 14;
+            context.fillStyle = paint(hsl.l * (0.72 + rand() * 0.55), hsl.s * (0.85 + rand() * 0.3), 0.85);
+            context.fillRect(0, y, W, bandHeight);
+            y += bandHeight;
+          }
+          for (let i = 0; i < 3; i += 1) {
+            context.fillStyle = paint(hsl.l * (1.15 + rand() * 0.3), Math.min(1, hsl.s * 1.05), 0.8);
+            context.beginPath();
+            context.ellipse(rand() * W, 24 + rand() * (H - 48), 9 + rand() * 16, 4 + rand() * 6, 0, 0, Math.PI * 2);
+            context.fill();
+          }
+        } else if (kind === 1) {
+          for (let i = 0; i < 26; i += 1) {
+            context.fillStyle = paint(hsl.l * (0.7 + rand() * 0.7), hsl.s * (0.8 + rand() * 0.4), 0.5);
+            context.beginPath();
+            context.ellipse(rand() * W, rand() * H, 12 + rand() * 34, 5 + rand() * 14, rand() * Math.PI, 0, Math.PI * 2);
+            context.fill();
+          }
+        } else {
+          context.fillStyle = paint(hsl.l * 0.8);
+          context.fillRect(0, 0, W, H);
+          for (let i = 0; i < 46; i += 1) {
+            const cx = rand() * W;
+            const cy = rand() * H;
+            const cr = 2 + rand() * 7;
+            context.fillStyle = paint(hsl.l * (0.5 + rand() * 0.35), hsl.s * 0.85, 0.75);
+            context.beginPath();
+            context.arc(cx, cy, cr, 0, Math.PI * 2);
+            context.fill();
+            context.strokeStyle = paint(Math.min(0.92, hsl.l * 1.3), hsl.s * 0.7, 0.5);
+            context.lineWidth = 1;
+            context.beginPath();
+            context.arc(cx, cy, cr, Math.PI * 1.1, Math.PI * 1.9);
+            context.stroke();
+          }
         }
-        for (let band = 0; band < 4; band += 1) {
-          context.fillStyle = 'rgba(90,96,110,0.18)';
-          context.fillRect(0, 16 + band * 30 + Math.random() * 8, 256, 5 + Math.random() * 8);
-        }
+        const pole = context.createLinearGradient(0, 0, 0, H);
+        pole.addColorStop(0, 'rgba(0,0,0,0.38)');
+        pole.addColorStop(0.22, 'rgba(0,0,0,0)');
+        pole.addColorStop(0.78, 'rgba(0,0,0,0)');
+        pole.addColorStop(1, 'rgba(0,0,0,0.38)');
+        context.fillStyle = pole;
+        context.fillRect(0, 0, W, H);
         const texture = new THREE.CanvasTexture(canvas);
         texture.wrapS = THREE.RepeatWrapping;
+        texture.colorSpace = THREE.SRGBColorSpace;
         return texture;
       }
-      const sphereTexture = surfaceTexture();
-      const sphereGeometry = new THREE.SphereGeometry(1, 32, 24);
+
+      const sphereGeometry = new THREE.SphereGeometry(1, 36, 28);
       const graphGroup = new THREE.Group();
       scene.add(graphGroup);
 
+      const maxWeight = Math.max(1, ...data.nodes.map((node) => Number(node.weight || 0)));
+      const hashSeed = (text) => {
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i += 1) {
+          hash ^= text.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return Math.abs(hash);
+      };
+
       const nodeEntries = data.nodes.map((node) => {
-        const colorHex = TYPE_HEX[node.type] || TYPE_HEX.unknown;
+        const colorHex = nodeColor(node);
         const color = new THREE.Color(colorHex);
+        if (node.type !== 'harness') color.lerp(new THREE.Color('#FFFFFF'), 0.3);
+        const isGod = node.type === 'harness' && Number(node.weight || 0) >= maxWeight * 0.75;
+        const seed = hashSeed(node.id);
         const material = new THREE.MeshStandardMaterial({
-          color,
-          map: sphereTexture,
-          roughness: 0.55,
-          metalness: 0.1,
-          emissive: color,
-          emissiveIntensity: 0.25,
+          color: new THREE.Color('#FFFFFF'),
+          map: planetTexture('#' + color.getHexString(), seed),
+          roughness: 0.58,
+          metalness: 0.05,
+          emissive: isGod ? color.clone().lerp(new THREE.Color('#FFFFFF'), 0.35) : color,
+          emissiveIntensity: isGod ? 0.5 : 0.3,
           transparent: true,
           opacity: 1
         });
         const mesh = new THREE.Mesh(sphereGeometry, material);
         mesh.position.set(node.x, node.y, node.z);
         mesh.scale.setScalar(node.r);
+        mesh.rotation.z = ((seed % 60) - 30) / 100;
         mesh.userData = node;
         graphGroup.add(mesh);
         let ring = null;
         if (node.type === 'harness' && node.glow) {
           ring = new THREE.Mesh(
-            new THREE.RingGeometry(node.r * 1.5, node.r * 2.15, 48),
-            new THREE.MeshBasicMaterial({ color: 0x9aa6c0, side: THREE.DoubleSide, transparent: true, opacity: 0.3, depthWrite: false })
+            new THREE.RingGeometry(node.r * 1.5, node.r * 2.05, 64),
+            new THREE.MeshBasicMaterial({
+              color: color.clone().lerp(new THREE.Color('#FFFFFF'), 0.35),
+              side: THREE.DoubleSide,
+              transparent: true,
+              opacity: 0.38,
+              depthWrite: false
+            })
           );
           ring.position.copy(mesh.position);
-          ring.rotation.x = Math.PI / 2.4;
+          ring.rotation.x = Math.PI / 2.5 + ((seed >> 4) % 30) / 100;
+          ring.rotation.z = ((seed >> 7) % 40) / 100;
           graphGroup.add(ring);
         }
+        const halo = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: haloTexture,
+          color,
+          transparent: true,
+          opacity: isGod ? 0.85 : 0.55,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending
+        }));
+        halo.position.copy(mesh.position);
+        halo.scale.setScalar(node.r * (isGod ? 5.2 : 3.4));
+        graphGroup.add(halo);
         const label = document.createElement('span');
         label.className = 'graph3d-label' + (node.type === 'harness' ? '' : ' is-minor');
         label.textContent = node.label;
         labelLayer.appendChild(label);
-        return { node, mesh, ring, label };
+        return { node, mesh, halo, ring, label, isGod, baseHalo: isGod ? 0.85 : 0.55, scaleTarget: node.r, spin: 0.05 + ((seed >> 9) % 90) / 1000 };
       });
       const entryById = new Map(nodeEntries.map((entry) => [entry.node.id, entry]));
+
+      // satellite particle clusters: one Points cloud per harness, tinted by its color
+      const clusterEntries = nodeEntries
+        .filter((entry) => entry.node.type === 'harness' && Number(entry.node.weight || 0) >= 2)
+        .map((entry) => {
+          const count = Math.max(2, Math.min(8, Math.round(Number(entry.node.weight || 0) / 3)));
+          const positions = new Float32Array(count * 3);
+          const colors = new Float32Array(count * 3);
+          const base = new THREE.Color(nodeColor(entry.node));
+          for (let i = 0; i < count; i += 1) {
+            const seed = hashSeed(entry.node.id + ':' + i);
+            const theta = (seed % 6283) / 1000;
+            const phi = ((seed >> 5) % 3141) / 1000;
+            const distance = entry.node.r + 1.4 + ((seed >> 8) % 100) / 100 * 2.2;
+            positions[i * 3] = entry.mesh.position.x + Math.sin(phi) * Math.cos(theta) * distance;
+            positions[i * 3 + 1] = entry.mesh.position.y + Math.cos(phi) * distance * 0.75;
+            positions[i * 3 + 2] = entry.mesh.position.z + Math.sin(phi) * Math.sin(theta) * distance;
+            const tint = base.clone().lerp(new THREE.Color('#FFFFFF'), ((seed >> 3) % 35) / 100);
+            colors[i * 3] = tint.r;
+            colors[i * 3 + 1] = tint.g;
+            colors[i * 3 + 2] = tint.b;
+          }
+          const geometry = new THREE.BufferGeometry();
+          geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+          geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+          const material = new THREE.PointsMaterial({
+            size: 1.05,
+            map: dotTexture,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.9,
+            alphaTest: 0.02,
+            depthWrite: false,
+            sizeAttenuation: true,
+            blending: THREE.AdditiveBlending
+          });
+          const points = new THREE.Points(geometry, material);
+          graphGroup.add(points);
+          return { parentId: entry.node.id, points };
+        });
+      const clusterByParent = new Map(clusterEntries.map((entry) => [entry.parentId, entry]));
 
       const edgeEntries = data.edges.map((edge) => {
         const source = entryById.get(edge.source);
@@ -1628,31 +2039,45 @@ function renderGraph3DModule(copy) {
         if (!source || !target) return null;
         const geometry = new THREE.BufferGeometry().setFromPoints([source.mesh.position, target.mesh.position]);
         const material = new THREE.LineBasicMaterial({
-          color: new THREE.Color(TYPE_HEX[source.node.type] || TYPE_HEX.unknown),
+          color: 0x9FB4D8,
           transparent: true,
-          opacity: 0.3,
-          depthWrite: false,
-          blending: THREE.AdditiveBlending
+          opacity: 0.16,
+          depthWrite: false
         });
         const line = new THREE.Line(geometry, material);
         graphGroup.add(line);
-        const pulse = glowSprite('rgba(190,215,255,0.95)', 1.5);
-        pulse.material.opacity = 0;
-        graphGroup.add(pulse);
+        const TRAIL = 6;
+        const sparkSprite = (scale, opacity) => {
+          const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+            map: sparkTexture,
+            color: 0xEAF4FF,
+            transparent: true,
+            opacity,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+          }));
+          sprite.scale.setScalar(scale);
+          graphGroup.add(sprite);
+          return sprite;
+        };
+        const head = sparkSprite(1.15, 0);
+        const trail = Array.from({ length: TRAIL }, (_, i) => sparkSprite(0.9 - i * 0.11, 0));
         return {
           edge,
           source,
           target,
           line,
-          pulse,
-          dur: 2.6 + Math.random() * 3.2,
-          phase: Math.random()
+          head,
+          trail,
+          dur: 2.6 + (hashSeed(edge.source + edge.target) % 32) / 10,
+          phase: (hashSeed(edge.target + edge.source) % 100) / 100
         };
       }).filter(Boolean);
 
-      // --- state: selection, mode, filter ---
+      // --- state ---
       const state = window.__tinkGraphState || { mode: 'full', filter: null, pendingSelect: null };
       let selectedId = null;
+      let hoveredId = null;
       function relatedIds(id) {
         const related = new Set([id]);
         edgeEntries.forEach((entry) => {
@@ -1663,31 +2088,58 @@ function renderGraph3DModule(copy) {
       }
       function applyState() {
         const related = selectedId ? relatedIds(selectedId) : null;
+        let filterSet = null;
+        if (state.filter) {
+          filterSet = new Set();
+          nodeEntries.forEach((entry) => {
+            if (entry.node.type === 'harness' && entry.node.recommendation === state.filter) filterSet.add(entry.node.id);
+          });
+          edgeEntries.forEach((entry) => {
+            if (filterSet.has(entry.edge.source)) filterSet.add(entry.edge.target);
+            else if (filterSet.has(entry.edge.target)) filterSet.add(entry.edge.source);
+          });
+        }
         nodeEntries.forEach((entry) => {
           const visible = state.mode !== 'core' || entry.node.core;
           entry.mesh.visible = visible;
+          entry.halo.visible = visible;
           let dim = 1;
-          if (state.filter && entry.node.type === 'harness' && entry.node.recommendation !== state.filter) dim = 0.12;
-          if (related && !related.has(entry.node.id)) dim = Math.min(dim, 0.1);
+          if (filterSet && !filterSet.has(entry.node.id)) dim = 0.07;
+          if (related && !related.has(entry.node.id)) dim = Math.min(dim, 0.08);
           const isSelected = entry.node.id === selectedId;
+          const isHovered = entry.node.id === hoveredId;
+          entry.dim = dim;
           entry.mesh.material.opacity = dim;
-          entry.mesh.material.emissiveIntensity = isSelected ? 0.85 : (related && related.has(entry.node.id) ? 0.45 : 0.25);
-          entry.mesh.scale.setScalar(entry.node.r * (isSelected ? 1.3 : 1));
+          entry.mesh.material.emissiveIntensity = isSelected ? 1.1 : isHovered ? 0.9 : (entry.isGod ? 0.85 : 0.5);
+          entry.halo.material.opacity = entry.baseHalo * dim * (isSelected ? 1.45 : isHovered ? 1.3 : 1);
+          entry.scaleTarget = entry.node.r * (isSelected ? 1.3 : isHovered ? 1.16 : 1);
           if (entry.ring) {
             entry.ring.visible = visible;
-            entry.ring.material.opacity = 0.3 * dim;
+            entry.ring.material.opacity = 0.38 * dim;
           }
-          entry.label.style.opacity = visible ? String(Math.max(dim, isSelected ? 1 : 0)) : '0';
-          entry.label.classList.toggle('is-selected', isSelected);
+          entry.label.style.opacity = !visible || (dim < 0.2 && !isSelected && !isHovered) ? '0' : String(Math.max(dim, isSelected || isHovered ? 1 : 0));
+          entry.label.classList.toggle('is-selected', isSelected || isHovered);
+        });
+        clusterEntries.forEach((entry) => {
+          const parent = entryById.get(entry.parentId);
+          const visible = parent.mesh.visible && state.mode !== 'core';
+          entry.points.visible = visible;
+          entry.points.material.opacity = 0.9 * (parent.dim ?? 1);
         });
         edgeEntries.forEach((entry) => {
           const visible = entry.source.mesh.visible && entry.target.mesh.visible;
           entry.line.visible = visible;
-          entry.pulse.visible = visible && !reducedMotion;
+          const pulseVisible = visible && !reducedMotion;
+          entry.head.visible = pulseVisible;
+          entry.trail.forEach((sprite) => { sprite.visible = pulseVisible; });
           const isRelated = related && (entry.edge.source === selectedId || entry.edge.target === selectedId);
-          const filtered = state.filter && (entry.source.mesh.material.opacity < 0.2 || entry.target.mesh.material.opacity < 0.2);
-          entry.line.material.opacity = related ? (isRelated ? 0.85 : 0.04) : (filtered ? 0.05 : 0.3);
-          entry.pulseFactor = related ? (isRelated ? 1 : 0.05) : (filtered ? 0.08 : 1);
+          const isHover = hoveredId && (entry.edge.source === hoveredId || entry.edge.target === hoveredId);
+          const filtered = state.filter && (entry.source.dim < 0.2 || entry.target.dim < 0.2);
+          entry.lineBase = related
+            ? (isRelated ? 0.8 : 0.03)
+            : (isHover ? 0.6 : (filtered ? 0.04 : 0.16));
+          entry.line.material.opacity = entry.lineBase;
+          entry.pulseFactor = related ? (isRelated ? 1 : 0.04) : (filtered ? 0.06 : 1);
         });
       }
       function emitSelection() {
@@ -1732,6 +2184,9 @@ function renderGraph3DModule(copy) {
           camera.position.copy(INITIAL_CAM);
           controls.target.copy(INITIAL_TARGET);
           controls.update();
+        },
+        setDragMode(mode) {
+          applyDragMode(mode);
         }
       };
       applyState();
@@ -1740,7 +2195,7 @@ function renderGraph3DModule(copy) {
         state.pendingSelect = null;
       }
 
-      // --- picking: hover tooltip + click selection ---
+      // --- picking ---
       const raycaster = new THREE.Raycaster();
       const pointer = new THREE.Vector2();
       const tooltip = document.getElementById('graph-tooltip');
@@ -1755,31 +2210,43 @@ function renderGraph3DModule(copy) {
         return hits.length ? hits[0].object.userData : null;
       }
       renderer.domElement.addEventListener('pointerdown', (event) => {
-        downAt = { x: event.clientX, y: event.clientY };
+        downAt = { x: event.clientX, y: event.clientY, button: event.button };
       });
       renderer.domElement.addEventListener('pointerup', (event) => {
         if (!downAt) return;
         const moved = Math.abs(event.clientX - downAt.x) + Math.abs(event.clientY - downAt.y);
+        const wasLeft = downAt.button === 0;
         downAt = null;
-        if (moved > 6) return;
+        if (!wasLeft || moved > 6) return;
         const hit = pick(event);
         if (hit) window.__tinkGraph.select(hit.id);
         else window.__tinkGraph.clear();
       });
       renderer.domElement.addEventListener('pointermove', (event) => {
         const hit = pick(event);
+        const nextHover = hit ? hit.id : null;
+        if (nextHover !== hoveredId) {
+          hoveredId = nextHover;
+          applyState();
+        }
         renderer.domElement.style.cursor = hit ? 'pointer' : 'grab';
         if (!tooltip) return;
         if (hit) {
-          tooltip.textContent = copy3d.tooltipPrefix + ': ' + hit.label + ' - ' + hit.type;
+          let text = hit.label + ' · ' + hit.type;
+          if (hit.type === 'harness') text += ' · ' + (copy3d.uses || 'uses') + ' ' + hit.weight;
+          tooltip.textContent = text;
           tooltip.style.left = Math.min(event.clientX + 14, window.innerWidth - 240) + 'px';
-          tooltip.style.top = Math.max(event.clientY - 12, 12) + 'px';
+          tooltip.style.top = Math.max(event.clientY - 14, 12) + 'px';
           tooltip.classList.add('is-visible');
         } else {
           tooltip.classList.remove('is-visible');
         }
       });
       renderer.domElement.addEventListener('pointerleave', () => {
+        if (hoveredId) {
+          hoveredId = null;
+          applyState();
+        }
         if (tooltip) tooltip.classList.remove('is-visible');
       });
       renderer.domElement.addEventListener('dblclick', () => window.__tinkGraph.reset());
@@ -1805,23 +2272,43 @@ function renderGraph3DModule(copy) {
         const elapsed = clock.elapsedTime;
         if (!container.clientWidth) return;
         controls.update();
+        nodeEntries.forEach((entry) => {
+          const current = entry.mesh.scale.x;
+          const target = entry.scaleTarget;
+          if (Math.abs(current - target) > 0.002) {
+            const next = current + (target - current) * Math.min(1, delta * 9);
+            entry.mesh.scale.setScalar(next);
+          }
+          if (!reducedMotion) entry.mesh.rotation.y += delta * entry.spin;
+        });
         if (!reducedMotion) {
-          galaxy.rotation.y += delta * 0.012;
-          stars.rotation.y += delta * 0.004;
-          nodeEntries.forEach((entry) => {
-            entry.mesh.rotation.y += delta * entry.node.spin;
-          });
           edgeEntries.forEach((entry) => {
+            const factor = entry.pulseFactor ?? 1;
             const t = ((elapsed / entry.dur) + entry.phase) % 1;
-            entry.pulse.position.lerpVectors(entry.source.mesh.position, entry.target.mesh.position, t);
-            entry.pulse.material.opacity = Math.sin(Math.PI * t) * 0.9 * (entry.pulseFactor ?? 1);
+            const envelope = Math.sin(Math.PI * t);
+            entry.head.position.lerpVectors(entry.source.mesh.position, entry.target.mesh.position, t);
+            const flicker = 0.92 + 0.16 * Math.sin(elapsed * 21 + entry.phase * 40);
+            entry.head.material.opacity = envelope * 0.95 * factor;
+            entry.head.scale.setScalar(1.15 * flicker);
+            entry.trail.forEach((sprite, i) => {
+              const tt = t - (i + 1) * 0.018;
+              if (tt <= 0) {
+                sprite.material.opacity = 0;
+                return;
+              }
+              sprite.position.lerpVectors(entry.source.mesh.position, entry.target.mesh.position, tt);
+              sprite.material.opacity = Math.sin(Math.PI * tt) * 0.55 * factor * (1 - (i + 1) / (entry.trail.length + 1.5));
+            });
+            if (entry.lineBase !== undefined && entry.lineBase > 0.05) {
+              entry.line.material.opacity = entry.lineBase + envelope * 0.14 * factor;
+            }
           });
         }
         const width = container.clientWidth;
         const height = container.clientHeight;
         nodeEntries.forEach((entry) => {
           projection.copy(entry.mesh.position);
-          projection.y += entry.mesh.scale.x + 0.6;
+          projection.y += entry.mesh.scale.x + 0.7;
           projection.project(camera);
           const behind = projection.z > 1;
           if (behind || !entry.mesh.visible) {
@@ -1901,7 +2388,7 @@ function renderStyles() {
     .app-shell {
       min-height: 100vh;
       display: grid;
-      grid-template-columns: 200px minmax(0, 1fr) 240px;
+      grid-template-columns: 200px minmax(0, 1fr) var(--rail-w, 340px);
     }
 
     .sidebar {
@@ -2599,6 +3086,190 @@ function renderStyles() {
       color: var(--text-secondary);
       font-size: 13px;
       text-align: center;
+      pointer-events: none;
+    }
+
+    .graph-3d-fallback[hidden] { display: none; }
+
+    .graph-hint {
+      position: absolute;
+      left: var(--space-3);
+      bottom: var(--space-3);
+      z-index: 5;
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-default);
+      background: rgba(10, 10, 14, 0.78);
+      color: var(--text-secondary);
+      font-size: 12px;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+
+    .eyebrow.tone-good { color: var(--success); }
+    .eyebrow.tone-warn { color: var(--warning); }
+    .eyebrow.tone-bad { color: var(--danger); }
+    .eyebrow.tone-info { color: var(--accent-text); }
+    .eyebrow.tone-neutral { color: var(--text-secondary); }
+
+    .harness-mini strong small {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .copy-btn {
+      border: 1px solid var(--accent-dim);
+      color: var(--accent-text);
+      background: transparent;
+      border-radius: var(--radius-sm);
+      padding: 5px 11px;
+      font-size: 12px;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      line-height: 1.2;
+      transition: background 150ms ease;
+    }
+
+    .copy-btn:hover { background: var(--accent-dim); }
+
+    .action-expect {
+      margin: var(--space-2) 0 0;
+      padding: var(--space-2) var(--space-3);
+      border-left: 2px solid var(--accent-dim);
+      background: var(--bg-hover);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      color: var(--text-secondary);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .group-detail {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 340ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .group-detail.is-open { grid-template-rows: 1fr; }
+
+    .group-detail-inner {
+      overflow: hidden;
+      min-height: 0;
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .group-detail.is-open .group-detail-inner { padding-top: var(--space-3); }
+
+    .group-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      width: 100%;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      padding: var(--space-2) var(--space-3);
+      cursor: pointer;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      text-align: left;
+      transition: border-color 150ms ease, background 150ms ease;
+    }
+
+    .group-item:hover {
+      border-color: var(--border-hover);
+      background: var(--bg-hover);
+    }
+
+    .group-item code { font-size: 13px; }
+
+    .group-item .gi-uses {
+      margin-left: auto;
+      color: var(--text-secondary);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .group-item .gi-go {
+      color: var(--accent-text);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .stat-chip.tone-good { color: var(--success); border-color: var(--success-dim); }
+    .stat-chip.tone-warn { color: var(--warning); border-color: var(--warning-dim); }
+    .stat-chip.tone-bad { color: var(--danger); border-color: var(--danger-dim); }
+    .stat-chip.tone-info { color: var(--accent-text); border-color: var(--accent-dim); }
+    .stat-chip.tone-neutral { color: var(--text-secondary); }
+
+    .score-hint {
+      margin: var(--space-2) 0 0;
+      color: var(--text-muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .action-panel .action-target {
+      margin: 0 0 var(--space-1);
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .action-panel .action-target strong { color: var(--text-primary); font-family: var(--font-mono); }
+
+    .action-panel .action-body {
+      margin: var(--space-1) 0 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .action-panel .action-next {
+      margin: var(--space-2) 0 0;
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .cmd-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .cmd-row code {
+      background: var(--bg-hover);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      padding: 5px 9px;
+      font-size: 12px;
+      color: var(--accent-text);
+    }
+
+    .action-caveat {
+      margin: var(--space-2) 0 0;
+      color: var(--text-muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .stat-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: var(--space-2);
+    }
+
+    .stat-chip {
+      border: 1px solid var(--border-default);
+      background: var(--bg-hover);
+      border-radius: var(--radius-sm);
+      padding: 4px 9px;
+      font-size: 12px;
+      color: var(--text-primary);
     }
 
     .map-controls-row {
@@ -2734,6 +3405,33 @@ function renderStyles() {
       border-left: 1px solid var(--border-default);
       padding: var(--space-6) var(--space-4) var(--space-4);
       background: var(--bg-page);
+    }
+
+    .rail-resizer {
+      position: fixed;
+      top: 0;
+      right: calc(var(--rail-w, 340px) - 4px);
+      width: 9px;
+      height: 100vh;
+      cursor: col-resize;
+      z-index: 30;
+      touch-action: none;
+    }
+
+    .rail-resizer::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 0;
+      width: 1px;
+      height: 100%;
+      background: transparent;
+      transition: background 150ms ease;
+    }
+
+    .rail-resizer:hover::after,
+    .rail-resizer.is-dragging::after {
+      background: var(--accent);
     }
 
     .stats-grid {
@@ -3511,10 +4209,18 @@ function renderReport(summary) {
       </section>
     </main>
       <aside class="right-rail" aria-label="Insights">
+      <div class="rail-resizer" id="rail-resizer" role="separator" aria-orientation="vertical" aria-label="Resize panel"></div>
       <div data-rail="home harnesses memory activity">${renderStats(summary, copy)}</div>
       <div data-rail="home harnesses">${renderConfidence(summary, copy)}</div>
       <div data-rail="graph">${renderMapGuide(copy)}</div>
       <div data-rail="graph">${renderSelectedPanel(harnesses, copy)}</div>
+      <div data-rail="home harnesses graph">
+        <section class="insight-card action-panel" id="action-panel">
+          <p class="eyebrow">${escapeHtml(copy.actionEyebrow || 'SUGGESTION')}</p>
+          <h2>${escapeHtml(copy.actionPanelTitle || 'Next action')}</h2>
+          <p class="action-body">${escapeHtml(copy.actionDefault || '')}</p>
+        </section>
+      </div>
       <div data-rail="home harnesses">${renderImportantHarnesses(harnesses, copy)}</div>
       <div data-rail="graph">${renderGraphOverview(summary.graph || {}, copy)}</div>
     </aside>
