@@ -1,6 +1,6 @@
 {
   "name": "tink-harness",
-  "version": "1.9.9",
+  "version": "1.9.10",
   "description": "Self-growing harnesses for Claude Code and Codex.",
   "license": "MIT",
   "type": "module",

@@ -6,6 +6,19 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.10] - 2026-06-11
+
+### Changed
+
+- Harness map redesigned around readability: removed the galaxy backdrop, spread harnesses with enforced minimum spacing, gave each harness cluster its own vibrant color shared by its rules/memory/stages, and turned nodes into textured rotating planets (banded/marbled/cratered) with glow halos and comet-trail signal pulses.
+- Plain-language UX: selected-node panel, harness cards, line meanings, and group cards now use everyday phrasing with colored health-tone chips; the score is labeled "attention score N / 110" with an explanation that higher means fix-first.
+- Controls made discoverable: Move/Rotate drag toggle with an in-map hint bar, resizable right rail (drag the edge, persisted), and the nav tab renamed to "Harness map".
+
+### Added
+
+- Next-action panel: selecting a harness or health group suggests what to do (weave/frog/cast), explains what the command will do, and offers one-click command copy (with clipboard fallback).
+- Clicking a health group on Home now opens an inline harness list with a smooth animation instead of jumping tabs; items link straight into the map.
+
 ## [1.9.9] - 2026-06-11
 
 ### Changed
