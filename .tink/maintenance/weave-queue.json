@@ -1,5 +1,20 @@
 {
   "items": [
-    { "id": "signal-run-20260525-1335-issue2-close", "harness": "review", "run": ".tink/runs/2026-05-25-1335-issue2-close.md", "signal": "completed", "auto": true, "timestamp": "2026-05-25T13:50:00Z" }
+    {
+      "id": "signal-run-20260525-1335-issue2-close",
+      "harness": "review",
+      "run": ".tink/runs/2026-05-25-1335-issue2-close.md",
+      "signal": "completed",
+      "auto": true,
+      "timestamp": "2026-05-25T13:50:00Z"
+    },
+    {
+      "id": "signal-run-20260610-0916-advanced-options",
+      "harness": "code-change",
+      "run": ".tink/runs/2026-06-10-0916-advanced-options-superseded.md",
+      "signal": "superseded",
+      "auto": true,
+      "timestamp": "2026-06-10T00:16:51Z"
+    }
   ]
 }

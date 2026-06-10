@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dotoricode/tink-harness/schemas/context-map.schema.json",
+  "title": "Tink current run context map",
+  "type": "object",
+  "required": ["task", "included", "excluded", "signals", "generated_at"],
+  "properties": {
+    "task": {
+      "type": "object",
+      "required": ["summary"],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "Short description of the active user task."
+        },
+        "type": {
+          "type": "string",
+          "description": "Task class from contract.json when available."
+        },
+        "harnesses": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "included": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/context_entry" }
+    },
+    "excluded": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/context_entry" }
+    },
+    "signals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "value", "reason"],
+        "properties": {
+          "kind": { "type": "string" },
+          "value": { "type": "string" },
+          "reason": { "type": "string" },
+          "source": {
+            "type": "string",
+            "description": "Optional source artifact for this signal, such as a repo signal fixture or current run file."
+          },
+          "source_ref": {
+            "type": "string",
+            "description": "Optional path-like reference inside the source artifact."
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "external_context": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/external_context_profile" }
+    },
+    "efficiency_metrics": {
+      "$ref": "#/$defs/efficiency_metrics"
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "ISO timestamp for when the context map was created."
+    }
+  },
+  "$defs": {
+    "context_entry": {
+      "type": "object",
+      "required": ["kind", "reason", "confidence"],
+      "oneOf": [
+        { "required": ["path"] },
+        { "required": ["source"] }
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Repo-local file or directory path."
+        },
+        "source": {
+          "type": "string",
+          "description": "External source, tool, connector, or non-file context."
+        },
+        "kind": {
+          "type": "string",
+          "description": "file, directory, doc, rule, memory, external, command, or other context kind."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why this context was included or excluded."
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "supporting",
+            "verification_target",
+            "external_evidence",
+            "exclusion_candidate",
+            "example_only",
+            "stale",
+            "avoid_next_time"
+          ],
+          "description": "How this entry should be used when building or reviewing the context pack."
+        },
+        "cost": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Relative context cost for deciding whether the entry belongs in the first context pack."
+        },
+        "reuse_signal": {
+          "type": "string",
+          "enum": ["always", "often", "rare", "example_only", "avoid_next_time"],
+          "description": "Whether similar future runs should prefer, down-rank, or avoid this context."
+        },
+        "verification_link": {
+          "type": "string",
+          "description": "Check name, evidence ref, or verification hint that proves why this context matters."
+        },
+        "staleness": {
+          "type": "string",
+          "enum": ["fresh", "aging", "stale", "unknown"],
+          "description": "Freshness signal used to exclude stale context faster."
+        },
+        "evidence_kind": {
+          "type": "string",
+          "enum": ["file", "doc", "schema", "test", "command", "external", "signal", "diff", "unknown"],
+          "description": "Kind of evidence represented by this context entry."
+        },
+        "source_ref": {
+          "type": "string",
+          "description": "Optional source-local reference, such as issue id, frame id, URL label, or attachment name."
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "internal", "sensitive", "secret"]
+        },
+        "verification_hint": {
+          "type": "string",
+          "description": "Follow-up check needed before treating this context as verified."
+        }
+      },
+      "additionalProperties": true
+    },
+    "efficiency_metrics": {
+      "type": "object",
+      "required": ["target_threshold_percent", "measurement_status", "scores"],
+      "properties": {
+        "target_threshold_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "measurement_status": {
+          "type": "string",
+          "enum": ["estimated", "measured", "mixed"]
+        },
+        "scores": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/metric_score" }
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "metric_score": {
+      "type": "object",
+      "required": ["name", "score_percent", "basis", "confidence"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "score_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "basis": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "limit": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "external_context_profile": {
+      "type": "object",
+      "required": ["source", "source_ref", "kind", "included", "excluded", "reason", "confidence", "sensitivity"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "External source name, such as Figma, GitHub, docs, attachment, dashboard, or another connector."
+        },
+        "source_ref": {
+          "type": "string",
+          "description": "Smallest useful source-local reference."
+        },
+        "kind": {
+          "type": "string",
+          "description": "External context kind, such as error_evidence, design_evidence, work_item, reference, runtime_evidence, or attachment."
+        },
+        "included": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "excluded": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "reason": { "type": "string" },
+        "confidence": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "internal", "sensitive", "secret"]
+        },
+        "verification_hint": { "type": "string" },
+        "blocked_reason": { "type": "string" },
+        "next_action": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

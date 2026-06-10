@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dotoricode/tink-harness/schemas/contract.schema.json",
+  "title": "Tink current run contract",
+  "type": "object",
+  "required": [
+    "task_type",
+    "success_conditions",
+    "forbidden",
+    "verification",
+    "evidence"
+  ],
+  "properties": {
+    "task_type": {
+      "type": "string",
+      "description": "Compact task class such as code_change, bug_fix, research, review, docs, release, deploy, or publish."
+    },
+    "surface": {
+      "type": "string",
+      "description": "Agent or environment surface, such as claude, codex, cli, ci, repo, or global."
+    },
+    "risk": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Risk tags that should affect rule selection, such as public_publish, external_visibility, secrets, destructive, or broad_contract."
+    },
+    "success_conditions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "forbidden": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "verification": {
+      "type": "object",
+      "required": ["commands", "manual_checks"],
+      "properties": {
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "command"],
+            "properties": {
+              "name": { "type": "string" },
+              "command": { "type": "string" },
+              "required": { "type": "boolean", "default": true },
+              "approval_required": { "type": "boolean", "default": false },
+              "cwd": {
+                "type": "string",
+                "description": "Directory to run from. Use repo-root relative paths when possible."
+              },
+              "timeout_ms": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "platforms": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["windows", "macos", "linux", "any"]
+                }
+              },
+              "safe": {
+                "type": "boolean",
+                "description": "Whether the command is expected to be non-destructive and local-only."
+              },
+              "evidence": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "manual_checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "target": { "type": "string" },
+              "required": { "type": "boolean", "default": true },
+              "method": {
+                "type": "string",
+                "description": "How to inspect the target, such as test-target, file-exists, doc-contains, or human-review."
+              },
+              "source": { "type": "string" },
+              "source_ref": { "type": "string" },
+              "evidence": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["required"],
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "report": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "harness-health-dashboard",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8765", "--directory", ".tink/maintenance"],
+      "port": 8765
+    },
+    {
+      "name": "docs-preview",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "docs"],
+      "port": 8766
+    }
+  ]
+}

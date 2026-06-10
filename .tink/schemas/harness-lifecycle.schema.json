@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dotoricode/tink-harness/schemas/harness-lifecycle.schema.json",
+  "title": "Tink harness lifecycle summary",
+  "type": "object",
+  "required": ["generated_at", "run_window", "sources", "harnesses", "graph", "timeline"],
+  "properties": {
+    "generated_at": { "type": "string" },
+    "run_window": {
+      "type": "object",
+      "required": ["from", "to", "run_count"],
+      "properties": {
+        "from": { "type": ["string", "null"] },
+        "to": { "type": ["string", "null"] },
+        "run_count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "sources": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "harnesses": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/harness_summary" }
+    },
+    "graph": {
+      "type": "object",
+      "required": ["nodes", "edges"],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/graph_node" }
+        },
+        "edges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/graph_edge" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "timeline": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/timeline_event" }
+    }
+  },
+  "$defs": {
+    "harness_summary": {
+      "type": "object",
+      "required": ["id", "signals", "recommendation", "confidence", "reason", "evidence_handles"],
+      "properties": {
+        "id": { "type": "string" },
+        "signals": {
+          "type": "object",
+          "properties": {
+            "uses": { "type": "integer", "minimum": 0 },
+            "successes": { "type": "integer", "minimum": 0 },
+            "failures": { "type": "integer", "minimum": 0 },
+            "blocked": { "type": "integer", "minimum": 0 },
+            "last_used": { "type": ["string", "null"] },
+            "success_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+            "failure_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+            "co_used_with": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/related_harness" }
+            },
+            "sequence_hints": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sequence_hint" }
+            },
+            "rule_refs": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "memory_refs": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "context_cost": {
+              "type": "string",
+              "enum": ["low", "medium", "high", "unknown"]
+            }
+          },
+          "additionalProperties": true
+        },
+        "recommendation": {
+          "type": "string",
+          "enum": ["keep", "weave", "frog_candidate", "merge_candidate", "observe"]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "evidence_grade": {
+          "type": "string",
+          "enum": ["weak", "medium", "strong"]
+        },
+        "reason": { "type": "string" },
+        "evidence_handles": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "safe_next_action": { "type": "string" },
+        "approval_required_for": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["harness_edit", "rule_update", "memory_save", "merge", "delete", "archive"]
+          }
+        },
+        "lifecycle_state": {
+          "type": "string",
+          "enum": ["active", "no_evidence", "dormant_candidate", "cleanup_review", "needs_weave", "merge_review"]
+        },
+        "stale_days": { "type": ["integer", "null"], "minimum": 0 },
+        "state_reason": { "type": "string" },
+        "candidate_score": {
+          "$ref": "#/$defs/candidate_score"
+        }
+      },
+      "additionalProperties": true
+    },
+    "related_harness": {
+      "type": "object",
+      "required": ["id", "count"],
+      "properties": {
+        "id": { "type": "string" },
+        "count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "sequence_hint": {
+      "type": "object",
+      "required": ["before", "after", "count"],
+      "properties": {
+        "before": { "type": "string" },
+        "after": { "type": "string" },
+        "count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "graph_node": {
+      "type": "object",
+      "required": ["id", "type", "label"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["harness", "rule", "memory", "stage"]
+        },
+        "label": { "type": "string" },
+        "recommendation": {
+          "type": "string",
+          "enum": ["keep", "weave", "frog_candidate", "merge_candidate", "observe"]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "weight": { "type": "number", "minimum": 0 },
+        "candidate_score": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "additionalProperties": true
+    },
+    "candidate_score": {
+      "type": "object",
+      "required": ["total", "factors"],
+      "properties": {
+        "total": { "type": "number", "minimum": 0, "maximum": 100 },
+        "factors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/score_factor" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "score_factor": {
+      "type": "object",
+      "required": ["name", "value", "reason"],
+      "properties": {
+        "name": { "type": "string" },
+        "value": { "type": "number" },
+        "reason": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "graph_edge": {
+      "type": "object",
+      "required": ["source", "target", "type"],
+      "properties": {
+        "source": { "type": "string" },
+        "target": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["co_used", "sequence", "uses_rule", "uses_memory"]
+        },
+        "count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "timeline_event": {
+      "type": "object",
+      "required": ["source", "status", "outcome", "harnesses"],
+      "properties": {
+        "date": { "type": ["string", "null"] },
+        "source": { "type": "string" },
+        "status": { "type": "string" },
+        "outcome": {
+          "type": "string",
+          "enum": ["success", "failed", "blocked", "unknown"]
+        },
+        "harnesses": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
