@@ -6,6 +6,19 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.5] - 2026-06-10
+
+### Added
+
+- Run timeline entries now show a colored outcome badge, a monospace timestamp, and harness chips instead of a comma list.
+- The Activity tab gained a summary strip: total runs, run window, and completed/blocked/failed/recorded counts.
+- Memory cards now show reference counts and referencing-harness chips derived from `uses_memory` graph edges.
+
+### Fixed
+
+- The lifecycle generator now reads YAML-frontmatter `outcome:` values from run records, so completed runs are counted as successes instead of unknown.
+- Removed a generic "blocked" word match that flagged runs as blocked when the word merely appeared in prose.
+
 ## [1.9.4] - 2026-06-10
 
 ### Added

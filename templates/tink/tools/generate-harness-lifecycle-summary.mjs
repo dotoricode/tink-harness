@@ -83,10 +83,13 @@ function extractRefs(text, refs) {
 function parseRun(filePath, harnessIds, ruleRefs, memoryRefs) {
   const text = fs.readFileSync(filePath, 'utf8');
   const statusMatch = text.match(/^Status:\s*([A-Za-z_-]+)/mi);
-  const status = statusMatch ? statusMatch[1].toLowerCase() : 'unknown';
+  const outcomeMatch = text.match(/^outcome:\s*"?([A-Za-z_-]+)"?/mi);
+  const status = statusMatch
+    ? statusMatch[1].toLowerCase()
+    : (outcomeMatch ? outcomeMatch[1].toLowerCase() : 'unknown');
   const harnesses = extractSelectedHarnesses(text, harnessIds);
   const failed = /check_failed|failed check|required check failed|verification failed/i.test(text);
-  const blocked = status === 'blocked' || /check_blocked|blocked/i.test(text);
+  const blocked = status === 'blocked' || /check_blocked/i.test(text);
   const completed = status === 'completed' || status === 'pass' || /npm test passed|verification passed/i.test(text);
   return {
     path: filePath,

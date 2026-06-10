@@ -143,6 +143,9 @@ const COPY = {
     historyHelp: 'Approved reusable-state changes from the maintenance ledger, newest first.',
     historyEmpty: 'No ledger history yet.',
     sortNote: 'Sorted by usage',
+    runWindow: 'Run window',
+    totalRuns: 'Runs',
+    refCount: 'References',
     groups: [
       ['keep', 'Healthy harnesses', 'Ready to keep using'],
       ['weave', 'Weave candidates', 'Worth improving next'],
@@ -200,6 +203,9 @@ COPY.ko = {
   historyHelp: '유지보수 장부에 기록된 승인 변경 이력을 최신순으로 보여줍니다.',
   historyEmpty: '아직 장부 기록이 없습니다.',
   sortNote: '사용량 순 정렬',
+  runWindow: '기록 기간',
+  totalRuns: 'Run 수',
+  refCount: '참조 횟수',
   navLabel: '탐색',
   operator: '작업자',
   online: 'Tink 온라인',
@@ -767,15 +773,26 @@ function dedupeTimelineEvents(events = [], harnessIds = null, limit = 8) {
 }
 
 function renderTimelineItems(items, copy) {
-  return items.map((event) => `
+  return items.map((event) => {
+    const outcome = timelineOutcomeClass(event);
+    const chips = (event.harnesses || []).slice(0, 6);
+    return `
     <li>
-      <span class="dot ${escapeHtml(timelineOutcomeClass(event))}"></span>
+      <span class="dot ${escapeHtml(outcome)}"></span>
       <div>
-        <strong>${escapeHtml(timelineOutcomeLabel(event, copy))} - ${escapeHtml(shortDate(event.date))}</strong>
-        <p>${escapeHtml(formatHarnessList(event.harnesses) || copy.noHarnessRecorded)}</p>
+        <div class="run-row">
+          <span class="run-badge ${escapeHtml(outcome)}">${escapeHtml(timelineOutcomeLabel(event, copy))}</span>
+          <time>${escapeHtml(shortDate(event.date))}</time>
+        </div>
+        <div class="run-chips">
+          ${chips.length
+            ? chips.map((id) => `<span class="co-chip">${escapeHtml(id)}</span>`).join('')
+            : `<span class="run-empty">${escapeHtml(copy.noHarnessRecorded)}</span>`}
+        </div>
       </div>
     </li>
-  `).join('') || `<li><span class="dot observe"></span><div><strong>${escapeHtml(copy.noRunEvents)}</strong><p>${escapeHtml(copy.runRecordsWillAppear)}</p></div></li>`;
+  `;
+  }).join('') || `<li><span class="dot observe"></span><div><strong>${escapeHtml(copy.noRunEvents)}</strong><p>${escapeHtml(copy.runRecordsWillAppear)}</p></div></li>`;
 }
 
 function renderTimeline(events = [], copy, harnessIds = null, options = {}) {
@@ -1070,19 +1087,26 @@ function renderHomePage(summary, copy, harnesses, harnessIds) {
 function renderMemoryPage(summary, copy) {
   const harnesses = getVisibleHarnesses(Array.isArray(summary.harnesses) ? summary.harnesses : []);
   const refs = new Map();
+  const ensureRef = (key) => {
+    if (!refs.has(key)) refs.set(key, { users: new Set(), count: 0 });
+    return refs.get(key);
+  };
   for (const harness of harnesses) {
     for (const ref of harness.signals?.memory_refs || []) {
-      const key = normalizePath(ref);
-      if (!refs.has(key)) refs.set(key, new Set());
-      refs.get(key).add(harness.id);
+      ensureRef(normalizePath(ref)).users.add(harness.id);
     }
+  }
+  for (const edge of getRenderableEdges(summary.graph?.edges || [])) {
+    if (edge.type !== 'uses_memory') continue;
+    const entry = ensureRef(normalizePath(String(edge.target).replace(/^memory:/, '')));
+    entry.users.add(shortLabel(edge.source));
+    entry.count += Number(edge.count || 1);
   }
   for (const node of getRenderableNodes(summary.graph?.nodes || [])) {
     if (node.type !== 'memory') continue;
-    const key = normalizePath(shortLabel(node.id));
-    if (!refs.has(key)) refs.set(key, new Set());
+    ensureRef(normalizePath(String(node.id).replace(/^memory:/, '')));
   }
-  const entries = [...refs.entries()].sort(([a], [b]) => a.localeCompare(b));
+  const entries = [...refs.entries()].sort(([, a], [, b]) => b.count - a.count || b.users.size - a.users.size);
   return `
     <section class="page-head">
       <p class="eyebrow">${escapeHtml(copy.memoryEyebrow || 'MEMORY')}</p>
@@ -1091,15 +1115,21 @@ function renderMemoryPage(summary, copy) {
     </section>
     ${entries.length ? `
       <div class="memory-grid">
-        ${entries.map(([file, users]) => `
+        ${entries.map(([file, info]) => `
           <article class="insight-card memory-card">
             <h3><code>${escapeHtml(file)}</code></h3>
             <dl>
               <div>
-                <dt>${escapeHtml(copy.referencedBy || 'Referenced by')}</dt>
-                <dd>${[...users].length ? [...users].sort().map((id) => escapeHtml(id)).join(', ') : escapeHtml(copy.none || 'None')}</dd>
+                <dt>${escapeHtml(copy.refCount || 'References')}</dt>
+                <dd>${escapeHtml(formatNumber(Math.max(info.count, info.users.size)))}</dd>
               </div>
             </dl>
+            <p class="detail-label">${escapeHtml(copy.referencedBy || 'Referenced by')}</p>
+            <div class="co-used-chips">
+              ${[...info.users].length
+                ? [...info.users].sort().map((id) => `<span class="co-chip">${escapeHtml(id)}</span>`).join('')
+                : `<span class="run-empty">${escapeHtml(copy.none || 'None')}</span>`}
+            </div>
           </article>
         `).join('')}
       </div>
@@ -1109,11 +1139,34 @@ function renderMemoryPage(summary, copy) {
 
 function renderActivityPage(summary, copy, harnessIds) {
   const items = dedupeTimelineEvents(summary.timeline || [], harnessIds, 30);
+  const all = Array.isArray(summary.timeline) ? summary.timeline : [];
+  const counts = { success: 0, blocked: 0, failed: 0, recorded: 0 };
+  for (const event of all) {
+    const key = timelineOutcomeClass(event);
+    counts[key in counts ? key : 'recorded'] += 1;
+  }
+  const window = summary.run_window || {};
+  const windowText = window.from && window.to
+    ? `${shortDate(window.from)} ~ ${shortDate(window.to)}`
+    : renderCopyValue('', copy);
+  const summaryCells = [
+    [copy.totalRuns || 'Runs', formatNumber(window.run_count || all.length)],
+    [copy.runWindow || 'Run window', windowText],
+    [copy.timelineCompleted || 'Completed', formatNumber(counts.success)],
+    [copy.timelineBlocked || 'Blocked', formatNumber(counts.blocked)],
+    [copy.timelineFailed || 'Failed', formatNumber(counts.failed)],
+    [copy.timelineRecorded || 'Recorded', formatNumber(counts.recorded)]
+  ];
   return `
     <section class="page-head">
       <p class="eyebrow">${escapeHtml(copy.activityEyebrow || 'ACTIVITY')}</p>
       <h1>${escapeHtml(copy.activityTitle || 'Run activity')}</h1>
       <p>${escapeHtml(copy.activityHelp || '')}</p>
+    </section>
+    <section class="activity-summary">
+      ${summaryCells.map(([label, value]) => `
+        <article><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>
+      `).join('')}
     </section>
     <section class="timeline activity-feed">
       <ol>
@@ -2603,6 +2656,79 @@ function renderStyles() {
     .activity-feed { padding: var(--space-4); }
     .activity-feed ol { gap: var(--space-3); }
 
+    .run-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .run-row time {
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    .run-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      padding: 2px 6px;
+      color: var(--text-secondary);
+    }
+
+    .run-badge.success { color: var(--success); border-color: var(--success-dim); background: var(--success-dim); }
+    .run-badge.blocked { color: var(--warning); border-color: var(--warning-dim); background: var(--warning-dim); }
+    .run-badge.failed { color: var(--danger); border-color: var(--danger-dim); background: var(--danger-dim); }
+    .run-badge.recorded { background: var(--bg-hover); }
+
+    .run-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 5px;
+    }
+
+    .run-empty {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .activity-summary {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+
+    .activity-summary article {
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      padding: var(--space-3);
+    }
+
+    .activity-summary span {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .activity-summary strong {
+      display: block;
+      margin-top: var(--space-1);
+      font-size: 16px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      overflow-wrap: anywhere;
+    }
+
     @media (max-width: 1180px) {
       .app-shell { grid-template-columns: 200px minmax(0, 1fr); }
       .right-rail {
@@ -2618,6 +2744,7 @@ function renderStyles() {
       .stats-grid { grid-template-columns: 1fr; }
       .home-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .home-columns { grid-template-columns: 1fr; }
+      .activity-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
     @media (max-width: 760px) {
@@ -2639,6 +2766,8 @@ function renderStyles() {
       .stats-grid { grid-template-columns: 1fr; }
       .home-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .memory-grid { grid-template-columns: 1fr; }
+      .activity-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .harness-grid { grid-template-columns: 1fr; }
       .map-head { display: block; }
       .map-controls { margin-top: var(--space-2); width: max-content; }
       .right-rail { padding: var(--space-4); }
