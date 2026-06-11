@@ -740,6 +740,16 @@ function nextStepFor(agent) {
   return 'Next: open Claude Code and run /tink:cast <task> to start. Run /tink:setup only to review or change settings.';
 }
 
+function githubPointer(language) {
+  if (language === 'ko') {
+    return '문서·데모·로드맵: https://github.com/dotoricode/tink-harness' + String.fromCharCode(10) + 'Tink가 Claude Code·Codex 워크플로에 도움이 됐다면, star 하나가 다른 개발자들이 찾는 데 힘이 됩니다.';
+  }
+  if (language === 'zh') {
+    return '文档、演示与路线图: https://github.com/dotoricode/tink-harness' + String.fromCharCode(10) + '如果 Tink 对你的 Claude Code/Codex 工作流有帮助，一个 star 能帮助更多人发现它。';
+  }
+  return 'Docs, demo, and roadmap: https://github.com/dotoricode/tink-harness' + String.fromCharCode(10) + 'If Tink helps your Claude Code or Codex workflow, a star helps others find it.';
+}
+
 function doneLineFor(agent) {
   if (agent === 'codex') return '\nDone. Open Codex and use $tink:cast <task> to start.';
   if (agent === 'all') return '\nDone. Use /tink:cast <task> in Claude Code or $tink:cast <task> in Codex to start.';
@@ -1007,10 +1017,12 @@ async function main() {
   if (interactive) {
     note(summary, COPY[language].installed);
     if (isUpdate) note(updateResultSummary(agent, targets), 'Update Result Summary');
+    note(githubPointer(language), 'GitHub');
     outro(COPY[language].done);
   } else {
     console.log(`\n${summary}`);
     if (isUpdate) console.log(`\n${updateResultSummary(agent, targets)}`);
+    console.log(`\n${githubPointer(language)}`);
     console.log(doneLineFor(agent));
   }
 }
