@@ -162,10 +162,10 @@ const COPY = {
     },
     actions: {
       keep: { what: 'Healthy and proven by records.', next: 'No action needed - just keep using it.', command: '', expect: '' },
-      observe: { what: 'Not enough records to judge yet.', next: 'Keep working normally with /tink:cast so records accumulate.', command: '/tink:cast', expect: 'What happens: it picks the right harness for your task, plans the run, and the work gets recorded - improving future judgments.' },
-      weave: { what: 'Repeated friction shows up in the records.', next: 'Run /tink:weave to prepare a small improvement proposal.', command: '/tink:weave', expect: 'What happens: it drafts an improvement (e.g. updated instructions) from the recorded friction and shows it to you. Nothing changes until you approve.' },
-      merge_candidate: { what: 'Often used together with another harness.', next: 'Run /tink:weave to check the overlap and decide whether to combine them.', command: '/tink:weave', expect: 'What happens: it inspects the overlap evidence and proposes whether to combine or keep separate. Nothing changes until you approve.' },
-      frog_candidate: { what: 'Repeated trouble plus high cost - cleanup candidates.', next: 'Run /tink:frog to review archive/delete with approval.', command: '/tink:frog', expect: 'What happens: it lists cleanup candidates with their evidence. Archiving or deleting only happens after your explicit approval.' }
+      observe: { what: 'Not enough records to judge yet.', next: 'Keep working normally with /tink:cast so records accumulate.', command: 'tink:cast', expect: 'What happens: it picks the right harness for your task, plans the run, and the work gets recorded - improving future judgments.' },
+      weave: { what: 'Repeated friction shows up in the records.', next: 'Run /tink:weave to prepare a small improvement proposal.', command: 'tink:weave', expect: 'What happens: it drafts an improvement (e.g. updated instructions) from the recorded friction and shows it to you. Nothing changes until you approve.' },
+      merge_candidate: { what: 'Often used together with another harness.', next: 'Run /tink:weave to check the overlap and decide whether to combine them.', command: 'tink:weave', expect: 'What happens: it inspects the overlap evidence and proposes whether to combine or keep separate. Nothing changes until you approve.' },
+      frog_candidate: { what: 'Repeated trouble plus high cost - cleanup candidates.', next: 'Run /tink:frog to review archive/delete with approval.', command: 'tink:frog', expect: 'What happens: it lists cleanup candidates with their evidence. Archiving or deleting only happens after your explicit approval.' }
     },
     recPlain: {
       keep: 'Working well - keep using it as is.',
@@ -300,10 +300,10 @@ COPY.ko = {
   },
   actions: {
     keep: { what: '기록으로 잘 검증되어 있어요.', next: '별도 행동이 필요 없어요 — 계속 사용하면 됩니다.', command: '', expect: '' },
-    observe: { what: '아직 판단할 기록이 부족해요.', next: '/tink:cast로 평소처럼 작업하면 기록이 쌓여 판단이 정확해져요.', command: '/tink:cast', expect: '실행하면: 작업에 맞는 하네스를 골라 계획을 세우고, 끝나면 이번 작업이 기록으로 남아 다음 판단이 정확해져요.' },
-    weave: { what: '반복되는 마찰이 기록되어 있어요.', next: '/tink:weave를 실행해 작은 개선 제안을 준비하세요.', command: '/tink:weave', expect: '실행하면: 기록된 마찰을 바탕으로 개선안(지침 수정 등)을 만들어 보여줘요. 승인하기 전에는 아무것도 바뀌지 않아요.' },
-    merge_candidate: { what: '다른 하네스와 자주 함께 쓰여요.', next: '/tink:weave로 겹침을 확인하고 합칠지 검토하세요.', command: '/tink:weave', expect: '실행하면: 겹침 근거를 살펴보고 합칠지 따로 둘지 제안해 줘요. 승인 전에는 아무것도 바뀌지 않아요.' },
-    frog_candidate: { what: '반복 문제와 높은 비용이 기록됐어요 — 정리 후보예요.', next: '/tink:frog로 보관/삭제 검토를 승인 절차와 함께 진행하세요.', command: '/tink:frog', expect: '실행하면: 정리 후보와 근거를 정리해 보여줘요. 보관·삭제는 명시적으로 승인해야만 실제로 진행돼요.' }
+    observe: { what: '아직 판단할 기록이 부족해요.', next: '/tink:cast로 평소처럼 작업하면 기록이 쌓여 판단이 정확해져요.', command: 'tink:cast', expect: '실행하면: 작업에 맞는 하네스를 골라 계획을 세우고, 끝나면 이번 작업이 기록으로 남아 다음 판단이 정확해져요.' },
+    weave: { what: '반복되는 마찰이 기록되어 있어요.', next: '/tink:weave를 실행해 작은 개선 제안을 준비하세요.', command: 'tink:weave', expect: '실행하면: 기록된 마찰을 바탕으로 개선안(지침 수정 등)을 만들어 보여줘요. 승인하기 전에는 아무것도 바뀌지 않아요.' },
+    merge_candidate: { what: '다른 하네스와 자주 함께 쓰여요.', next: '/tink:weave로 겹침을 확인하고 합칠지 검토하세요.', command: 'tink:weave', expect: '실행하면: 겹침 근거를 살펴보고 합칠지 따로 둘지 제안해 줘요. 승인 전에는 아무것도 바뀌지 않아요.' },
+    frog_candidate: { what: '반복 문제와 높은 비용이 기록됐어요 — 정리 후보예요.', next: '/tink:frog로 보관/삭제 검토를 승인 절차와 함께 진행하세요.', command: 'tink:frog', expect: '실행하면: 정리 후보와 근거를 정리해 보여줘요. 보관·삭제는 명시적으로 승인해야만 실제로 진행돼요.' }
   },
   recPlain: {
     keep: '잘 쓰이고 있어요 — 그대로 유지하면 됩니다.',
@@ -1558,14 +1558,17 @@ function renderScript(harnesses, copy) {
           actionPanel.innerHTML = head + '<p class="action-body">' + esc(copy.actionDefault || '') + '</p>';
           return;
         }
-        const command = action.command ? (harnessId ? action.command + ' ' + harnessId : action.command) : '';
+        const suffix = harnessId ? ' ' + harnessId : '';
+        const cmdRow = (label, value) =>
+          '<div class="cmd-row"><span class="cmd-label">' + esc(label) + '</span><code>' + esc(value) + '</code>' +
+          '<button class="copy-btn" type="button" data-copy-cmd="' + esc(value) + '">' + esc(copy.copyCmd || 'Copy') + '</button></div>';
         actionPanel.innerHTML = head +
           (harnessId ? '<p class="action-target">' + esc(copy.actionTarget || 'Target') + ': <strong>' + esc(harnessId) + '</strong></p>' : '') +
           '<p class="action-body">' + esc(action.what || '') + '</p>' +
           '<p class="action-next">' + esc(action.next || '') + '</p>' +
-          (command
-            ? '<div class="cmd-row"><code>' + esc(command) + '</code>' +
-              '<button class="copy-btn" type="button" data-copy-cmd="' + esc(command) + '">' + esc(copy.copyCmd || 'Copy') + '</button></div>' +
+          (action.command
+            ? cmdRow('Claude Code', '/' + action.command + suffix) +
+              cmdRow('Codex', '$' + action.command + suffix) +
               (action.expect ? '<p class="action-expect">' + esc(action.expect) + '</p>' : '') +
               '<p class="action-caveat">' + esc(copy.actionCaveat || '') + '</p>'
             : '');
@@ -2280,30 +2283,30 @@ function renderStyles() {
   return `<style>
     :root {
       color-scheme: dark;
-      --bg-page: #0A0A0A;
-      --bg-card: #111111;
-      --bg-hover: #161616;
-      --bg-selected: #1C1C1C;
-      --border-default: #1F1F1F;
-      --border-hover: #2A2A2A;
-      --border-strong: #383838;
-      --text-primary: #E8E8E8;
-      --text-secondary: #666666;
-      --text-muted: #3D3D3D;
-      --accent: #2563EB;
-      --accent-dim: #1E2D4A;
-      --accent-text: #93C5FD;
-      --success: #22C55E;
-      --success-dim: #14291E;
-      --warning: #F59E0B;
-      --warning-dim: #2A1F0A;
-      --danger: #EF4444;
-      --danger-dim: #2A0F0F;
-      --font-ui: 'IBM Plex Sans', -apple-system, sans-serif;
+      --bg-page: #171511;
+      --bg-card: #1E1B16;
+      --bg-hover: #25211A;
+      --bg-selected: #2C2720;
+      --border-default: #2D2820;
+      --border-hover: #3B342A;
+      --border-strong: #4C4336;
+      --text-primary: #EBE4D6;
+      --text-secondary: #A2988A;
+      --text-muted: #645B4E;
+      --accent: #C9913F;
+      --accent-dim: #3A2F1B;
+      --accent-text: #E2B873;
+      --success: #8FAE76;
+      --success-dim: #28301F;
+      --warning: #D2A24A;
+      --warning-dim: #342917;
+      --danger: #C97862;
+      --danger-dim: #34221C;
+      --font-ui: 'Avenir Next', 'Pretendard', 'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
       --font-mono: 'IBM Plex Mono', 'Fira Code', monospace;
-      --radius-sm: 4px;
-      --radius-md: 6px;
-      --radius-lg: 8px;
+      --radius-sm: 5px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
       --border-width: 1px;
       --space-1: 4px;
       --space-2: 8px;
@@ -2311,12 +2314,12 @@ function renderStyles() {
       --space-4: 16px;
       --space-6: 24px;
       --space-8: 32px;
-      --chart-line: #2563EB;
+      --chart-line: #C9913F;
       --chart-line-w: 1.5px;
-      --chart-area: rgba(37, 99, 235, 0.06);
-      --chart-grid: #1F1F1F;
-      --chart-dot-fill: #111111;
-      --chart-dot-stroke: #2563EB;
+      --chart-area: rgba(201, 145, 63, 0.07);
+      --chart-grid: #2D2820;
+      --chart-dot-fill: #1E1B16;
+      --chart-dot-stroke: #C9913F;
     }
 
     * { box-sizing: border-box; }
@@ -3047,7 +3050,7 @@ function renderStyles() {
       padding: 6px 12px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-default);
-      background: rgba(10, 10, 14, 0.78);
+      background: rgba(23, 21, 17, 0.82);
       color: var(--text-secondary);
       font-size: 12px;
       pointer-events: none;
@@ -3186,6 +3189,13 @@ function renderStyles() {
       gap: var(--space-2);
       margin-top: var(--space-2);
       flex-wrap: wrap;
+    }
+
+    .cmd-label {
+      min-width: 78px;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      white-space: nowrap;
     }
 
     .cmd-row code {
@@ -3485,13 +3495,14 @@ function renderStyles() {
 
     .harness-summary:hover { background: var(--bg-hover); }
 
-    .harness-summary .eyebrow { margin: 0 0 2px; font-size: 10px; }
+    .harness-summary .eyebrow { margin: 0 0 3px; font-size: 11.5px; letter-spacing: 0.03em; }
 
     .harness-summary h3 {
       margin: 0;
-      font-size: 14px;
-      line-height: 1.25;
+      font-size: 15.5px;
+      line-height: 1.3;
       font-weight: 600;
+      letter-spacing: -0.01em;
       overflow-wrap: anywhere;
     }
 
@@ -3503,12 +3514,12 @@ function renderStyles() {
 
     .harness-mini span {
       color: var(--text-secondary);
-      font-size: 11px;
+      font-size: 12.5px;
       white-space: nowrap;
     }
 
     .harness-mini strong {
-      font-size: 18px;
+      font-size: 20px;
       line-height: 1;
       font-family: var(--font-mono);
       font-weight: 600;
@@ -3552,16 +3563,15 @@ function renderStyles() {
     .harness-reason {
       margin: 0;
       color: var(--text-secondary);
-      font-size: 12px;
-      line-height: 1.5;
+      font-size: 13.5px;
+      line-height: 1.6;
     }
 
     .detail-label {
-      margin: var(--space-1) 0 0;
+      margin: var(--space-2) 0 0;
       color: var(--text-secondary);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      font-size: 11.5px;
+      letter-spacing: 0.04em;
     }
 
     .co-used-chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -3588,7 +3598,7 @@ function renderStyles() {
       display: flex;
       justify-content: space-between;
       gap: var(--space-2);
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-secondary);
     }
 
@@ -3597,17 +3607,17 @@ function renderStyles() {
     .harness-next {
       margin: 0;
       color: var(--text-primary);
-      font-size: 12px;
-      line-height: 1.5;
+      font-size: 13.5px;
+      line-height: 1.6;
     }
 
     .evidence-list {
       margin: 0;
       padding-left: 16px;
       color: var(--text-secondary);
-      font-size: 11px;
+      font-size: 12.5px;
       display: grid;
-      gap: 3px;
+      gap: 4px;
     }
 
     .harness-card .link-button { margin-top: var(--space-1); justify-self: start; }
@@ -3628,19 +3638,19 @@ function renderStyles() {
 
     .history-feed li {
       display: grid;
-      grid-template-columns: 110px 1fr;
+      grid-template-columns: 120px 1fr;
       gap: var(--space-3);
       align-items: start;
       border: 1px solid var(--border-default);
       border-radius: var(--radius-md);
       background: var(--bg-card);
-      padding: var(--space-2) var(--space-3);
+      padding: var(--space-3) var(--space-4);
     }
 
     .history-type {
       display: inline-block;
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--text-secondary);
@@ -3657,12 +3667,12 @@ function renderStyles() {
     .history-type.harness-create,
     .history-type.harness-edit { color: var(--success); border-color: var(--success-dim); }
 
-    .history-feed strong { font-size: 12px; font-weight: 500; }
+    .history-feed strong { font-size: 13.5px; font-weight: 500; }
 
     .history-harnesses {
-      margin: 2px 0 0;
+      margin: 3px 0 0;
       color: var(--text-secondary);
-      font-size: 11px;
+      font-size: 12.5px;
       font-family: var(--font-mono);
     }
 

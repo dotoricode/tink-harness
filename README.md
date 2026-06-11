@@ -17,14 +17,14 @@
 </p>
 
 <p>
-  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.9.1"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.9.12"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.9.1 - Adds harness health summaries with graph, timeline, scoring, lifecycle states, and a static local report. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
+<p><strong>Latest package:</strong> v1.9.12 - The local health report is now a tabbed dashboard with a 3D harness map, plain-language health summaries, and next-action suggestions with copy-paste commands for both Claude Code and Codex. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
 
 **English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
 
@@ -210,7 +210,7 @@ node .tink/tools/generate-harness-lifecycle-summary.mjs
 node .tink/tools/render-harness-health-report.mjs
 ```
 
-The report is a static dashboard-style page with a graph overview, recent run timeline, and one card per harness. It does not start a server, watch files, create a hidden cache, or add a public `tink index` command.
+The report is a static, tabbed local page: a home overview, usage-sorted harness cards with an evaluation/maintenance history, memory references, a run activity feed, and an interactive 3D harness map (drag to move, right-drag to rotate, wheel to zoom; rendered with three.js from a CDN, with an offline notice when unavailable). Selecting a harness or health group shows a plain-language summary plus a suggested next action with copy-paste commands for both Claude Code (`/tink:...`) and Codex (`$tink:...`). It still does not start a server, watch files, create a hidden cache, or add a public `tink index` command - suggestions only; reusable-state changes keep their approval gates.
 
 When selected, current-run artifacts may also include `.tink/current/goals.json` for goal checkpoints or `.tink/current/delegation.md` for handoff packets. Tink prepares those briefs as visible state; it does not start workers, tmux panes, or worktrees unless a separate approved workflow does so.
 
