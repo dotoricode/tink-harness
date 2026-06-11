@@ -161,10 +161,10 @@ const COPY = {
       frog_candidate: ['Cleanup review', 'bad']
     },
     actions: {
-      keep: { what: 'This group is healthy and proven by records.', next: 'No action needed - just keep using it.', command: '', expect: '' },
+      keep: { what: 'Healthy and proven by records.', next: 'No action needed - just keep using it.', command: '', expect: '' },
       observe: { what: 'Not enough records to judge yet.', next: 'Keep working normally with /tink:cast so records accumulate.', command: '/tink:cast', expect: 'What happens: it picks the right harness for your task, plans the run, and the work gets recorded - improving future judgments.' },
-      weave: { what: 'Repeated friction was recorded here.', next: 'Run /tink:weave to prepare a small improvement proposal.', command: '/tink:weave', expect: 'What happens: it drafts an improvement (e.g. updated instructions) from the recorded friction and shows it to you. Nothing changes until you approve.' },
-      merge_candidate: { what: 'These are often used together with another harness.', next: 'Run /tink:weave to check the overlap and decide whether to combine them.', command: '/tink:weave', expect: 'What happens: it inspects the overlap evidence and proposes whether to combine or keep separate. Nothing changes until you approve.' },
+      weave: { what: 'Repeated friction shows up in the records.', next: 'Run /tink:weave to prepare a small improvement proposal.', command: '/tink:weave', expect: 'What happens: it drafts an improvement (e.g. updated instructions) from the recorded friction and shows it to you. Nothing changes until you approve.' },
+      merge_candidate: { what: 'Often used together with another harness.', next: 'Run /tink:weave to check the overlap and decide whether to combine them.', command: '/tink:weave', expect: 'What happens: it inspects the overlap evidence and proposes whether to combine or keep separate. Nothing changes until you approve.' },
       frog_candidate: { what: 'Repeated trouble plus high cost - cleanup candidates.', next: 'Run /tink:frog to review archive/delete with approval.', command: '/tink:frog', expect: 'What happens: it lists cleanup candidates with their evidence. Archiving or deleting only happens after your explicit approval.' }
     },
     recPlain: {
@@ -299,10 +299,10 @@ COPY.ko = {
     frog_candidate: ['정리 검토', 'bad']
   },
   actions: {
-    keep: { what: '기록으로 검증된 건강한 그룹이에요.', next: '별도 행동이 필요 없어요 — 계속 사용하면 됩니다.', command: '', expect: '' },
+    keep: { what: '기록으로 잘 검증되어 있어요.', next: '별도 행동이 필요 없어요 — 계속 사용하면 됩니다.', command: '', expect: '' },
     observe: { what: '아직 판단할 기록이 부족해요.', next: '/tink:cast로 평소처럼 작업하면 기록이 쌓여 판단이 정확해져요.', command: '/tink:cast', expect: '실행하면: 작업에 맞는 하네스를 골라 계획을 세우고, 끝나면 이번 작업이 기록으로 남아 다음 판단이 정확해져요.' },
-    weave: { what: '반복되는 마찰이 기록된 그룹이에요.', next: '/tink:weave를 실행해 작은 개선 제안을 준비하세요.', command: '/tink:weave', expect: '실행하면: 기록된 마찰을 바탕으로 개선안(지침 수정 등)을 만들어 보여줘요. 승인하기 전에는 아무것도 바뀌지 않아요.' },
-    merge_candidate: { what: '다른 하네스와 자주 함께 쓰이는 그룹이에요.', next: '/tink:weave로 겹침을 확인하고 합칠지 검토하세요.', command: '/tink:weave', expect: '실행하면: 겹침 근거를 살펴보고 합칠지 따로 둘지 제안해 줘요. 승인 전에는 아무것도 바뀌지 않아요.' },
+    weave: { what: '반복되는 마찰이 기록되어 있어요.', next: '/tink:weave를 실행해 작은 개선 제안을 준비하세요.', command: '/tink:weave', expect: '실행하면: 기록된 마찰을 바탕으로 개선안(지침 수정 등)을 만들어 보여줘요. 승인하기 전에는 아무것도 바뀌지 않아요.' },
+    merge_candidate: { what: '다른 하네스와 자주 함께 쓰여요.', next: '/tink:weave로 겹침을 확인하고 합칠지 검토하세요.', command: '/tink:weave', expect: '실행하면: 겹침 근거를 살펴보고 합칠지 따로 둘지 제안해 줘요. 승인 전에는 아무것도 바뀌지 않아요.' },
     frog_candidate: { what: '반복 문제와 높은 비용이 기록됐어요 — 정리 후보예요.', next: '/tink:frog로 보관/삭제 검토를 승인 절차와 함께 진행하세요.', command: '/tink:frog', expect: '실행하면: 정리 후보와 근거를 정리해 보여줘요. 보관·삭제는 명시적으로 승인해야만 실제로 진행돼요.' }
   },
   recPlain: {
@@ -874,10 +874,6 @@ function renderGraphCanvas(summary, copy) {
             <button class="active" type="button" data-mode="full" aria-pressed="true">${escapeHtml(copy.full)}</button>
             <button type="button" data-mode="core" aria-pressed="false">${escapeHtml(copy.core)}</button>
           </div>
-          <div class="map-controls" aria-label="drag mode">
-            <button class="active" type="button" data-drag="pan" aria-pressed="true">${escapeHtml(copy.dragPan || 'Move')}</button>
-            <button type="button" data-drag="rotate" aria-pressed="false">${escapeHtml(copy.dragRotate || 'Rotate')}</button>
-          </div>
           <div class="map-controls" aria-label="zoom">
             <button type="button" data-zoom="in" aria-label="${escapeAttr(copy.zoomIn || 'Zoom in')}" title="${escapeAttr(copy.zoomIn || 'Zoom in')}">+</button>
             <button type="button" data-zoom="out" aria-label="${escapeAttr(copy.zoomOut || 'Zoom out')}" title="${escapeAttr(copy.zoomOut || 'Zoom out')}">−</button>
@@ -1069,24 +1065,7 @@ function renderImportantHarnesses(harnesses, copy) {
 }
 
 function renderSelectedPanel(harnesses, copy) {
-  const first = harnesses.find((item) => item.signals?.uses > 0) || harnesses[0];
-  if (!first) {
-    return `<section class="insight-card selected" id="selected-panel"><p class="eyebrow">${escapeHtml(copy.selected)}</p><h2>${escapeHtml(copy.noHarnessSelected)}</h2><p>${escapeHtml(copy.clickNode)}</p></section>`;
-  }
-  const plain = (copy.recPlain && copy.recPlain[first.recommendation]) || normalizeReason(first.reason, copy) || copy.clickNode;
-  const stateText = (copy.statePlain && copy.statePlain[first.lifecycle_state]) || renderCopyValue(first.lifecycle_state, copy);
-  return `
-    <section class="insight-card selected" id="selected-panel">
-      <p class="eyebrow">${escapeHtml(copy.selected)}</p>
-        <h2>${escapeHtml(first.id)}</h2>
-        <p>${escapeHtml(plain)}</p>
-        <div class="stat-chips">
-          <span class="stat-chip">${escapeHtml(copy.uses)} ${escapeHtml(first.signals?.uses || 0)}${escapeHtml(copy.timesSuffix || '')}</span>
-          <span class="stat-chip">${escapeHtml(copy.score)} ${escapeHtml(first.candidate_score?.total || 0)}</span>
-          <span class="stat-chip">${escapeHtml(stateText)}</span>
-        </div>
-    </section>
-  `;
+  return `<section class="insight-card selected" id="selected-panel"><p class="eyebrow">${escapeHtml(copy.selected)}</p><h2>${escapeHtml(copy.noHarnessSelected)}</h2><p>${escapeHtml(copy.clickNode)}</p></section>`;
 }
 
 function renderHarness(item, copy) {
@@ -1629,10 +1608,6 @@ function renderScript(harnesses, copy) {
           item.setAttribute('aria-pressed', 'false');
         });
         if (alreadyActive) {
-          cards.forEach((card) => card.classList.remove('is-filtered-out'));
-          window.__tinkGraphState.filter = null;
-          if (window.__tinkGraph) window.__tinkGraph.setFilter(null);
-          setStatus(copy.showingAll);
           setFilterStatus(copy.showingAll);
           updateActionPanel(null, null);
           updateGroupDetail(null);
@@ -1640,11 +1615,7 @@ function renderScript(harnesses, copy) {
         }
         button.classList.add('active-filter');
         button.setAttribute('aria-pressed', 'true');
-        cards.forEach((card) => card.classList.toggle('is-filtered-out', card.dataset.recommendation !== value));
-        window.__tinkGraphState.filter = value;
-        if (window.__tinkGraph) window.__tinkGraph.setFilter(value);
         const label = recLabelByFilter[value] || value;
-        setStatus(copy.filteredTo + ': ' + label);
         setFilterStatus(copy.filteredTo + ': ' + label);
         updateActionPanel(value, null);
         updateGroupDetail(value);
@@ -1656,24 +1627,8 @@ function renderScript(harnesses, copy) {
           else window.__tinkGraph.zoom(button.dataset.zoom === 'in' ? 0.78 : 1.28);
         });
       });
-      document.querySelectorAll('[data-drag]').forEach((button) => {
-        button.addEventListener('click', () => {
-          const mode = button.dataset.drag;
-          document.querySelectorAll('[data-drag]').forEach((item) => {
-            const active = item.dataset.drag === mode;
-            item.classList.toggle('active', active);
-            item.setAttribute('aria-pressed', active ? 'true' : 'false');
-          });
-          window.__tinkGraphState.dragMode = mode;
-          if (window.__tinkGraph) window.__tinkGraph.setDragMode(mode);
-          updateGraphHint();
-        });
-      });
       const graphHint = document.getElementById('graph-hint');
-      function updateGraphHint() {
-        if (graphHint) graphHint.textContent = window.__tinkGraphState.dragMode === 'rotate' ? (copy.hintRotate || '') : (copy.hintPan || '');
-      }
-      updateGraphHint();
+      if (graphHint) graphHint.textContent = copy.hintPan || '';
       const rail = document.querySelector('.right-rail');
       const railResizer = document.getElementById('rail-resizer');
       if (rail && railResizer) {
@@ -1812,19 +1767,15 @@ function renderGraph3DModule(copy) {
       controls.zoomSpeed = 1.1;
       controls.screenSpacePanning = true;
       controls.panSpeed = 1.1;
-      function applyDragMode(mode) {
-        const rotate = mode === 'rotate';
-        controls.mouseButtons = {
-          LEFT: rotate ? THREE.MOUSE.ROTATE : THREE.MOUSE.PAN,
-          MIDDLE: THREE.MOUSE.DOLLY,
-          RIGHT: rotate ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE
-        };
-        controls.touches = {
-          ONE: rotate ? THREE.TOUCH.ROTATE : THREE.TOUCH.PAN,
-          TWO: THREE.TOUCH.DOLLY_ROTATE
-        };
-      }
-      applyDragMode((window.__tinkGraphState && window.__tinkGraphState.dragMode) || 'pan');
+      controls.mouseButtons = {
+        LEFT: THREE.MOUSE.PAN,
+        MIDDLE: THREE.MOUSE.DOLLY,
+        RIGHT: THREE.MOUSE.ROTATE
+      };
+      controls.touches = {
+        ONE: THREE.TOUCH.PAN,
+        TWO: THREE.TOUCH.DOLLY_ROTATE
+      };
       controls.autoRotate = false;
       controls.minDistance = 8;
       controls.maxDistance = 220;
@@ -2184,9 +2135,6 @@ function renderGraph3DModule(copy) {
           camera.position.copy(INITIAL_CAM);
           controls.target.copy(INITIAL_TARGET);
           controls.update();
-        },
-        setDragMode(mode) {
-          applyDragMode(mode);
         }
       };
       applyState();

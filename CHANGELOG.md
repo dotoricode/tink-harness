@@ -6,6 +6,14 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.11] - 2026-06-11
+
+### Changed
+
+- Home health-group selection no longer carries over into the harness map or cards - it only opens the inline list and next-action suggestion on Home.
+- Removed the Move/Rotate toggle: left-drag always pans, right-drag always rotates, and the in-map hint reflects this fixed mapping.
+- The selected-node panel now starts empty ("no harness selected") instead of showing an arbitrary first harness, and uses the same tone-chip format as click selections; next-action phrasing was neutralized to fit single harnesses as well as groups.
+
 ## [1.9.10] - 2026-06-11
 
 ### Changed
