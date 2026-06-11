@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 패키지:** v1.9.16 — 로컬 건강 리포트가 탭형 대시보드로 바뀌었습니다. 3D 하네스 지도, 쉬운 말 건강 요약, Claude Code와 Codex 양쪽 복사-붙여넣기 명령이 포함된 다음 행동 제안을 제공합니다. 전체 변경 이력은 [CHANGELOG](CHANGELOG.md)를 확인하세요.
+**최신 패키지:** v1.9.17 — 로컬 건강 리포트가 탭형 대시보드로 바뀌었습니다. 3D 하네스 지도, 쉬운 말 건강 요약, Claude Code와 Codex 양쪽 복사-붙여넣기 명령이 포함된 다음 행동 제안을 제공합니다. 전체 변경 이력은 [CHANGELOG](CHANGELOG.md)를 확인하세요.
 
 [English](README.md) · **한국어** · [변경 이력](CHANGELOG.md)
 
@@ -54,11 +54,11 @@ node .tink/tools/render-harness-health-report.mjs
 
 하네스와 그들이 쓰는 규칙·메모리, 그 연결을 보여주는 인터랙티브 3D 지도 — 무리마다 고유한 색을 갖고, 살아있는 관계 위로 신호가 흐릅니다:
 
-![Tink 하네스 지도 — 하네스·규칙·메모리·단계를 보여주는 인터랙티브 3D 뷰](.github/assets/dashboard-map.png)
+![Tink 하네스 지도 — 하네스·규칙·메모리·단계를 보여주는 인터랙티브 3D 뷰](.github/assets/dashboard-map.ko.png)
 
 실제 사용량 순으로 정렬된 하네스 카드 — 쉬운 말 건강 요약, 주의 점수, 승인 이력, 그리고 Claude Code·Codex 양쪽 복사용 명령이 포함된 다음 행동 제안:
 
-![사용량 순 하네스 카드와 쉬운 말 건강 요약·히스토리](.github/assets/dashboard-harnesses.png)
+![사용량 순 하네스 카드와 쉬운 말 건강 요약·히스토리](.github/assets/dashboard-harnesses.ko.png)
 
 서버도, 텔레메트리도, 숨은 캐시도 없습니다 — 제안만 준비하는 정적 로컬 페이지입니다. 재사용되는 변경은 여전히 Tink의 승인 절차를 거칩니다.
 
