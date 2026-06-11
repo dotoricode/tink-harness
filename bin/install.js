@@ -384,12 +384,19 @@ function shortList(items, emptyText = '- none') {
 }
 
 function detectInstalledLanguage() {
-  try {
-    const config = JSON.parse(fs.readFileSync(path.join(process.cwd(), '.tink/config.json'), 'utf8'));
-    return ['en', 'ko', 'zh'].includes(config.language) ? config.language : null;
-  } catch {
-    return null;
+  const candidates = [
+    path.join(process.cwd(), '.tink/config.json'),
+    path.join(os.homedir(), '.tink/config.json')
+  ];
+  for (const configPath of candidates) {
+    try {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      if (['en', 'ko', 'zh'].includes(config.language)) return config.language;
+    } catch {
+      // keep looking
+    }
   }
+  return null;
 }
 
 function isAlwaysUpdatePath(src) {
@@ -794,6 +801,13 @@ async function resolveChoices() {
   let gitPolicy = 'harnesses';
   let hookScope = 'off';
 
+  const explicitLanguage = Boolean(argValue('--lang') || argValue('--language'));
+  if (isUpdate && !explicitLanguage) {
+    language = detectInstalledLanguage() || language;
+    components = defaultComponentValues(agent, language);
+    if (includesClaude(agent) && args.includes('--with-hook')) components.push('hook');
+  }
+
   if (!interactive) {
     scope = scope || 'repo';
     if (components.includes('hook')) hookScope = scope;
@@ -801,7 +815,6 @@ async function resolveChoices() {
   }
 
   if (isUpdate) {
-    language = detectInstalledLanguage() || language;
     const copy = COPY[language];
     printBanner();
     intro(pc.bgBlue(pc.white(copy.intro)));

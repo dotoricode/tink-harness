@@ -61,7 +61,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.9.15')
+        self.assertEqual(pkg['version'], '1.9.16')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -779,6 +779,32 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('renderGraphCanvas', updated)
             generator = (base / '.tink/tools/generate-harness-lifecycle-summary.mjs').read_text(encoding='utf-8')
             self.assertIn('maintenance_events', generator)
+
+    def test_update_uses_stored_language(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            env = os.environ.copy()
+            env['TINK_INSTALL_SURFACES'] = 'claude'
+            env.pop('LANG', None)
+            env.pop('LC_ALL', None)
+            subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+            config = json.loads((base / '.tink/config.json').read_text(encoding='utf-8'))
+            self.assertEqual(config['language'], 'ko')
+
+            result = subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'update', '--yes'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+            self.assertIn('language ko', result.stdout)
+
+            override = subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'update', '--lang=en', '--yes'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+            self.assertIn('language en', override.stdout)
 
     def test_update_preserves_user_modified_rule_graph(self):
         with tempfile.TemporaryDirectory() as d:

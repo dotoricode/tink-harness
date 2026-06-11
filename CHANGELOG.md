@@ -6,6 +6,12 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.16] - 2026-06-11
+
+### Fixed
+
+- `update` now runs in the language you previously chose: it reads `language` from the installed `.tink/config.json` (repo first, then home for global installs). An explicit `--lang` flag still wins, and the stored language applies to both interactive and `--yes` updates. Added a regression test covering install-then-update language persistence and flag override.
+
 ## [1.9.15] - 2026-06-11
 
 ### Changed
