@@ -8,9 +8,59 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 패키지:** v1.9.13 — 로컬 건강 리포트가 탭형 대시보드로 바뀌었습니다. 3D 하네스 지도, 쉬운 말 건강 요약, Claude Code와 Codex 양쪽 복사-붙여넣기 명령이 포함된 다음 행동 제안을 제공합니다. 전체 변경 이력은 [CHANGELOG](CHANGELOG.md)를 확인하세요.
+**최신 패키지:** v1.9.14 — 로컬 건강 리포트가 탭형 대시보드로 바뀌었습니다. 3D 하네스 지도, 쉬운 말 건강 요약, Claude Code와 Codex 양쪽 복사-붙여넣기 명령이 포함된 다음 행동 제안을 제공합니다. 전체 변경 이력은 [CHANGELOG](CHANGELOG.md)를 확인하세요.
 
 [English](README.md) · **한국어** · [변경 이력](CHANGELOG.md)
+
+---
+
+## 빠른 시작
+
+1분이면 Tink를 직접 써볼 수 있습니다.
+
+**Claude Code (플러그인):**
+
+```text
+/plugin marketplace add dotoricode/tink-harness
+/plugin install tink@tink-harness
+/reload-plugins
+/tink:setup
+```
+
+**Claude Code 또는 Codex (스탠드얼론):**
+
+```bash
+npx tink-harness@latest install
+```
+
+문서를 더 읽는 대신 실제 작업을 맡겨 보세요:
+
+```text
+/tink:cast 인증 모듈 리팩터링     # Claude Code
+$tink:cast 인증 모듈 리팩터링     # Codex
+```
+
+`cast`는 작업에 맞는 하네스를 고르고(없으면 초안을 만들고), `.tink/current/`에 보이는 계획을 쓰고, 승인 후 첫 안전한 단계를 시작합니다. 끝난 run마다 간결한 기록이 남고 — 그 기록이 아래 대시보드가 됩니다.
+
+## 하네스 건강을 눈으로 확인
+
+몇 번의 run이 쌓이면, 읽기 전용 helper 두 개가 기록을 로컬 대시보드로 바꿔 줍니다:
+
+```bash
+node .tink/tools/generate-harness-lifecycle-summary.mjs
+node .tink/tools/render-harness-health-report.mjs
+# .tink/maintenance/harness-health-report.html 열기
+```
+
+하네스와 그들이 쓰는 규칙·메모리, 그 연결을 보여주는 인터랙티브 3D 지도 — 무리마다 고유한 색을 갖고, 살아있는 관계 위로 신호가 흐릅니다:
+
+![Tink 하네스 지도 — 하네스·규칙·메모리·단계를 보여주는 인터랙티브 3D 뷰](.github/assets/dashboard-map.png)
+
+실제 사용량 순으로 정렬된 하네스 카드 — 쉬운 말 건강 요약, 주의 점수, 승인 이력, 그리고 Claude Code·Codex 양쪽 복사용 명령이 포함된 다음 행동 제안:
+
+![사용량 순 하네스 카드와 쉬운 말 건강 요약·히스토리](.github/assets/dashboard-harnesses.png)
+
+서버도, 텔레메트리도, 숨은 캐시도 없습니다 — 제안만 준비하는 정적 로컬 페이지입니다. 재사용되는 변경은 여전히 Tink의 승인 절차를 거칩니다.
 
 ---
 
@@ -61,6 +111,8 @@ Standalone / Codex:
 ```bash
 npx tink-harness@latest update
 ```
+
+업데이트는 질문 하나 — 어떤 agent surface를 갱신할지 — 만 묻고 나머지는 자동으로 처리합니다. Tink가 관리하는 파일(commands, skills, maintenance, 런타임 tools)은 항상 최신으로 덮어쓰고, 사용자가 수정한 하네스·메모리·설정은 보존합니다.
 
 `CODEX_HOME`을 지정하지 않으면 Windows에서는 `%USERPROFILE%\.codex`, macOS/Linux에서는 `~/.codex`에 Codex skill이 설치됩니다.
 

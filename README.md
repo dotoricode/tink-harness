@@ -17,16 +17,66 @@
 </p>
 
 <p>
-  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.9.13"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.9.14"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.9.13 - The local health report is now a tabbed dashboard with a 3D harness map, plain-language health summaries, and next-action suggestions with copy-paste commands for both Claude Code and Codex. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
+<p><strong>Latest package:</strong> v1.9.14 - The local health report is now a tabbed dashboard with a 3D harness map, plain-language health summaries, and next-action suggestions with copy-paste commands for both Claude Code and Codex. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
 
 **English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
+
+---
+
+## Quick start
+
+Try Tink in about a minute.
+
+**Claude Code (plugin):**
+
+```text
+/plugin marketplace add dotoricode/tink-harness
+/plugin install tink@tink-harness
+/reload-plugins
+/tink:setup
+```
+
+**Claude Code or Codex (standalone):**
+
+```bash
+npx tink-harness@latest install
+```
+
+Then hand Tink a real task instead of reading more docs:
+
+```text
+/tink:cast refactor the auth module     # Claude Code
+$tink:cast refactor the auth module     # Codex
+```
+
+`cast` picks (or drafts) the right harness, writes a visible plan into `.tink/current/`, and starts the first safe step after your approval. Every finished run leaves a compact record - and those records become the dashboard below.
+
+## See your harness health
+
+After a few runs, two read-only helpers turn your records into a local dashboard:
+
+```bash
+node .tink/tools/generate-harness-lifecycle-summary.mjs
+node .tink/tools/render-harness-health-report.mjs
+# then open .tink/maintenance/harness-health-report.html
+```
+
+An interactive 3D map of your harnesses, the rules and memory they use, and how they connect - each cluster gets its own color, and neural pulses travel along live relationships:
+
+![Tink harness map - an interactive 3D view of harnesses, rules, memory, and stages](.github/assets/dashboard-map.png)
+
+Harness cards sorted by real usage, with plain-language health summaries, an attention score, the approval history, and a suggested next action with copy-paste commands for both Claude Code and Codex:
+
+![Harness cards sorted by usage with plain-language health and history](.github/assets/dashboard-harnesses.png)
+
+No server, no telemetry, no hidden cache - it is a static local page that only prepares suggestions. Anything reusable still goes through Tink's approval gates.
 
 ---
 
@@ -113,19 +163,13 @@ If update does not find the latest version, uninstall and install again:
 /plugin install tink@tink-harness
 ```
 
-To update an existing standalone install (keeps user-modified files):
+To update an existing standalone install (Claude Code or Codex):
 
 ```bash
 npx tink-harness@latest update
 ```
 
-For Codex:
-
-```bash
-npx tink-harness@latest update
-```
-
-During update, select the installed agent surface you want to refresh.
+Update asks one question - which agent surface to refresh - and handles the rest automatically. Tink-owned files (commands, skills, maintenance, runtime tools) are always brought to the latest version; your customized harnesses, memory, and config are preserved.
 
 If `CODEX_HOME` is not set, Codex skills default to `%USERPROFILE%\.codex` on Windows and `~/.codex` on macOS/Linux.
 

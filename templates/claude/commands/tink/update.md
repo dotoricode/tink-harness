@@ -37,7 +37,7 @@ The plugin path is handled by Claude Code and does not touch the local `.tink/` 
 npx tink-harness@latest update
 ```
 
-The `update` subcommand:
+The `update` subcommand asks only one question - which agent surface to refresh (Claude Code, Codex, or both). Everything else updates automatically:
 - **Always overwrites**: commands, skills, maintenance, and runtime tools (`.claude/commands/tink/`, `.claude/skills/tink/`, `.tink/maintenance/`, `.tink/tools/`) — so you get the latest harness runner, report tools, and command behavior automatically.
 - **Preserves if modified**: harnesses, hooks, memory, and config (`.tink/harnesses/`, `.tink/hooks/`, `.tink/memory/`, `.tink/config.json`) — respects your `weave` customizations and local settings.
 
