@@ -6,6 +6,17 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.14] - 2026-06-11
+
+### Changed
+
+- `npx tink-harness update` now asks a single question (which agent surface to refresh) and handles everything else automatically: language is detected from `.tink/config.json`, components and scope use sensible defaults, and Tink-owned files always refresh while user-modified harness/memory/config files stay preserved.
+- README (EN/KO) reorganized developer-first: a one-minute Quick start, a "see your harness health" section with dashboard screenshots (3D map + harness cards), and an updated one-question update description. The origin story and all install/command details are kept.
+
+### Added
+
+- Dashboard screenshots committed under `.github/assets/` (`dashboard-map.png`, `dashboard-harnesses.png`).
+
 ## [1.9.13] - 2026-06-11
 
 ### Fixed

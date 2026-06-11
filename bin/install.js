@@ -124,7 +124,7 @@ function argValue(name) {
 }
 
 function usage() {
-  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  tink-harness [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--clean-codex-picker] [--dry-run] [--force]\n\nIf the command is not installed yet, use:\n  npx tink-harness@latest [install]\n  npx tink-harness@latest update\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Keeps user-modified files.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select Advanced options\n  7. Select git tracking policy for project state\n\nAdvanced options:\n  --dry-run             Preview only. Show what would be written or removed, but do not change files.\n  --force               Overwrite user-modified files. Use only when you want official templates to replace local edits.\n  --clean-codex-picker  Codex-only cleanup. Remove repo-local Claude Tink surfaces that show as Source Command Tink entries.\n\nEnvironment:\n  TINK_INSTALL_SURFACES=claude|codex|all\n  TINK_CLEAN_CODEX_PICKER=1\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
+  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  tink-harness [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--clean-codex-picker] [--dry-run] [--force]\n\nIf the command is not installed yet, use:\n  npx tink-harness@latest [install]\n  npx tink-harness@latest update\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Asks only the agent surface; Tink-owned files always refresh, user-modified harness/memory/config files are kept.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select Advanced options\n  7. Select git tracking policy for project state\n\nAdvanced options:\n  --dry-run             Preview only. Show what would be written or removed, but do not change files.\n  --force               Overwrite user-modified files. Use only when you want official templates to replace local edits.\n  --clean-codex-picker  Codex-only cleanup. Remove repo-local Claude Tink surfaces that show as Source Command Tink entries.\n\nEnvironment:\n  TINK_INSTALL_SURFACES=claude|codex|all\n  TINK_CLEAN_CODEX_PICKER=1\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
 }
 
 function normalizeSurfaces(surfaces) {
@@ -381,6 +381,15 @@ function shortList(items, emptyText = '- none') {
   const shown = items.slice(0, 8).map((item) => `- ${item}`);
   if (items.length > shown.length) shown.push(`- ...and ${items.length - shown.length} more`);
   return shown.join('\n');
+}
+
+function detectInstalledLanguage() {
+  try {
+    const config = JSON.parse(fs.readFileSync(path.join(process.cwd(), '.tink/config.json'), 'utf8'));
+    return ['en', 'ko', 'zh'].includes(config.language) ? config.language : null;
+  } catch {
+    return null;
+  }
 }
 
 function isAlwaysUpdatePath(src) {
@@ -786,6 +795,27 @@ async function resolveChoices() {
   let hookScope = 'off';
 
   if (!interactive) {
+    scope = scope || 'repo';
+    if (components.includes('hook')) hookScope = scope;
+    return { agent, scope, components, gitPolicy, hookScope, language };
+  }
+
+  if (isUpdate) {
+    language = detectInstalledLanguage() || language;
+    const copy = COPY[language];
+    printBanner();
+    intro(pc.bgBlue(pc.white(copy.intro)));
+    log.message(`${copy.source}: ${source}`);
+    agent = handleCancel(await select({
+      message: language === 'ko'
+        ? '업데이트할 agent surface를 선택하세요 (나머지는 자동으로 최신화됩니다)'
+        : language === 'zh'
+          ? '选择要更新的 agent surface（其余将自动更新到最新）'
+          : 'Select agent surface to update (everything else refreshes automatically)',
+      options: SURFACE_OPTIONS[language],
+      initialValue: agent
+    }));
+    components = defaultComponentValues(agent, language);
     scope = scope || 'repo';
     if (components.includes('hook')) hookScope = scope;
     return { agent, scope, components, gitPolicy, hookScope, language };
