@@ -6,6 +6,16 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.13] - 2026-06-11
+
+### Fixed
+
+- `npx tink-harness update` now always refreshes `.tink/tools/` (the lifecycle generator and health-report renderer). Previously stale tools were preserved as "user-modified", so updated installs kept rendering the old dashboard. Run `update` again on affected machines to pick up the current tools.
+
+### Changed
+
+- `/tink:update` docs and the update summary now list `.tink/tools/` in the always-updated category; added a regression test that a stale tool file is overwritten by `update`.
+
 ## [1.9.12] - 2026-06-11
 
 ### Changed

@@ -388,7 +388,8 @@ function isAlwaysUpdatePath(src) {
   return rel.startsWith('templates/claude/commands/') ||
     rel.startsWith('templates/claude/skills/') ||
     rel.startsWith('templates/codex/skills/') ||
-    rel.startsWith('templates/tink/maintenance/');
+    rel.startsWith('templates/tink/maintenance/') ||
+    rel.startsWith('templates/tink/tools/');
 }
 
 function isGeneratedLegacyRuleGraph(src, dest) {
