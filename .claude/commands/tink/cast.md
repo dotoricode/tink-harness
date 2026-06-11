@@ -468,6 +468,11 @@ This is the Lane 3 full path from Quick triage. Lanes 1 and 2 intentionally skip
    - If the request asks for a plan, architecture decision, large refactor, migration, or broad public contract change, consider `plan-consensus`.
    - If the work naturally splits into multiple durable milestones, add `goal-checkpoint` and create `.tink/current/goals.json` after approval.
    - If parallel review, independent verification, or handoff would reduce risk, add `delegation-brief` and create `.tink/current/delegation.md` after approval. This harness prepares briefs only; it never starts tmux, worktrees, workers, or external agents.
+
+   **Overlay selection is rule-bound, not taste.** After drafting the Goals list for the approval payload, re-check before presenting it:
+   - `goal-checkpoint` is REQUIRED (not optional) when ANY of these is true: the Goals list has 2+ goals; 2+ harnesses run sequentially; the plan is expected to need 4+ steps; or the work spans multiple components/directories. Create `goals.json` after approval.
+   - `plan-consensus` must be explicitly considered for any from-scratch implementation, reimplementation, migration, or public contract/API design. If skipped, record a one-line reason in the 오버레이 점검 line.
+   - The context budget and the "prefer 1-3 harnesses" guidance never justify dropping a REQUIRED overlay: overlays are cheap state files, not extra loaded context. A large task judged "fine with default harnesses" because the synthesis probe found a fit is a selection bug - the probe only answers whether a custom procedure is needed, not whether overlays are needed.
 7. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context. When the task is ambiguous (Stitch goal-ambiguity is expected to trigger), start with `requirements-interview` alone; add a second harness only after the user clarifies. Do not bundle 2+ harnesses for ambiguous tasks upfront.
 
    After selecting, run a quick quality check using the index metadata for each chosen harness:
@@ -556,8 +561,9 @@ Use concise, selection-oriented wording. The recommendation must include the fir
 
 User-facing approval wording:
 - Do not show internal terms such as `Probe`, `probe`, `합성 프로브`, `generic fit`, `제너릭 fit`, or `Stitch`.
-- Translate the synthesis probe result as `맞춤 절차 판단`.
+- Translate the synthesis probe result as `맞춤 절차 판단`. Its "sufficient" verdict must read `별도 맞춤 절차는 불필요` - never `기본 하네스로 충분`, which wrongly implies the whole harness SET was judged sufficient. The probe only decides whether a custom synthesized procedure is needed.
 - Translate `generic fit` as `기본 하네스는 큰 틀만 맞음` or `기본 하네스만으로는 부족함`.
+- Always include an `**오버레이 점검:**` line in the approval payload: one verdict per overlay harness that the rule-bound check makes relevant, e.g. `goal-checkpoint 선택(목표 3개·순차 2단계) · plan-consensus 제외(문서 보완은 기존 계약 범위)`. An omitted overlay without a reason is a selection bug.
 - Translate visible Stitch output as `확인할 점`, not `Stitch 점검`.
 - Explain what each selected harness does in one short phrase before asking for approval.
 - Show a short `하네스 선택 과정` when more than one harness or a run-only draft is selected: candidate considered, selected harnesses, and why each was chosen.
@@ -584,7 +590,8 @@ Approval option counts (always exactly one applies):
 - 선택: `code-change + review`
 - 이유: 변경 범위가 좁고, 회귀 확인이 필요합니다. 별도 맞춤 초안은 필요하지 않습니다.
 
-- **맞춤 절차 판단:** 기본 하네스로 충분
+- **오버레이 점검:** <예: goal-checkpoint 선택(목표 2개) · plan-consensus 제외(범위 좁음)>
+- **맞춤 절차 판단:** 별도 맞춤 절차는 불필요
 - **첫 실행:** 관련 파일을 먼저 읽고 검증 명령 후보를 확정합니다.
 
 ? 진행할까요?
@@ -610,6 +617,8 @@ If a run-only draft or new harness is useful:
 - 후보: `<built-in>`, `harness-synthesis`, `customer-interview-synthesis`
 - 선택: `<built-in> + customer-interview-synthesis`
 - 이유: 기본 하네스는 큰 틀만 맞고, 인터뷰 원문 근거와 pain point 구분은 별도 절차가 필요합니다.
+
+**오버레이 점검:** <상동 형식>
 
 **맞춤 절차 판단:** 기본 하네스만으로는 부족함
 
@@ -651,7 +660,8 @@ If Stitch triggers as a soft gate, merge it into the approval format. The user-f
 - 선택: `<harness>`
 - 이유: <why selected>
 
-- **맞춤 절차 판단:** <기본 하네스로 충분 | 기본 하네스만으로는 부족함 | 새 맞춤 절차 필요>
+- **오버레이 점검:** <overlay별 선택/제외와 이유>
+- **맞춤 절차 판단:** <별도 맞춤 절차는 불필요 | 기본 하네스만으로는 부족함 | 새 맞춤 절차 필요>
 - **이유:** ...
 - **첫 실행:** ...
 
