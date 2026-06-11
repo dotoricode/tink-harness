@@ -4,8 +4,14 @@ All notable changes to Tink are tracked here.
 
 ## [Unreleased]
 
+No unreleased changes yet.
+
+## [1.9.22] - 2026-06-11
+
+### Added
+
 - Install/update completion output now points to the GitHub repo with a one-line star note (ko/zh/en).
-- Progress display gained a full progress map (one bar per phase with the active row marked, overall bar, and the active phase's step list) shown at plan creation/restructure, phase completion, resume, and on request; the compact 3-line block remains the every-response footer.
+- Progress display gained a full progress map (one bar per phase with the active row marked, an overall bar, and the active phase's step list) shown at plan creation/restructure, phase completion, resume, and on request; the compact 3-line block remains the every-response footer.
 
 ## [1.9.21] - 2026-06-11
 
