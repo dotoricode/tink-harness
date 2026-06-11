@@ -6,27 +6,70 @@
   <strong>Tink</strong>
 </h1>
 
-<p>A small harness layer for Claude Code and Codex</p>
+<p><strong>Stop losing context between Claude Code and Codex runs.</strong></p>
 
 <p>
-  Tink helps Claude Code or Codex choose the right harness, keep run state visible, and improve the harness set as you work.
+  Tink keeps every non-trivial agent task in visible files - a task contract, run state,
+  verification steps, and reusable harnesses that are saved only after your approval.
+  No server, no telemetry, no hidden state.
 </p>
 
-<p>
-  <em>Tink is <strong>knit</strong> in reverse: untying tangled workflows and knitting better ones back together. It also nods to Tinker Bell, the small helper at your side.</em>
-</p>
+<p><sub>A small harness layer for Claude Code and Codex</sub></p>
 
 <p>
-  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.9.20"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.9.21"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.9.20 - The local health report is now a tabbed dashboard with a 3D harness map, plain-language health summaries, and next-action suggestions with copy-paste commands for both Claude Code and Codex. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
+<p><strong>Latest package:</strong> v1.9.21 - The local health report is now a tabbed dashboard with a 3D harness map, plain-language health summaries, and next-action suggestions with copy-paste commands for both Claude Code and Codex. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
 
 **English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
+
+---
+
+## Who this is for
+
+Use Tink when:
+
+- Claude Code or Codex keeps losing task context between runs
+- you repeat the same review / refactor / debug workflow by hand
+- you want visible run state instead of hidden chat memory
+- you want reusable agent workflows - saved only after explicit approval
+
+If that sounds like your day, try it on a throwaway repo first:
+
+```bash
+npx tink-harness@latest install
+```
+
+## What you actually get
+
+Every non-trivial task leaves plain files you can open, diff, and commit:
+
+```text
+.tink/current/                      # the active run - always inspectable
+  contract.json                     #   what must be true when the task is done
+  plan.md                           #   the visible plan
+  checks.md                         #   verification to run before claiming "done"
+.tink/runs/
+  2026-06-11-1430-auth-refactor.md  # compact record of each finished run
+.tink/harnesses/
+  refactor-review.md                # reusable ways of working - approval-gated
+```
+
+## Why not just CLAUDE.md / slash commands / skills?
+
+| Tooling | What it gives you | What Tink adds on top |
+|---|---|---|
+| CLAUDE.md | project-wide instructions | per-task contracts, run state, and verification |
+| Slash commands | reusable prompts | harness selection, run records, progress tracking |
+| Skills | reusable capability | usage lifecycle: health scores, cleanup and improvement signals |
+| MCP | external context and tools | local, approval-gated workflow memory |
+
+Tink composes with all of these - it does not replace them.
 
 ---
 
@@ -82,6 +125,8 @@ node .tink/tools/render-harness-health-report.mjs
 
 ![Tink dashboard demo - clicking a health group, browsing harness cards, and inspecting the 3D map](.github/assets/demo.gif)
 
+<sub>If this matches your workflow, a ⭐ helps others find it.</sub>
+
 An interactive 3D map of your harnesses, the rules and memory they use, and how they connect - each cluster gets its own color, and neural pulses travel along live relationships:
 
 ![Tink harness map - an interactive 3D view of harnesses, rules, memory, and stages](.github/assets/dashboard-map.png)
@@ -95,6 +140,8 @@ No server, no telemetry, no hidden cache - it is a static local page that only p
 ---
 
 ## Why I made this
+
+*Tink is <strong>knit</strong> in reverse: untying tangled workflows and knitting better ones back together. It also nods to Tinker Bell, the small helper at your side.*
 
 New coding harnesses show up almost every day. Many of them are genuinely useful.
 
