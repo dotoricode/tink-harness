@@ -6,6 +6,18 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.12] - 2026-06-11
+
+### Changed
+
+- Restyled the dashboard with a warm editorial palette (charcoal/ivory/amber) in place of the generic black-and-blue look, with softer semantic tones and larger radii.
+- Improved harness-tab readability: bigger card titles, labels, detail text, and history entries with more breathing room.
+
+### Added
+
+- Next-action suggestions now provide copy-paste commands for both Claude Code (`/tink:...`) and Codex (`$tink:...`).
+- README (EN/KO) refreshed: latest-package summary, release badge, and an up-to-date description of the tabbed dashboard, 3D harness map, and next-action panel.
+
 ## [1.9.11] - 2026-06-11
 
 ### Changed
