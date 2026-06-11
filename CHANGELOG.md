@@ -6,6 +6,12 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.17] - 2026-06-11
+
+### Changed
+
+- README screenshots refreshed: the English README now shows an English-language dashboard, the Korean README uses Korean captures, and the 3D map shots are taken from a slightly rotated, zoomed-in camera so the orbs read with more depth.
+
 ## [1.9.16] - 2026-06-11
 
 ### Fixed
