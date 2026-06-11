@@ -61,7 +61,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.9.19')
+        self.assertEqual(pkg['version'], '1.9.20')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -74,7 +74,8 @@ class TemplateTests(unittest.TestCase):
         installer = (ROOT / pkg['bin']['tink-harness']).read_text(encoding='utf-8')
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code and Codex', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn('Latest package:</strong> v1.9.1', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        pkg_version = json.loads((ROOT / 'package.json').read_text())['version']
+        self.assertIn(f'Latest package:</strong> v{pkg_version}', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('href="CHANGELOG.md"', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('## [1.8.0]', (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8'))
         self.assertIn('graph-rule seed rules', (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8'))
