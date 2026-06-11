@@ -15,7 +15,7 @@ This command does not run the update itself. It detects how Tink was installed i
    - If the project root (or `cwd`) has `.claude-plugin/plugin.json` and a top-level `commands/` directory, Tink was installed via Claude Code plugin marketplace.
    - Otherwise, treat it as an `npx tink-harness install` (standalone) installation.
 3. Scan for files that have diverged from the latest installed templates (read-only inspection only):
-   - **Always updated**: `.claude/commands/tink/`, `.claude/skills/tink/`, `.tink/maintenance/` — template changes always propagate here.
+   - **Always updated**: `.claude/commands/tink/`, `.claude/skills/tink/`, `.tink/maintenance/`, `.tink/tools/` — template changes always propagate here.
    - **Preserved if user-modified**: `.tink/harnesses/`, `.tink/hooks/`, `.tink/memory/`, `.tink/config.json` — respects `weave` customizations and local configuration.
 4. Show the appropriate update path and a short list of files in the "preserved" category that have diverged.
 
@@ -38,7 +38,7 @@ npx tink-harness@latest update
 ```
 
 The `update` subcommand:
-- **Always overwrites**: commands, skills, and maintenance files (`.claude/commands/tink/`, `.claude/skills/tink/`, `.tink/maintenance/`) — so you get the latest harness runner and command behavior automatically.
+- **Always overwrites**: commands, skills, maintenance, and runtime tools (`.claude/commands/tink/`, `.claude/skills/tink/`, `.tink/maintenance/`, `.tink/tools/`) — so you get the latest harness runner, report tools, and command behavior automatically.
 - **Preserves if modified**: harnesses, hooks, memory, and config (`.tink/harnesses/`, `.tink/hooks/`, `.tink/memory/`, `.tink/config.json`) — respects your `weave` customizations and local settings.
 
 ## Output format (source repo)
@@ -61,7 +61,7 @@ If the source-repo guard triggers, print only this and stop — do not present p
 
 **설치 경로**: <plugin marketplace | npx standalone>
 
-**항상 업데이트됨**: commands, skills, maintenance (최신 버전으로 자동 반영)
+**항상 업데이트됨**: commands, skills, maintenance, tools (최신 버전으로 자동 반영)
 
 **사용자 수정 파일** (업데이트 시 보존):
 - <path1>

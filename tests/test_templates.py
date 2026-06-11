@@ -61,7 +61,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.9.12')
+        self.assertEqual(pkg['version'], '1.9.13')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -754,6 +754,31 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('.claude/commands/tink/frog.md', output)
             self.assertIn('.claude/skills/tink', output)
             self.assertIn('Next: open Codex and use $tink:cast <task> to start.', output)
+
+    def test_update_refreshes_runtime_tools(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            tool_path = base / '.tink/tools/render-harness-health-report.mjs'
+            tool_path.parent.mkdir(parents=True)
+            tool_path.write_text('// stale tool' + chr(10), encoding='utf-8')
+
+            env = os.environ.copy()
+            env['TINK_INSTALL_SURFACES'] = 'claude'
+            subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'update', '--lang=ko', '--yes'],
+                cwd=base,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+            )
+
+            updated = tool_path.read_text(encoding='utf-8')
+            self.assertNotIn('stale tool', updated)
+            self.assertIn('renderGraphCanvas', updated)
+            generator = (base / '.tink/tools/generate-harness-lifecycle-summary.mjs').read_text(encoding='utf-8')
+            self.assertIn('maintenance_events', generator)
 
     def test_update_preserves_user_modified_rule_graph(self):
         with tempfile.TemporaryDirectory() as d:
