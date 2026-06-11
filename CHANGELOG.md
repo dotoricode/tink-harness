@@ -6,6 +6,12 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.21] - 2026-06-11
+
+### Changed
+
+- README repositioned problem-first (EN/KO): the hero now leads with "Stop losing context between Claude Code and Codex runs", followed by Who-this-is-for, a concrete tour of the files Tink leaves behind, and a "Why not just CLAUDE.md / slash commands / skills / MCP?" comparison table. The knitting metaphor moved into the origin-story section, and a small star call-to-action sits under the demo GIF. Added a release-pacing note to VERSIONING.md.
+
 ## [1.9.20] - 2026-06-11
 
 ### Changed

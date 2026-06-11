@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `1.9.20`
+Current version: `1.9.21`
 
 Tink follows semver from `1.0.0` onward.
 
@@ -86,3 +86,7 @@ npx tink-harness@latest update
 ```
 
 `update` preserves user-modified files. The `--force` flag is reserved for emergency repair and is not the recommended path.
+
+## Release pacing
+
+Batch small fixes on `main` and aim for at most about one release per day. Rapid version churn reads as instability to first-time visitors; a release should bundle a coherent set of changes with a short, plain note.
