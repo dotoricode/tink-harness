@@ -6,6 +6,12 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.15] - 2026-06-11
+
+### Changed
+
+- Harness map controls now match common 3D-tool conventions by default: left-drag rotates, right-drag moves. On Mac trackpads and Magic Mouse, two-finger scroll moves the map and pinch zooms (trackpads are detected from wheel-event characteristics); classic mouse wheels still zoom. The in-map hint, map help text, and README were updated accordingly.
+
 ## [1.9.14] - 2026-06-11
 
 ### Changed

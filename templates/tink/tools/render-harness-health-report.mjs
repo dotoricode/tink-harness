@@ -48,7 +48,7 @@ const COPY = {
     heroText: 'Every visible Tink run, rule, memory reference, and harness relationship mapped into one local dashboard. This report only prepares suggestions and never edits reusable state.',
     generated: 'GENERATED',
     harnessMap: 'HARNESS MAP',
-    mapHelp: 'Harnesses, rules, memory, and stages are mapped from visible Tink records in 3D. Drag to move, right-drag to rotate, scroll to zoom, click an orb to inspect it.',
+    mapHelp: 'Harnesses, rules, memory, and stages are mapped from visible Tink records in 3D. Drag to rotate, right-drag or two-finger scroll to move, wheel or pinch to zoom, click an orb to inspect it.',
     graph3dOffline: 'The 3D map needs an internet connection to load three.js. Reconnect and refresh this report.',
     graphControls: 'Graph controls',
     full: 'Full',
@@ -188,7 +188,7 @@ const COPY = {
       unknown: 'An item found in the records.'
     },
     timesSuffix: '',
-    hintPan: 'drag = move · right-drag = rotate · wheel = zoom · double-click = reset',
+    hintPan: 'drag = rotate · right-drag / two-finger scroll = move · wheel / pinch = zoom · double-click = reset',
     hintRotate: 'drag = rotate · right-drag = move · wheel = zoom · double-click = reset',
     runWindow: 'Run window',
     totalRuns: 'Runs',
@@ -326,7 +326,7 @@ COPY.ko = {
     unknown: '기록에서 발견된 항목입니다.'
   },
   timesSuffix: '회',
-  hintPan: '드래그 = 이동 · 우클릭 드래그 = 회전 · 휠 = 확대/축소 · 더블클릭 = 처음 시점',
+  hintPan: '드래그 = 회전 · 우클릭/두 손가락 = 이동 · 휠/핀치 = 확대 · 더블클릭 = 처음 시점',
   hintRotate: '드래그 = 회전 · 우클릭 드래그 = 이동 · 휠 = 확대/축소 · 더블클릭 = 처음 시점',
   runWindow: '기록 기간',
   totalRuns: 'Run 수',
@@ -371,7 +371,7 @@ COPY.ko = {
   heroText: '보이는 Tink run, rule, memory reference, harness 관계를 하나의 로컬 대시보드로 보여줍니다. 이 보고서는 제안만 준비하며 재사용 상태를 직접 수정하지 않습니다.',
   generated: '생성 시각',
   harnessMap: '하네스 지도',
-  mapHelp: '보이는 Tink 기록에서 하네스, rule, memory, stage 관계를 3D로 그립니다. 드래그로 이동, 우클릭 드래그로 회전, 휠로 확대, 원을 클릭하면 자세히 볼 수 있습니다.',
+  mapHelp: '보이는 Tink 기록에서 하네스, rule, memory, stage 관계를 3D로 그립니다. 드래그로 회전, 우클릭 드래그나 두 손가락 스크롤로 이동, 휠·핀치로 확대, 원을 클릭하면 자세히 볼 수 있습니다.',
   graph3dOffline: '3D 지도를 불러오려면 인터넷 연결이 필요합니다 (three.js CDN). 연결 후 보고서를 새로고침하세요.',
   graphControls: '그래프 조작',
   full: '전체',
@@ -1766,19 +1766,53 @@ function renderGraph3DModule(copy) {
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.1;
-      controls.enableZoom = true;
-      controls.zoomSpeed = 1.1;
+      controls.enableZoom = false;
       controls.screenSpacePanning = true;
       controls.panSpeed = 1.1;
       controls.mouseButtons = {
-        LEFT: THREE.MOUSE.PAN,
+        LEFT: THREE.MOUSE.ROTATE,
         MIDDLE: THREE.MOUSE.DOLLY,
-        RIGHT: THREE.MOUSE.ROTATE
+        RIGHT: THREE.MOUSE.PAN
       };
       controls.touches = {
-        ONE: THREE.TOUCH.PAN,
-        TWO: THREE.TOUCH.DOLLY_ROTATE
+        ONE: THREE.TOUCH.ROTATE,
+        TWO: THREE.TOUCH.DOLLY_PAN
       };
+
+      // wheel routing: mouse wheel = zoom, trackpad two-finger = pan, pinch (ctrlKey) = zoom
+      let likelyTrackpad = false;
+      const panRight = new THREE.Vector3();
+      const panUp = new THREE.Vector3();
+      const panMove = new THREE.Vector3();
+      function panBy(deltaX, deltaY) {
+        const height = renderer.domElement.clientHeight || 1;
+        const distance = camera.position.distanceTo(controls.target);
+        const factor = (2 * Math.tan((camera.fov * Math.PI / 180) / 2) * distance) / height;
+        panRight.setFromMatrixColumn(camera.matrix, 0).multiplyScalar(-deltaX * factor);
+        panUp.setFromMatrixColumn(camera.matrix, 1).multiplyScalar(deltaY * factor);
+        panMove.copy(panRight).add(panUp);
+        camera.position.add(panMove);
+        controls.target.add(panMove);
+      }
+      function dollyBy(deltaY) {
+        const offset = camera.position.clone().sub(controls.target);
+        offset.multiplyScalar(Math.exp(deltaY * 0.0022));
+        offset.setLength(Math.min(220, Math.max(8, offset.length())));
+        camera.position.copy(controls.target).add(offset);
+      }
+      renderer.domElement.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        const fractional = event.deltaY !== Math.round(event.deltaY) || event.deltaX !== Math.round(event.deltaX);
+        if (event.deltaX !== 0 || fractional) likelyTrackpad = true;
+        if (event.ctrlKey || event.metaKey) {
+          dollyBy(event.deltaY * 2.4);
+        } else if (likelyTrackpad || (event.deltaMode === 0 && event.deltaY !== 0 && Math.abs(event.deltaY) < 40)) {
+          panBy(event.deltaX, event.deltaY);
+        } else {
+          dollyBy(event.deltaY);
+        }
+        controls.update();
+      }, { passive: false });
       controls.autoRotate = false;
       controls.minDistance = 8;
       controls.maxDistance = 220;
