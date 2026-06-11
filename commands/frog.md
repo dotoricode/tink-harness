@@ -50,17 +50,25 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    - weak: static index, git-only evidence, stale current notes, or model judgment
    If a lifecycle summary is present, treat it as a health summary, not as authority. Use its `confidence`, `evidence_grade`, `evidence_handles`, and `safe_next_action` to explain the recommendation. A low-confidence or weak lifecycle entry must default to `keep`, `observe`, or `needs evidence`.
    Sort lifecycle-backed candidates first by evidence strength, then by recommendation: `frog_candidate`, `merge_candidate`, `weave`, `observe`, `keep`.
+4b. When invoked without a specific target, the health summary's judgment IS the default agenda - do not wait for the user to name harnesses:
+   - every harness whose lifecycle recommendation is `frog_candidate`, `merge_candidate`, or `weave` appears in the proposal with its evidence grade and reason;
+   - harnesses judged `keep` or `observe` are compressed into one line (`그 외 N개: 유지/관찰`);
+   - the same applies to overlap findings (겹침 점검): harnesses flagged as overlapping each other are proposed as one merge/retire group, not listed separately.
+4c. Check for retired generic built-ins. `code-change`, `bug-fix`, `research`, `review`, and `docs` were retired from the default set - generic work now runs on the base run without a harness. If any of them remain in `.tink/harnesses/`:
+   - unmodified leftovers: recommend `npx tink-harness@latest update`, which removes them automatically; offer direct removal only as the fallback when update is not possible;
+   - user-modified leftovers (preserved by update): propose either narrowing them into a clearly-named user harness (specific `use_when`, `kind: "synthesized"`) or deleting them, with the user's modifications quoted as evidence.
 5. Identify candidates:
    - never used with strong evidence
    - not used recently with strong evidence
    - overlaps strongly with another harness
-   - too broad to guide behavior
+   - too broad to guide behavior (a generic-purpose harness is a retirement candidate by default policy: the default set is specialized-only)
    - repeatedly ignored during `/tink:cast`
 6. For each candidate, show evidence grade and recommendation:
    - keep
    - merge into another harness
    - delete
    - rewrite via `/tink:weave`
+6a. If `.tink/memory/candidate/` exists, also review stale draft entries: a candidate with no supporting run, ledger, or friction evidence after 30+ days, or one superseded by an approved memory or harness change, should be proposed for a move to `.tink/memory/rejected/` with a one-line reason. Promotion of live candidates belongs to `/tink:weave`; frog only clears the stale ones. Apply the same approval rules as other operations.
 6b. If `.tink/rules/index.json` exists, also inspect rule quality:
    - keep: concrete `when`, `reason`, and useful `checks` or `include_paths`
    - rewrite: too broad, unclear reason, or missing verification

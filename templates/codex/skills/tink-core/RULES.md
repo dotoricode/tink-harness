@@ -56,20 +56,20 @@ Codex `$tink:cast` must show a visible approval step for every non-trivial run. 
 
 When multiple harnesses or a run-only draft are selected, briefly explain each harness and include a short section labeled `하네스 선택 과정`: candidates considered, selected harnesses, and the reason each earns its place. Use natural Korean scope wording such as `완료 기준을 먼저 나누겠습니다` or `이번 점검은 두 범위로 보겠습니다`; avoid awkward phrasing like `"더 잘 동작하기"의 기준이 두 갈래입니다`.
 
-Default Korean options are `승인`, `조정`, `취소`. If a run-only draft is proposed, use `승인`, `조정`, `기본 하네스만 사용`, `취소`. If a high-impact safety or quality branch is visible, use `승인`, `요구사항 입력`, `이대로 진행`, `취소`. For hard gates or reusable-state saves, use only `승인`, `요구사항 입력`, `취소`.
+Default Korean options are `승인`, `조정`, `취소`. If a run-only draft is proposed, use `승인`, `조정`, `기본 절차만 사용`, `취소`. If a high-impact safety or quality branch is visible, use `승인`, `요구사항 입력`, `이대로 진행`, `취소`. For hard gates or reusable-state saves, use only `승인`, `요구사항 입력`, `취소`.
 
-Option label quality rules: use short, common, readable labels only. Good Korean labels include `승인`, `조정`, `취소`, `요구사항 입력`, `기본 하네스만 사용`, `새 하네스 초안 만들기`, `구조 점검`, `내용 점검`, and `전체 점검`. Do not invent compressed Korean labels, transliterated fragments, or unclear summaries such as `콘데의달 지질`. If the idea is too specific for a clean 1-5 word label, put the detail in `description` and use a generic label such as `내용 점검` or `전체 점검`. Before calling `request_user_input`, reread each Korean label; if it looks misspelled, unnatural, or semantically unclear, replace it with a plain fallback label.
+Option label quality rules: use short, common, readable labels only. Good Korean labels include `승인`, `조정`, `취소`, `요구사항 입력`, `기본 절차만 사용`, `새 하네스 초안 만들기`, `구조 점검`, `내용 점검`, and `전체 점검`. Do not invent compressed Korean labels, transliterated fragments, or unclear summaries such as `콘데의달 지질`. If the idea is too specific for a clean 1-5 word label, put the detail in `description` and use a generic label such as `내용 점검` or `전체 점검`. Before calling `request_user_input`, reread each Korean label; if it looks misspelled, unnatural, or semantically unclear, replace it with a plain fallback label.
 
 When `request_user_input` is unavailable, write the same approval request as a normal assistant message and wait for the user's answer. Do not create run state, load harness bodies, edit files, run commands, or continue the task before the answer. A user's `$tink:cast` invocation means "prepare and ask for approval", not "start immediately". Exception - quick triage Lane 1: when the request is clearly simple and safe (a question, a read-only check, or one obvious localized edit with no hard-gate signals), start immediately with a one-line marker instead of asking; full preparation applies to non-trivial tasks. Overlay selection is rule-bound: goal-checkpoint is REQUIRED when the run has 2+ goals, 2+ sequential harnesses, 4+ expected steps, or spans multiple components; plan-consensus must be explicitly considered (with a recorded reason if skipped) for from-scratch implementations, reimplementations, migrations, or public contract design. The synthesis-probe verdict only covers custom procedures and must never be presented as the whole harness set being sufficient. When an active plan has 3 or more steps, end every response with the Tink progress block (10-cell bar, current step, remaining steps); right after creating or restructuring a plan, completing a goal/phase, or resuming a run, show the full progress map instead (one bar per phase with the active row marked, an overall bar, and the active phase's steps).
 
-Use this compact approval request shape. Keep it short; do not expose internal terms such as Stitch, Probe, synthesis probe, generic fit, or hard gate in user-facing text. Translate them into plain wording such as `확인할 점`, `맞춤 절차 판단`, `기본 하네스로 충분`, or `기본 하네스만으로는 부족함`.
+Use this compact approval request shape. Keep it short; do not expose internal terms such as Stitch, Probe, synthesis probe, generic fit, or hard gate in user-facing text. Translate them into plain wording such as `확인할 점`, `맞춤 절차 판단`, `별도 맞춤 절차는 불필요`, or `기본 절차만으로는 부족함`. Never use `기본 하네스로 충분` - the probe verdict covers custom procedures only, not the whole harness set.
 
 Korean:
 
 ```md
 이 작업은 Tink run으로 잡고 진행하겠습니다.
 
-- 선택 하네스: `code-change`
+- 선택 하네스: 기본 절차(하네스 없음)
 - 범위: Codex 승인 UX 문구와 테스트만 수정
 - 제외: release, publish, unrelated refactor
 - 승인 후 첫 단계: Codex core rules에 승인 요청 형식 추가
@@ -84,7 +84,7 @@ English:
 ```md
 I will handle this as a Tink run.
 
-- selected harnesses: `code-change`
+- selected harnesses: base run (no harness)
 - scope: update Codex approval UX text and tests only
 - out of scope: release, publish, unrelated refactors
 - first step after approval: add the approval request format to Codex core rules
@@ -98,7 +98,7 @@ If `request_user_input` is available, map this content into the prompt and use o
 
 ## Harness Procedure
 
-For `$tink:cast`, classify the task as code change, bug fix, research, review, docs, ship/release, or new pattern. Ask for current-run approval using the Codex Approval Protocol, then load only selected harness bodies after approval. If no built-in harness fits, use `harness-synthesis` to draft a narrow run-only harness instead of forcing a generic fit.
+For `$tink:cast`, classify the task as code change, bug fix, research, review, docs, ship/release, or new pattern. These are task types, not harness names: generic types run as a base run (no harness - the run state contract alone provides scope, verification, and evidence), and a harness is selected only when a specialized one genuinely fits (overlays, ship/release gates, meta harnesses, or user/synthesized domain harnesses). Never force a loose-fit harness just to name one. Ask for current-run approval using the Codex Approval Protocol, then load only selected harness bodies after approval. If a repeatable domain procedure is missing, use `harness-synthesis` to draft a narrow run-only harness instead of forcing a generic fit.
 
 Create run state before deeper work:
 

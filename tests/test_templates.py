@@ -3,6 +3,7 @@ import hashlib
 import fnmatch
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -375,7 +376,9 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Do not show internal terms such as `Probe`', forge)
         self.assertIn('Do not use Tink-internal jargon (Stitch, Probe, synthesis probe, generic fit', forge)
         self.assertIn('이번 점검은 두 범위로 보겠습니다', forge)
-        self.assertIn('`review`: 변경 위험과 누락을 확인하는 점검 하네스', forge)
+        self.assertIn('기본 절차: 별도 하네스 없이 실행 상태 계약(계획·검증·증거)으로 진행', forge)
+        self.assertIn('## Base run (no harness)', forge)
+        self.assertIn('select the base run alone - do not force a generic fit', forge)
         self.assertIn('run-only draft', forge)
         self.assertIn('Do not wait for total mismatch', forge)
         self.assertIn('이번 작업 전용', forge)
@@ -466,7 +469,7 @@ class TemplateTests(unittest.TestCase):
         index = json.loads((ROOT / 'templates/tink/harnesses/index.json').read_text(encoding='utf-8'))
         names = {item['name'] for item in index}
         expected_names = {
-            'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship',
+            'ship',
             'requirements-interview', 'plan-consensus',
             'goal-checkpoint', 'delegation-brief',
             'harness-synthesis', 'harness-curation',
@@ -474,8 +477,14 @@ class TemplateTests(unittest.TestCase):
             'pr-merge',
         }
         self.assertEqual(names, expected_names)
+        retired_names = {'code-change', 'bug-fix', 'research', 'review', 'docs'}
+        for name in retired_names:
+            self.assertFalse(
+                (ROOT / f'templates/tink/harnesses/{name}.md').exists(),
+                f'retired harness {name} should not ship in the default set',
+            )
         work_harnesses = {
-            'code-change', 'bug-fix', 'research', 'review', 'docs', 'ship',
+            'ship',
             'requirements-interview', 'plan-consensus',
             'goal-checkpoint', 'delegation-brief',
         }
@@ -837,6 +846,69 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('custom:team-rule', {node['id'] for node in updated_rules['nodes']})
             self.assertIn('Preserved user-modified files:', result.stdout)
             self.assertIn('.tink/rules/index.json', result.stdout)
+
+    def test_update_removes_retired_default_harnesses(self):
+        retired_dir = ROOT / 'tests/fixtures/retired-harnesses'
+        retired_names = ['code-change', 'bug-fix', 'research', 'review', 'docs']
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            harness_dir = base / '.tink/harnesses'
+            harness_dir.mkdir(parents=True)
+            for name in retired_names:
+                shutil.copyfile(retired_dir / f'{name}.md', harness_dir / f'{name}.md')
+            review_path = harness_dir / 'review.md'
+            review_path.write_text(
+                review_path.read_text(encoding='utf-8') + '\n- custom team check\n',
+                encoding='utf-8',
+            )
+            index_entries = [{'name': name, 'kind': 'built-in'} for name in retired_names]
+            index_entries.append({'name': 'my-domain-harness', 'kind': 'synthesized'})
+            (harness_dir / 'index.json').write_text(
+                json.dumps(index_entries) + '\n', encoding='utf-8')
+            rules_path = base / '.tink/rules/index.json'
+            rules_path.parent.mkdir(parents=True)
+            rules_path.write_text(json.dumps({
+                'version': 1,
+                'node_shape': {'required': ['id']},
+                'nodes': [
+                    {'id': 'harness:code-change', 'type': 'harness', 'target': 'code-change'},
+                    {'id': 'custom:team-rule', 'type': 'harness', 'target': 'my-domain-harness'},
+                ],
+                'edges': [
+                    {'from': 'harness:code-change', 'to': 'custom:team-rule', 'relation': 'requires_check'},
+                ],
+            }) + '\n', encoding='utf-8')
+
+            env = os.environ.copy()
+            env['TINK_INSTALL_SURFACES'] = 'claude'
+            result = subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'update', '--lang=ko', '--yes'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+
+            for name in ['code-change', 'bug-fix', 'research', 'docs']:
+                self.assertFalse((harness_dir / f'{name}.md').exists(),
+                                 f'{name} should be removed by update')
+            self.assertTrue(review_path.exists())
+            self.assertIn('custom team check', review_path.read_text(encoding='utf-8'))
+
+            index_after = json.loads((harness_dir / 'index.json').read_text(encoding='utf-8'))
+            names_after = {entry['name'] for entry in index_after}
+            self.assertNotIn('code-change', names_after)
+            self.assertNotIn('bug-fix', names_after)
+            self.assertIn('review', names_after)
+            self.assertIn('my-domain-harness', names_after)
+            self.assertIn('goal-checkpoint', names_after)
+            self.assertIn('ship', names_after)
+
+            rules_after = json.loads(rules_path.read_text(encoding='utf-8'))
+            ids_after = {node['id'] for node in rules_after['nodes']}
+            self.assertNotIn('harness:code-change', ids_after)
+            self.assertIn('custom:team-rule', ids_after)
+            self.assertEqual(rules_after['edges'], [])
+
+            self.assertIn('remove retired', result.stdout)
+            self.assertIn('keep user-modified retired harness', result.stdout)
 
     def test_package_contents_are_release_ready(self):
         result = subprocess.run([NPM, 'pack', '--dry-run', '--json'], cwd=ROOT, check=True, capture_output=True, text=True, encoding='utf-8')

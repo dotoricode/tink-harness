@@ -11,7 +11,7 @@ List available Tink harnesses without loading every harness body.
 2. Read only compact usage metadata from `.tink/runs/` (frontmatter `selected_harnesses` / `actually_loaded_harnesses` + dates), `.tink/maintenance/ledger.jsonl`, and `.tink/maintenance/weave-queue.json`. Do not load raw logs.
 3. Treat `.tink/current/` as weak evidence unless it is clearly from the same active conversation. If context is uncertain, label it `stale current candidate`, not proof of usage.
 4. Classify every harness into exactly one of three categories:
-   - **working** — directly performs tasks (e.g. `code-change`, `bug-fix`, `research`, `review`, `docs`, `ship`).
+   - **working** — directly performs or gates tasks (e.g. `ship`, `pr-merge`, `requirements-interview`, `plan-consensus`, `goal-checkpoint`, `delegation-brief`). Generic work (code change, research, review, docs) runs on the base run without a harness, so it does not appear here.
    - **meta** — manages other harnesses or Tink itself. Treat these names as meta regardless of `kind`: `harness-synthesis`, `harness-curation`, `tink-feedback-apply`.
    - **custom (this repo)** — `kind: synthesized` in `index.json` (created in this repo, not part of the default set). If a synthesized harness also matches a meta name, prefer meta.
 5. Compute the signal per harness:
@@ -37,7 +37,7 @@ Use this exact skeleton (translate field labels and descriptions to the language
 > - **signal** — 🟢 `active` 사용 기록 있음  · ⚪ `unknown` 아직 사용 기록 없음
 >
 > **카테고리 설명**
-> - **작업 하네스** — 실제 작업을 수행 (코드 변경·리뷰·문서 등)
+> - **작업 하네스** — 실제 작업을 수행하거나 안전판 역할 (출시·인터뷰·목표 관리 등). 일반 코드 변경·리뷰·문서는 하네스 없이 기본 절차로 진행됩니다.
 > - **메타 하네스** — 다른 하네스나 Tink 자체를 관리 (선택·합성·피드백 반영)
 > - **이 저장소 전용** — 이 프로젝트에서 직접 만들어 저장된 하네스
 

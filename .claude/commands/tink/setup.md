@@ -86,7 +86,7 @@ Use this wording in Korean:
 Tink는 두 종류의 파일을 씁니다.
 
 1. 재사용 하네스 (Reusable Harnesses): `.tink/harnesses/`
-   작업 방식 템플릿입니다. 예: bug-fix, research, review.
+   기능 특화 작업 방식 템플릿입니다. 예: ship, goal-checkpoint, plan-consensus.
    팀이 같이 쓰면 유용하므로 보통 git에 커밋합니다.
 
 2. 실행 상태 (Run State): `.tink/current/`, `.tink/runs/`, `.tink/cache/`

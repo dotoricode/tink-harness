@@ -17,34 +17,6 @@
   },
   "nodes": [
     {
-      "id": "harness:code-change",
-      "type": "harness",
-      "target": "code-change",
-      "load": "retrievable",
-      "phase": "classification",
-      "budget_cost": 2,
-      "keywords": ["code", "refactor", "implementation", "change"],
-      "when": { "task_type": ["code_change"] },
-      "select_harnesses": ["code-change"],
-      "checks": ["Related files only", "Tests or clear reason not run", "Diff evidence"],
-      "reason": "Code changes need a narrow implementation harness and explicit diff evidence.",
-      "risk": "A generic docs or research harness can skip implementation checks."
-    },
-    {
-      "id": "harness:bug-fix",
-      "type": "harness",
-      "target": "bug-fix",
-      "load": "retrievable",
-      "phase": "classification",
-      "budget_cost": 2,
-      "keywords": ["bug", "repro", "failure", "regression"],
-      "when": { "task_type": ["bug_fix"], "has_repro": [true] },
-      "select_harnesses": ["bug-fix"],
-      "checks": ["Reproduced or reason stated", "Root cause identified", "Regression checked"],
-      "reason": "Bug fixes should keep reproduction and regression evidence close to the change.",
-      "risk": "Skipping reproduction can turn a bug fix into an unverified code edit."
-    },
-    {
       "id": "harness:requirements-interview",
       "type": "harness",
       "target": "requirements-interview",

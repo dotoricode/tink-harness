@@ -2,13 +2,12 @@
 
 사람이 빠르게 훑어보기 위한 하네스 요약 모음. `index.json`이 진짜 원본이고, 이 파일은 사람용 색인입니다. 새 작업을 시작하기 전에 먼저 훑어서 기존 하네스를 재사용하거나 여러 하네스의 단계를 조합할 수 있을지 검토하세요.
 
+## 기본 절차 (하네스 없음)
+
+일반적인 코드 변경·버그 수정·조사·리뷰·문서 작업은 별도 하네스 없이 **기본 절차**로 진행합니다. 실행 상태 계약(`plan.md`, `checks.md`, `steps.json`, `contract.json`)이 범위·검증·증거를 이미 강제하므로, 범용 하네스는 기본 세트에서 퇴역했습니다. 하네스는 아래처럼 절차가 실제로 특화된 경우에만 선택합니다.
+
 ## 작업용 하네스
 
-- **[code-change](./code-change.md)** (small) — 범위가 명확한 코드 추가·변경·리팩토링. 관련 파일만 손대고 테스트 근거 남기기.
-- **[bug-fix](./bug-fix.md)** (small) — 재현 → 근본 원인 → 최소 수정 → 회귀 확인.
-- **[research](./research.md)** (small) — 옵션 비교, 문서 읽기, 근거 수집. 추측 분리, 다음 액션 명시.
-- **[review](./review.md)** (small) — 변경·위험·PR 검토. 실측 발견점만 기록.
-- **[docs](./docs.md)** (tiny) — README, 가이드, PRD. 독자와 다음 행동을 명확히.
 - **[requirements-interview](./requirements-interview.md)** (small) — 모호한 아이디어를 한 번에 한 질문씩 좁혀 성공 조건과 금지 조건을 명확히.
 - **[plan-consensus](./plan-consensus.md)** (small) — 큰 설계·리팩토링 계획을 Planner → Architect → Critic → Final 흐름으로 점검.
 - **[goal-checkpoint](./goal-checkpoint.md)** (small) — 긴 실행을 2-6개 목표와 완료 증거로 쪼개 `.tink/current/goals.json`에 기록.
