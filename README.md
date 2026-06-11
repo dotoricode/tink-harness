@@ -17,20 +17,20 @@
 </p>
 
 <p>
-  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.9.17"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.9.18"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.9.17 - The local health report is now a tabbed dashboard with a 3D harness map, plain-language health summaries, and next-action suggestions with copy-paste commands for both Claude Code and Codex. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
+<p><strong>Latest package:</strong> v1.9.18 - The local health report is now a tabbed dashboard with a 3D harness map, plain-language health summaries, and next-action suggestions with copy-paste commands for both Claude Code and Codex. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
 
 **English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
 
 ---
 
-## Quick start
+## Install & quick start
 
 Try Tink in about a minute.
 
@@ -48,6 +48,18 @@ Try Tink in about a minute.
 ```bash
 npx tink-harness@latest install
 ```
+
+The standalone installer auto-detects `LANG` (English fallback); pass `--lang=en|ko|zh` to override. During install you can pick `Claude Code`, `Codex`, or both - in Codex, start with `$tink:cast <task>`.
+
+<details>
+<summary>Repo-local Codex smoke test (CODEX_HOME)</summary>
+
+```bash
+set CODEX_HOME=%CD%/.codex
+npx tink-harness@latest install --yes
+```
+
+</details>
 
 Then hand Tink a real task instead of reading more docs:
 
@@ -93,49 +105,6 @@ Tink started from a simple question:
 > Could Claude Code or Codex grow with me in the same way?
 
 Not by adding a big framework. Not by running more agents. Just by helping Claude or Codex choose the right harness for the current task, create one when nothing fits, and improve the set over time.
-
-## Install
-
-Claude Code plugin install:
-
-```text
-/plugin marketplace add dotoricode/tink-harness
-```
-
-```text
-/plugin install tink@tink-harness
-```
-
-```text
-/reload-plugins
-```
-
-```text
-/tink:setup
-```
-
-Standalone compatibility installer:
-
-```bash
-npx tink-harness@latest install
-```
-
-Standalone installer auto-detects `LANG` (English fallback). Pass `--lang=en|ko|zh` to override.
-
-Codex skill install:
-
-```bash
-npx tink-harness@latest install
-```
-
-During install, select `Codex` when asked which agent surface to install. You can select both `Claude Code` and `Codex` in the same run. Then open Codex and use `$tink:cast <task>`.
-
-For repo-local smoke testing, fix the target with `CODEX_HOME`:
-
-```bash
-set CODEX_HOME=%CD%/.codex
-npx tink-harness@latest install --yes
-```
 
 ## Update
 
@@ -247,14 +216,7 @@ Tink uses files you can inspect:
 
 Tink can also read those records into a harness health summary. The summary shows which harnesses were used, where checks failed or got blocked, which harnesses often appear together, and which ones may deserve a weave improvement, frog cleanup review, merge review, dormant archive review, or more observation. It also includes an explainable candidate score, lifecycle state, graph relationships, and recent run timeline. It only prepares suggestions. Tink does not edit, merge, archive, delete, save memory, or update rules without the same explicit approval gates as the rest of Tink.
 
-The installed read-only helpers can generate that JSON summary and turn it into a local HTML report:
-
-```bash
-node .tink/tools/generate-harness-lifecycle-summary.mjs
-node .tink/tools/render-harness-health-report.mjs
-```
-
-The report is a static, tabbed local page: a home overview, usage-sorted harness cards with an evaluation/maintenance history, memory references, a run activity feed, and an interactive 3D harness map (drag to rotate, right-drag or two-finger scroll to move, wheel or pinch to zoom; rendered with three.js from a CDN, with an offline notice when unavailable). Selecting a harness or health group shows a plain-language summary plus a suggested next action with copy-paste commands for both Claude Code (`/tink:...`) and Codex (`$tink:...`). It still does not start a server, watch files, create a hidden cache, or add a public `tink index` command - suggestions only; reusable-state changes keep their approval gates.
+Two read-only helpers turn those records into the local dashboard shown in [Install & quick start](#install--quick-start). The report is a static local page - no server, no file watching, no hidden cache, no public `tink index` command. It only prepares suggestions; reusable-state changes keep their approval gates.
 
 When selected, current-run artifacts may also include `.tink/current/goals.json` for goal checkpoints or `.tink/current/delegation.md` for handoff packets. Tink prepares those briefs as visible state; it does not start workers, tmux panes, or worktrees unless a separate approved workflow does so.
 
@@ -277,6 +239,12 @@ Tink is not:
 - a replacement for Claude Code or Codex
 
 It is a small harness layer for Claude Code or Codex.
+
+## Contributing
+
+Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) - the short version: run `npm test`, keep command templates in sync across their three copies, and describe changes as problem / solution / verification.
+
+If Tink saves you time, a ⭐ helps other developers find it.
 
 ## License
 

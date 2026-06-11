@@ -6,6 +6,16 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.18] - 2026-06-11
+
+### Changed
+
+- README (EN/KO) deduplicated: install instructions live once in "Install & quick start" (with a collapsible CODEX_HOME smoke test), and the dashboard description in "How it works" now points to the quick-start section instead of repeating it.
+
+### Added
+
+- CONTRIBUTING.md (dev setup, three-copy rule, version-bump rule, PR conventions), a problem/solution/verification pull-request template, bug/feature issue templates, and a contributing + star call-to-action in both READMEs. GitHub repo description refreshed.
+
 ## [1.9.17] - 2026-06-11
 
 ### Changed
