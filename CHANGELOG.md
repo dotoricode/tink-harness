@@ -6,6 +6,12 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.19] - 2026-06-11
+
+### Added
+
+- Animated dashboard demo GIF embedded in both READMEs: a real-time capture with a visible cursor, fast move / hold-to-read pacing, precise zooms onto the inline harness list, an expanded card, and the map's selected-info rail, plus a smooth eased camera dolly on the 3D map.
+
 ## [1.9.18] - 2026-06-11
 
 ### Changed

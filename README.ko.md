@@ -8,7 +8,7 @@ Claude Code와 Codex를 위한 작은 하네스 레이어입니다.
 
 Tink는 지금 작업에 맞는 하네스를 고르고, 실행 상태를 보이게 만들고, 실제 사용 중 생긴 실패와 피드백으로 하네스 세트를 개선합니다.
 
-**최신 패키지:** v1.9.18 — 로컬 건강 리포트가 탭형 대시보드로 바뀌었습니다. 3D 하네스 지도, 쉬운 말 건강 요약, Claude Code와 Codex 양쪽 복사-붙여넣기 명령이 포함된 다음 행동 제안을 제공합니다. 전체 변경 이력은 [CHANGELOG](CHANGELOG.md)를 확인하세요.
+**최신 패키지:** v1.9.19 — 로컬 건강 리포트가 탭형 대시보드로 바뀌었습니다. 3D 하네스 지도, 쉬운 말 건강 요약, Claude Code와 Codex 양쪽 복사-붙여넣기 명령이 포함된 다음 행동 제안을 제공합니다. 전체 변경 이력은 [CHANGELOG](CHANGELOG.md)를 확인하세요.
 
 [English](README.md) · **한국어** · [변경 이력](CHANGELOG.md)
 
@@ -63,6 +63,8 @@ node .tink/tools/generate-harness-lifecycle-summary.mjs
 node .tink/tools/render-harness-health-report.mjs
 # .tink/maintenance/harness-health-report.html 열기
 ```
+
+![Tink 대시보드 데모 — 건강 그룹 클릭, 하네스 카드 탐색, 3D 지도 조작](.github/assets/demo.gif)
 
 하네스와 그들이 쓰는 규칙·메모리, 그 연결을 보여주는 인터랙티브 3D 지도 — 무리마다 고유한 색을 갖고, 살아있는 관계 위로 신호가 흐릅니다:
 
