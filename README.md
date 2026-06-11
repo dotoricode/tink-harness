@@ -253,29 +253,38 @@ Use it when a harness is useful but slightly wrong.
 
 ## How it works
 
-Tink uses files you can inspect:
+Everything Tink knows lives in plain files you can read, diff, and delete:
 
-- `.tink/harnesses/`: reusable task harnesses
-- `.tink/rules/`: a small rule graph that chooses only relevant harnesses, checks, and opt-in guard candidates
-- `.tink/schemas/`: structured file schemas, including the current run contract
-- `.tink/current/`: the current run state
-- `.tink/runs/`: compact records from finished, blocked, canceled, or replaced runs
-- `.tink/maintenance/`: verification, friction, and weave signals that help repeated failures become approved improvements
-- `.tink/memory/`: approved mistakes, preferences, and lessons
+| Path | What it holds |
+| --- | --- |
+| `.tink/harnesses/` | the harness set — specialized procedures only |
+| `.tink/current/` | the active run: plan, steps, contract, verification checks |
+| `.tink/runs/` | compact records of finished runs |
+| `.tink/memory/` | approved lessons and preferences; drafts wait in `memory/candidate/` |
+| `.tink/rules/` + `.tink/schemas/` | a small rule graph for harness selection, plus file schemas |
+| `.tink/maintenance/` + `.tink/tools/` | usage signals and the read-only helpers that render the local dashboard |
 
-Tink can also read those records into a harness health summary. The summary shows which harnesses were used, where checks failed or got blocked, which harnesses often appear together, and which ones may deserve a weave improvement, frog cleanup review, merge review, dormant archive review, or more observation. It also includes an explainable candidate score, lifecycle state, graph relationships, and recent run timeline. It only prepares suggestions. Tink does not edit, merge, archive, delete, save memory, or update rules without the same explicit approval gates as the rest of Tink.
+Three rules drive all of it:
 
-Two read-only helpers turn those records into the local dashboard shown in [Install & quick start](#install--quick-start). The report is a static local page - no server, no file watching, no hidden cache, no public `tink index` command. It only prepares suggestions; reusable-state changes keep their approval gates.
+1. **Generic work runs without a harness.** An ordinary code change, review, or doc edit runs on the base run contract alone — plan, steps, verification evidence. A harness is loaded only when a specialized procedure actually changes what happens: release gates, goal checkpoints, plan critique, requirements interviews, domain workflows.
+2. **Suggestions only.** The dashboard, `frog`, and `weave` prepare proposals from real usage signals. Nothing reusable — a harness, a memory entry, a deletion — is saved without its own explicit approval. Approving today's run never authorizes changes that future runs would inherit.
+3. **Evidence over vibes.** Run records, failed checks, and friction events decide what gets improved (`weave`), promoted from draft to harness, or cleaned up (`frog`). Weak evidence defaults to keep-and-observe, never to delete.
 
-When selected, current-run artifacts may also include `.tink/current/goals.json` for goal checkpoints or `.tink/current/delegation.md` for handoff packets. Tink prepares those briefs as visible state; it does not start workers, tmux panes, or worktrees unless a separate approved workflow does so.
+The dashboard is a static local page rendered from those files — the harness health summary behind it shows usage, failed checks, and weave/frog candidates. No server, no file watching, no hidden cache, no public `tink index` command. It only prepares suggestions; acting on them keeps the approval gates above.
 
-The rule graph stays small on purpose. Tink loads matching mandatory rules first, retrieves only relevant optional rules by task facts or keywords, and records loaded rule ids by phase so the same guidance is not repeated in one run.
+<details>
+<summary><strong>Design docs index</strong> — details for contributors</summary>
 
-Design notes live in `docs/`. The compatibility baseline is `docs/compatibility-policy.md`: every new slice should consider Claude Code and Codex, plus macOS and Windows. Repo signal behavior is described in `docs/repo-signals.md` or `docs/repo-signals.ko.md`. The lightweight graph-rule adoption plan is `docs/graph-rule-adoption-plan.ko.md`. Harness health summaries are described in `docs/harness-lifecycle-signals.md` or `docs/harness-lifecycle-signals.ko.md`. External context safety is described in `docs/mcp-safe-profile.md` and `docs/external-context-policy.md`. To read or review `.tink/current/` state, start with `docs/work-state.md` or `docs/work-state.ko.md`. Update confidence is still documented in `docs/phase-5-update-confidence.md` or `docs/phase-5-update-confidence.ko.md`. Context efficiency docs live in `docs/context-budget-ledger.md`, `docs/context-budget-ledger.ko.md`, `docs/context-metrics-evaluator.md`, `docs/context-metrics-evaluator.ko.md`, `docs/context-run-history-rollup.md`, `docs/context-run-history-rollup.ko.md`, `docs/context-threshold-status.md`, `docs/context-threshold-status.ko.md`, `docs/context-run-record-policy.md`, and `docs/context-run-record-policy.ko.md`. The planned work-unit list is `docs/planned-work-units.md` or `docs/planned-work-units.ko.md`, with details in the verification evidence, memory decision, context change, and update diagnosis docs. The broader Korean idea audit and roadmap is `docs/tink-idea-implementation-plan.ko.md`.
+- Compatibility baseline (Claude Code + Codex, macOS + Windows): `docs/compatibility-policy.md`
+- Repo signals: `docs/repo-signals.md`, `docs/repo-signals.ko.md` · graph-rule adoption plan: `docs/graph-rule-adoption-plan.ko.md`
+- Harness health summary: `docs/harness-lifecycle-signals.md`, `docs/harness-lifecycle-signals.ko.md`
+- External context safety: `docs/mcp-safe-profile.md`, `docs/external-context-policy.md`
+- Reading `.tink/current/` state: `docs/work-state.md`, `docs/work-state.ko.md`
+- Update confidence: `docs/phase-5-update-confidence.md`, `docs/phase-5-update-confidence.ko.md`
+- Context efficiency: `docs/context-budget-ledger.md`, `docs/context-budget-ledger.ko.md`, `docs/context-metrics-evaluator.md`, `docs/context-metrics-evaluator.ko.md`, `docs/context-run-history-rollup.md`, `docs/context-run-history-rollup.ko.md`, `docs/context-threshold-status.md`, `docs/context-threshold-status.ko.md`, `docs/context-run-record-policy.md`, `docs/context-run-record-policy.ko.md`
+- Planned work units: `docs/planned-work-units.md`, `docs/planned-work-units.ko.md` · roadmap and idea audit: `docs/tink-idea-implementation-plan.ko.md`
 
-The important rule is approval.
-
-Tink may suggest a harness, a memory entry, a cleanup, or an improvement. Before each run is committed, Tink runs one quick sanity check and surfaces a proposal only when something important is at stake. Low-risk steps let you continue with recorded assumptions; irreversible or externally visible actions (publish, deploy, deletions, broad changes) require explicit approval. Saving anything reusable — a new harness, a memory entry, a `.claude/` workflow file — always needs its own separate approval; approving the current run does not authorize saves that future installs would inherit.
+</details>
 
 ## What Tink is not
 

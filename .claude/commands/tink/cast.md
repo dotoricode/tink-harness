@@ -42,7 +42,7 @@ Map prompt content to `AskUserQuestion` fields:
 - `description`: explanatory text for the option
 
 Label quality rules:
-- Use short, common, readable labels only. Good Korean labels are `승인`, `조정`, `취소`, `요구사항 입력`, `기본 하네스만 사용`, `새 하네스 초안 만들기`, `구조 점검`, `내용 점검`, `전체 점검`.
+- Use short, common, readable labels only. Good Korean labels are `승인`, `조정`, `취소`, `요구사항 입력`, `기본 절차만 사용`, `새 하네스 초안 만들기`, `구조 점검`, `내용 점검`, `전체 점검`.
 - Do not invent compressed Korean labels, transliterated fragments, or unclear summaries such as `콘데의달 지질`.
 - If the idea is too specific for a clean 1-5 word label, put the detail in `description` and use a generic label such as `내용 점검` or `전체 점검`.
 - Before calling `AskUserQuestion`, reread each Korean label. If it looks misspelled, unnatural, or semantically unclear, replace it with a plain fallback label.
@@ -282,11 +282,11 @@ Candidate limits:
 - Add more only when each extra entry changes the first action, verification, or safety boundary.
 - Do not load entire directories unless the directory itself is the artifact under review.
 
-Also append a compact run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>.md` when the task completes, is canceled, is blocked, or is superseded. Do not store secrets, raw logs, full diffs, or one-off private context.
+Also append a compact run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>.md` when the task completes, is canceled, is blocked, or is superseded. Do not store secrets, raw logs, full diffs, or one-off private context. If a run-only draft harness was used, record its name and its 2-4 domain rules compactly in the run record - `/tink:weave` treats drafts that repeat across runs as promotion candidates.
 
 When appending a run record, also append a signal to `.tink/maintenance/weave-queue.json` if it exists:
 ```json
-{ "id": "signal-<run_id>", "harness": "<primary_selected_harness>", "run": ".tink/runs/<slug>.md", "signal": "<outcome>", "auto": true, "timestamp": "<ISO>" }
+{ "id": "signal-<run_id>", "harness": "<primary_selected_harness or base-run>", "run": ".tink/runs/<slug>.md", "signal": "<outcome>", "auto": true, "timestamp": "<ISO>" }
 ```
 Use `check_failed` as the signal when any check in `checks.md` did not pass; otherwise use the run outcome (`completed`, `blocked`, `canceled`, or `superseded`). Do not create `.tink/maintenance/weave-queue.json` if it does not exist — only append when it is already present.
 
@@ -376,10 +376,10 @@ Lane 1 behavior:
 - If the work changed files, append a compact run record on completion; pure Q&A needs no record.
 - If the task turns out bigger mid-work, stop, say so in one line, and re-enter triage as Lane 2 or 3 with what was learned.
 
-**Lane 2 — light harness.** Small but multi-step work: one obvious harness fits, roughly 2-3 files, no architecture or contract decisions, no ambiguity worth an interview.
+**Lane 2 — light run.** Small but multi-step work: roughly 2-3 files, no architecture or contract decisions, no ambiguity worth an interview. At most one obvious specialized harness fits - often none, and the base run is enough.
 
 Lane 2 behavior:
-- Announce the chosen harness in one line, create minimal run state (`steps.json` plus a short `plan.md`), and execute the first safe step in the same response.
+- Announce the chosen harness or the base run in one line, create minimal run state (`steps.json` plus a short `plan.md`), and execute the first safe step in the same response.
 - Do not ask an approval question for soft-gate work; state the working assumption inline (`범위가 다르면 말씀 주세요` / `Tell me if the scope is different`) and keep moving.
 - Stitch runs silently and surfaces only hard gates.
 
@@ -436,6 +436,15 @@ Rule: while such a run is active, END every assistant response with a progress b
 - Keep alignment tolerant: pad with two or more spaces instead of strict columns, because mixed Korean/English widths break exact tables.
 - The full view replaces the compact block in that response; the next response returns to the compact footer.
 
+## Base run (no harness)
+Generic task-type harnesses (`code-change`, `bug-fix`, `research`, `review`, `docs`) are retired from the default set. Generic work runs as a **base run**: the run state contract alone - `plan.md`, `checks.md`, `steps.json`, `contract.json` - already enforces scope, verification commands, and evidence for ordinary code, bug, research, review, and docs work.
+
+- Select a harness only when its specialized procedure changes what would actually happen: visible-thinking overlays (`requirements-interview`, `plan-consensus`, `goal-checkpoint`, `delegation-brief`), risk gates (`ship`, `pre-publish-multi-agent-verify`, `pr-merge`), meta harnesses (`harness-curation`, `harness-synthesis`), `tink-feedback-apply`, or user-created and synthesized domain harnesses.
+- Never force a loose-fit harness just to show a harness name. "No harness" is a valid and common selection.
+- In user-facing output call this `기본 절차` (Korean) or `base run` (English), with one short explanation line such as `기본 절차로 진행합니다 - 별도 하네스 없이 실행 상태 계약(계획·검증·증거)만 사용`.
+- The base run does not weaken anything: contract checks, Stitch, overlay rules, and the progress display still apply unchanged.
+- If a legacy install still has the retired generic harnesses, do not select them; treat the task as a base run and let `/tink:update` or `/tink:frog` clean them up.
+
 ## Procedure
 This is the Lane 3 full path from Quick triage. Lanes 1 and 2 intentionally skip most of it.
 
@@ -463,6 +472,8 @@ This is the Lane 3 full path from Quick triage. Lanes 1 and 2 intentionally skip
    - docs
    - ship/release
    - new pattern not covered yet
+
+   These are task types, not harness names. Generic types (code change, bug fix, research, review, docs) default to the base run; a harness is added only when a specialized one genuinely fits.
 6. Consider GJC-style visible-thinking overlays as normal Tink harnesses, not as new command surfaces:
    - If the request is an ambiguous idea, early product concept, or underspecified implementation prompt, prefer `requirements-interview` before planning or coding. This is the default harness when Stitch is expected to trigger for goal ambiguity or missing acceptance criteria.
    - If the request asks for a plan, architecture decision, large refactor, migration, or broad public contract change, consider `plan-consensus`.
@@ -473,7 +484,7 @@ This is the Lane 3 full path from Quick triage. Lanes 1 and 2 intentionally skip
    - `goal-checkpoint` is REQUIRED (not optional) when ANY of these is true: the Goals list has 2+ goals; 2+ harnesses run sequentially; the plan is expected to need 4+ steps; or the work spans multiple components/directories. Create `goals.json` after approval.
    - `plan-consensus` must be explicitly considered for any from-scratch implementation, reimplementation, migration, or public contract/API design. If skipped, record a one-line reason in the 오버레이 점검 line.
    - The context budget and the "prefer 1-3 harnesses" guidance never justify dropping a REQUIRED overlay: overlays are cheap state files, not extra loaded context. A large task judged "fine with default harnesses" because the synthesis probe found a fit is a selection bug - the probe only answers whether a custom procedure is needed, not whether overlays are needed.
-7. Pick the best existing harness set using the context budget policy below. Prefer 1-3 harnesses, but do not use a hard cap when several tiny harnesses add useful checks without crowding context. When the task is ambiguous (Stitch goal-ambiguity is expected to trigger), start with `requirements-interview` alone; add a second harness only after the user clarifies. Do not bundle 2+ harnesses for ambiguous tasks upfront.
+7. Pick the smallest effective set using the context budget policy below: the base run plus 0-3 specialized harnesses. When no specialized harness fits, select the base run alone - do not force a generic fit. Do not use a hard cap when several tiny harnesses add useful checks without crowding context. When the task is ambiguous (Stitch goal-ambiguity is expected to trigger), start with `requirements-interview` alone; add a second harness only after the user clarifies. Do not bundle 2+ harnesses for ambiguous tasks upfront.
 
    After selecting, run a quick quality check using the index metadata for each chosen harness:
    - If fewer than 2 words in `use_when` match the current task description (case-insensitive) → treat as a Stitch harness-mismatch signal
@@ -485,7 +496,7 @@ This is the Lane 3 full path from Quick triage. Lanes 1 and 2 intentionally skip
 9. Add opt-in guard candidates to `notes.md` only as suggestions. Do not register enforcement hooks unless the user separately approves.
 10. Run the synthesis probe on the initial harness choice. The probe produces one of three outcomes: strong fit (0-1 yes), generic fit (2-3 yes), or no fit (4-5 yes or no harness matches).
 11. If the probe finds no fit, load `harness-synthesis` and draft a domain-specific harness for this run instead of forcing a bad fit.
-12. If the probe finds a generic fit (2-3 yes), propose a run-only draft harness or domain rules alongside the built-in harness. Do not save it by default.
+12. If the probe finds a generic fit (2-3 yes), propose a run-only draft harness or domain rules alongside the base run or selected harness. Do not save it by default.
 13. If too many tools, skills, agents, or harnesses are available, load `harness-curation` and choose the smallest effective set before loading more context.
 14. If lightweight signals show a recurring operating habit, use `harness-curation` (its habit calibration section) to make one advisory recommendation without loading a separate body.
 15. If the user points to research, notes, examples, prior failures, or "what I learned today", synthesize from those inputs. Extract behavior-shaping rules and reusable procedure, not a summary.
@@ -504,17 +515,17 @@ This is the Lane 3 full path from Quick triage. Lanes 1 and 2 intentionally skip
 
 
 ## Synthesis probe
-Run this short probe even when a built-in harness seems usable. It prevents broad default harnesses from hiding repeatable domain workflows.
+Run this short probe even when the base run or an existing harness seems sufficient. It prevents broad defaults from hiding repeatable domain workflows.
 
 Answer yes/no:
 1. Is this likely to recur in this repo, product, customer segment, release process, or personal workflow?
 2. Would a domain-specific rule change the first action, the order of steps, the stop condition, or the verification evidence?
-3. Is the selected built-in harness only a loose or generic fit?
+3. Is the base run or selected harness only a loose or generic fit for this domain?
 4. Did the user correction, prior run note, failed check, research source, or named project context expose a reusable rule?
 5. Would a one-screen draft reduce future context or repeated explanation?
 
 Decision:
-- 0-1 yes: use the selected built-in harness only. Record why no draft is needed if relevant.
+- 0-1 yes: proceed with the base run or selected harness set as-is. Record why no draft is needed if relevant.
 - 2-3 yes: propose a run-only draft harness. It applies to this run, is written into `.tink/current/plan.md` or `notes.md`, and is not saved by default.
 - 4-5 yes: propose a run-only draft now and ask whether it should become a save candidate after the run. Saving still needs the approval payload.
 
@@ -523,7 +534,7 @@ Run-only draft format:
 ```text
 임시 하네스 초안 (이번 작업 전용):
 - name: <specific-lowercase-name>
-- why not just built-in: <one sentence>
+- why base run is not enough: <one sentence>
 - domain rules: <2-4 bullets that change execution>
 - checks: <2-4 evidence checks>
 - save policy: 이번 run에는 적용, 저장은 반복 근거와 별도 승인 후만
@@ -562,7 +573,8 @@ Use concise, selection-oriented wording. The recommendation must include the fir
 User-facing approval wording:
 - Do not show internal terms such as `Probe`, `probe`, `합성 프로브`, `generic fit`, `제너릭 fit`, or `Stitch`.
 - Translate the synthesis probe result as `맞춤 절차 판단`. Its "sufficient" verdict must read `별도 맞춤 절차는 불필요` - never `기본 하네스로 충분`, which wrongly implies the whole harness SET was judged sufficient. The probe only decides whether a custom synthesized procedure is needed.
-- Translate `generic fit` as `기본 하네스는 큰 틀만 맞음` or `기본 하네스만으로는 부족함`.
+- Translate `generic fit` as `기본 절차는 큰 틀만 맞음` or `기본 절차만으로는 부족함`.
+- When no harness is selected, show `**🛠️ 선택한 하네스**: 기본 절차(하네스 없음)` with one short phrase about what the base run provides. Do not invent a harness name to fill the line.
 - Always include an `**오버레이 점검:**` line in the approval payload: one verdict per overlay harness that the rule-bound check makes relevant, e.g. `goal-checkpoint 선택(목표 3개·순차 2단계) · plan-consensus 제외(문서 보완은 기존 계약 범위)`. An omitted overlay without a reason is a selection bug.
 - Translate visible Stitch output as `확인할 점`, not `Stitch 점검`.
 - Explain what each selected harness does in one short phrase before asking for approval.
@@ -571,7 +583,7 @@ User-facing approval wording:
 
 Approval option counts (always exactly one applies):
 - Default (no Stitch, no run-only draft): 4 options — 승인 / 조정 / 새 하네스 초안 만들기 / 취소
-- Run-only draft offered: 4 options — 승인 / 조정 / 기본 하네스만 사용 / 취소
+- Run-only draft offered: 4 options — 승인 / 조정 / 기본 절차만 사용 / 취소
 - Stitch soft gate: 4 options — 승인 / 요구사항 입력 / 이대로 진행 / 취소
 - Stitch hard gate (or Save Gate): 3 options — 승인 / 요구사항 입력 / 취소. Never offer `이대로 진행` / `Continue as-is`.
 
@@ -581,14 +593,14 @@ Approval option counts (always exactly one applies):
 **🎯 Goals**
 - <goal>
 
-**🛠️ 선택한 하네스**: `code-change + review`
-- `code-change`: 범위가 정해진 코드 변경을 작게 수행하는 하네스
-- `review`: 변경 위험과 누락을 확인하는 점검 하네스
+**🛠️ 선택한 하네스**: 기본 절차 + `goal-checkpoint`
+- 기본 절차: 별도 하네스 없이 실행 상태 계약(계획·검증·증거)으로 진행
+- `goal-checkpoint`: 긴 작업을 목표 단위로 나눠 완료 증거를 남기는 하네스
 
 **하네스 선택 과정**
-- 후보: `code-change`, `review`, `harness-synthesis`
-- 선택: `code-change + review`
-- 이유: 변경 범위가 좁고, 회귀 확인이 필요합니다. 별도 맞춤 초안은 필요하지 않습니다.
+- 후보: 기본 절차, `goal-checkpoint`, `harness-synthesis`
+- 선택: 기본 절차 + `goal-checkpoint`
+- 이유: 일반 코드 변경이라 특화 하네스는 불필요하고, 목표가 2개 이상이라 goal-checkpoint가 필수입니다.
 
 - **오버레이 점검:** <예: goal-checkpoint 선택(목표 2개) · plan-consensus 제외(범위 좁음)>
 - **맞춤 절차 판단:** 별도 맞춤 절차는 불필요
@@ -609,22 +621,22 @@ If a run-only draft or new harness is useful:
 **🎯 Goals**
 - <goal>
 
-**🛠️ 선택한 하네스**: `<built-in> + 임시 초안`
-- `<built-in>`: 기본 작업 흐름을 잡는 하네스
+**🛠️ 선택한 하네스**: 기본 절차 + 임시 초안
+- 기본 절차: 실행 상태 계약으로 작업 큰 틀을 잡음
 - `customer-interview-synthesis`: 이번 작업의 인터뷰 분석 순서를 보강하는 임시 초안
 
 **하네스 선택 과정**
-- 후보: `<built-in>`, `harness-synthesis`, `customer-interview-synthesis`
-- 선택: `<built-in> + customer-interview-synthesis`
-- 이유: 기본 하네스는 큰 틀만 맞고, 인터뷰 원문 근거와 pain point 구분은 별도 절차가 필요합니다.
+- 후보: 기본 절차, `harness-synthesis`, `customer-interview-synthesis`
+- 선택: 기본 절차 + `customer-interview-synthesis`
+- 이유: 기본 절차는 큰 틀만 맞고, 인터뷰 원문 근거와 pain point 구분은 별도 절차가 필요합니다.
 
 **오버레이 점검:** <상동 형식>
 
-**맞춤 절차 판단:** 기본 하네스만으로는 부족함
+**맞춤 절차 판단:** 기본 절차만으로는 부족함
 
 **임시 하네스 초안** (이번 작업 전용):
 - **name:** `customer-interview-synthesis`
-- **why not just built-in:** 일반 research보다 인터뷰 단위, 원문 근거, pain point 반복성이 중요합니다.
+- **why base run is not enough:** 기본 절차보다 인터뷰 단위, 원문 근거, pain point 반복성이 중요합니다.
 - **domain rules:**
   - 인터뷰별 원문 근거를 먼저 분리
   - 반복 pain point와 단발 의견을 구분
@@ -633,9 +645,9 @@ If a run-only draft or new harness is useful:
 - **save policy:** 이번 run에는 적용, 저장은 반복 근거와 별도 승인 후만
 
 ? 진행할까요?
-❯ 1. 승인 (권장) — 기본 하네스 + 임시 초안으로 `.tink/current/` 생성
+❯ 1. 승인 (권장) — 기본 절차 + 임시 초안으로 `.tink/current/` 생성
   2. 조정
-  3. 기본 하네스만 사용
+  3. 기본 절차만 사용
   4. 취소
 ```
 
@@ -661,7 +673,7 @@ If Stitch triggers as a soft gate, merge it into the approval format. The user-f
 - 이유: <why selected>
 
 - **오버레이 점검:** <overlay별 선택/제외와 이유>
-- **맞춤 절차 판단:** <별도 맞춤 절차는 불필요 | 기본 하네스만으로는 부족함 | 새 맞춤 절차 필요>
+- **맞춤 절차 판단:** <별도 맞춤 절차는 불필요 | 기본 절차만으로는 부족함 | 새 맞춤 절차 필요>
 - **이유:** ...
 - **첫 실행:** ...
 

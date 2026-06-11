@@ -4,6 +4,9 @@ All notable changes to Tink are tracked here.
 
 ## [Unreleased]
 
+- **Default harness set is specialized-only.** The generic task-type harnesses `code-change`, `bug-fix`, `research`, `review`, and `docs` are retired: ordinary code/bug/research/review/docs work now runs as a **base run** (기본 절차) on the run state contract alone, and a harness is selected only when a specialized procedure genuinely fits. `npx tink-harness@latest update` removes unmodified retired harnesses automatically (user-woven copies are preserved), prunes their index entries and rule-graph nodes, and now also appends newly shipped default harnesses to an existing `index.json`.
+- frog: when invoked without a target, the harness health summary's judgment (weave/frog/merge candidates, overlap groups) becomes the default cleanup agenda; retired-generic leftovers and stale `.tink/memory/candidate/` entries are also reviewed. weave: run-only drafts repeated across 2+ runs and supported memory candidates can now be promoted (임시 초안 → 하네스, candidate → approved) through the Save Gate.
+- README: "How it works" rewritten as a compact file map plus three driving rules; the long design-docs paragraph moved into a collapsible contributors index (EN/KO).
 - cast: overlay selection is now rule-bound - `goal-checkpoint` is required for runs with 2+ goals, sequential harnesses, 4+ expected steps, or multi-component scope, and `plan-consensus` must be explicitly considered (with a reason when skipped) for from-scratch/reimplementation/migration work. The approval payload gained a mandatory `오버레이 점검` line, and the synthesis-probe verdict wording no longer reads as "default harnesses are sufficient" for the whole set.
 
 ## [1.9.22] - 2026-06-11

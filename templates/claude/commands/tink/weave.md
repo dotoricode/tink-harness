@@ -28,7 +28,11 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
    If `.tink/maintenance/friction.jsonl` exists, read only compact recent entries and count repeated `check_failed`, `check_skipped`, `blocked`, gate denial, or rollback events. Repeated friction can justify a harness edit, rule graph update, or opt-in guard candidate.
    If `.tink/tools/generate-harness-lifecycle-summary.mjs` exists, run `node .tink/tools/generate-harness-lifecycle-summary.mjs` from the repo root before ranking candidates. The generated `.tink/maintenance/harness-lifecycle.json` is a report, not approval or reusable memory.
    If `.tink/maintenance/harness-lifecycle.json` or another summary following `.tink/schemas/harness-lifecycle.schema.json` exists, read it as a harness health summary. Prefer entries with recommendation `weave`, high or medium confidence, and concrete `evidence_handles`. Low-confidence entries should stay as observation unless the user explicitly asks to act on them.
-2. Identify one or a few active harnesses to improve using real failures and evidence:
+1b. Scan promotion candidates (임시초안 승격) - weave promotes as well as improves:
+   - **Run-only draft harnesses**: read recent `.tink/runs/*.md` for recorded draft names and domain rules. If the same draft (same name, or clearly the same domain rules) appears in 2+ run records, propose promoting it into `.tink/harnesses/<name>.md` plus an `index.json` entry with `kind: "synthesized"`. Score it with the harness synthesis contract (specificity, actionability, verifiability, reuse likelihood, context cost) before proposing.
+   - **Candidate memory**: read `.tink/memory/candidate/` when it exists. If 2+ runs, ledger, or friction entries support one candidate, propose moving it to `.tink/memory/approved/` as one compact file, with evidence handles recorded under `.tink/memory/evidence/`. If the user declines, move it to `.tink/memory/rejected/` with a one-line reason so it is not proposed again.
+   - Every promotion is a reusable-state write: it always goes through the Save Gate approval payload and is appended to `.tink/maintenance/ledger.jsonl`. Without 2+ independent evidence handles, present the candidate as an observation, not a proposal.
+2. Identify one or a few active harnesses to improve using real failures and evidence. When invoked without a specific target, the health summary's `weave` recommendations plus the promotion scan above form the default agenda:
    - repeated mistakes
    - user corrections
    - failed checks
@@ -76,16 +80,16 @@ Use Korean field values when `.tink/config.json` language is `ko` or `auto` with
 ## Approval format
 ```text
 Hone target:
-- code-change
+- ship
 
 Evidence:
-- source: `.tink/runs/2026-05-22-code-change.md`
+- source: `.tink/runs/2026-05-22-release-pipeline.md`
 - classification: repeated
 - observed failure: verification command was unclear in two runs
 
 Approval payload:
 - operation: weave
-- destination files: `.tink/harnesses/code-change.md`, `.tink/harnesses/index.json` if metadata changes, `.tink/rules/index.json` if routing changes
+- destination files: `.tink/harnesses/ship.md`, `.tink/harnesses/index.json` if metadata changes, `.tink/rules/index.json` if routing changes
 - context-cost delta: neutral or smaller
 - ledger: append op ID to `.tink/maintenance/ledger.jsonl`
 - rollback: revert this patch or rerun `/tink:weave` with the previous trigger
@@ -97,6 +101,30 @@ Proposed improvement:
 ❯ 1. 승인 — 이 개선 저장
   2. 조정
   3. 취소
+```
+
+Promotion proposal format (run-only draft → saved harness):
+
+```text
+승격 후보:
+- `customer-interview-synthesis` (임시 초안, 2개 run에서 반복 사용)
+
+Evidence:
+- `.tink/runs/2026-06-01-1010-interview-analysis.md`
+- `.tink/runs/2026-06-09-1430-interview-round2.md`
+- classification: repeated
+
+Approval payload:
+- operation: harness-create (promotion)
+- destination files: `.tink/harnesses/customer-interview-synthesis.md`, `.tink/harnesses/index.json`
+- synthesis score: specificity 4 · actionability 4 · verifiability 3 · reuse 4 · context cost tiny
+- ledger: append op ID to `.tink/maintenance/ledger.jsonl`
+- rollback: delete the file and index entry, or rerun `/tink:frog`
+
+? 진행할까요?
+❯ 1. 승인 — 하네스로 승격 저장
+  2. 조정
+  3. 거절 — 다시 제안하지 않도록 기록
 ```
 
 ## Do not

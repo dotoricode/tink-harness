@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -408,6 +409,106 @@ function isAlwaysUpdatePath(src) {
     rel.startsWith('templates/tink/tools/');
 }
 
+// Generic task-type harnesses retired from the default set: generic work now
+// runs on the base run contract alone. Values are normalized (CR-stripped)
+// sha256 hashes of every version ever shipped, so update can tell shipped
+// content (safe to remove) from user-woven content (preserved).
+const RETIRED_HARNESSES = {
+  'code-change': [
+    '883396f8a7c69f097476ffd23288597814c5eabfae4ada2ef8a643afb3a80345',
+    'b9320a0fc7f89a7e8898107f0e289758b7265c1fddce3497fc9297703a3edb44'
+  ],
+  'bug-fix': [
+    '94f747e2cd299ae84fa82b8c54954e518fcca1e95a30edfe571fbf504dd70906',
+    'e2fe201b3de7d7ec748ebd6b7f8f11bb1f702d0deda21c87d21d7ce82867ce1f'
+  ],
+  research: [
+    '57fc4446a0e7d831a1fbd8047f45ad1b3bb595606cb4e643a7fce97308d38197',
+    '8e36fa4e3f5f2cb87b5357b33c46a9f9428038f344a12a5b46c79dee0c474aa1'
+  ],
+  review: [
+    '9f0c3f093885b9cf2d796bf60b8f1e5e08805273343a42b1bc87c06d36b7a2a0',
+    '3b46487689af1a19e436ea672ccfa78cbf82ffcce4540b826ee95239c968c889'
+  ],
+  docs: [
+    '25e6a8fc0c7ba3b4c50519c91157172f8b551ff847f30cc96a5b3ef64cb2c530',
+    '3e42f06aad78f2b18cb5c0c1a0efca17f86cbba9d189f5dbf64efe1c8c75d9b0'
+  ]
+};
+
+function normalizedSha256(content) {
+  return crypto.createHash('sha256').update(content.replace(/\r/g, '')).digest('hex');
+}
+
+function removeRetiredHarnesses(templateRoot, target) {
+  const harnessDir = path.join(target, '.tink/harnesses');
+  if (!fs.existsSync(harnessDir)) return;
+  const cleared = [];
+  for (const [name, hashes] of Object.entries(RETIRED_HARNESSES)) {
+    const file = path.join(harnessDir, `${name}.md`);
+    if (!fs.existsSync(file)) {
+      cleared.push(name);
+      continue;
+    }
+    if (hashes.includes(normalizedSha256(fs.readFileSync(file, 'utf8')))) {
+      log.message(`${dryRun ? 'would remove retired' : 'remove retired'} ${displayPath(target, file)}`);
+      recordOperation('removedLegacy', target, file);
+      if (!dryRun) fs.rmSync(file, { force: true });
+      cleared.push(name);
+    } else {
+      log.message(`keep user-modified retired harness ${displayPath(target, file)}`);
+      recordOperation('preserved', target, file);
+    }
+  }
+  syncHarnessIndex(templateRoot, target, cleared);
+  pruneRetiredRuleNodes(target, cleared);
+}
+
+function syncHarnessIndex(templateRoot, target, cleared) {
+  const indexPath = path.join(target, '.tink/harnesses/index.json');
+  const templateIndexPath = path.join(templateRoot, 'tink/harnesses/index.json');
+  if (!fs.existsSync(indexPath) || !fs.existsSync(templateIndexPath)) return;
+  try {
+    const installed = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+    const template = JSON.parse(fs.readFileSync(templateIndexPath, 'utf8'));
+    if (!Array.isArray(installed) || !Array.isArray(template)) return;
+    // keep user entries and metadata; drop entries whose retired file is gone;
+    // append default entries the installed index does not know yet
+    const kept = installed.filter((entry) => !(entry && cleared.includes(entry.name)));
+    const knownNames = new Set(kept.map((entry) => entry && entry.name));
+    const added = template.filter((entry) => entry && !knownNames.has(entry.name));
+    const next = [...kept, ...added];
+    if (next.length === installed.length && added.length === 0) return;
+    log.message(`${dryRun ? 'would sync' : 'sync'} ${displayPath(target, indexPath)} (${installed.length - kept.length} retired removed, ${added.length} default added)`);
+    recordOperation('updated', target, indexPath);
+    if (!dryRun) fs.writeFileSync(indexPath, `${JSON.stringify(next, null, 2)}\n`);
+  } catch {
+    // unreadable index: leave it untouched
+  }
+}
+
+function pruneRetiredRuleNodes(target, cleared) {
+  const rulesPath = path.join(target, '.tink/rules/index.json');
+  if (!fs.existsSync(rulesPath)) return;
+  try {
+    const rules = JSON.parse(fs.readFileSync(rulesPath, 'utf8'));
+    if (!rules || !Array.isArray(rules.nodes)) return;
+    const nodes = rules.nodes.filter((node) =>
+      !(node && node.type === 'harness' && cleared.includes(node.target)));
+    if (nodes.length === rules.nodes.length) return;
+    const removedIds = new Set(rules.nodes.filter((node) => !nodes.includes(node)).map((node) => node.id));
+    rules.nodes = nodes;
+    if (Array.isArray(rules.edges)) {
+      rules.edges = rules.edges.filter((edge) => !removedIds.has(edge.from) && !removedIds.has(edge.to));
+    }
+    log.message(`${dryRun ? 'would prune' : 'prune'} retired rule nodes from ${displayPath(target, rulesPath)}`);
+    recordOperation('updated', target, rulesPath);
+    if (!dryRun) fs.writeFileSync(rulesPath, `${JSON.stringify(rules, null, 2)}\n`);
+  } catch {
+    // unreadable rule graph: leave it untouched
+  }
+}
+
 function isGeneratedLegacyRuleGraph(src, dest) {
   const rel = path.relative(root, src).replace(/\\/g, '/');
   if (rel !== 'templates/tink/rules/index.json') return false;
@@ -683,6 +784,7 @@ function copySelected(scope, components, agent) {
     copyDir(path.join(templateRoot, 'tink/maintenance'), path.join(target, '.tink/maintenance'), target);
     copyDir(path.join(templateRoot, 'tink/tools'), path.join(target, '.tink/tools'), target);
     writeFileFromTemplate(path.join(templateRoot, 'tink/config.json'), path.join(target, '.tink/config.json'), target);
+    if (isUpdate) removeRetiredHarnesses(templateRoot, target);
   }
   if (components.includes('memory')) {
     copyDir(path.join(templateRoot, 'tink/memory'), path.join(target, '.tink/memory'), target);
