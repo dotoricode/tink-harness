@@ -408,6 +408,34 @@ Rule: while such a run is active, END every assistant response with a progress b
 - On run completion, show the final 100% bar once with `✅` instead of `다음`.
 - Never skip the block because a response feels small; if the response is blocked, the block shows where work stopped.
 
+**Full progress view.** The compact block above is the every-response footer. At key moments, show the full map instead, so the user can plan how far to go today:
+
+- right after the plan is first created or restructured,
+- right after a goal/phase completes,
+- on the first response after resuming a run, and
+- whenever the user asks about progress or the plan.
+
+```text
+📊 전체 진행 상황
+✅ Phase 0  nav graph            ▓▓▓▓▓▓▓▓▓▓ 100%
+▶  Phase 1  Section Index        ░░░░░░░░░░   0%   ← 지금
+   Phase 2  Block Index          ░░░░░░░░░░   0%
+   Phase 3  query + aliases      ░░░░░░░░░░   0%
+──────────────────────────────────────
+전체 ▓▓▓░░░░░░░ 25% · 4개 중 1개 완료
+
+▶ Phase 1 세부
+  ✅ [1/4] build-block-index.mjs 작성
+  ▶  [2/4] sections/*.jsonl 생성   ← 지금
+     [3/4] validate-index.mjs 기본 구조
+     [4/4] line range 검증
+```
+
+- One row per goal/phase with its own 10-cell bar; mark completed rows `✅`, the active row `▶` plus `← 지금`. Below the divider, the same overall bar as the compact block.
+- The detail block lists the active phase's steps with `✅`/`▶`/blank markers - no mini bars; the markers carry the state.
+- Keep alignment tolerant: pad with two or more spaces instead of strict columns, because mixed Korean/English widths break exact tables.
+- The full view replaces the compact block in that response; the next response returns to the compact footer.
+
 ## Procedure
 This is the Lane 3 full path from Quick triage. Lanes 1 and 2 intentionally skip most of it.
 
