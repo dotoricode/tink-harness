@@ -6,6 +6,13 @@ All notable changes to Tink are tracked here.
 
 No unreleased changes yet.
 
+## [1.9.20] - 2026-06-11
+
+### Changed
+
+- `cast` now triages the raw request before touching any `.tink` files and picks one of three lanes: Lane 1 starts clearly simple, safe tasks immediately in the same response (no questions, no run state); Lane 2 announces one obvious harness, creates minimal run state, and starts the first step without an approval round-trip; Lane 3 keeps the full procedure with Stitch and explicit approval. Hard-gate signals always force Lane 3.
+- Long runs always show progress: when a plan has 3+ steps (or 2+ goals), every response ends with a progress block - a 10-cell bar with percent, the current step, and the remaining steps - so the user can plan how far to go today. Applied to the cast command (three copies), the Tink skill, and Codex core rules.
+
 ## [1.9.19] - 2026-06-11
 
 ### Added

@@ -28,7 +28,7 @@ It should:
 Use only these commands:
 
 - `/tink:setup`: configure language, scope, git tracking, and hook policy.
-- `/tink:cast`: main path. Choose/build/synthesize a harness, run Stitch, create run state, start work, and propose reusable learning.
+- `/tink:cast`: main path. Quick-triage the request first (simple and safe tasks start immediately without ceremony); otherwise choose/build/synthesize a harness, run Stitch, create run state, start work, and propose reusable learning. Long plans (3+ steps) end every response with a progress bar block.
 - `/tink:verify`: run the checks promised in `.tink/current/contract.json` and record evidence.
 - `/tink:list`: inspect harnesses and lightweight usage signals.
 - `/tink:frog`: propose unused or redundant harness removal. Never delete without approval.

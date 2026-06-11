@@ -25,6 +25,7 @@ Tink should:
 Do not stop after saying which harness might fit.
 
 A valid `/tink:cast` response must do one of these:
+- complete a clearly simple, safe task directly through the quick-triage fast path (Lane 1 below) - work starts in the same response,
 - create or update `.tink/current/` and start the harnessed work,
 - ask one blocking question that is required to create `.tink/current/`, or
 - cancel because the user chose not to proceed.
@@ -351,31 +352,65 @@ Approved reusable changes should append one JSON line to `.tink/maintenance/ledg
 { "timestamp": "", "op_id": "op-...", "type": "weave|frog|memory|index-update|harness-create|harness-edit", "files": [], "evidence": [], "approval": "", "result": "applied|rejected|deferred", "rollback": "" }
 ```
 
-## Trivial task check
-Before normal harness classification, check whether the task is trivial. Evaluate in this exact order:
+## Quick triage
+Read the raw request text FIRST and pick a lane before reading any `.tink` files. The goal: simple requests produce visible work in the same response, and the heavy machinery loads only when it pays for itself. Time-to-first-action is part of Tink's quality bar.
 
 **Step 1 — Hard-gate override (runs first, no exceptions):**
-If any of the following is true, the task is NOT trivial:
+If any of the following is true, the task goes to Lane 3:
 - Irreversible or hard-to-reverse action (delete, reset, overwrite uncommitted work)
 - External visibility (publish, deploy, tag, push to remote, open a PR, post to a public system)
 - Sensitive data (secrets, credentials, payments, personal data)
 - The task description mentions any of the above concepts
 
-**Step 2 — Trivial criteria (only evaluated if step 1 finds no hard-gate):**
-A task is trivial only when ALL of the following are true:
-1. Single file target explicitly stated
-2. Goal expressed completely in 1–2 sentences
-3. No external effects (confirmed by step 1)
+**Step 2 — Lane decision (only if step 1 finds no hard-gate):**
 
-**If trivial:**
-- Skip Stitch evaluation
-- Create minimal run state: `steps.json` only
-- Replace the approval question with a single inline confirmation: `진행할까요? (y/n)` or `Proceed? (y/n)`
-- Begin work immediately after confirmation
+**Lane 1 — instant start.** Any of these signals, with no contradicting complexity signal:
+- a question, explanation, or lookup with no file edits
+- one obvious localized change (typo, rename, small fix, a single function or file clear from the request)
+- read-only inspection or diagnostics
+- the goal fits in one sentence with nothing worth a clarifying question
 
-**If not trivial:** proceed to normal classification below.
+Lane 1 behavior:
+- Start the work immediately in this response. No `AskUserQuestion`, no `(y/n)` line, no Stitch, no harness loading, no upfront run state.
+- Open with one short marker line: `⚡ 단순 작업 — 바로 진행합니다` / `⚡ Simple task - starting right away`.
+- If the work changed files, append a compact run record on completion; pure Q&A needs no record.
+- If the task turns out bigger mid-work, stop, say so in one line, and re-enter triage as Lane 2 or 3 with what was learned.
+
+**Lane 2 — light harness.** Small but multi-step work: one obvious harness fits, roughly 2-3 files, no architecture or contract decisions, no ambiguity worth an interview.
+
+Lane 2 behavior:
+- Announce the chosen harness in one line, create minimal run state (`steps.json` plus a short `plan.md`), and execute the first safe step in the same response.
+- Do not ask an approval question for soft-gate work; state the working assumption inline (`범위가 다르면 말씀 주세요` / `Tell me if the scope is different`) and keep moving.
+- Stitch runs silently and surfaces only hard gates.
+
+**Lane 3 — full cast.** Any of: 4+ files or multi-phase work, an ambiguous goal, architecture/schema/public contract decisions, release/publish/deploy, migration, or any hard-gate signal from step 1. Run the full Procedure below, including visible Stitch and explicit approval.
+
+When unsure between lanes, prefer the faster lane for reversible local work and the slower lane the moment external visibility or irreversibility appears.
+
+## Progress display
+When a plan is long, the user must always see how far along the run is - that is what makes real-life planning ("this much is left, I'll stop after step 4 today") possible.
+
+Trigger: `steps.json` has 3 or more steps, or `goals.json` exists with 2 or more goals. Lane 1 tasks never show this.
+
+Rule: while such a run is active, END every assistant response with a progress block - after each completed step, partial result, or blocked report. Update `steps.json` (and `goals.json` when present) first so the bar reflects reality, then render:
+
+```text
+📊 진행도
+전체   ▓▓▓▓▓▓░░░░ 60% · 5단계 중 3단계 완료
+현재   [4/5] 렌더러 수정 — 진행 중
+다음   테스트 추가 → 배포 준비
+```
+
+- The bar is 10 cells: `▓` for the completed share, `░` for the rest, computed from completed steps / total steps.
+- `현재` names the in-progress step with its index and status. `다음` lists up to 3 remaining steps joined by `→`; if more remain, end with `… 외 N개`.
+- When `goals.json` exists, show two bars: `전체` from goals (completed goals / total goals) and `현재 목표` from the active goal's steps.
+- English-config runs use `📊 Progress`, `Overall`, `Now`, `Next`, and `M of N steps done`.
+- On run completion, show the final 100% bar once with `✅` instead of `다음`.
+- Never skip the block because a response feels small; if the response is blocked, the block shows where work stopped.
 
 ## Procedure
+This is the Lane 3 full path from Quick triage. Lanes 1 and 2 intentionally skip most of it.
+
 1. Build a draft `.tink/current/contract.json` from the request. If `.tink/schemas/contract.schema.json` exists, follow that shape.
 2. Read `.tink/rules/index.json` if present. Use it as a small rule graph to choose candidate harnesses, checks, and opt-in guard candidates from contract facts. Do not read every harness.
    - Load `mandatory` nodes first when their `when` facts match the contract.
@@ -430,7 +465,7 @@ A task is trivial only when ALL of the following are true:
    - run a read-only diagnostic,
    - draft the first artifact,
    - or reproduce the issue.
-21. Keep `steps.json`, `notes.md`, `contract.json`, and `session.json` current as work progresses. When present, keep `goals.json` and `delegation.md` aligned with actual status and evidence.
+21. Keep `steps.json`, `notes.md`, `contract.json`, and `session.json` current as work progresses. When present, keep `goals.json` and `delegation.md` aligned with actual status and evidence. When the Progress display trigger applies, end every response with the progress block.
 22. Before final, run `/tink:verify` behavior for required contract checks or state why verification is blocked.
 23. If the task exposed a repeated mistake or reusable improvement, use the Reusable State Save Gate approval payload below. Save only after separate user approval.
 
