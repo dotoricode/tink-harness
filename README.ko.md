@@ -1,5 +1,5 @@
 ﻿<p align="center">
-  <img src=".github/assets/hero.gif" alt="Tink Hero Banner" width="100%">
+  <img src=".github/assets/hero.webp" alt="Tink Hero Banner" width="100%">
 </p>
 
 # Tink
