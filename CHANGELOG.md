@@ -4,7 +4,7 @@ All notable changes to Tink are tracked here.
 
 ## [Unreleased]
 
-No unreleased changes yet.
+- cast: overlay selection is now rule-bound - `goal-checkpoint` is required for runs with 2+ goals, sequential harnesses, 4+ expected steps, or multi-component scope, and `plan-consensus` must be explicitly considered (with a reason when skipped) for from-scratch/reimplementation/migration work. The approval payload gained a mandatory `오버레이 점검` line, and the synthesis-probe verdict wording no longer reads as "default harnesses are sufficient" for the whole set.
 
 ## [1.9.22] - 2026-06-11
 
