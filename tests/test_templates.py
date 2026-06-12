@@ -816,6 +816,57 @@ class TemplateTests(unittest.TestCase):
             )
             self.assertIn('language en', override.stdout)
 
+    def test_install_persists_git_policy_and_update_reuses_it(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            env = os.environ.copy()
+            env['TINK_INSTALL_SURFACES'] = 'claude'
+            subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+            config = json.loads((base / '.tink/config.json').read_text(encoding='utf-8'))
+            self.assertEqual(config['git_policy'], 'harnesses')
+            self.assertIn('.tink/current/', (base / '.gitignore').read_text(encoding='utf-8'))
+
+    def test_update_git_policy_none_never_touches_gitignore(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            config_path = base / '.tink/config.json'
+            config_path.parent.mkdir(parents=True)
+            config_path.write_text(json.dumps({
+                'language': 'ko',
+                'install_scope': 'repo',
+                'git_policy': 'none',
+            }) + '\n', encoding='utf-8')
+
+            env = os.environ.copy()
+            env['TINK_INSTALL_SURFACES'] = 'claude'
+            result = subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'update', '--yes'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+
+            self.assertFalse((base / '.gitignore').exists(),
+                             'git_policy none must not create .gitignore')
+            self.assertIn('skip .gitignore update', result.stdout)
+
+    def test_update_skips_gitignore_when_whole_tink_already_ignored(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            (base / '.gitignore').write_text('node_modules/\n.tink/\n', encoding='utf-8')
+
+            env = os.environ.copy()
+            env['TINK_INSTALL_SURFACES'] = 'claude'
+            subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'update', '--lang=ko', '--yes'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+
+            gitignore = (base / '.gitignore').read_text(encoding='utf-8')
+            self.assertNotIn('.tink/current/', gitignore,
+                             'legacy whole-directory ignore must not gain new entries')
+
     def test_update_preserves_user_modified_rule_graph(self):
         with tempfile.TemporaryDirectory() as d:
             base = Path(d)
