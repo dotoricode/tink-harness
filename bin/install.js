@@ -79,24 +79,24 @@ const COPY = {
 
 const COMPONENTS = {
   en: [
-    { value: 'commands', label: 'Claude Code commands', hint: '/tink:setup, /tink:cast, /tink:verify, /tink:list, /tink:frog, /tink:weave, /tink:update' },
+    { value: 'commands', label: 'Claude Code commands (/tink:*)', hint: '7 slash commands (cast, verify, frog, ...) → .claude/commands/tink/' },
     { value: 'skill', label: 'Tink skill', hint: 'Tink operating rules for Claude Code' },
-    { value: 'harnesses', label: 'Built-in harnesses', hint: 'Reusable task templates' },
-    { value: 'memory', label: 'Memory templates', hint: 'Approved mistakes/preferences/lessons files' },
+    { value: 'harnesses', label: 'Built-in harnesses', hint: 'Specialized task procedures → .tink/harnesses/' },
+    { value: 'memory', label: 'Memory templates', hint: 'Approved mistakes/preferences/lessons files → .tink/memory/' },
     { value: 'hook', label: 'Hook recommendation (optional)', hint: 'Registers a safe UserPromptSubmit hook when selected. Off by default.' }
   ],
   ko: [
-    { value: 'commands', label: 'Claude Code 명령', hint: '/tink:setup, /tink:cast, /tink:verify, /tink:list, /tink:frog, /tink:weave, /tink:update' },
+    { value: 'commands', label: 'Claude Code 명령 (/tink:*)', hint: '슬래시 명령 7개 (cast, verify, frog 등) → .claude/commands/tink/' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code가 읽는 Tink 작업 원칙' },
-    { value: 'harnesses', label: '기본 harness', hint: '재사용 작업 템플릿' },
-    { value: 'memory', label: 'Memory 템플릿', hint: '승인된 실수/선호/교훈 파일' },
+    { value: 'harnesses', label: '기본 harness', hint: '기능 특화 작업 절차 → .tink/harnesses/' },
+    { value: 'memory', label: 'Memory 템플릿', hint: '승인된 실수/선호/교훈 파일 → .tink/memory/' },
     { value: 'hook', label: 'Hook 추천 (선택)', hint: '선택하면 안전한 UserPromptSubmit hook으로 등록합니다. 기본 off.' }
   ],
   zh: [
-    { value: 'commands', label: 'Claude Code 命令', hint: '/tink:setup, /tink:cast, /tink:verify, /tink:list, /tink:frog, /tink:weave, /tink:update' },
+    { value: 'commands', label: 'Claude Code 命令 (/tink:*)', hint: '7 个斜杠命令 (cast, verify, frog 等) → .claude/commands/tink/' },
     { value: 'skill', label: 'Tink skill', hint: 'Claude Code 读取的 Tink 工作规则' },
-    { value: 'harnesses', label: '内置 harness', hint: '可复用任务模板' },
-    { value: 'memory', label: 'Memory 模板', hint: '经批准的错误/偏好/经验文件' },
+    { value: 'harnesses', label: '内置 harness', hint: '功能特化任务流程 → .tink/harnesses/' },
+    { value: 'memory', label: 'Memory 模板', hint: '经批准的错误/偏好/经验文件 → .tink/memory/' },
     { value: 'hook', label: 'Hook 推荐（可选）', hint: '选择后注册安全的 UserPromptSubmit hook。默认关闭。' }
   ]
 };
@@ -270,17 +270,21 @@ function componentOptionsFor(agent, language) {
 
     const claudeSkill = {
       value: 'claude-skill',
-      label: 'Claude Code Tink skill',
+      label: language === 'ko' ? 'Claude Code skill (작업 원칙)' : language === 'zh' ? 'Claude Code skill（工作规则）' : 'Claude Code skill (operating rules)',
       hint: language === 'ko'
-        ? 'Claude Code가 읽는 Tink 작업 원칙'
-        : 'Tink operating rules for Claude Code'
+        ? '명령과 별개 항목 — Claude Code가 항상 읽는 동작 규칙 문서 → .claude/skills/tink/'
+        : language === 'zh'
+          ? '与命令不同的项目 — Claude Code 始终读取的工作规则 → .claude/skills/tink/'
+          : 'Different from the commands - the rules document Claude Code always reads → .claude/skills/tink/'
     };
     const codexSkills = {
       value: 'codex-skills',
-      label: 'Codex Tink skills',
+      label: language === 'ko' ? 'Codex skills ($tink:*)' : 'Codex skills ($tink:*)',
       hint: language === 'ko'
-        ? 'Codex가 $tink:*로 읽는 Tink action skills'
-        : 'Tink action skills for Codex through $tink:*'
+        ? 'Codex 전용 — $tink:* action skills → ~/.codex/skills/ (CODEX_HOME)'
+        : language === 'zh'
+          ? '仅用于 Codex — $tink:* action skills → ~/.codex/skills/ (CODEX_HOME)'
+          : 'Codex only - $tink:* action skills → ~/.codex/skills/ (CODEX_HOME)'
     };
 
     if (agent === 'claude') return [claudeSkill];

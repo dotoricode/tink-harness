@@ -2,6 +2,10 @@
 
 All notable changes to Tink are tracked here.
 
+## [Unreleased]
+
+- Installer component labels clarified after user confusion: "Claude Code commands (/tink:*)" and "Claude Code skill (operating rules)" now state their role and install path in the label/hint (`.claude/commands/tink/` vs `.claude/skills/tink/`), and Codex skills explicitly say `~/.codex/skills/ (CODEX_HOME)` - the two Claude items no longer look like duplicates, and the Codex item can't be mistaken for a Claude one.
+
 ## [1.11.0] - 2026-06-12
 
 - **Fixed: update wiped run history.** `.tink/maintenance/` record files (`ledger.jsonl`, `friction.jsonl`, `weave-queue.json`) were in the always-overwrite set, so every npx `update` replaced the user's approval ledger and weave/friction signals with empty seeds - silently resetting dashboard usage history. They are now seed-only: created when missing, never overwritten.
