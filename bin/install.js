@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -125,7 +126,63 @@ function argValue(name) {
 }
 
 function usage() {
-  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  tink-harness [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--clean-codex-picker] [--dry-run] [--force]\n\nIf the command is not installed yet, use:\n  npx tink-harness@latest [install]\n  npx tink-harness@latest update\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Asks only the agent surface; Tink-owned files always refresh, user-modified harness/memory/config files are kept.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select Advanced options\n  7. Select git tracking policy for project state\n\nAdvanced options:\n  --dry-run             Preview only. Show what would be written or removed, but do not change files.\n  --force               Overwrite user-modified files. Use only when you want official templates to replace local edits.\n  --clean-codex-picker  Codex-only cleanup. Remove repo-local Claude Tink surfaces that show as Source Command Tink entries.\n\nEnvironment:\n  TINK_INSTALL_SURFACES=claude|codex|all\n  TINK_CLEAN_CODEX_PICKER=1\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
+  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  tink-harness [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness dashboard [--no-open]\n\nIf the command is not installed yet, use:\n  npx tink-harness@latest [install]\n  npx tink-harness@latest update\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Asks only the agent surface; Tink-owned files always refresh, user-modified harness/memory/config files are kept.\n  dashboard  Generate the harness health report from local .tink records and open it in your browser. Use --no-open to skip opening.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select Advanced options\n  7. Select git tracking policy for project state\n\nAdvanced options:\n  --dry-run             Preview only. Show what would be written or removed, but do not change files.\n  --force               Overwrite user-modified files. Use only when you want official templates to replace local edits.\n  --clean-codex-picker  Codex-only cleanup. Remove repo-local Claude Tink surfaces that show as Source Command Tink entries.\n\nEnvironment:\n  TINK_INSTALL_SURFACES=claude|codex|all\n  TINK_CLEAN_CODEX_PICKER=1\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
+}
+
+function findTinkRoot() {
+  for (const dir of [process.cwd(), os.homedir()]) {
+    if (fs.existsSync(path.join(dir, '.tink'))) return dir;
+  }
+  return null;
+}
+
+function openInBrowser(file) {
+  if (process.platform === 'win32') {
+    spawnSync('cmd', ['/c', 'start', '', file], { stdio: 'ignore' });
+  } else if (process.platform === 'darwin') {
+    spawnSync('open', [file], { stdio: 'ignore' });
+  } else {
+    spawnSync('xdg-open', [file], { stdio: 'ignore' });
+  }
+}
+
+function runDashboard() {
+  const target = findTinkRoot();
+  const language = detectInstalledLanguage() || detectLanguage();
+  if (!target) {
+    console.error(language === 'ko'
+      ? '.tink 디렉토리를 찾을 수 없습니다(현재 디렉토리·홈 디렉토리 확인). 먼저 `npx tink-harness@latest install`을 실행하세요.'
+      : 'No .tink directory found in the current or home directory. Run `npx tink-harness@latest install` first.');
+    process.exit(1);
+  }
+  const toolFor = (name) => {
+    const installed = path.join(target, '.tink/tools', name);
+    return fs.existsSync(installed) ? installed : path.join(root, 'templates/tink/tools', name);
+  };
+  const steps = [
+    toolFor('generate-harness-lifecycle-summary.mjs'),
+    toolFor('render-harness-health-report.mjs')
+  ];
+  for (const tool of steps) {
+    const result = spawnSync(process.execPath, [tool], { cwd: target, stdio: 'inherit' });
+    if (result.status !== 0) {
+      console.error(language === 'ko'
+        ? `대시보드 생성 실패: ${path.basename(tool)}`
+        : `Dashboard step failed: ${path.basename(tool)}`);
+      process.exit(result.status || 1);
+    }
+  }
+  const reportPath = path.join(target, '.tink/maintenance/harness-health-report.html');
+  if (!fs.existsSync(reportPath)) {
+    console.error(language === 'ko'
+      ? `리포트 파일이 없습니다: ${reportPath}`
+      : `Report not found: ${reportPath}`);
+    process.exit(1);
+  }
+  console.log(language === 'ko' ? `대시보드: ${reportPath}` : `Dashboard: ${reportPath}`);
+  if (args.includes('--no-open')) return;
+  openInBrowser(reportPath);
+  console.log(language === 'ko' ? '기본 브라우저에서 열었습니다.' : 'Opened in your default browser.');
 }
 
 function normalizeSurfaces(surfaces) {
@@ -1097,6 +1154,11 @@ async function main() {
   if (command === 'help' || args.includes('--help')) {
     usage();
     process.exit(0);
+  }
+
+  if (command === 'dashboard') {
+    runDashboard();
+    return;
   }
 
   if (command !== 'install' && command !== 'update') {

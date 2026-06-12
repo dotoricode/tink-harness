@@ -101,13 +101,13 @@ $tink:cast 인증 모듈 리팩터링     # Codex
 
 ## 하네스 건강을 눈으로 확인
 
-몇 번의 run이 쌓이면, 읽기 전용 helper 두 개가 기록을 로컬 대시보드로 바꿔 줍니다:
+몇 번의 run이 쌓이면, 명령 하나로 기록을 로컬 대시보드로 만들어 브라우저까지 열어 줍니다:
 
 ```bash
-node .tink/tools/generate-harness-lifecycle-summary.mjs
-node .tink/tools/render-harness-health-report.mjs
-# .tink/maintenance/harness-health-report.html 열기
+npx tink-harness dashboard          # 파일만 만들려면 --no-open 추가
 ```
+
+내부적으로는 읽기 전용 helper 두 개(`node .tink/tools/generate-harness-lifecycle-summary.mjs` → `node .tink/tools/render-harness-health-report.mjs`)를 실행한 뒤 `.tink/maintenance/harness-health-report.html`을 엽니다.
 
 ![Tink 대시보드 데모 — 건강 그룹 클릭, 하네스 카드 탐색, 3D 지도 조작](.github/assets/demo.gif)
 

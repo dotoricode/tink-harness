@@ -2,6 +2,10 @@
 
 All notable changes to Tink are tracked here.
 
+## [Unreleased]
+
+- New `dashboard` subcommand: `npx tink-harness dashboard` generates the harness health report (lifecycle summary + HTML) from local `.tink` records and opens it in the default browser - no more memorizing the two `node .tink/tools/...` commands. `--no-open` generates the file only. Falls back to the packaged tools when `.tink/tools/` is missing, and finds `.tink` in the current or home directory.
+
 ## [1.10.0] - 2026-06-12
 
 - update: previously the npx `update` reset install scope and git policy to defaults; it now reuses the choices stored at install time (`.tink/config.json` gains `git_policy`). Choosing "커밋 안 함" (commit no .tink files) now means `.gitignore` is never created or edited - by install or by update - and a legacy whole-directory `.tink/` ignore line is left untouched.

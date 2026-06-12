@@ -851,6 +851,24 @@ class TemplateTests(unittest.TestCase):
                              'git_policy none must not create .gitignore')
             self.assertIn('skip .gitignore update', result.stdout)
 
+    def test_dashboard_command_generates_report(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            env = os.environ.copy()
+            env['TINK_INSTALL_SURFACES'] = 'claude'
+            subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=en', '--yes'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+            result = subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'dashboard', '--no-open'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+            report = base / '.tink/maintenance/harness-health-report.html'
+            self.assertTrue(report.exists())
+            self.assertIn('harness-health-report.html', result.stdout)
+            self.assertNotIn('Opened in your default browser', result.stdout)
+
     def test_update_skips_gitignore_when_whole_tink_already_ignored(self):
         with tempfile.TemporaryDirectory() as d:
             base = Path(d)
