@@ -2,7 +2,7 @@
 
 All notable changes to Tink are tracked here.
 
-## [Unreleased]
+## [1.11.1] - 2026-06-12
 
 - Installer component labels clarified after user confusion: "Claude Code commands (/tink:*)" and "Claude Code skill (operating rules)" now state their role and install path in the label/hint (`.claude/commands/tink/` vs `.claude/skills/tink/`), and Codex skills explicitly say `~/.codex/skills/ (CODEX_HOME)` - the two Claude items no longer look like duplicates, and the Codex item can't be mistaken for a Claude one.
 
