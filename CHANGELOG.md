@@ -2,7 +2,7 @@
 
 All notable changes to Tink are tracked here.
 
-## [Unreleased]
+## [1.10.0] - 2026-06-12
 
 - update: previously the npx `update` reset install scope and git policy to defaults; it now reuses the choices stored at install time (`.tink/config.json` gains `git_policy`). Choosing "커밋 안 함" (commit no .tink files) now means `.gitignore` is never created or edited - by install or by update - and a legacy whole-directory `.tink/` ignore line is left untouched.
 - **Default harness set is specialized-only.** The generic task-type harnesses `code-change`, `bug-fix`, `research`, `review`, and `docs` are retired: ordinary code/bug/research/review/docs work now runs as a **base run** (기본 절차) on the run state contract alone, and a harness is selected only when a specialized procedure genuinely fits. `npx tink-harness@latest update` removes unmodified retired harnesses automatically (user-woven copies are preserved), prunes their index entries and rule-graph nodes, and now also appends newly shipped default harnesses to an existing `index.json`.
