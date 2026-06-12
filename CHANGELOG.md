@@ -2,7 +2,7 @@
 
 All notable changes to Tink are tracked here.
 
-## [Unreleased]
+## [1.11.0] - 2026-06-12
 
 - **Fixed: update wiped run history.** `.tink/maintenance/` record files (`ledger.jsonl`, `friction.jsonl`, `weave-queue.json`) were in the always-overwrite set, so every npx `update` replaced the user's approval ledger and weave/friction signals with empty seeds - silently resetting dashboard usage history. They are now seed-only: created when missing, never overwritten.
 - Fixed: update resurrected harnesses the user removed via an approved `/tink:frog` operation. The updater now reads `ledger.jsonl` frog entries and skips re-creating those files and index entries (other missing defaults are still restored; `--force` restores everything).
