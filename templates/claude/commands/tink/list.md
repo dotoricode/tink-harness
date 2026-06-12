@@ -11,7 +11,7 @@ List available Tink harnesses without loading every harness body.
 2. Read only compact usage metadata from `.tink/runs/` (frontmatter `selected_harnesses` / `actually_loaded_harnesses` + dates), `.tink/maintenance/ledger.jsonl`, and `.tink/maintenance/weave-queue.json`. Do not load raw logs.
 3. Treat `.tink/current/` as weak evidence unless it is clearly from the same active conversation. If context is uncertain, label it `stale current candidate`, not proof of usage.
 4. Classify every harness into exactly one of three categories:
-   - **working** — directly performs or gates tasks (e.g. `ship`, `pr-merge`, `requirements-interview`, `plan-consensus`, `goal-checkpoint`, `delegation-brief`). Generic work (code change, research, review, docs) runs on the base run without a harness, so it does not appear here.
+   - **working** — directly performs or gates tasks (e.g. `ship`, `requirements-interview`, `plan-consensus`, `goal-checkpoint`, `delegation-brief`). Generic work (code change, research, review, docs) runs on the base run without a harness, so it does not appear here.
    - **meta** — manages other harnesses or Tink itself. Treat these names as meta regardless of `kind`: `harness-synthesis`, `harness-curation`, `tink-feedback-apply`.
    - **custom (this repo)** — `kind: synthesized` in `index.json` (created in this repo, not part of the default set). If a synthesized harness also matches a meta name, prefer meta.
 5. Compute the signal per harness:
