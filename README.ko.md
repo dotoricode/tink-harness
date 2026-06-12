@@ -147,7 +147,7 @@ Standalone / Codex:
 npx tink-harness@latest update
 ```
 
-업데이트는 질문 하나 — 어떤 agent surface를 갱신할지 — 만 묻고 나머지는 자동으로 처리합니다. Tink가 관리하는 파일(commands, skills, maintenance, 런타임 tools)은 항상 최신으로 덮어쓰고, 사용자가 수정한 하네스·메모리·설정은 보존합니다.
+업데이트는 질문 하나 — 어떤 agent surface를 갱신할지 — 만 묻고 나머지는 자동으로 처리합니다. 언어·설치 범위·git 정책은 설치 때 선택한 값을 그대로 재사용하며, ".tink 커밋 안 함"을 선택했다면 업데이트가 `.gitignore`를 절대 건드리지 않습니다. Tink가 관리하는 파일(commands, skills, maintenance, 런타임 tools)은 항상 최신으로 덮어쓰고, 사용자가 수정한 하네스·메모리·설정은 보존합니다.
 
 `CODEX_HOME`을 지정하지 않으면 Windows에서는 `%USERPROFILE%\.codex`, macOS/Linux에서는 `~/.codex`에 Codex skill이 설치됩니다.
 

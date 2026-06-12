@@ -384,19 +384,24 @@ function shortList(items, emptyText = '- none') {
   return shown.join('\n');
 }
 
-function detectInstalledLanguage() {
+function readInstalledConfig() {
   const candidates = [
     path.join(process.cwd(), '.tink/config.json'),
     path.join(os.homedir(), '.tink/config.json')
   ];
   for (const configPath of candidates) {
     try {
-      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      if (['en', 'ko', 'zh'].includes(config.language)) return config.language;
+      return JSON.parse(fs.readFileSync(configPath, 'utf8'));
     } catch {
       // keep looking
     }
   }
+  return null;
+}
+
+function detectInstalledLanguage() {
+  const config = readInstalledConfig();
+  if (config && ['en', 'ko', 'zh'].includes(config.language)) return config.language;
   return null;
 }
 
@@ -802,13 +807,21 @@ function updateGitignore(target, policy) {
     log.message('skip .gitignore update: tracking all .tink files');
     return;
   }
+  if (policy === 'none') {
+    // the user chose to keep .tink out of git; do not touch their .gitignore
+    log.message('skip .gitignore update: .tink stays untracked by your choice');
+    return;
+  }
   const gitignorePath = path.join(target, '.gitignore');
-  const ignoreBlock = policy === 'none'
-    ? ['.tink/']
-    : ['.tink/current/', '.tink/runs/', '.tink/cache/'];
+  const ignoreBlock = ['.tink/current/', '.tink/runs/', '.tink/cache/'];
 
   if (fs.existsSync(gitignorePath)) {
     const existing = fs.readFileSync(gitignorePath, 'utf8');
+    if (/^\.tink\/\s*$/m.test(existing)) {
+      // a legacy install already ignores the whole directory; nothing to add
+      log.message('skip .gitignore update: .tink/ already ignored');
+      return;
+    }
     const missing = ignoreBlock.filter((line) => !existing.includes(line));
     if (missing.length) {
       log.message(`${dryRun ? 'would update' : 'update'} .gitignore`);
@@ -820,7 +833,7 @@ function updateGitignore(target, policy) {
   }
 }
 
-function patchConfig(target, scope, hookScope, language) {
+function patchConfig(target, scope, hookScope, language, gitPolicy) {
   const configPath = path.join(target, '.tink/config.json');
   if (!fs.existsSync(configPath) || dryRun) return;
   const rel = displayPath(target, configPath).replace(/\\/g, '/');
@@ -829,6 +842,7 @@ function patchConfig(target, scope, hookScope, language) {
   config.install_scope = scope;
   config.hook_scope = hookScope;
   config.language = language;
+  if (gitPolicy) config.git_policy = gitPolicy;
   fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
 }
 
@@ -918,6 +932,14 @@ async function resolveChoices() {
     language = detectInstalledLanguage() || language;
     components = defaultComponentValues(agent, language);
     if (includesClaude(agent) && args.includes('--with-hook')) components.push('hook');
+  }
+  if (isUpdate) {
+    // reuse the choices stored at install time; only the agent surface is asked
+    const stored = readInstalledConfig();
+    if (stored) {
+      if (!scope && ['repo', 'global'].includes(stored.install_scope)) scope = stored.install_scope;
+      if (['harnesses', 'all', 'none'].includes(stored.git_policy)) gitPolicy = stored.git_policy;
+    }
   }
 
   if (!interactive) {
@@ -1103,7 +1125,7 @@ async function main() {
   } else if (scope === 'global') {
     log.message('skip .gitignore for global install');
   }
-  patchConfig(targets.installTarget, scope, hookScope, language);
+  patchConfig(targets.installTarget, scope, hookScope, language, gitPolicy);
 
   const summary = [
     `Language: ${language}`,

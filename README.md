@@ -187,7 +187,7 @@ To update an existing standalone install (Claude Code or Codex):
 npx tink-harness@latest update
 ```
 
-Update asks one question - which agent surface to refresh - and handles the rest automatically. Tink-owned files (commands, skills, maintenance, runtime tools) are always brought to the latest version; your customized harnesses, memory, and config are preserved.
+Update asks one question - which agent surface to refresh - and handles the rest automatically. Language, install scope, and git policy are reused from the choices you made at install time; if you chose not to commit `.tink`, update never touches your `.gitignore`. Tink-owned files (commands, skills, maintenance, runtime tools) are always brought to the latest version; your customized harnesses, memory, and config are preserved.
 
 If `CODEX_HOME` is not set, Codex skills default to `%USERPROFILE%\.codex` on Windows and `~/.codex` on macOS/Linux.
 
