@@ -115,13 +115,13 @@ $tink:cast refactor the auth module     # Codex
 
 ## See your harness health
 
-After a few runs, two read-only helpers turn your records into a local dashboard:
+After a few runs, one command turns your records into a local dashboard and opens it in your browser:
 
 ```bash
-node .tink/tools/generate-harness-lifecycle-summary.mjs
-node .tink/tools/render-harness-health-report.mjs
-# then open .tink/maintenance/harness-health-report.html
+npx tink-harness dashboard          # add --no-open to just generate the file
 ```
+
+Under the hood it runs the two read-only helpers (`node .tink/tools/generate-harness-lifecycle-summary.mjs`, then `node .tink/tools/render-harness-health-report.mjs`) and opens `.tink/maintenance/harness-health-report.html`.
 
 ![Tink dashboard demo - clicking a health group, browsing harness cards, and inspecting the 3D map](.github/assets/demo.gif)
 
