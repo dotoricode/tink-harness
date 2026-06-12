@@ -15,7 +15,8 @@ This command does not run the update itself. It detects how Tink was installed i
    - If the project root (or `cwd`) has `.claude-plugin/plugin.json` and a top-level `commands/` directory, Tink was installed via Claude Code plugin marketplace.
    - Otherwise, treat it as an `npx tink-harness install` (standalone) installation.
 3. Scan for files that have diverged from the latest installed templates (read-only inspection only):
-   - **Always updated**: `.claude/commands/tink/`, `.claude/skills/tink/`, `.tink/maintenance/`, `.tink/tools/` — template changes always propagate here.
+   - **Always updated**: `.claude/commands/tink/`, `.claude/skills/tink/`, `.tink/tools/` — template changes always propagate here.
+   - **Never overwritten once they exist**: `.tink/maintenance/` record files (`ledger.jsonl`, `friction.jsonl`, `weave-queue.json`) hold user history; the template only seeds them when missing.
    - **Preserved if user-modified**: `.tink/harnesses/`, `.tink/hooks/`, `.tink/memory/`, `.tink/config.json` — respects `weave` customizations and local configuration.
 4. Show the appropriate update path and a short list of files in the "preserved" category that have diverged.
 
@@ -38,7 +39,8 @@ npx tink-harness@latest update
 ```
 
 The `update` subcommand asks only one question - which agent surface to refresh (Claude Code, Codex, or both). Everything else updates automatically:
-- **Always overwrites**: commands, skills, maintenance, and runtime tools (`.claude/commands/tink/`, `.claude/skills/tink/`, `.tink/maintenance/`, `.tink/tools/`) — so you get the latest harness runner, report tools, and command behavior automatically.
+- **Always overwrites**: commands, skills, and runtime tools (`.claude/commands/tink/`, `.claude/skills/tink/`, `.tink/tools/`) — so you get the latest harness runner, report tools, and command behavior automatically.
+- **Never overwrites records**: `.tink/maintenance/` ledger, friction, and weave-queue files are user history; they are only seeded when missing.
 - **Preserves if modified**: harnesses, hooks, memory, and config (`.tink/harnesses/`, `.tink/hooks/`, `.tink/memory/`, `.tink/config.json`) — respects your `weave` customizations and local settings.
 - **Reuses stored choices**: language, install scope, and git policy come from `.tink/config.json`. With `git_policy: "none"` (커밋 안 함) the updater never creates or edits `.gitignore`, and an existing whole-directory `.tink/` ignore line is left as-is.
 
@@ -62,7 +64,7 @@ If the source-repo guard triggers, print only this and stop — do not present p
 
 **설치 경로**: <plugin marketplace | npx standalone>
 
-**항상 업데이트됨**: commands, skills, maintenance, tools (최신 버전으로 자동 반영)
+**항상 업데이트됨**: commands, skills, tools (최신 버전으로 자동 반영) · maintenance 기록 파일은 보존
 
 **사용자 수정 파일** (업데이트 시 보존):
 - <path1>

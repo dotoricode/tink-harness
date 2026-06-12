@@ -137,13 +137,15 @@ function findTinkRoot() {
 }
 
 function openInBrowser(file) {
+  let result;
   if (process.platform === 'win32') {
-    spawnSync('cmd', ['/c', 'start', '', file], { stdio: 'ignore' });
+    result = spawnSync('cmd', ['/c', 'start', '', file], { stdio: 'ignore' });
   } else if (process.platform === 'darwin') {
-    spawnSync('open', [file], { stdio: 'ignore' });
+    result = spawnSync('open', [file], { stdio: 'ignore' });
   } else {
-    spawnSync('xdg-open', [file], { stdio: 'ignore' });
+    result = spawnSync('xdg-open', [file], { stdio: 'ignore' });
   }
+  return !result.error && result.status === 0;
 }
 
 function runDashboard() {
@@ -181,8 +183,13 @@ function runDashboard() {
   }
   console.log(language === 'ko' ? `대시보드: ${reportPath}` : `Dashboard: ${reportPath}`);
   if (args.includes('--no-open')) return;
-  openInBrowser(reportPath);
-  console.log(language === 'ko' ? '기본 브라우저에서 열었습니다.' : 'Opened in your default browser.');
+  if (openInBrowser(reportPath)) {
+    console.log(language === 'ko' ? '기본 브라우저에서 열었습니다.' : 'Opened in your default browser.');
+  } else {
+    console.log(language === 'ko'
+      ? '브라우저 자동 열기에 실패했습니다. 위 경로의 파일을 직접 열어주세요.'
+      : 'Could not open a browser automatically. Open the file above manually.');
+  }
 }
 
 function normalizeSurfaces(surfaces) {
@@ -423,7 +430,8 @@ function handleCancel(value) {
 
 function readHarnessCount() {
   const dir = path.join(root, 'templates/tink/harnesses');
-  return fs.readdirSync(dir).filter((name) => name.endsWith('.md')).length;
+  // HARNESS.md is the human catalog, not a harness
+  return fs.readdirSync(dir).filter((name) => name.endsWith('.md') && name !== 'HARNESS.md').length;
 }
 
 function displayPath(base, filePath) {
@@ -467,8 +475,15 @@ function isAlwaysUpdatePath(src) {
   return rel.startsWith('templates/claude/commands/') ||
     rel.startsWith('templates/claude/skills/') ||
     rel.startsWith('templates/codex/skills/') ||
-    rel.startsWith('templates/tink/maintenance/') ||
     rel.startsWith('templates/tink/tools/');
+}
+
+function isSeedOnlyPath(src) {
+  // Runtime record files (ledger, friction, weave queue): the template only
+  // seeds them. Once they exist they hold user history and must never be
+  // overwritten by install or update.
+  const rel = path.relative(root, src).replace(/\\/g, '/');
+  return rel.startsWith('templates/tink/maintenance/');
 }
 
 // Generic task-type harnesses retired from the default set: generic work now
@@ -500,6 +515,42 @@ const RETIRED_HARNESSES = {
 
 function normalizedSha256(content) {
   return crypto.createHash('sha256').update(content.replace(/\r/g, '')).digest('hex');
+}
+
+// Default harnesses the user explicitly removed via an approved /tink:frog
+// operation. Update must not resurrect them.
+const retiredByFrog = new Set();
+
+function harnessNameFromDest(dest) {
+  const match = String(dest).replace(/\\/g, '/').match(/\.tink\/harnesses\/([^/]+)\.md$/);
+  return match ? match[1] : '';
+}
+
+function loadFroggedHarnessNames(target) {
+  retiredByFrog.clear();
+  const ledgerPath = path.join(target, '.tink/maintenance/ledger.jsonl');
+  if (!fs.existsSync(ledgerPath)) return;
+  let lines;
+  try {
+    lines = fs.readFileSync(ledgerPath, 'utf8').split('\n');
+  } catch {
+    return;
+  }
+  for (const line of lines) {
+    const text = line.replace(/^﻿/, '').trim();
+    if (!text) continue;
+    try {
+      const entry = JSON.parse(text);
+      if (entry && entry.type === 'frog' && entry.result === 'applied' && Array.isArray(entry.files)) {
+        for (const file of entry.files) {
+          const name = harnessNameFromDest(file);
+          if (name && name !== 'index') retiredByFrog.add(name);
+        }
+      }
+    } catch {
+      // skip malformed ledger lines
+    }
+  }
 }
 
 function removeRetiredHarnesses(templateRoot, target) {
@@ -538,7 +589,8 @@ function syncHarnessIndex(templateRoot, target, cleared) {
     // append default entries the installed index does not know yet
     const kept = installed.filter((entry) => !(entry && cleared.includes(entry.name)));
     const knownNames = new Set(kept.map((entry) => entry && entry.name));
-    const added = template.filter((entry) => entry && !knownNames.has(entry.name));
+    const added = template.filter((entry) =>
+      entry && !knownNames.has(entry.name) && !retiredByFrog.has(entry.name));
     const next = [...kept, ...added];
     if (next.length === installed.length && added.length === 0) return;
     log.message(`${dryRun ? 'would sync' : 'sync'} ${displayPath(target, indexPath)} (${installed.length - kept.length} retired removed, ${added.length} default added)`);
@@ -606,6 +658,13 @@ function isGeneratedLegacyRuleGraph(src, dest) {
 
 function writeFileFromTemplate(src, dest, base) {
   const exists = fs.existsSync(dest);
+  if (exists && !force && isSeedOnlyPath(src)) {
+    return;
+  }
+  if (isUpdate && !exists && retiredByFrog.has(harnessNameFromDest(dest))) {
+    log.message(`skip frog-removed ${displayPath(base, dest)}`);
+    return;
+  }
   if (exists && !force) {
     if (isUpdate) {
       const srcContent = fs.readFileSync(src);
@@ -840,6 +899,7 @@ function copySelected(scope, components, agent) {
     }
   }
   if (components.includes('harnesses')) {
+    if (isUpdate) loadFroggedHarnessNames(target);
     copyDir(path.join(templateRoot, 'tink/harnesses'), path.join(target, '.tink/harnesses'), target);
     copyDir(path.join(templateRoot, 'tink/rules'), path.join(target, '.tink/rules'), target);
     copyDir(path.join(templateRoot, 'tink/schemas'), path.join(target, '.tink/schemas'), target);

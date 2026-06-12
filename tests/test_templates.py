@@ -851,6 +851,66 @@ class TemplateTests(unittest.TestCase):
                              'git_policy none must not create .gitignore')
             self.assertIn('skip .gitignore update', result.stdout)
 
+    def test_update_preserves_maintenance_records(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            maint = base / '.tink/maintenance'
+            maint.mkdir(parents=True)
+            ledger = maint / 'ledger.jsonl'
+            ledger.write_text('{"op_id":"op-1","type":"memory","result":"applied"}\n', encoding='utf-8')
+            friction = maint / 'friction.jsonl'
+            friction.write_text('{"type":"check_failed","at":"2026-06-01"}\n', encoding='utf-8')
+            queue = maint / 'weave-queue.json'
+            queue.write_text('{"items":[{"id":"signal-1","harness":"ship"}]}\n', encoding='utf-8')
+
+            env = os.environ.copy()
+            env['TINK_INSTALL_SURFACES'] = 'claude'
+            subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'update', '--lang=ko', '--yes'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+
+            self.assertIn('op-1', ledger.read_text(encoding='utf-8'),
+                          'update must never wipe the approval ledger')
+            self.assertIn('check_failed', friction.read_text(encoding='utf-8'))
+            self.assertIn('signal-1', queue.read_text(encoding='utf-8'))
+
+    def test_update_does_not_resurrect_frogged_harness(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            env = os.environ.copy()
+            env['TINK_INSTALL_SURFACES'] = 'claude'
+            subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+            # simulate an approved /tink:frog removal of the ship harness
+            ship = base / '.tink/harnesses/ship.md'
+            ship.unlink()
+            index_path = base / '.tink/harnesses/index.json'
+            index = json.loads(index_path.read_text(encoding='utf-8'))
+            index_path.write_text(
+                json.dumps([e for e in index if e['name'] != 'ship']) + '\n', encoding='utf-8')
+            ledger = base / '.tink/maintenance/ledger.jsonl'
+            with ledger.open('a', encoding='utf-8') as f:
+                f.write(json.dumps({
+                    'timestamp': '2026-06-12T00:00:00Z', 'op_id': 'op-frog-ship',
+                    'type': 'frog', 'files': ['.tink/harnesses/ship.md'],
+                    'approval': 'user-explicit', 'result': 'applied',
+                }) + '\n')
+
+            result = subprocess.run(
+                ['node', str(ROOT / 'bin/install.js'), 'update', '--lang=ko', '--yes'],
+                cwd=base, env=env, check=True, capture_output=True, text=True, encoding='utf-8',
+            )
+
+            self.assertFalse(ship.exists(), 'frog-removed harness must not be resurrected by update')
+            names = {e['name'] for e in json.loads(index_path.read_text(encoding='utf-8'))}
+            self.assertNotIn('ship', names)
+            self.assertIn('skip frog-removed', result.stdout)
+            # a default harness the user did NOT frog still gets restored if missing
+            self.assertTrue((base / '.tink/harnesses/goal-checkpoint.md').exists())
+
     def test_dashboard_command_generates_report(self):
         with tempfile.TemporaryDirectory() as d:
             base = Path(d)

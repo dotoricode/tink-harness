@@ -4,6 +4,9 @@ All notable changes to Tink are tracked here.
 
 ## [Unreleased]
 
+- **Fixed: update wiped run history.** `.tink/maintenance/` record files (`ledger.jsonl`, `friction.jsonl`, `weave-queue.json`) were in the always-overwrite set, so every npx `update` replaced the user's approval ledger and weave/friction signals with empty seeds - silently resetting dashboard usage history. They are now seed-only: created when missing, never overwritten.
+- Fixed: update resurrected harnesses the user removed via an approved `/tink:frog` operation. The updater now reads `ledger.jsonl` frog entries and skips re-creating those files and index entries (other missing defaults are still restored; `--force` restores everything).
+- Fixed: `dashboard` reported "opened in browser" even when the opener failed (e.g. no `xdg-open`); it now detects failure and tells you to open the file manually. Also fixed the installer's harness count including the human catalog file, and a `/tink:list` example that contradicted its own category rules.
 - New `dashboard` subcommand: `npx tink-harness dashboard` generates the harness health report (lifecycle summary + HTML) from local `.tink` records and opens it in the default browser - no more memorizing the two `node .tink/tools/...` commands. `--no-open` generates the file only. Falls back to the packaged tools when `.tink/tools/` is missing, and finds `.tink` in the current or home directory.
 
 ## [1.10.0] - 2026-06-12
