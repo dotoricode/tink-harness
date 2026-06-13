@@ -2,6 +2,10 @@
 
 All notable changes to Tink are tracked here.
 
+## [Unreleased]
+
+- Fixed: the 3D harness map showed no connections or signal pulses on fresh installs (or installs whose history was lost to the pre-1.11.0 record-wipe bug). The lifecycle summary's graph was built only from run/ledger evidence; it now also includes the static rule graph - every routing rule connects to its harness, and check/guard chains render - so the map is alive from the first open.
+
 ## [1.11.1] - 2026-06-12
 
 - Installer component labels clarified after user confusion: "Claude Code commands (/tink:*)" and "Claude Code skill (operating rules)" now state their role and install path in the label/hint (`.claude/commands/tink/` vs `.claude/skills/tink/`), and Codex skills explicitly say `~/.codex/skills/ (CODEX_HOME)` - the two Claude items no longer look like duplicates, and the Codex item can't be mistaken for a Claude one.
