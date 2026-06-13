@@ -192,7 +192,7 @@ function addGraphEdge(edges, edge) {
   if (!edges.has(key)) edges.set(key, edge);
 }
 
-function buildGraph(harnessSummaries) {
+function buildGraph(harnessSummaries, ruleIndex) {
   const nodes = new Map();
   const edges = new Map();
 
@@ -266,6 +266,56 @@ function buildGraph(harnessSummaries) {
         count: 1
       });
     }
+  }
+
+  // Static structure from the rule graph: rules that route to a harness are
+  // always connected, so the map shows relationships (and signal pulses) even
+  // before any runs or ledger evidence exist.
+  const knownHarnesses = new Set(harnessSummaries.map((item) => item.id));
+  const ruleNodes = Array.isArray(ruleIndex?.nodes) ? ruleIndex.nodes : [];
+  for (const rule of ruleNodes) {
+    if (!rule || !rule.id) continue;
+    const targets = new Set();
+    if (Array.isArray(rule.select_harnesses)) {
+      for (const name of rule.select_harnesses) targets.add(name);
+    }
+    if (rule.type === 'harness' && rule.target) targets.add(rule.target);
+    const linked = [...targets].filter((name) => knownHarnesses.has(name));
+    if (!linked.length) continue;
+    const ruleNodeId = graphNodeId('rule', rule.id);
+    addGraphNode(nodes, {
+      id: ruleNodeId,
+      type: 'rule',
+      label: rule.id,
+      weight: 1
+    });
+    for (const name of linked) {
+      addGraphEdge(edges, {
+        source: graphNodeId('harness', name),
+        target: ruleNodeId,
+        type: 'uses_rule',
+        count: 1
+      });
+    }
+  }
+  const ruleEdges = Array.isArray(ruleIndex?.edges) ? ruleIndex.edges : [];
+  for (const edge of ruleEdges) {
+    if (!edge || !edge.from || !edge.to) continue;
+    const fromId = graphNodeId('rule', edge.from);
+    if (!nodes.has(fromId)) continue;
+    const toId = graphNodeId('rule', edge.to);
+    addGraphNode(nodes, {
+      id: toId,
+      type: 'rule',
+      label: edge.to,
+      weight: 1
+    });
+    addGraphEdge(edges, {
+      source: fromId,
+      target: toId,
+      type: edge.relation || 'rule_edge',
+      count: 1
+    });
   }
 
   return {
@@ -559,7 +609,7 @@ function summarize(root) {
       '.tink/maintenance/ledger.jsonl'
     ],
     harnesses: harnessSummaries,
-    graph: buildGraph(harnessSummaries),
+    graph: buildGraph(harnessSummaries, ruleIndex),
     timeline: buildTimeline(runs, root),
     maintenance_events: maintenanceEvents
   };

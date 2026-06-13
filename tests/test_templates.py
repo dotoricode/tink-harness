@@ -929,6 +929,16 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('harness-health-report.html', result.stdout)
             self.assertNotIn('Opened in your default browser', result.stdout)
 
+            # fresh installs (no runs/ledger yet) must still show a connected map:
+            # the rule graph contributes static rule->harness edges
+            lifecycle = json.loads(
+                (base / '.tink/maintenance/harness-lifecycle.json').read_text(encoding='utf-8'))
+            graph = lifecycle.get('graph', {})
+            self.assertTrue(graph.get('edges'),
+                            'fresh-install graph must contain static rule edges')
+            node_types = {node['type'] for node in graph.get('nodes', [])}
+            self.assertIn('rule', node_types)
+
     def test_update_skips_gitignore_when_whole_tink_already_ignored(self):
         with tempfile.TemporaryDirectory() as d:
             base = Path(d)
