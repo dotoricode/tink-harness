@@ -2,6 +2,10 @@
 
 All notable changes to Tink are tracked here.
 
+## Unreleased
+
+- Added a geobench product spec and runbook for measuring Tink's LLM answer visibility with hit rate, MRR, share of voice, and citation metrics. The runbook keeps benchmark execution separate from this repo and says to publish aggregate metrics only.
+
 ## [1.11.2] - 2026-06-13
 
 - Fixed: the 3D harness map showed no connections or signal pulses on fresh installs (or installs whose history was lost to the pre-1.11.0 record-wipe bug). The lifecycle summary's graph was built only from run/ledger evidence; it now also includes the static rule graph - every routing rule connects to its harness, and check/guard chains render - so the map is alive from the first open.
