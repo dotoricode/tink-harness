@@ -2,6 +2,10 @@
 
 All notable changes to Tink are tracked here.
 
+## Unreleased
+
+- Added evidence lifecycle manager groundwork: `/tink:verify` now records a human-readable `.tink/current/evidence.md` summary card, config includes a `completion_policy` field for optional strict "no evidence, no done" behavior, and the dashboard lifecycle summary now exposes ROI hints, trust levels, and Activity-tab run review cards for failed or blocked runs without adding a new public replay command.
+
 ## [1.11.2] - 2026-06-13
 
 - Fixed: the 3D harness map showed no connections or signal pulses on fresh installs (or installs whose history was lost to the pre-1.11.0 record-wipe bug). The lifecycle summary's graph was built only from run/ledger evidence; it now also includes the static rule graph - every routing rule connects to its harness, and check/guard chains render - so the map is alive from the first open.

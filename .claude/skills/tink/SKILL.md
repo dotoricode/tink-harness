@@ -58,7 +58,7 @@ Use only these commands:
 20. Ask for approval before applying, saving, purging, honing, or installing enforcement hooks.
 21. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, and `excluded-context.md`. If selected, also create `goals.json` for `goal-checkpoint` and `delegation.md` for `delegation-brief`.
 22. Do not stop at recommendation. Execute the first safe step after run state exists.
-23. Run `/tink:verify` behavior before final when `contract.json` lists required checks.
+23. Run `/tink:verify` behavior before final when `contract.json` lists required checks. If `.tink/config.json` has `completion_policy: "strict"`, do not call the run done until required checks are represented in `.tink/current/verification.json`, `.tink/current/evidence.md` exists, and remaining risk is stated.
 24. Store reusable memory or rule updates only after separate Reusable State Save Gate approval.
 25. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `/tink:weave`.
 26. Keep context compact. Do not paste raw logs or full diffs.
@@ -72,5 +72,6 @@ A successful Tink run leaves evidence:
 - `contract.json` states what must be true,
 - context artifacts explain what was included and excluded,
 - checks were verified or explicitly blocked,
+- `.tink/current/evidence.md` summarizes the done claim, evidence, not-verified items, risk, and next action,
 - the final answer reports changed files and evidence,
 - reusable learning is proposed only when it will matter again.

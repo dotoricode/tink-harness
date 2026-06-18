@@ -268,9 +268,9 @@ Three rules drive all of it:
 
 1. **Generic work runs without a harness.** An ordinary code change, review, or doc edit runs on the base run contract alone — plan, steps, verification evidence. A harness is loaded only when a specialized procedure actually changes what happens: release gates, goal checkpoints, plan critique, requirements interviews, domain workflows.
 2. **Suggestions only.** The dashboard, `frog`, and `weave` prepare proposals from real usage signals. Nothing reusable — a harness, a memory entry, a deletion — is saved without its own explicit approval. Approving today's run never authorizes changes that future runs would inherit.
-3. **Evidence over vibes.** Run records, failed checks, and friction events decide what gets improved (`weave`), promoted from draft to harness, or cleaned up (`frog`). Weak evidence defaults to keep-and-observe, never to delete.
+3. **Evidence over vibes.** Run records, failed checks, evidence summary cards, and friction events decide what gets improved (`weave`), promoted from draft to harness, or cleaned up (`frog`). Weak evidence defaults to keep-and-observe, never to delete.
 
-The dashboard is a static local page rendered from those files — the harness health summary behind it shows usage, failed checks, and weave/frog candidates. No server, no file watching, no hidden cache, no public `tink index` command. It only prepares suggestions; acting on them keeps the approval gates above.
+The dashboard is a static local page rendered from those files — the harness health summary behind it shows usage, failed checks, run review cards, ROI hints, and weave/frog candidates. No server, no file watching, no hidden cache, no public `tink index` command, and no replay command. It only prepares suggestions; acting on them keeps the approval gates above.
 
 <details>
 <summary><strong>Design docs index</strong> — details for contributors</summary>

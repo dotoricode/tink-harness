@@ -85,6 +85,13 @@ const COPY = {
     clickNode: 'Click a node to inspect it.',
     recommendation: 'Recommendation',
     lifecycleState: 'Lifecycle state',
+    trustLevel: 'Trust level',
+    roi: 'ROI',
+    runReview: 'Run review',
+    reviewWhy: 'Why it failed or blocked',
+    reviewContractGap: 'Contract lesson',
+    reviewWeaveCandidate: 'Weave candidate',
+    noRunReviews: 'No failed or blocked runs need review.',
     score: 'Score',
     blocked: 'Blocked',
     context: 'Context',
@@ -408,6 +415,13 @@ COPY.ko = {
   clickNode: '노드를 클릭하면 자세히 볼 수 있습니다.',
   recommendation: '추천',
   lifecycleState: '생애주기 상태',
+  trustLevel: '신뢰 수준',
+  roi: '비용 대비 효과',
+  runReview: 'Run 복기',
+  reviewWhy: '왜 실패/차단됐나',
+  reviewContractGap: '계약에서 배울 점',
+  reviewWeaveCandidate: 'Weave 후보',
+  noRunReviews: '복기할 실패/차단 run이 없습니다.',
   score: '점수',
   blocked: '막힘',
   context: '컨텍스트',
@@ -1093,6 +1107,8 @@ function renderHarness(item, copy) {
           ${reason ? `<p class="harness-reason">${escapeHtml(reason)}</p>` : ''}
           <dl>
             <div><dt>${escapeHtml(copy.lifecycleState)}</dt><dd>${escapeHtml(renderCopyValue(item.lifecycle_state, copy))}</dd></div>
+            <div><dt>${escapeHtml(copy.trustLevel || 'Trust level')}</dt><dd>${escapeHtml(renderCopyValue(item.trust_level, copy))}</dd></div>
+            <div><dt>${escapeHtml(copy.roi || 'ROI')}</dt><dd>${escapeHtml(item.roi?.score === null || item.roi?.score === undefined ? renderCopyValue(item.roi?.label, copy) : `${item.roi.score} · ${renderCopyValue(item.roi.label, copy)}`)}</dd></div>
             <div><dt>${escapeHtml(copy.lastUsed || 'Last used')}</dt><dd>${escapeHtml(signals.last_used ? shortDate(signals.last_used) : renderCopyValue('', copy))}</dd></div>
             <div><dt>${escapeHtml(copy.successes || 'Successes')}</dt><dd>${escapeHtml(signals.successes ?? 0)}</dd></div>
             <div><dt>${escapeHtml(copy.failures || 'Failures')}</dt><dd>${escapeHtml(signals.failures ?? 0)}</dd></div>
@@ -1102,6 +1118,10 @@ function renderHarness(item, copy) {
           ${coUsed.length ? `
             <p class="detail-label">${escapeHtml(copy.coUsedWith || 'Often used with')}</p>
             <div class="co-used-chips">${coUsed.map((related) => `<span class="co-chip">${escapeHtml(related.id)} ×${escapeHtml(related.count)}</span>`).join('')}</div>
+          ` : ''}
+          ${item.roi?.reason ? `
+            <p class="detail-label">${escapeHtml(copy.roi || 'ROI')}</p>
+            <p class="harness-next">${escapeHtml(item.roi.reason)}</p>
           ` : ''}
           ${factors.length ? `
             <p class="detail-label">${escapeHtml(copy.scoreFactors || 'Score factors')}</p>
@@ -1143,6 +1163,35 @@ function renderHistorySection(events = [], copy) {
           `).join('')}
         </ol>
       ` : `<p class="empty-note">${escapeHtml(copy.historyEmpty || 'No ledger history yet.')}</p>`}
+    </section>
+  `;
+}
+
+function renderRunReviewCards(reviews = [], copy) {
+  const items = Array.isArray(reviews) ? reviews.slice(0, 8) : [];
+  return `
+    <section class="run-review-section">
+      <div class="panel-title">
+        <p class="eyebrow">${escapeHtml(copy.runReview || 'Run review')}</p>
+        <h2>${escapeHtml(copy.runReview || 'Run review')}</h2>
+      </div>
+      ${items.length ? `
+        <div class="review-grid">
+          ${items.map((item) => `
+            <article class="review-card ${escapeAttr(item.outcome || 'unknown')}">
+              <div class="run-row">
+                <span class="run-badge ${escapeAttr(item.outcome || 'unknown')}">${escapeHtml(renderCopyValue(item.outcome, copy))}</span>
+                <time>${escapeHtml(shortDate(item.date))}</time>
+              </div>
+              <p><strong>${escapeHtml(copy.reviewWhy || 'Why')}</strong><br>${escapeHtml(item.why || '')}</p>
+              ${item.contract_gap ? `<p><strong>${escapeHtml(copy.reviewContractGap || 'Contract lesson')}</strong><br>${escapeHtml(item.contract_gap)}</p>` : ''}
+              <p><strong>${escapeHtml(copy.safeNextAction || 'Safe next action')}</strong><br>${escapeHtml(item.next_action || '')}</p>
+              <p><strong>${escapeHtml(copy.reviewWeaveCandidate || 'Weave candidate')}</strong> <code>${escapeHtml(item.weave_candidate || 'base-run')}</code></p>
+              <p class="review-source"><code>${escapeHtml(item.source || '')}</code></p>
+            </article>
+          `).join('')}
+        </div>
+      ` : `<p class="empty-note">${escapeHtml(copy.noRunReviews || 'No failed or blocked runs need review.')}</p>`}
     </section>
   `;
 }
@@ -1366,6 +1415,7 @@ function renderActivityPage(summary, copy, harnessIds) {
         <article><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>
       `).join('')}
     </section>
+    ${renderRunReviewCards(summary.run_reviews || [], copy)}
     <section class="timeline activity-feed">
       <ol>
         ${renderTimelineItems(items, copy)}
@@ -4082,6 +4132,46 @@ function renderStyles() {
       overflow-wrap: anywhere;
     }
 
+    .run-review-section {
+      margin-bottom: var(--space-3);
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .review-card {
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .review-card.failed { border-top: 2px solid var(--danger); }
+    .review-card.blocked { border-top: 2px solid var(--warning); }
+
+    .review-card p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .review-card strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .review-source code {
+      font-size: 11px;
+      color: var(--text-muted);
+      overflow-wrap: anywhere;
+    }
+
     @media (max-width: 1180px) {
       .app-shell { grid-template-columns: 200px minmax(0, 1fr); }
       .right-rail {
@@ -4098,6 +4188,7 @@ function renderStyles() {
       .home-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .home-columns { grid-template-columns: 1fr; }
       .activity-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .review-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 760px) {

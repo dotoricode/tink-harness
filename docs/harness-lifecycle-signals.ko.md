@@ -19,6 +19,7 @@ Tink가 지난 실행 기록을 읽고 다음 질문에 답할 수 있게 돕는
 - `last_used`: 마지막으로 확인된 사용 시각. 기록이 없으면 `null`.
 - `success_rate`: 사용 횟수 대비 검증 완료 비율. 근거가 부족하면 `null`.
 - `failure_rate`: 사용 횟수 대비 필수 check 실패 비율. 근거가 부족하면 `null`.
+- `roi`: `label`, `score`, `reason`으로 된 쉬운 비용 대비 효과 요약. 대시보드 정렬 보조 신호일 뿐, 재무 지표나 승인이 아니다.
 - `co_used_with`: 같은 run에서 자주 함께 나온 하네스.
 - `sequence_hints`: 한 하네스 뒤에 다른 단계가 반복해서 따라온 순서 힌트.
 - `rule_refs`: 같은 run 기록에 나온 rule id.
@@ -33,6 +34,8 @@ Tink가 지난 실행 기록을 읽고 다음 질문에 답할 수 있게 돕는
 이 graph는 같은 보이는 기록에서 만든 보기용 모델이다. hidden cache나 background index가 아니다.
 
 `timeline` 블록은 최근 run event를 최신순으로 담는다. 각 event에는 날짜, source, status, outcome, 선택된 하네스가 들어간다. HTML 리포트는 이 값을 사용해 브라우저에서 파일을 다시 replay하지 않고도 실패, blocked, 성공 검증 흐름을 보여준다.
+
+`run_reviews` 블록은 실패하거나 막힌 run을 Activity 탭에서 사람이 읽기 쉽게 요약한다. 새 replay 명령이 아니다. 왜 실패/차단됐는지, contract가 무엇을 배워야 하는지, 가장 작은 다음 행동이 무엇인지, 어떤 하네스가 `/tink:weave` 후보인지 보여준다.
 
 허용되는 추천은 다음과 같다.
 
@@ -52,6 +55,14 @@ Tink가 지난 실행 기록을 읽고 다음 질문에 답할 수 있게 돕는
 - `cleanup_review`: 정리 검토 근거가 강하지만 여전히 승인이 필요하다.
 - `needs_weave`: 반복 문제로 weave 검토가 필요하다.
 - `merge_review`: 반복 overlap으로 merge 검토가 필요하다.
+
+각 하네스에는 `trust_level`도 있다.
+
+- `unproven`: 아직 쓸 만한 run 근거가 없다.
+- `observed`: 근거가 조금 있지만 trusted라고 부르기엔 부족하다.
+- `trusted`: 반복해서 성공적으로 쓰였고 반복 문제가 없다.
+- `needs_review`: 쓸모는 있지만 반복 문제나 overlap을 검토해야 한다.
+- `at_risk`: 정리 검토가 필요할 수 있지만 여전히 명시 승인이 필요하다.
 
 근거 판단은 보수적으로 한다.
 
@@ -80,7 +91,7 @@ node .tink/tools/render-harness-health-report.mjs
 
 리포트 helper는 `.tink/maintenance/harness-lifecycle.json`을 읽고 `.tink/maintenance/harness-health-report.html`을 쓴다. 테스트할 때는 경로를 직접 줄 수 있다.
 
-리포트에는 정적 graph overview, 최근 run timeline, 하네스별 카드가 들어간다. graph overview는 JSON `graph` 블록의 node/edge 종류를 요약한다. 서버를 시작하거나 파일을 감시하지 않는다.
+리포트에는 정적 graph overview, 최근 run timeline, 실패/차단 run review 카드, 하네스별 카드가 들어간다. graph overview는 JSON `graph` 블록의 node/edge 종류를 요약한다. 서버를 시작하거나 파일을 감시하지 않는다.
 
 ```bash
 node .tink/tools/generate-harness-lifecycle-summary.mjs repo-root output.json

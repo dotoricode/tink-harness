@@ -38,7 +38,7 @@ Accept legacy `$tink <action>` spelling for compatibility, but present `$tink:<a
 18. When `.tink/maintenance/harness-lifecycle.json` or another file following `.tink/schemas/harness-lifecycle.schema.json` exists, treat it as a plain harness health summary. Use `confidence`, `evidence_grade`, `evidence_handles`, and `safe_next_action` to prioritize `$tink:weave` or `$tink:frog` candidates, but do not treat it as approval. Low-confidence entries stay as observation. Harness edits, rule updates, memory saves, merges, archives, and deletions still require the reusable-state approval gate.
 19. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`. If selected, also create `.tink/current/goals.json` for `goal-checkpoint` and `.tink/current/delegation.md` for `delegation-brief`.
 20. Do not stop at recommendation. Execute the first safe step after run state exists.
-21. Run `$tink:verify` behavior before final when `contract.json` lists required checks.
+21. Run `$tink:verify` behavior before final when `contract.json` lists required checks. If `.tink/config.json` has `completion_policy: "strict"`, do not call the run done until required checks are represented in `.tink/current/verification.json`, `.tink/current/evidence.md` exists, and remaining risk is stated.
 22. Store reusable memory or rule updates under `.tink/` only after separate approval.
 23. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `$tink:weave`.
 24. Keep context compact. Do not paste raw logs or full diffs.
@@ -113,6 +113,7 @@ Create run state before deeper work:
 - `.tink/current/context-map.json`: machine-readable included/excluded context and reasons
 - `.tink/current/context-metrics-evaluation.json`: measured or estimated context-efficiency scores, formulas, evidence refs, and limits
 - `.tink/current/excluded-context.md`: notable omitted context and why it was left out
+- `.tink/current/evidence.md`: created by verify or strict completion review; a short human-readable card with done claim, evidence, not-verified items, risk, and next action
 
 Optional current-run artifacts:
 
@@ -170,7 +171,7 @@ For `$tink:verify`, use the same runner model as Claude Code `/tink:verify`:
 1. Plan checks from `.tink/current/contract.json`.
 2. Run safe command checks exactly as listed, from repo root unless `cwd` is set.
 3. Inspect manual checks by `target` and `method`.
-4. Record `.tink/current/verification.json` using `.tink/schemas/verification.schema.json` when present.
+4. Record `.tink/current/verification.json` using `.tink/schemas/verification.schema.json` when present, and write `.tink/current/evidence.md` as the human-readable evidence summary.
 
 Keep command checks portable across macOS and Windows. Prefer repo-relative paths, `npm`, `node`, or `python` commands, and do not rewrite commands into platform-specific shell syntax unless the contract explicitly provides platform-specific alternatives.
 

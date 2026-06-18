@@ -42,6 +42,10 @@
     "timeline": {
       "type": "array",
       "items": { "$ref": "#/$defs/timeline_event" }
+    },
+    "run_reviews": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/run_review" }
     }
   },
   "$defs": {
@@ -112,8 +116,15 @@
           "type": "string",
           "enum": ["active", "no_evidence", "dormant_candidate", "cleanup_review", "needs_weave", "merge_review"]
         },
+        "trust_level": {
+          "type": "string",
+          "enum": ["unproven", "observed", "trusted", "needs_review", "at_risk"]
+        },
         "stale_days": { "type": ["integer", "null"], "minimum": 0 },
         "state_reason": { "type": "string" },
+        "roi": {
+          "$ref": "#/$defs/roi"
+        },
         "candidate_score": {
           "$ref": "#/$defs/candidate_score"
         }
@@ -174,6 +185,23 @@
       },
       "additionalProperties": true
     },
+    "roi": {
+      "type": "object",
+      "required": ["label", "reason"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "enum": ["high", "medium", "low", "unknown"]
+        },
+        "score": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "reason": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
     "score_factor": {
       "type": "object",
       "required": ["name", "value", "reason"],
@@ -213,6 +241,27 @@
           "type": "array",
           "items": { "type": "string" }
         }
+      },
+      "additionalProperties": true
+    },
+    "run_review": {
+      "type": "object",
+      "required": ["source", "outcome", "why", "next_action"],
+      "properties": {
+        "date": { "type": ["string", "null"] },
+        "source": { "type": "string" },
+        "outcome": {
+          "type": "string",
+          "enum": ["failed", "blocked"]
+        },
+        "harnesses": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "why": { "type": "string" },
+        "contract_gap": { "type": "string" },
+        "next_action": { "type": "string" },
+        "weave_candidate": { "type": "string" }
       },
       "additionalProperties": true
     }
