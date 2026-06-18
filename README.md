@@ -17,14 +17,14 @@
 <p><sub>A small harness layer for Claude Code and Codex</sub></p>
 
 <p>
-  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.11.2"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.12.0"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.11.2 - The 3D harness map is now alive from the very first install: routing rules and their check/guard chains always render as connections with signal pulses, even before any run history exists. Plus the one-line dashboard command and the update history-preservation fixes from 1.11.x. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
+<p><strong>Latest package:</strong> v1.12.0 - Tink now records a human-readable evidence card after verification, adds the strict completion-policy groundwork for "no evidence, no done", and shows dashboard hints for harness trust, ROI, and failed/blocked run review. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
 
 **English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
 
