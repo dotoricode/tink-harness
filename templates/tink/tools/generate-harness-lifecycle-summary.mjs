@@ -516,9 +516,9 @@ function buildRunReviews(runs, root) {
         harnesses: run.harnesses,
         why,
         contract_gap: outcome === 'blocked'
-          ? 'Check whether the contract named unavailable setup, approval, or manual evidence too late.'
-          : 'Check whether the contract should catch this failure earlier or route to a tighter harness.',
-        next_action: explicitNext || 'Review the evidence, then use weave only if the pattern is reusable.',
+          ? 'Name missing setup or manual evidence earlier.'
+          : 'Catch this failure earlier or route tighter.',
+        next_action: explicitNext || 'Review evidence; weave only if reusable.',
         weave_candidate: run.harnesses.length ? run.harnesses[0] : 'base-run'
       };
     })

@@ -460,8 +460,8 @@
         "experimental-wide-context"
       ],
       "why": "A required check could not run.",
-      "contract_gap": "The contract should name missing setup or manual evidence earlier.",
-      "next_action": "Review the evidence, then use weave only if the pattern is reusable.",
+      "contract_gap": "Name missing setup or manual evidence earlier.",
+      "next_action": "Review evidence; weave only if reusable.",
       "weave_candidate": "experimental-wide-context"
     }
   ]
