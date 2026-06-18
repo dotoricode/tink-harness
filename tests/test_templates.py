@@ -62,7 +62,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.11.2')
+        self.assertEqual(pkg['version'], '1.12.0')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -1467,8 +1467,8 @@ class TemplateTests(unittest.TestCase):
             (evidence_details_ko, ['evidence_kind', 'evidence_ref', 'observed', 'Claude Code', 'Codex']),
             (external_policy, ['mcp-policy.schema.json', 'read-only', 'Sentry is not part of the current plan']),
             (external_policy_ko, ['mcp-policy.schema.json', 'read-only', 'Sentry는 현재 계획에 포함하지 않는다']),
-            (lifecycle, ['harness-lifecycle.schema.json', 'frog_candidate', 'plain health summary', 'generate-harness-lifecycle-summary.mjs', 'render-harness-health-report.mjs', 'weave` and `/tink:frog` should prepare this summary', 'normal approval payload']),
-            (lifecycle_ko, ['harness-lifecycle.schema.json', 'frog_candidate', '하네스 생애주기 신호는 재사용 하네스의 건강 요약이다', 'generate-harness-lifecycle-summary.mjs', 'render-harness-health-report.mjs', '요약을 먼저 준비해야 한다', '승인 payload']),
+            (lifecycle, ['harness-lifecycle.schema.json', 'frog_candidate', 'plain health summary', 'generate-harness-lifecycle-summary.mjs', 'render-harness-health-report.mjs', 'weave` and `/tink:frog` should prepare this summary', 'normal approval payload', 'trust_level', 'roi', 'run_reviews']),
+            (lifecycle_ko, ['harness-lifecycle.schema.json', 'frog_candidate', '하네스 생애주기 신호는 재사용 하네스의 건강 요약이다', 'generate-harness-lifecycle-summary.mjs', 'render-harness-health-report.mjs', '요약을 먼저 준비해야 한다', '승인 payload', 'trust_level', 'roi', 'run_reviews']),
             (memory_layers, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
             (memory_layers_ko, ['approved/', 'candidate/', 'rejected/', 'evidence/']),
             (context_change, ['context-diff.json', 'not a new command', 'not a hidden runtime cache']),
@@ -2318,6 +2318,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('graph_edge', lifecycle_schema['$defs'])
         self.assertIn('timeline_event', lifecycle_schema['$defs'])
         self.assertIn('candidate_score', lifecycle_schema['$defs'])
+        self.assertIn('roi', lifecycle_schema['$defs'])
+        self.assertIn('run_review', lifecycle_schema['$defs'])
         allowed_recommendations = set(
             lifecycle_schema['$defs']['harness_summary']['properties']['recommendation']['enum']
         )
@@ -2326,10 +2328,13 @@ class TemplateTests(unittest.TestCase):
         lifecycle_summary = lifecycle_schema['$defs']['harness_summary']
         for field in ['confidence', 'evidence_handles']:
             self.assertIn(field, lifecycle_summary['required'])
+        self.assertIn('trust_level', lifecycle_summary['properties'])
+        self.assertIn('roi', lifecycle_summary['properties'])
         signal_props = lifecycle_summary['properties']['signals']['properties']
         for field in ['last_used', 'success_rate', 'failure_rate', 'co_used_with', 'sequence_hints', 'rule_refs', 'memory_refs']:
             self.assertIn(field, signal_props)
         self.assertGreaterEqual(len(lifecycle_fixture['harnesses']), 4)
+        self.assertTrue(lifecycle_fixture['run_reviews'])
         self.assertIn('.tink/runs/*.md', lifecycle_fixture['sources'])
         self.assertGreaterEqual(lifecycle_fixture['run_window']['run_count'], 0)
         lifecycle_by_id = {item['id']: item for item in lifecycle_fixture['harnesses']}
@@ -2360,6 +2365,10 @@ class TemplateTests(unittest.TestCase):
         self.assertGreater(lifecycle_by_id['experimental-wide-context']['candidate_score']['total'], lifecycle_by_id['docs']['candidate_score']['total'])
         self.assertEqual(lifecycle_by_id['bug-fix']['candidate_score']['factors'][0]['name'], 'recommendation')
         self.assertEqual(lifecycle_by_id['experimental-wide-context']['lifecycle_state'], 'cleanup_review')
+        self.assertEqual(lifecycle_by_id['experimental-wide-context']['trust_level'], 'at_risk')
+        self.assertIn('roi', lifecycle_by_id['code-change'])
+        self.assertEqual(lifecycle_fixture['run_reviews'][0]['outcome'], 'blocked')
+        self.assertIn('.tink/runs/', lifecycle_fixture['run_reviews'][0]['source'])
         self.assertEqual(lifecycle_by_id['bug-fix']['lifecycle_state'], 'no_evidence')
         for item in lifecycle_fixture['harnesses']:
             self.assertIn(item['recommendation'], allowed_recommendations)
@@ -2367,6 +2376,8 @@ class TemplateTests(unittest.TestCase):
             self.assertIsInstance(item['evidence_handles'], list)
             self.assertIn('candidate_score', item)
             self.assertIn('lifecycle_state', item)
+            self.assertIn('trust_level', item)
+            self.assertIn('roi', item)
             self.assertIn('state_reason', item)
             self.assertIn('context_cost', item['signals'])
             self.assertGreater(len(item['reason']), 10)
@@ -2435,6 +2446,7 @@ class TemplateTests(unittest.TestCase):
             self.assertEqual(generated['run_window']['run_count'], 4)
             self.assertEqual(generated_by_id['code-change']['recommendation'], 'keep')
             self.assertEqual(generated_by_id['wide-context']['recommendation'], 'frog_candidate')
+            self.assertEqual(generated_by_id['wide-context']['trust_level'], 'at_risk')
             self.assertEqual(generated_by_id['bug-fix']['recommendation'], 'observe')
             self.assertEqual(generated_by_id['old-research']['lifecycle_state'], 'dormant_candidate')
             self.assertEqual(generated_by_id['old-research']['recommendation'], 'observe')
@@ -2459,6 +2471,9 @@ class TemplateTests(unittest.TestCase):
             self.assertEqual(generated_timeline[0]['source'], '.tink/runs/2026-06-02-1000-wide-context.md')
             self.assertEqual(generated_timeline[0]['outcome'], 'blocked')
             self.assertEqual(generated_timeline[-1]['outcome'], 'success')
+            self.assertTrue(generated['run_reviews'])
+            self.assertEqual(generated['run_reviews'][0]['outcome'], 'blocked')
+            self.assertIn('roi', generated_by_id['code-change'])
             self.assertIn('.tink/maintenance/weave-queue.json', generated_by_id['wide-context']['evidence_handles'])
         with tempfile.TemporaryDirectory() as d:
             output = Path(d) / 'harness-health-report.html'
@@ -2490,6 +2505,10 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('독립 검증', html)
             self.assertIn('후보 점수', html)
             self.assertIn('생애주기 상태', html)
+            self.assertIn('신뢰 수준', html)
+            self.assertIn('비용 대비 효과', html)
+            self.assertIn('Run 복기', html)
+            self.assertIn('Weave 후보', html)
             self.assertIn('data-mode="core"', html)
             self.assertIn('data-action="pause"', html)
             self.assertIn('data-select-harness="requirements-interview"', html)
@@ -2634,6 +2653,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('harness_lines_warning', cfg)
         self.assertEqual(cfg['install_scope'], 'repo')
         self.assertEqual(cfg['hook_scope'], 'off')
+        self.assertEqual(cfg['completion_policy'], 'normal')
         self.assertIn('rule_selection', cfg)
         self.assertEqual(cfg['rule_selection']['mode'], 'small-writ')
 

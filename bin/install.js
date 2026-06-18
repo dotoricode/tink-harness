@@ -1057,6 +1057,8 @@ async function resolveChoices() {
   if (isUpdate) {
     // reuse the choices stored at install time; only the agent surface is asked
     const stored = readInstalledConfig();
+    const cwdHasTink = fs.existsSync(path.join(process.cwd(), '.tink'));
+    if (!scope && cwdHasTink) scope = 'repo';
     if (stored) {
       if (!scope && ['repo', 'global'].includes(stored.install_scope)) scope = stored.install_scope;
       if (['harnesses', 'all', 'none'].includes(stored.git_policy)) gitPolicy = stored.git_policy;

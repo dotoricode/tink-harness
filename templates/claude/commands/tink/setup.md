@@ -9,6 +9,12 @@ Set up Tink for Claude Code.
 ## Goal
 Prepare one small self-growing harness system that helps Claude choose/build harnesses, avoid repeated mistakes, and remember reusable lessons only after approval.
 
+Setup config includes `completion_policy`:
+- `normal`: Tink reports done with the best evidence available for the run.
+- `strict`: Tink must not call a run done until `.tink/current/contract.json`, `.tink/current/verification.json`, and `.tink/current/evidence.md` exist, required checks are accounted for, and remaining risk is stated.
+
+Do not turn this into a broad setup menu unless the user asks. Default to `normal` and explain `strict` as an optional "no evidence, no done" policy.
+
 ## Interaction policy
 Always call the `AskUserQuestion` tool for choice prompts. Do not render `❯` text format. Do not ask the user to type a number inline.
 
@@ -32,6 +38,7 @@ Use this wording in Korean:
 - 범위 (Scope): {install_scope}
 - 톤 (Tone): calm, clear, concise, no jokes
 - Hook: {hook_scope}
+- 완료 정책: {completion_policy}
 - Git 추적: {git_policy_or_inferred_policy}
 
 톤은 선택 항목이 아니라 Tink의 고정 정책입니다. 조용하고 명확하게, 농담 없이 답하는 것을 기본으로 합니다.

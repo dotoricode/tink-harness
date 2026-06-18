@@ -19,6 +19,7 @@ Useful signals:
 - `last_used`: the latest known run time, or `null` when no run record exists.
 - `success_rate`: successful verified runs divided by uses, or `null` when there is not enough evidence.
 - `failure_rate`: failed required checks divided by uses, or `null` when there is not enough evidence.
+- `roi`: a plain cost/value summary with `label`, `score`, and `reason`. It is a dashboard sorting hint, not a financial metric or approval.
 - `co_used_with`: harnesses that often appeared in the same run.
 - `sequence_hints`: repeated order hints, such as one harness usually being followed by verification.
 - `rule_refs`: rule ids that appeared in the same run records.
@@ -33,6 +34,8 @@ The summary also includes a small `graph` block for later reports and dashboards
 This graph is derived from the same visible records. It is a view model, not a hidden cache or background index.
 
 The `timeline` block lists recent run events in newest-first order with date, source, status, outcome, and selected harnesses. It helps the HTML report show when failures, blocked runs, and successful verification happened without replaying files in the browser.
+
+The `run_reviews` block summarizes failed and blocked runs for the Activity tab. It is not a replay command. It answers why the run failed or blocked, what the contract should learn, the smallest next action, and which harness may deserve `/tink:weave`.
 
 Allowed recommendations:
 
@@ -52,6 +55,14 @@ Each harness also has a `lifecycle_state`:
 - `cleanup_review`: strong cleanup evidence exists, still requiring approval.
 - `needs_weave`: repeated trouble suggests a weave review.
 - `merge_review`: repeated overlap suggests a merge review.
+
+Each harness also has a `trust_level`:
+
+- `unproven`: no useful run evidence yet.
+- `observed`: some evidence exists, but not enough to call it trusted.
+- `trusted`: repeated successful use with no repeated trouble.
+- `needs_review`: useful, but repeated trouble or overlap needs review.
+- `at_risk`: cleanup review may be needed, still with explicit approval.
 
 Evidence should stay conservative:
 
@@ -80,7 +91,7 @@ node .tink/tools/render-harness-health-report.mjs
 
 The report helper reads `.tink/maintenance/harness-lifecycle.json` and writes `.tink/maintenance/harness-health-report.html`. You can pass explicit paths when testing:
 
-The report includes a static graph overview, recent run timeline, and one card per harness. The graph overview summarizes node and edge types from the JSON `graph` block; it does not start a server or watch files.
+The report includes a static graph overview, recent run timeline, run review cards for failed or blocked runs, and one card per harness. The graph overview summarizes node and edge types from the JSON `graph` block; it does not start a server or watch files.
 
 ```bash
 node .tink/tools/generate-harness-lifecycle-summary.mjs repo-root output.json

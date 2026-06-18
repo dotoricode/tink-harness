@@ -81,6 +81,12 @@
             "reason": "Repeated overlap count 3"
           }
         ]
+      },
+      "trust_level": "observed",
+      "roi": {
+        "label": "medium",
+        "score": 66,
+        "reason": "7/8 successful runs, 1 failed or blocked signals, medium context cost."
       }
     },
     {
@@ -139,6 +145,12 @@
             "reason": "merge_candidate priority"
           }
         ]
+      },
+      "trust_level": "needs_review",
+      "roi": {
+        "label": "high",
+        "score": 100,
+        "reason": "6/6 successful runs, 0 failed or blocked signals, low context cost."
       }
     },
     {
@@ -176,6 +188,12 @@
             "reason": "observe priority"
           }
         ]
+      },
+      "trust_level": "unproven",
+      "roi": {
+        "label": "unknown",
+        "score": null,
+        "reason": "No run records mention this harness yet."
       }
     },
     {
@@ -220,6 +238,12 @@
             "reason": "observe priority"
           }
         ]
+      },
+      "trust_level": "observed",
+      "roi": {
+        "label": "low",
+        "score": 0,
+        "reason": "0/1 successful runs, 0 failed or blocked signals, high context cost."
       }
     },
     {
@@ -278,6 +302,12 @@
             "reason": "frog_candidate priority"
           }
         ]
+      },
+      "trust_level": "at_risk",
+      "roi": {
+        "label": "low",
+        "score": 0,
+        "reason": "0/2 successful runs, 2 failed or blocked signals, high context cost."
       }
     }
   ],
@@ -419,6 +449,20 @@
       "harnesses": [
         "release-preflight"
       ]
+    }
+  ],
+  "run_reviews": [
+    {
+      "date": "2026-06-08T00:20:00+09:00",
+      "source": ".tink/runs/2026-06-08-0020-wide-context.md",
+      "outcome": "blocked",
+      "harnesses": [
+        "experimental-wide-context"
+      ],
+      "why": "A required check could not run.",
+      "contract_gap": "Name missing setup or manual evidence earlier.",
+      "next_action": "Review evidence; weave only if reusable.",
+      "weave_candidate": "experimental-wide-context"
     }
   ]
 }

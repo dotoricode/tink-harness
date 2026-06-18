@@ -21,6 +21,7 @@ Read these files if present:
 - `.tink/current/plan.md`
 - `.tink/current/notes.md`
 - `.tink/current/verification.json`
+- `.tink/current/evidence.md`
 - `.tink/schemas/verification.schema.json`
 - `.tink/maintenance/weave-queue.json`
 - `.tink/maintenance/ledger.jsonl`
@@ -58,7 +59,7 @@ The runner has three phases:
 
 1. **Plan**: read the contract, normalize checks into a short runner plan, and classify each check as `command` or `manual`.
 2. **Run**: execute safe command checks and inspect manual checks.
-3. **Record**: write `.tink/current/verification.json`, update notes, and append maintenance signals only when their files already exist.
+3. **Record**: write `.tink/current/verification.json`, write `.tink/current/evidence.md`, update notes, and append maintenance signals only when their files already exist.
 
 Runner plan entries should contain:
 
@@ -116,14 +117,20 @@ Failure, blocked, and skipped handling:
    - capture pass/fail, exit code, and a short evidence handle.
 6. For each `verification.manual_checks[]` entry, inspect the named file or artifact and record pass/fail/skipped/blocked.
 7. Write `.tink/current/verification.json` with compact evidence: check name, kind, status, exit code when available, evidence handle, and timestamp. Do not include raw logs.
-8. If `.tink/schemas/verification.schema.json` exists, use it as the evidence shape. Do not paste the schema into the user response.
-9. Update `.tink/current/notes.md` with the notes summary format below.
-10. Append a `verify` entry to `.tink/maintenance/ledger.jsonl` when it exists, using result `pass`, `fail`, or `blocked`.
-11. If any required check fails, append a `check_failed` signal to `.tink/maintenance/weave-queue.json` when it exists.
-12. If any required check is blocked, append a `check_blocked` signal to `.tink/maintenance/weave-queue.json` when it exists.
-13. If an optional check is skipped and the skip matters for future harness quality, append a `check_skipped` signal to `.tink/maintenance/weave-queue.json` when it exists.
-14. If any check fails, is skipped, or is blocked, append a compact entry to `.tink/maintenance/friction.jsonl` when it exists.
-15. Report the result using the final report format below.
+8. Write `.tink/current/evidence.md` as a short evidence summary card. Keep it human-readable and compact:
+   - `Done claim`: what can honestly be called done.
+   - `Evidence`: checks that passed or were inspected.
+   - `Not verified`: checks not run, optional skips, or claims outside this run.
+   - `Risk`: remaining manual, environment, or release risk.
+   - `Next action`: smallest useful continuation or recovery step.
+9. If `.tink/schemas/verification.schema.json` exists, use it as the JSON evidence shape. Do not paste the schema into the user response.
+10. Update `.tink/current/notes.md` with the notes summary format below.
+11. Append a `verify` entry to `.tink/maintenance/ledger.jsonl` when it exists, using result `pass`, `fail`, or `blocked`.
+12. If any required check fails, append a `check_failed` signal to `.tink/maintenance/weave-queue.json` when it exists.
+13. If any required check is blocked, append a `check_blocked` signal to `.tink/maintenance/weave-queue.json` when it exists.
+14. If an optional check is skipped and the skip matters for future harness quality, append a `check_skipped` signal to `.tink/maintenance/weave-queue.json` when it exists.
+15. If any check fails, is skipped, or is blocked, append a compact entry to `.tink/maintenance/friction.jsonl` when it exists.
+16. Report the result using the final report format below.
 
 ## Final report format
 
@@ -135,7 +142,7 @@ After writing `.tink/current/verification.json`, answer in this order:
 4. **Remaining**: what is still needed before the run can be called done. Use `none` or omit when nothing remains.
 5. **Next action**: the smallest useful recovery or continuation step.
 
-Keep the report compact. Do not paste raw logs. Mention `.tink/current/verification.json` as the evidence file when useful.
+Keep the report compact. Do not paste raw logs. Mention `.tink/current/verification.json` and `.tink/current/evidence.md` as the evidence files when useful.
 
 Use these result lines:
 
@@ -158,6 +165,7 @@ Use these fields:
 - `last_safe_point`: the state the user can safely return to
 - `next_action`: the smallest useful recovery or continuation step
 - `evidence`: `.tink/current/verification.json`
+- `evidence_summary`: `.tink/current/evidence.md`
 
 For `pass`, set `last_safe_point` to the completed verification state and `remaining` to `none`.
 
@@ -166,6 +174,31 @@ For `fail`, name the failed check, keep the last safe point before completion, a
 For `blocked`, name the missing setup, evidence, approval, or platform mismatch, keep the last safe point as incomplete verification, and make `next_action` an unblock-and-rerun step.
 
 Do not paste raw logs, full command output, stack traces, or large diffs into `notes.md`. Keep the notes summary short enough to read during resume.
+
+## Evidence summary card
+
+Write this file after every verification attempt:
+
+```md
+# Evidence Summary
+
+## Done claim
+- ...
+
+## Evidence
+- ...
+
+## Not verified
+- ...
+
+## Risk
+- ...
+
+## Next action
+- ...
+```
+
+In strict completion mode, the run is not done unless this file exists and every required check is represented as passed, failed, or blocked.
 
 ## Verification evidence
 
@@ -210,7 +243,7 @@ Write this file:
 Append one JSON line:
 
 ```json
-{ "timestamp": "", "op_id": "verify-...", "type": "verify", "files": [".tink/current/contract.json", ".tink/current/verification.json"], "evidence": [], "approval": "current-run", "result": "pass|fail|blocked", "rollback": "No reusable state changed." }
+{ "timestamp": "", "op_id": "verify-...", "type": "verify", "files": [".tink/current/contract.json", ".tink/current/verification.json", ".tink/current/evidence.md"], "evidence": [], "approval": "current-run", "result": "pass|fail|blocked", "rollback": "No reusable state changed." }
 ```
 
 Do not create `.tink/maintenance/ledger.jsonl` if it does not exist.

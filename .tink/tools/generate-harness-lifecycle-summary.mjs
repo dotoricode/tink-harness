@@ -139,8 +139,14 @@ function ensureSummary(id, contextCost) {
     safe_next_action: 'Keep observing until real run, ledger, queue, or friction evidence exists.',
     approval_required_for: [],
     lifecycle_state: 'no_evidence',
+    trust_level: 'unproven',
     stale_days: null,
     state_reason: 'No run records mention this harness.',
+    roi: {
+      label: 'unknown',
+      score: null,
+      reason: 'No run evidence yet.'
+    },
     candidate_score: {
       total: 0,
       factors: []
@@ -388,21 +394,25 @@ function applyLifecycleState(item, referenceDate) {
 
   if (item.recommendation === 'frog_candidate') {
     item.lifecycle_state = 'cleanup_review';
+    item.trust_level = 'at_risk';
     item.state_reason = 'Repeated trouble with high context cost needs a cleanup review, not automatic deletion.';
     return;
   }
   if (item.recommendation === 'weave') {
     item.lifecycle_state = 'needs_weave';
+    item.trust_level = 'needs_review';
     item.state_reason = 'Repeated trouble suggests a small improvement review.';
     return;
   }
   if (item.recommendation === 'merge_candidate') {
     item.lifecycle_state = 'merge_review';
+    item.trust_level = 'needs_review';
     item.state_reason = 'Repeated overlap suggests a merge review, not automatic merging.';
     return;
   }
   if (item.signals.uses === 0) {
     item.lifecycle_state = 'no_evidence';
+    item.trust_level = 'unproven';
     item.state_reason = 'No run records mention this harness. Missing records are not cleanup evidence.';
     return;
   }
@@ -411,6 +421,7 @@ function applyLifecycleState(item, referenceDate) {
     item.recommendation = 'observe';
     item.confidence = item.evidence_grade === 'weak' ? 'low' : 'medium';
     item.reason = 'This harness has not appeared in recent run records. Age alone is only a dormant review signal, not delete evidence.';
+    item.trust_level = 'observed';
     item.state_reason = `Last seen ${staleDays} days before the latest indexed run.`;
     item.safe_next_action = 'Review whether to keep active or archive after explicit approval. Do not delete from age alone.';
     addApprovalRequirement(item, 'archive');
@@ -418,7 +429,33 @@ function applyLifecycleState(item, referenceDate) {
   }
 
   item.lifecycle_state = 'active';
+  item.trust_level = item.signals.uses >= 2 && item.signals.successes >= 2 && item.signals.failures + item.signals.blocked === 0
+    ? 'trusted'
+    : 'observed';
   item.state_reason = 'Recent enough to keep in normal observation.';
+}
+
+function computeRoi(item) {
+  const uses = Number(item.signals.uses || 0);
+  if (!uses) {
+    return {
+      label: 'unknown',
+      score: null,
+      reason: 'No run records mention this harness yet.'
+    };
+  }
+  const successes = Number(item.signals.successes || 0);
+  const trouble = Number(item.signals.failures || 0) + Number(item.signals.blocked || 0);
+  const costPenalty = { low: 0, medium: 10, high: 20, unknown: 5 }[item.signals.context_cost] ?? 5;
+  const score = Math.max(0, Math.min(100, Math.round((successes / uses) * 100 - trouble * 12 - costPenalty)));
+  let label = 'low';
+  if (score >= 70) label = 'high';
+  else if (score >= 40) label = 'medium';
+  return {
+    label,
+    score,
+    reason: `${successes}/${uses} successful runs, ${trouble} failed or blocked signals, ${item.signals.context_cost} context cost.`
+  };
 }
 
 function runOutcome(run) {
@@ -438,6 +475,55 @@ function buildTimeline(runs, root) {
       harnesses: run.harnesses
     }))
     .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+}
+
+function firstMatch(text, patterns) {
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) return match[1].trim();
+  }
+  return '';
+}
+
+function buildRunReviews(runs, root) {
+  return runs
+    .filter((run) => run.failed || run.blocked)
+    .map((run) => {
+      let text = '';
+      try {
+        text = fs.readFileSync(run.path, 'utf8');
+      } catch {
+        text = '';
+      }
+      const source = relativeRef(root, run.path);
+      const outcome = runOutcome(run);
+      const explicitNext = firstMatch(text, [
+        /^Next action:\s*(.+)$/im,
+        /^next_action:\s*"?(.+?)"?$/im
+      ]);
+      const explicitProblem = firstMatch(text, [
+        /^Problems?:\s*(.+)$/im,
+        /^Reason:\s*(.+)$/im,
+        /^Blocked:\s*(.+)$/im
+      ]);
+      const why = explicitProblem || (outcome === 'blocked'
+        ? 'A required check or prerequisite could not be completed.'
+        : 'A required check failed or was recorded as failed.');
+      return {
+        date: run.date,
+        source,
+        outcome,
+        harnesses: run.harnesses,
+        why,
+        contract_gap: outcome === 'blocked'
+          ? 'Name missing setup or manual evidence earlier.'
+          : 'Catch this failure earlier or route tighter.',
+        next_action: explicitNext || 'Review evidence; weave only if reusable.',
+        weave_candidate: run.harnesses.length ? run.harnesses[0] : 'base-run'
+      };
+    })
+    .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))
+    .slice(0, 12);
 }
 
 function summarize(root) {
@@ -567,6 +653,7 @@ function summarize(root) {
   const referenceDate = datedRuns[datedRuns.length - 1] || null;
   for (const item of summaries.values()) {
     applyLifecycleState(item, referenceDate);
+    item.roi = computeRoi(item);
     item.candidate_score = scoreCandidate(item);
   }
   const harnessSummaries = [...summaries.values()].sort((a, b) => a.id.localeCompare(b.id));
@@ -611,6 +698,7 @@ function summarize(root) {
     harnesses: harnessSummaries,
     graph: buildGraph(harnessSummaries, ruleIndex),
     timeline: buildTimeline(runs, root),
+    run_reviews: buildRunReviews(runs, root),
     maintenance_events: maintenanceEvents
   };
 }

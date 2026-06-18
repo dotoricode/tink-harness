@@ -153,6 +153,7 @@ After approval, create `.tink/current/` with these files before doing deeper wor
 - `context-map.json`: machine-readable included and excluded context with reasons
 - `context-metrics-evaluation.json`: measured or estimated context-efficiency scores, formulas, evidence refs, and limits
 - `excluded-context.md`: notable omitted files, tools, sources, or claims and why they were excluded
+- `evidence.md`: created by `/tink:verify` or final strict completion review; a short human-readable card with done claim, evidence, not-verified items, risk, and next action
 
 Optional current-run artifacts are created only when their harness is selected:
 
@@ -283,6 +284,11 @@ Candidate limits:
 - Do not load entire directories unless the directory itself is the artifact under review.
 
 Also append a compact run record to `.tink/runs/YYYY-MM-DD-HHMM-<slug>.md` when the task completes, is canceled, is blocked, or is superseded. Do not store secrets, raw logs, full diffs, or one-off private context. If a run-only draft harness was used, record its name and its 2-4 domain rules compactly in the run record - `/tink:weave` treats drafts that repeat across runs as promotion candidates.
+
+Completion policy:
+- If `.tink/config.json` has `completion_policy: "strict"`, do not call the run done until required verification is recorded in `.tink/current/verification.json`, a human-readable `.tink/current/evidence.md` exists, and remaining risk is explicit.
+- In strict mode, a run with missing required checks is `blocked` or `not done`, even if code or docs were changed.
+- In normal mode, still summarize unverified parts clearly; do not imply unrun checks passed.
 
 When appending a run record, also append a signal to `.tink/maintenance/weave-queue.json` if it exists:
 ```json

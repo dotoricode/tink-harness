@@ -17,14 +17,14 @@
 <p><sub>A small harness layer for Claude Code and Codex</sub></p>
 
 <p>
-  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.11.2"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.12.0"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.11.2 - The 3D harness map is now alive from the very first install: routing rules and their check/guard chains always render as connections with signal pulses, even before any run history exists. Plus the one-line dashboard command and the update history-preservation fixes from 1.11.x. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
+<p><strong>Latest package:</strong> v1.12.0 - Tink now records a human-readable evidence card after verification, adds the strict completion-policy groundwork for "no evidence, no done", and shows dashboard hints for harness trust, ROI, and failed/blocked run review. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
 
 **English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
 
@@ -268,9 +268,9 @@ Three rules drive all of it:
 
 1. **Generic work runs without a harness.** An ordinary code change, review, or doc edit runs on the base run contract alone — plan, steps, verification evidence. A harness is loaded only when a specialized procedure actually changes what happens: release gates, goal checkpoints, plan critique, requirements interviews, domain workflows.
 2. **Suggestions only.** The dashboard, `frog`, and `weave` prepare proposals from real usage signals. Nothing reusable — a harness, a memory entry, a deletion — is saved without its own explicit approval. Approving today's run never authorizes changes that future runs would inherit.
-3. **Evidence over vibes.** Run records, failed checks, and friction events decide what gets improved (`weave`), promoted from draft to harness, or cleaned up (`frog`). Weak evidence defaults to keep-and-observe, never to delete.
+3. **Evidence over vibes.** Run records, failed checks, evidence summary cards, and friction events decide what gets improved (`weave`), promoted from draft to harness, or cleaned up (`frog`). Weak evidence defaults to keep-and-observe, never to delete.
 
-The dashboard is a static local page rendered from those files — the harness health summary behind it shows usage, failed checks, and weave/frog candidates. No server, no file watching, no hidden cache, no public `tink index` command. It only prepares suggestions; acting on them keeps the approval gates above.
+The dashboard is a static local page rendered from those files — the harness health summary behind it shows usage, failed checks, run review cards, ROI hints, and weave/frog candidates. No server, no file watching, no hidden cache, no public `tink index` command, and no replay command. It only prepares suggestions; acting on them keeps the approval gates above.
 
 <details>
 <summary><strong>Design docs index</strong> — details for contributors</summary>
