@@ -126,7 +126,7 @@ function argValue(name) {
 }
 
 function usage() {
-  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  tink-harness [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness dashboard [--no-open]\n\nIf the command is not installed yet, use:\n  npx tink-harness@latest [install]\n  npx tink-harness@latest update\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Asks only the agent surface; Tink-owned files always refresh, user-modified harness/memory/config files are kept.\n  dashboard  Generate the harness health report from local .tink records and open it in your browser. Use --no-open to skip opening.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select Advanced options\n  7. Select git tracking policy for project state\n\nAdvanced options:\n  --dry-run             Preview only. Show what would be written or removed, but do not change files.\n  --force               Overwrite user-modified files. Use only when you want official templates to replace local edits.\n  --clean-codex-picker  Codex-only cleanup. Remove repo-local Claude Tink surfaces that show as Source Command Tink entries.\n\nEnvironment:\n  TINK_INSTALL_SURFACES=claude|codex|all\n  TINK_CLEAN_CODEX_PICKER=1\n  CLAUDE_CONFIG_DIR  Override ~/.claude for global installs (e.g. set by direnv per project)\n  CODEX_HOME         Override ~/.codex for Codex skill installs\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
+  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  tink-harness [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness update --all-repos\n  tink-harness dashboard [--no-open]\n\nIf the command is not installed yet, use:\n  npx tink-harness@latest [install]\n  npx tink-harness@latest update\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Asks only the agent surface; Tink-owned files always refresh, user-modified harness/memory/config files are kept.\n  dashboard  Generate the harness health report from local .tink records and open it in your browser. Use --no-open to skip opening.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select Advanced options\n  7. Select git tracking policy for project state\n\nAdvanced options:\n  --dry-run             Preview only. Show what would be written or removed, but do not change files.\n  --force               Overwrite user-modified files. Use only when you want official templates to replace local edits.\n  --clean-codex-picker  Codex-only cleanup. Remove repo-local Claude Tink surfaces that show as Source Command Tink entries.\n  --all-repos           Update all repos with Tink under the home directory. Uses direnv if available to load per-repo .envrc.\n\nEnvironment:\n  TINK_INSTALL_SURFACES=claude|codex|all\n  TINK_CLEAN_CODEX_PICKER=1\n  CLAUDE_CONFIG_DIR  Override ~/.claude for global installs (e.g. set by direnv per project)\n  CODEX_HOME         Override ~/.codex for Codex skill installs\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
 }
 
 function findTinkRoot() {
@@ -1225,10 +1225,117 @@ async function resolveChoices() {
   return { agent, scope, components, gitPolicy, hookScope, language };
 }
 
+function findAllTinkRepos() {
+  const found = [];
+  const skip = new Set(['node_modules', '.git', 'vendor', 'dist', 'build', 'out', 'target', '.cache']);
+
+  function scan(dir, depth) {
+    if (depth > 4) return;
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    let hasTink = false;
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      if (entry.name === '.tink') { hasTink = true; continue; }
+      if (skip.has(entry.name) || entry.name.startsWith('.')) continue;
+      scan(path.join(dir, entry.name), depth + 1);
+    }
+    if (hasTink) found.push(dir);
+  }
+
+  scan(os.homedir(), 0);
+  return found;
+}
+
+function isDirenvAvailable() {
+  return spawnSync('direnv', ['version'], { encoding: 'utf8' }).status === 0;
+}
+
+function parseEnvrc(envrcPath, repoDir) {
+  if (!fs.existsSync(envrcPath)) return {};
+  const env = {};
+  for (const line of fs.readFileSync(envrcPath, 'utf8').split('\n')) {
+    const m = line.match(/^\s*export\s+([A-Z_][A-Z0-9_]*)=(.*)/);
+    if (!m) continue;
+    let val = m[2].trim().replace(/^["']|["']$/g, '');
+    val = val
+      .replace(/\$HOME|\bHOME\b/g, os.homedir())
+      .replace(/\$PWD|\bPWD\b/g, repoDir)
+      .replace(/^~/, os.homedir());
+    env[m[1]] = val;
+  }
+  return env;
+}
+
+async function runAllRepos() {
+  const allRepos = findAllTinkRepos();
+  const sourceRoot = path.resolve(root);
+  const repos = allRepos.filter((r) => path.resolve(r) !== sourceRoot);
+
+  if (repos.length === 0) {
+    console.log('No repos with Tink installed found under home directory.');
+    return;
+  }
+
+  const hasDirenv = isDirenvAvailable();
+  const installScript = path.join(root, 'bin/install.js');
+
+  console.log(`Found ${repos.length} repo(s) with Tink installed:\n`);
+  for (const repo of repos) {
+    const envrc = path.join(repo, '.envrc');
+    const envVars = hasDirenv ? {} : parseEnvrc(envrc, repo);
+    const claudeTarget = envVars.CLAUDE_CONFIG_DIR
+      ? envVars.CLAUDE_CONFIG_DIR
+      : path.join(repo, '.claude');
+    const note = fs.existsSync(envrc)
+      ? hasDirenv
+        ? `(direnv)`
+        : envVars.CLAUDE_CONFIG_DIR
+          ? `(.envrc → CLAUDE_CONFIG_DIR=${envVars.CLAUDE_CONFIG_DIR})`
+          : `(.envrc, no CLAUDE_CONFIG_DIR)`
+      : '';
+    console.log(`  ${repo} ${note}`);
+    console.log(`    → ${claudeTarget}/commands/tink`);
+  }
+  console.log('');
+
+  for (const repo of repos) {
+    console.log(`▶ ${path.basename(repo)} (${repo})`);
+    const envrc = path.join(repo, '.envrc');
+    const extraEnv = hasDirenv ? {} : parseEnvrc(envrc, repo);
+    const mergedEnv = { ...process.env, ...extraEnv };
+
+    let result;
+    if (hasDirenv && fs.existsSync(envrc)) {
+      result = spawnSync(
+        'direnv', ['exec', repo, 'node', installScript, 'update', '--yes', '--scope=repo'],
+        { cwd: repo, env: process.env, stdio: 'inherit', encoding: 'utf8' }
+      );
+    } else {
+      result = spawnSync(
+        process.execPath, [installScript, 'update', '--yes', '--scope=repo'],
+        { cwd: repo, env: mergedEnv, stdio: 'inherit', encoding: 'utf8' }
+      );
+    }
+
+    if (result.status !== 0) {
+      console.error(`  ✗ failed (exit ${result.status})`);
+    } else {
+      console.log(`  ✓ done`);
+    }
+    console.log('');
+  }
+}
+
 async function main() {
   if (command === 'help' || args.includes('--help')) {
     usage();
     process.exit(0);
+  }
+
+  if (command === 'update' && args.includes('--all-repos')) {
+    await runAllRepos();
+    return;
   }
 
   if (command === 'dashboard') {

@@ -24,7 +24,7 @@
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.13.0 - Tink adds focused opt-in harnesses for issue triage, hard-bug diagnosis loops, two-axis reviews, decision maps, and architecture deepening, with cast routing and docs updated for both Claude Code and Codex. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
+<p><strong>Latest package:</strong> v1.14.0 - Tink respects <code>CLAUDE_CONFIG_DIR</code> for global installs and adds <code>update --all-repos</code> to refresh every Tink-installed repo in one command, with direnv support for per-repo env overrides. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
 
 **English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
 

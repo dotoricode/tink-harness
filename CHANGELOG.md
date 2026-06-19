@@ -2,6 +2,11 @@
 
 All notable changes to Tink are tracked here.
 
+## [1.14.0] - 2026-06-19
+
+- Added `CLAUDE_CONFIG_DIR` support: global installs now respect the env var (set via direnv or shell) so commands and skills land in the right config directory instead of always defaulting to `~/.claude`.
+- Added `tink-harness update --all-repos`: finds every repo under the home directory that has Tink installed and updates each one. Uses `direnv exec` when available so per-repo `.envrc` overrides (including `CLAUDE_CONFIG_DIR`) are applied automatically; falls back to parsing simple `export` lines from `.envrc` otherwise.
+
 ## [1.13.0] - 2026-06-19
 
 - Added focused opt-in harnesses for recurring agent workflows: `issue-triage`, `bug-diagnosis-loop`, `review-two-axis`, `decision-map`, and `architecture-deepening`.
