@@ -62,7 +62,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.12.0')
+        self.assertEqual(pkg['version'], '1.13.0')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -163,6 +163,12 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('맞춤 절차 판단', core)
         self.assertIn('하네스 선택 과정', core)
         self.assertIn('이번 점검은 두 범위로 보겠습니다', core)
+        self.assertIn('Evidence Split', core)
+        self.assertIn('base-run habit, not a harness', core)
+        self.assertIn('probe`, `patch`, `verify`, `review`, or `decision` packets', core)
+        self.assertIn('Use it at cast time and again during implementation', core)
+        self.assertIn('Do not start workers, tmux panes, worktrees, or external agents automatically', core)
+        self.assertIn('Skip it for tiny, obvious edits', core)
         self.assertIn('Option label quality rules', core)
         self.assertIn('콘데의달 지질', core)
         self.assertIn('내용 점검', core)
@@ -392,6 +398,13 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Readiness check', forge)
         self.assertIn('Tink is not fully initialized', forge)
         self.assertIn('Call `AskUserQuestion` as described in the Interaction policy', forge)
+        self.assertIn('Evidence Split', forge)
+        self.assertIn('base-run habit, not a separate harness', forge)
+        self.assertIn('Use Evidence Split at cast time and again during implementation', forge)
+        self.assertIn('Apply the Evidence Split check before choosing harnesses', forge)
+        self.assertIn('Re-run Evidence Split when new uncertainty, coupling, failed checks, or context sprawl appears', forge)
+        self.assertIn('Do not start workers, tmux panes, worktrees, or external agents automatically', forge)
+        self.assertIn('Skip it for tiny, obvious edits', forge)
         self.assertIn('answers.md', forge)
         self.assertIn('first read `plan.md`, `checks.md`, `steps.json`, `notes.md`, and `answers.md`', forge)
         self.assertNotIn('Enter should accept', forge)
@@ -472,6 +485,8 @@ class TemplateTests(unittest.TestCase):
             'ship',
             'requirements-interview', 'plan-consensus',
             'goal-checkpoint', 'delegation-brief',
+            'issue-triage', 'bug-diagnosis-loop', 'review-two-axis',
+            'decision-map', 'architecture-deepening',
             'harness-synthesis', 'harness-curation',
             'pre-publish-multi-agent-verify', 'tink-feedback-apply',
             'pr-merge',
@@ -487,6 +502,8 @@ class TemplateTests(unittest.TestCase):
             'ship',
             'requirements-interview', 'plan-consensus',
             'goal-checkpoint', 'delegation-brief',
+            'issue-triage', 'bug-diagnosis-loop', 'review-two-axis',
+            'decision-map', 'architecture-deepening',
         }
         for name in work_harnesses:
             text = (ROOT / f'templates/tink/harnesses/{name}.md').read_text(encoding='utf-8')
@@ -502,6 +519,11 @@ class TemplateTests(unittest.TestCase):
             self.assertIn('plan-consensus', text)
             self.assertIn('goal-checkpoint', text)
             self.assertIn('delegation-brief', text)
+            self.assertIn('issue-triage', text)
+            self.assertIn('bug-diagnosis-loop', text)
+            self.assertIn('review-two-axis', text)
+            self.assertIn('decision-map', text)
+            self.assertIn('architecture-deepening', text)
             self.assertIn('goals.json', text)
             self.assertIn('delegation.md', text)
             self.assertIn('Do not start tmux panes', text)

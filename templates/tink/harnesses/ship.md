@@ -13,15 +13,18 @@ Release/publish/deploy/PR are hard-gate territory: cast triggers a Stitch safety
 ## Plan
 1. Summarize changes.
 2. Run or verify required checks.
-3. Draft PR or release summary: what changed, what risks, what rollback.
-4. State risks and rollback.
-5. Confirm final handoff.
+3. If merge or release conflicts are present, inspect the primary source for each side before resolving.
+4. Preserve both intents where possible; when incompatible, state the tradeoff and choose the side matching the ship goal.
+5. Draft PR or release summary: what changed, what risks, what rollback.
+6. State risks and rollback.
+7. Confirm final handoff.
 
 ## Checks
 - All required CI checks pass, or reason for skip is stated.
 - Rollback or revert procedure is documented.
 - Changed artifacts (files, package, version) are listed.
 - Known risks are explicitly stated, not implied.
+- Conflict resolutions cite source intent or a clear tradeoff.
 - Do not repeat questions already answered in `.tink/current/answers.md`.
 
 ## Done means

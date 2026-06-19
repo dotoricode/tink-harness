@@ -126,7 +126,7 @@ function argValue(name) {
 }
 
 function usage() {
-  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  tink-harness [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness dashboard [--no-open]\n\nIf the command is not installed yet, use:\n  npx tink-harness@latest [install]\n  npx tink-harness@latest update\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Asks only the agent surface; Tink-owned files always refresh, user-modified harness/memory/config files are kept.\n  dashboard  Generate the harness health report from local .tink records and open it in your browser. Use --no-open to skip opening.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select Advanced options\n  7. Select git tracking policy for project state\n\nAdvanced options:\n  --dry-run             Preview only. Show what would be written or removed, but do not change files.\n  --force               Overwrite user-modified files. Use only when you want official templates to replace local edits.\n  --clean-codex-picker  Codex-only cleanup. Remove repo-local Claude Tink surfaces that show as Source Command Tink entries.\n\nEnvironment:\n  TINK_INSTALL_SURFACES=claude|codex|all\n  TINK_CLEAN_CODEX_PICKER=1\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
+  console.log(`Tink installer for Claude Code and Codex\n\nUsage:\n  tink-harness [install] [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--with-hook] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness update [--scope=repo|global] [--global] [--lang=en|ko|zh] [--yes] [--clean-codex-picker] [--dry-run] [--force]\n  tink-harness dashboard [--no-open]\n\nIf the command is not installed yet, use:\n  npx tink-harness@latest [install]\n  npx tink-harness@latest update\n\nCommands:\n  install  Install Tink.\n  update   Update Tink to the latest templates. Asks only the agent surface; Tink-owned files always refresh, user-modified harness/memory/config files are kept.\n  dashboard  Generate the harness health report from local .tink records and open it in your browser. Use --no-open to skip opening.\n\nDefault interactive flow:\n  1. Select language\n  2. Show TINK wizard\n  3. Select Claude Code, Codex, or both\n  4. Select components\n  5. Select repo/global installation scope\n  6. Select Advanced options\n  7. Select git tracking policy for project state\n\nAdvanced options:\n  --dry-run             Preview only. Show what would be written or removed, but do not change files.\n  --force               Overwrite user-modified files. Use only when you want official templates to replace local edits.\n  --clean-codex-picker  Codex-only cleanup. Remove repo-local Claude Tink surfaces that show as Source Command Tink entries.\n\nEnvironment:\n  TINK_INSTALL_SURFACES=claude|codex|all\n  TINK_CLEAN_CODEX_PICKER=1\n  CLAUDE_CONFIG_DIR  Override ~/.claude for global installs (e.g. set by direnv per project)\n  CODEX_HOME         Override ~/.codex for Codex skill installs\n\nScopes:\n  repo    Install shared .tink files into the current project.\n  global  Install shared .tink files into your home directory.\n`);
 }
 
 function findTinkRoot() {
@@ -226,6 +226,15 @@ function includesCodex(agent) {
 
 function codexHome() {
   return process.env.CODEX_HOME || path.join(os.homedir(), '.codex');
+}
+
+// CLAUDE_CONFIG_DIR replaces ~/.claude for global installs (like direnv per-project overrides).
+// Repo-scope installs always use <repo>/.claude regardless of this env var.
+function claudeDir(target) {
+  if (process.env.CLAUDE_CONFIG_DIR && target === os.homedir()) {
+    return process.env.CLAUDE_CONFIG_DIR;
+  }
+  return path.join(target, '.claude');
 }
 
 function legacyComponentOptionsFor(agent, language) {
@@ -364,8 +373,8 @@ function locationSummary(agent, scope) {
   return [
     `Repo target: ${repoTarget}`,
     `Shared .tink target: ${path.join(installTarget, '.tink')}`,
-    includesClaude(agent) ? `Claude Code command target: ${path.join(installTarget, '.claude/commands/tink')}` : null,
-    includesClaude(agent) ? `Claude Code skill target: ${path.join(installTarget, '.claude/skills/tink')}` : null,
+    includesClaude(agent) ? `Claude Code command target: ${path.join(claudeDir(installTarget), 'commands/tink')}` : null,
+    includesClaude(agent) ? `Claude Code skill target: ${path.join(claudeDir(installTarget), 'skills/tink')}` : null,
     includesCodex(agent) ? `Codex skills target: ${path.join(codexHome(), 'skills')}` : null,
     includesCodex(agent) ? `Codex picker cleanup target: ${path.join(process.cwd(), '.claude')}` : null
   ].filter(Boolean).join('\n');
@@ -710,12 +719,12 @@ function copyDir(src, dest, base) {
 
 function copyTinkCommands(templateRoot, target) {
   const commandSrc = path.join(templateRoot, 'claude/commands/tink');
-  const commandDest = path.join(target, '.claude/commands/tink');
-  const flatCommandDest = path.join(target, '.claude/commands');
+  const commandDest = path.join(claudeDir(target), 'commands/tink');
+  const flatCommandDest = path.join(claudeDir(target), 'commands');
   const legacyFlatCommands = ['tink-setup.md', 'tink-forge.md', 'tink-list.md', 'tink-purge.md', 'tink-hone.md'];
   const legacyNamespaceCommands = ['forge.md', 'purge.md', 'hone.md'];
   const legacyTinyCommands = ['tiny-setup.md', 'tiny-use.md', 'tiny-list.md', 'tiny-save.md'];
-  const legacyDirs = [path.join(flatCommandDest, 'tiny'), path.join(target, '.claude/skills/tiny')];
+  const legacyDirs = [path.join(flatCommandDest, 'tiny'), path.join(claudeDir(target), 'skills/tiny')];
   for (const name of legacyFlatCommands) {
     const legacy = path.join(flatCommandDest, name);
     if (fs.existsSync(legacy)) {
@@ -863,7 +872,7 @@ function hookCommandFor(scope, target) {
 }
 
 function registerClaudeHook(target, scope, base) {
-  const settingsPath = path.join(target, '.claude/settings.json');
+  const settingsPath = path.join(claudeDir(target), 'settings.json');
   const settings = readJsonFile(settingsPath, {});
   const command = hookCommandFor(scope, target);
   settings.hooks ||= {};
@@ -893,7 +902,7 @@ function copySelected(scope, components, agent) {
   }
   if (wantsClaudeSkill(components)) {
     if (includesClaude(agent) && !cleanupCodexPicker) {
-      copyDir(path.join(templateRoot, 'claude/skills'), path.join(target, '.claude/skills'), target);
+      copyDir(path.join(templateRoot, 'claude/skills'), path.join(claudeDir(target), 'skills'), target);
     }
   }
   if (wantsCodexSkills(components)) {
@@ -995,8 +1004,8 @@ function doneLineFor(agent) {
 
 function updateResultSummary(agent, targets) {
   const locations = [
-    includesClaude(agent) ? `Claude Code commands: ${path.join(targets.installTarget, '.claude/commands/tink')}` : null,
-    includesClaude(agent) ? `Claude Code skill: ${path.join(targets.installTarget, '.claude/skills/tink')}` : null,
+    includesClaude(agent) ? `Claude Code commands: ${path.join(claudeDir(targets.installTarget), 'commands/tink')}` : null,
+    includesClaude(agent) ? `Claude Code skill: ${path.join(claudeDir(targets.installTarget), 'skills/tink')}` : null,
     includesCodex(agent) ? `Codex skills: ${path.join(targets.codexTarget, 'skills')}` : null,
     `Tink shared files: ${path.join(targets.installTarget, '.tink')}`
   ].filter(Boolean);

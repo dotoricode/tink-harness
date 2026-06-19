@@ -12,6 +12,11 @@
 - **[plan-consensus](./plan-consensus.md)** (small) — 큰 설계·리팩토링 계획을 Planner → Architect → Critic → Final 흐름으로 점검.
 - **[goal-checkpoint](./goal-checkpoint.md)** (small) — 긴 실행을 2-6개 목표와 완료 증거로 쪼개 `.tink/current/goals.json`에 기록.
 - **[delegation-brief](./delegation-brief.md)** (small) — 병렬 작업이나 인수인계를 위한 범위·금지 행동·증거 요구사항을 정리. worker는 자동 실행하지 않음.
+- **[issue-triage](./issue-triage.md)** (small) — 이슈·외부 PR·QA 보고·넓은 계획을 상태, agent-ready brief, 세로 slice로 정리.
+- **[bug-diagnosis-loop](./bug-diagnosis-loop.md)** (small) — 어려운 버그·회귀·flake·성능 문제에서 코드 수정 전 red-capable feedback loop를 먼저 확보.
+- **[review-two-axis](./review-two-axis.md)** (small) — PR·브랜치·diff를 Standards와 Spec 두 축으로 분리해 검토.
+- **[decision-map](./decision-map.md)** (small-heavy) — 여러 세션이 필요한 느슨한 아이디어를 research/prototype/discuss ticket 지도와 frontier로 관리.
+- **[architecture-deepening](./architecture-deepening.md)** (small-heavy) — deep module, interface, seam, leverage, locality 관점으로 구조 개선 후보와 계획을 정리.
 - **[ship](./ship.md)** (small) — PR 준비, 릴리스, 배포. 위험·롤백 명시. cast 시작 시 안전판이 미리 켜집니다.
 
 ## 관리용 메타 하네스

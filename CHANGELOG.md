@@ -2,6 +2,12 @@
 
 All notable changes to Tink are tracked here.
 
+## [1.13.0] - 2026-06-19
+
+- Added focused opt-in harnesses for recurring agent workflows: `issue-triage`, `bug-diagnosis-loop`, `review-two-axis`, `decision-map`, and `architecture-deepening`.
+- Improved existing harnesses with selected workflow patterns: requirements interviews now inspect repo-discoverable answers first, plan consensus can compare interface alternatives and split unresolved decisions, delegation briefs reference existing artifacts and redact sensitive content, ship/PR merge records conflict intent, and harness curation has clearer idea-to-ship routing.
+- Updated `/tink:cast` routing and Codex core rules so the new focused harnesses are considered only when their trigger changes the procedure. README and README.ko now describe the new selection surface.
+
 ## [1.12.0] - 2026-06-18
 
 - Added evidence lifecycle manager groundwork: `/tink:verify` now records a human-readable `.tink/current/evidence.md` summary card, config includes a `completion_policy` field for optional strict "no evidence, no done" behavior, and the dashboard lifecycle summary now exposes ROI hints, trust levels, and Activity-tab run review cards for failed or blocked runs without adding a new public replay command.

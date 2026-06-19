@@ -60,6 +60,81 @@
     ]
   },
   {
+    "name": "issue-triage",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "Sort incoming issues, external PRs, QA reports, or broad plans into durable states, ready-for-agent briefs, or vertical issue slices.",
+    "asks": [
+      "What source should be triaged: issue, PR, QA report, plan, or conversation?",
+      "What outcome is wanted: needs-info, ready-for-agent, ready-for-human, wontfix, or new issue slices?"
+    ],
+    "checks": [
+      "Exactly one primary state or an explicit conflict note",
+      "Ready-for-agent work includes acceptance criteria and verification evidence",
+      "Slices are vertical and independently verifiable"
+    ]
+  },
+  {
+    "name": "bug-diagnosis-loop",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "Diagnose hard bugs, regressions, intermittent failures, or performance problems by building a red-capable feedback loop before changing code.",
+    "asks": [
+      "What exact symptom must the loop catch?",
+      "What command, test, script, trace, or manual action currently reproduces it?"
+    ],
+    "checks": [
+      "A named loop can catch the exact symptom or is explicitly blocked",
+      "The minimized repro still represents the user's bug",
+      "The focused loop is checked before broader verification"
+    ]
+  },
+  {
+    "name": "review-two-axis",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "Review a branch, PR, or diff since a fixed point along separate Standards and Spec axes.",
+    "asks": [
+      "What is the fixed point: commit, branch, tag, PR, or merge-base?",
+      "What spec, issue, PRD, or user request should the diff satisfy?"
+    ],
+    "checks": [
+      "The fixed point resolves and the diff is non-empty",
+      "Standards and Spec are reported separately",
+      "Each finding cites evidence and impact"
+    ]
+  },
+  {
+    "name": "decision-map",
+    "kind": "built-in",
+    "context": "small-heavy",
+    "use_when": "Map loose ideas with multiple unresolved decisions into ordered research, prototype, or discussion tickets across sessions.",
+    "asks": [
+      "What final decision or plan should the map unlock?",
+      "Which unknown is the current frontier?"
+    ],
+    "checks": [
+      "The map has a clear finish line and current frontier",
+      "Each ticket is sized for one session and has a type",
+      "Resolved tickets include evidence links"
+    ]
+  },
+  {
+    "name": "architecture-deepening",
+    "kind": "built-in",
+    "context": "small-heavy",
+    "use_when": "Find and plan codebase architecture improvements around deep modules, interfaces, seams, leverage, locality, and testability.",
+    "asks": [
+      "Which area or module should be reviewed?",
+      "What pain matters most: testability, navigation, coupling, duplication, or interface complexity?"
+    ],
+    "checks": [
+      "Candidates use domain language and architecture vocabulary",
+      "Each candidate explains leverage, locality, and test impact",
+      "The final plan verifies at the chosen seam"
+    ]
+  },
+  {
     "name": "ship",
     "kind": "built-in",
     "context": "small",

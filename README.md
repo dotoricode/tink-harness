@@ -17,14 +17,14 @@
 <p><sub>A small harness layer for Claude Code and Codex</sub></p>
 
 <p>
-  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.12.0"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
+  <a href="https://github.com/dotoricode/tink-harness/releases/tag/v1.13.0"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
   <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.12.0 - Tink now records a human-readable evidence card after verification, adds the strict completion-policy groundwork for "no evidence, no done", and shows dashboard hints for harness trust, ROI, and failed/blocked run review. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
+<p><strong>Latest package:</strong> v1.13.0 - Tink adds focused opt-in harnesses for issue triage, hard-bug diagnosis loops, two-axis reviews, decision maps, and architecture deepening, with cast routing and docs updated for both Claude Code and Codex. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
 
 **English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
 
@@ -219,7 +219,9 @@ In Tink, `cast` is the main path. It reads the task, chooses or drafts the right
 
 Use it when the task is more than a quick answer.
 
-For bigger or fuzzier work, `cast` can expose more of the agent's thinking as files without adding new commands. Ambiguous ideas can start with `requirements-interview`, broad plans with `plan-consensus`, long runs with `goal-checkpoint`, and safe handoffs with `delegation-brief`. These are reusable harnesses selected by `/tink:cast` or `$tink:cast`, not separate CLI workflows.
+For bigger or fuzzier work, `cast` can expose more of the agent's thinking as files without adding new commands. Ambiguous ideas can start with `requirements-interview`, broad plans with `plan-consensus`, long runs with `goal-checkpoint`, and safe handoffs with `delegation-brief`.
+
+More specialized work can opt into focused harnesses: `issue-triage` for issue/PR/QA intake, `bug-diagnosis-loop` for hard bugs that need a red-capable repro loop, `review-two-axis` for Standards vs Spec review, `decision-map` for multi-session unknowns, and `architecture-deepening` for module/interface/seam design. These are selected by `/tink:cast` or `$tink:cast`; they are not separate CLI workflows.
 
 ### `/tink:verify` / `$tink:verify`
 
@@ -266,7 +268,7 @@ Everything Tink knows lives in plain files you can read, diff, and delete:
 
 Three rules drive all of it:
 
-1. **Generic work runs without a harness.** An ordinary code change, review, or doc edit runs on the base run contract alone — plan, steps, verification evidence. A harness is loaded only when a specialized procedure actually changes what happens: release gates, goal checkpoints, plan critique, requirements interviews, domain workflows.
+1. **Generic work runs without a harness.** An ordinary code change, review, or doc edit runs on the base run contract alone — plan, steps, verification evidence. A harness is loaded only when a specialized procedure actually changes what happens: release gates, goal checkpoints, plan critique, requirements interviews, issue triage, hard-bug diagnosis loops, two-axis reviews, decision maps, architecture deepening, or other domain workflows.
 2. **Suggestions only.** The dashboard, `frog`, and `weave` prepare proposals from real usage signals. Nothing reusable — a harness, a memory entry, a deletion — is saved without its own explicit approval. Approving today's run never authorizes changes that future runs would inherit.
 3. **Evidence over vibes.** Run records, failed checks, evidence summary cards, and friction events decide what gets improved (`weave`), promoted from draft to harness, or cleaned up (`frog`). Weak evidence defaults to keep-and-observe, never to delete.
 
