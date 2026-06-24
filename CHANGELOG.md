@@ -6,6 +6,10 @@ All notable changes to Tink are tracked here.
 
 - Added a geobench product spec and runbook for measuring Tink's LLM answer visibility with hit rate, MRR, share of voice, and citation metrics. The runbook keeps benchmark execution separate from this repo and says to publish aggregate metrics only.
 
+## [1.15.2] - 2026-06-24
+
+- `/tink:cast` without an argument now shows the current mode and all three mode descriptions directly, with no change prompt. `/tink:cast <mode>` sets the mode with a single confirmation line and no Lane 1 framing.
+
 ## [1.15.1] - 2026-06-24
 
 - Fixed `CLAUDE_CONFIG_DIR` being ignored for repo-scope installs. It now behaves like `CODEX_HOME` — when set, it redirects Claude commands to the specified directory regardless of install scope.
