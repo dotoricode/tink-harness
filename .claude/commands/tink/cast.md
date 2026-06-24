@@ -134,8 +134,8 @@ Do not record a clean Stitch pass.
 ## Deep mode
 When `cast_mode` is `deep`, run a structured interview before the normal Procedure. The interview refines the task into a spec that feeds harness selection.
 
-**Round 0 — Topology lock** (not counted in progress)
-Before asking any questions, present the high-level components Claude infers from the request and visible codebase context. Ask the user to confirm, add, remove, or merge components. This prevents deep focus on one component from obscuring others.
+**Round 0 — 구성 파악** (not counted in progress)
+Before asking any questions, present the high-level components Claude infers from the request and visible codebase context. Use emojis to separate components and improve readability — e.g. one emoji per component line (🖥️ 🔗 ⚡ 🚫 📂 🔄). Ask the user to confirm, add, remove, or merge components. This prevents deep focus on one component from obscuring others.
 
 **Interview loop — Rounds 1–10**
 Show a progress indicator at the start of each question. Do not show `/10` as a fixed denominator — the actual number of rounds is not known upfront:
@@ -144,7 +144,7 @@ Show a progress indicator at the start of each question. Do not show `/10` as a 
 [Round N  ██░░░░░░░░]
 ```
 
-The bar fills N/10 cells to show relative progress toward the maximum. When the interview ends early, replace the indicator with the actual count on the final spec line:
+The bar fills N/10 cells to show relative progress toward the maximum. Only show the indicator when an actual question is asked — if the interview produces no questions (task is already clear after Round 0), omit the indicator entirely. When the interview ends early, replace the indicator with the actual count on the final spec line:
 
 ```
 [인터뷰 완료 · N라운드]   (English: [Interview done · N rounds])
@@ -165,7 +165,7 @@ Rules:
 - When those are also resolved → shift to Simplifier mode: "What is the smallest version that still has meaningful value?"
 
 **Spec → plan.md → harness selection**
-When the interview ends, write `.tink/current/plan.md` with these top-level sections: Goal, Topology, Constraints, Success Criteria, Open Questions.
+When the interview ends, write `.tink/current/plan.md` with these top-level sections: Goal, 구성 요소, Constraints, Success Criteria, Open Questions.
 
 Then proceed to the normal Procedure starting at step 3 (read harness index). Use the spec as the harness selection input instead of the raw task request. Stitch Phase A runs after harness selection as normal. Phase B is skipped.
 
