@@ -6,6 +6,10 @@ All notable changes to Tink are tracked here.
 
 - Added a geobench product spec and runbook for measuring Tink's LLM answer visibility with hit rate, MRR, share of voice, and citation metrics. The runbook keeps benchmark execution separate from this repo and says to publish aggregate metrics only.
 
+## [1.15.3] - 2026-06-24
+
+- Fixed `$tink:cast` with no argument in Codex showing a task prompt instead of mode descriptions. Codex now displays the current mode and all three mode descriptions directly, matching Claude Code behavior.
+
 ## [1.15.2] - 2026-06-24
 
 - `/tink:cast` without an argument now shows the current mode and all three mode descriptions directly, with no change prompt. `/tink:cast <mode>` sets the mode with a single confirmation line and no Lane 1 framing.
