@@ -2,12 +2,22 @@
 
 All notable changes to Tink are tracked here.
 
+## [1.14.0] - 2026-06-19
+
+- Added `CLAUDE_CONFIG_DIR` support: global installs now respect the env var (set via direnv or shell) so commands and skills land in the right config directory instead of always defaulting to `~/.claude`.
+- Added `tink-harness update --all-repos`: finds every repo under the home directory that has Tink installed and updates each one. Uses `direnv exec` when available so per-repo `.envrc` overrides (including `CLAUDE_CONFIG_DIR`) are applied automatically; falls back to parsing simple `export` lines from `.envrc` otherwise.
+
+## [1.13.0] - 2026-06-19
+
+- Added focused opt-in harnesses for recurring agent workflows: `issue-triage`, `bug-diagnosis-loop`, `review-two-axis`, `decision-map`, and `architecture-deepening`.
+- Improved existing harnesses with selected workflow patterns: requirements interviews now inspect repo-discoverable answers first, plan consensus can compare interface alternatives and split unresolved decisions, delegation briefs reference existing artifacts and redact sensitive content, ship/PR merge records conflict intent, and harness curation has clearer idea-to-ship routing.
+- Updated `/tink:cast` routing and Codex core rules so the new focused harnesses are considered only when their trigger changes the procedure. README and README.ko now describe the new selection surface.
+
 ## [1.12.0] - 2026-06-18
 
 - Added evidence lifecycle manager groundwork: `/tink:verify` now records a human-readable `.tink/current/evidence.md` summary card, config includes a `completion_policy` field for optional strict "no evidence, no done" behavior, and the dashboard lifecycle summary now exposes ROI hints, trust levels, and Activity-tab run review cards for failed or blocked runs without adding a new public replay command.
 - Fixed: `npx tink-harness update` now prefers the current repo when `.tink/` exists there, so a global/home install scope no longer redirects update tests or repo-local updates away from the current project. Stored `git_policy` is still respected.
 - Improved: the Activity dashboard cards were checked in desktop and mobile Chrome headless screenshots, with narrower mobile layout and shorter run-review fallback copy so the new evidence cards stay readable.
-
 ## [1.11.2] - 2026-06-13
 
 - Fixed: the 3D harness map showed no connections or signal pulses on fresh installs (or installs whose history was lost to the pre-1.11.0 record-wipe bug). The lifecycle summary's graph was built only from run/ledger evidence; it now also includes the static rule graph - every routing rule connects to its harness, and check/guard chains render - so the map is alive from the first open.

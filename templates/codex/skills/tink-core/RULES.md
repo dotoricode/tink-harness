@@ -26,23 +26,24 @@ Accept legacy `$tink <action>` spelling for compatibility, but present `$tink:<a
 6. If `.tink/current/` exists and continuity is uncertain, read `plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, and `contract.json` when present; summarize goal, last safe point, next step, open questions, and verification; then ask resume/archive/replace/cancel before continuing.
 7. Run the synthesis probe before committing to `.tink/current/`. Strong fit keeps the harness; generic fit adds a run-only draft; no fit loads `harness-synthesis`.
 8. If too many tools, skills, agents, or harnesses are available, use `harness-curation` to choose the smallest effective set before loading more context.
-9. Treat GJC-style visible-thinking workflows as ordinary Tink harness choices, not new commands. Actively consider them as small overlay harnesses: use `requirements-interview` for ambiguity, unclear scope, or missing acceptance criteria; `plan-consensus` for broad plans, architecture, migrations, API/schema/contract changes, or tradeoffs; `goal-checkpoint` for multi-file, multi-phase, resumed, release, or long runs; and `delegation-brief` for handoff, independent verification, parallel review, or another agent/human brief.
-10. Run Stitch once before committing to `.tink/current/`: evaluate every time, show exactly one proposal only for high-impact quality or safety branches, and use the configured language.
-11. For non-trivial `$tink:cast` runs, ask for current-run approval before creating `.tink/current/`, loading harness bodies, editing files, or executing the first step. Codex must not silently treat a command invocation as approval.
-12. Use `request_user_input` for choice prompts when available. Otherwise stop and ask one concise blocking approval question directly in chat. Do not continue until the user answers.
-13. Treat reusable saves as a separate hard approval gate for `.tink/memory/*`, `.tink/harnesses/*`, `.tink/rules/*`, `.tink/config.json`, Codex skill files, and template/plugin files that affect future installs.
-14. Current-run approval never authorizes reusable-state writes. Before saving reusable state, show operation, destination files, exact entry or patch summary, reusable reason, sensitive content excluded, and rollback/removal path.
-15. Before saving a reusable rule graph update, run a structural gate: duplicate, breadth, evidence, verification, Claude Code/Codex compatibility, macOS/Windows compatibility, and portable commands. AI may propose a rule; saving it still requires separate approval.
-16. `$tink:frog` may inspect rule quality as well as harness quality. Prefer keep, rewrite, split, merge, or needs-evidence recommendations before any removal proposal.
-17. For `$tink:weave` or `$tink:frog`, prepare the harness health summary before ranking candidates. If `.tink/tools/generate-harness-lifecycle-summary.mjs` exists, run `node .tink/tools/generate-harness-lifecycle-summary.mjs` from the repo root and then read `.tink/maintenance/harness-lifecycle.json`. If the generator is missing, continue from compact run, queue, ledger, and friction evidence.
-18. When `.tink/maintenance/harness-lifecycle.json` or another file following `.tink/schemas/harness-lifecycle.schema.json` exists, treat it as a plain harness health summary. Use `confidence`, `evidence_grade`, `evidence_handles`, and `safe_next_action` to prioritize `$tink:weave` or `$tink:frog` candidates, but do not treat it as approval. Low-confidence entries stay as observation. Harness edits, rule updates, memory saves, merges, archives, and deletions still require the reusable-state approval gate.
-19. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`. If selected, also create `.tink/current/goals.json` for `goal-checkpoint` and `.tink/current/delegation.md` for `delegation-brief`.
-20. Do not stop at recommendation. Execute the first safe step after run state exists.
-21. Run `$tink:verify` behavior before final when `contract.json` lists required checks. If `.tink/config.json` has `completion_policy: "strict"`, do not call the run done until required checks are represented in `.tink/current/verification.json`, `.tink/current/evidence.md` exists, and remaining risk is stated.
-22. Store reusable memory or rule updates under `.tink/` only after separate approval.
-23. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `$tink:weave`.
-24. Keep context compact. Do not paste raw logs or full diffs.
-25. Use calm, clear, concise language. Prefer plain everyday words over technical terms. No jokes.
+9. Treat Evidence Split as a base-run habit, not a harness: for non-trivial work, first ask whether the task should be split into `probe`, `patch`, `verify`, `review`, or `decision` packets. Use it at cast time and again during implementation when uncertainty grows, a check fails, context gets broad, or several changes start to couple. Keep it lightweight for tiny tasks and skip it when it would add ceremony without changing the next action.
+10. Treat visible-thinking and focused work workflows as ordinary Tink harness choices, not new commands. Actively consider them when their trigger changes the procedure: use `requirements-interview` for ambiguity, unclear scope, or missing acceptance criteria; `plan-consensus` for broad plans, migrations, API/schema/contract changes, or tradeoffs; `goal-checkpoint` for multi-file, multi-phase, resumed, release, or long runs; `delegation-brief` for handoff, independent verification, parallel review, or another agent/human brief; `issue-triage` for issue/PR/QA intake or vertical slices; `bug-diagnosis-loop` for hard bugs that need a red-capable loop before code changes; `review-two-axis` for Standards/Spec diff review; `decision-map` for multi-session unresolved decisions; and `architecture-deepening` for deep module, interface, seam, leverage, locality, or testability work.
+11. Run Stitch once before committing to `.tink/current/`: evaluate every time, show exactly one proposal only for high-impact quality or safety branches, and use the configured language.
+12. For non-trivial `$tink:cast` runs, ask for current-run approval before creating `.tink/current/`, loading harness bodies, editing files, or executing the first step. Codex must not silently treat a command invocation as approval.
+13. Use `request_user_input` for choice prompts when available. Otherwise stop and ask one concise blocking approval question directly in chat. Do not continue until the user answers.
+14. Treat reusable saves as a separate hard approval gate for `.tink/memory/*`, `.tink/harnesses/*`, `.tink/rules/*`, `.tink/config.json`, Codex skill files, and template/plugin files that affect future installs.
+15. Current-run approval never authorizes reusable-state writes. Before saving reusable state, show operation, destination files, exact entry or patch summary, reusable reason, sensitive content excluded, and rollback/removal path.
+16. Before saving a reusable rule graph update, run a structural gate: duplicate, breadth, evidence, verification, Claude Code/Codex compatibility, macOS/Windows compatibility, and portable commands. AI may propose a rule; saving it still requires separate approval.
+17. `$tink:frog` may inspect rule quality as well as harness quality. Prefer keep, rewrite, split, merge, or needs-evidence recommendations before any removal proposal.
+18. For `$tink:weave` or `$tink:frog`, prepare the harness health summary before ranking candidates. If `.tink/tools/generate-harness-lifecycle-summary.mjs` exists, run `node .tink/tools/generate-harness-lifecycle-summary.mjs` from the repo root and then read `.tink/maintenance/harness-lifecycle.json`. If the generator is missing, continue from compact run, queue, ledger, and friction evidence.
+19. When `.tink/maintenance/harness-lifecycle.json` or another file following `.tink/schemas/harness-lifecycle.schema.json` exists, treat it as a plain harness health summary. Use `confidence`, `evidence_grade`, `evidence_handles`, and `safe_next_action` to prioritize `$tink:weave` or `$tink:frog` candidates, but do not treat it as approval. Low-confidence entries stay as observation. Harness edits, rule updates, memory saves, merges, archives, and deletions still require the reusable-state approval gate.
+20. After approval, create `.tink/current/plan.md`, `checks.md`, `steps.json`, `notes.md`, `answers.md`, `contract.json`, `session.json`, `context-pack.md`, `context-map.json`, `context-metrics-evaluation.json`, and `excluded-context.md`. If selected, also create `.tink/current/goals.json` for `goal-checkpoint` and `.tink/current/delegation.md` for `delegation-brief`. Evidence Split packets live in these run files; do not add a new public command or standalone runtime file for them.
+21. Do not stop at recommendation. Execute the first safe step after run state exists.
+22. Run `$tink:verify` behavior before final when `contract.json` lists required checks. If `.tink/config.json` has `completion_policy: "strict"`, do not call the run done until required checks are represented in `.tink/current/verification.json`, `.tink/current/evidence.md` exists, and remaining risk is stated.
+23. Store reusable memory or rule updates under `.tink/` only after separate approval.
+24. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `$tink:weave`.
+25. Keep context compact. Do not paste raw logs or full diffs.
+26. Use calm, clear, concise language. Prefer plain everyday words over technical terms. No jokes.
 
 ## Codex Approval Protocol
 
@@ -120,6 +121,39 @@ Optional current-run artifacts:
 - `.tink/current/goals.json`: create only when `goal-checkpoint` is selected. Keep 2-6 goals, one active goal, status, done criteria, verification, evidence, and next action.
 - `.tink/current/delegation.md`: create only when `delegation-brief` is selected. Include packet scope, forbidden actions, expected evidence, and reconciliation notes. Do not start tmux panes, worktrees, workers, or external agents from this harness.
 
+## Evidence Split
+
+Evidence Split is Tink's default way to keep real work small while it is happening. It is not a separate harness and it does not imply parallel execution.
+
+Use Evidence Split when a task is non-trivial and any of these signals appears:
+- the first plan has several uncertain facts,
+- implementation starts coupling several files or concepts,
+- a check fails and the next action is unclear,
+- context is becoming broad or stale,
+- independent verification, review, or handoff would reduce risk.
+
+Skip it for tiny, obvious edits where a packet would not change the next action.
+
+Packet vocabulary:
+- `probe`: answer one unknown with 1-3 inputs.
+- `patch`: make one narrow implementation change.
+- `verify`: prove one success condition or failure recovery.
+- `review`: inspect one risk, regression, or omission.
+- `decision`: record one branch, chosen option, and evidence.
+
+Represent packets in existing run state:
+- `steps.json`: packetized steps and status.
+- `context-map.json`: the input files, sources, or excluded context for each packet.
+- `notes.md`: why work was split or re-split during implementation.
+- `delegation.md`: only when `delegation-brief` is selected or another human/agent packet is explicitly needed.
+
+Safety defaults:
+- Do not start workers, tmux panes, worktrees, or external agents automatically.
+- Packet outputs are evidence, risks, recommendations, or patch candidates by default; direct edits require the main agent's normal approval and ownership.
+- Do not let multiple packets edit the same file concurrently.
+- Keep secrets, public contracts, broad refactors, release/publish actions, and final reconciliation under the main agent's control.
+- Keep each packet to 1-3 primary inputs when possible.
+
 GJC-style harness selection rules:
 
 - Ambiguous ideas, early product concepts, vague bug reports, broad "make it better" requests, and underspecified implementation prompts should start with `requirements-interview`, usually alone until the user clarifies enough to plan or code.
@@ -127,6 +161,14 @@ GJC-style harness selection rules:
 - Runs that span multiple files, multiple phases, release steps, a resumed thread, or more than one verification pass should add `goal-checkpoint`.
 - Parallel review, independent verification, PR handoff, another agent, or a human handoff should use `delegation-brief` only to prepare briefs; worker execution needs separate user approval and tooling.
 - Treat these four harnesses as overlay candidates that can sit beside a work harness when their trigger is present. The exception is ambiguous work, where `requirements-interview` should usually run alone until the user clarifies.
+
+Focused work harness selection rules:
+
+- Issue, external PR, QA report, or broad plan intake should use `issue-triage` when the outcome is classification, needs-info, ready-for-agent, ready-for-human, wontfix, or vertical issue slices.
+- Hard bugs, regressions, intermittent failures, and performance problems should use `bug-diagnosis-loop` when the next correct action is building a red-capable feedback loop before changing code.
+- Branch, PR, or WIP diff review should use `review-two-axis` when Standards and Spec need separate findings.
+- Loose ideas with multiple unresolved decisions across sessions should use `decision-map`; ordinary one-session planning should stay with `plan-consensus`.
+- Architecture health work should use `architecture-deepening` only when module/interface/seam shape, deep modules, leverage, locality, or testability are the point of the task.
 
 When useful, enrich `context-map.json.included[]` and `context-map.json.excluded[]` entries with Context Budget Ledger fields: `role`, `cost`, `reuse_signal`, `verification_link`, `staleness`, and `evidence_kind`. Use them to keep the first context pack small, mark stale or avoid-next-time context, and connect `verification_target` entries to command checks, manual checks, evidence refs, or verification hints. Do not claim any 90% efficiency score without measurement evidence.
 

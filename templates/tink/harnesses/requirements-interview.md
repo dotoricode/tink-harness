@@ -10,13 +10,16 @@ Clarify an ambiguous idea before planning or implementation.
 
 ## Plan
 1. State the current understanding in one paragraph.
-2. Ask one question at a time, starting with the uncertainty that changes scope or success criteria most.
-3. Record each answer in `.tink/current/answers.md`.
-4. Convert settled answers into `contract.json` success conditions, forbidden actions, or verification notes.
-5. Stop interviewing when the next safe step is clear enough to plan.
+2. If the answer can be discovered from the repo, inspect the code or docs before asking the user.
+3. Ask one question at a time, starting with the uncertainty that changes scope or success criteria most.
+4. Offer a recommended answer when a design branch needs a decision, then wait for correction.
+5. Record each answer in `.tink/current/answers.md`.
+6. Convert settled answers into `contract.json` success conditions, forbidden actions, or verification notes.
+7. Stop interviewing when the next safe step is clear enough to plan.
 
 ## Checks
 - Only one blocking question is asked at a time.
+- Repo-discoverable answers are not pushed back to the user.
 - Success conditions are explicit before implementation starts.
 - Important assumptions are recorded instead of hidden.
 - Do not repeat questions already answered in `.tink/current/answers.md`.

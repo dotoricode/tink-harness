@@ -2,6 +2,10 @@
 
 This document restates the remaining roadmap as work units instead of numbered phases. Each unit should support Claude Code and Codex, work on macOS and Windows, and avoid new public command surfaces unless the user explicitly asks for one.
 
+## Management Rule
+
+Broad ideas should not enter the implementation list directly. First narrow them into requirements, success criteria, out-of-scope boundaries, and verification evidence. Once a work unit is implemented, remove it from this active list and record the completion in the implemented baseline, PR docs, changelog, or another completion record.
+
 ## Implemented Baseline
 
 ### Harness Lifecycle Signals
@@ -86,6 +90,20 @@ Make the standalone CLI easier to type and make the local health report easier t
 - Add a `dashboard` command that runs the existing lifecycle summary generator and HTML report renderer in one step.
 - Keep `dashboard` local and static by default: no server, watcher, hidden cache, or automatic harness edits.
 - Allow an optional open/export flag only after the generated file path behavior is stable across platforms.
+
+## Evidence Split / Parallel Evidence
+
+Before adding parallel workers, add Evidence Split to Tink's default work loop. Tink should not become a separate multi-agent runtime; it should first make large work divisible into small evidence packets. The research notes live in `docs/swarm-fast-lane.ko.md` and `docs/swarm-fast-lane.md`.
+
+- `/tink:cast` and `$tink:cast` check whether work should split into `probe`, `patch`, `verify`, `review`, or `decision` packets before harness selection.
+- During implementation, Tink re-splits work when uncertainty, failed checks, context sprawl, or coupled changes appear.
+- Packets see only 1-3 inputs, not the whole task.
+- If external workers are used later, they do not edit files by default; they return evidence and patch candidates.
+- The main agent owns final patch selection, file edits, and verification.
+- Success is measured by less main-agent context, less rework, earlier failure detection, and equal or better verification pass rate, not by claiming universal raw speed.
+- The initial implementation is the core Evidence Split behavior; actual worker runtime remains deferred.
+- Future worker output should be capped at 300 words and include evidence and confidence.
+- Do not select it for unclear public contracts, secrets, broad repository scans, or same-file concurrent edits.
 
 ## Excluded
 

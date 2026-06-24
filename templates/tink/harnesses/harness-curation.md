@@ -22,6 +22,11 @@ Do not repeat questions already answered in `.tink/current/answers.md`.
 
 ## Plan
 1. State the task stage: spike, MVP, implementation, review, release, or postmortem.
+   - idea shaping usually starts with `requirements-interview`,
+   - multi-session planning may need `plan-consensus` or a decision map,
+   - issue intake uses `issue-triage`,
+   - implementation usually stays on the base run unless a specialized harness changes behavior,
+   - review, ship, and merge use their named harnesses.
 2. Choose the smallest effective set:
    - target 3-5 tools/harnesses,
    - never exceed 10 without explicit reason,

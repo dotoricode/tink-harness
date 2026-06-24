@@ -24,6 +24,7 @@ Do not repeat questions already answered in `.tink/current/answers.md`.
    - 테스트 없으면 이유 명시 후 진행
 3. `gh pr diff <PR>` 또는 `git diff <base>..<head>` — diff 범위 확인
 4. `gh pr view <PR> --json mergeable` — 충돌 여부 확인 (`MERGEABLE` 이어야 함)
+4b. 충돌이나 범위 의심이 있으면 각 변경의 원 의도(커밋, PR 설명, issue)를 확인하고, 양쪽 의도를 보존할 수 없으면 tradeoff를 기록
 5. merge 전 base 브랜치 SHA 기록: `git rev-parse origin/<base>` (rollback 기준점)
 6. `gh pr merge <PR> --<strategy> --delete-branch` 실행
 7. merge 후 `git fetch origin && git log origin/<base> -1` — 반영 확인
@@ -35,6 +36,7 @@ Do not repeat questions already answered in `.tink/current/answers.md`.
 - CI 전체 green (또는 skip 이유를 사용자 승인 받음)
 - 충돌 없음 (`mergeable: MERGEABLE`)
 - diff 범위가 PR 설명과 일치
+- 충돌/범위 의심 시 원 의도와 tradeoff 기록됨
 - rollback 기준점(base SHA before merge) 기록됨
 - merge 전략이 사용자 답변과 일치
 
