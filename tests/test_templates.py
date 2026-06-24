@@ -11,6 +11,13 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 NPM = 'npm.cmd' if os.name == 'nt' else 'npm'
 
+def clean_install_env():
+    """Return env without CLAUDE_CONFIG_DIR/CODEX_HOME so temp-dir tests are not redirected."""
+    env = os.environ.copy()
+    env.pop('CLAUDE_CONFIG_DIR', None)
+    env.pop('CODEX_HOME', None)
+    return env
+
 REQUIRED_README = [
     'Why I made this',
     'Install',
@@ -560,7 +567,7 @@ class TemplateTests(unittest.TestCase):
             legacy_tiny_dir = Path(d) / '.claude/commands/tiny'
             legacy_tiny_dir.mkdir(parents=True)
             (legacy_tiny_dir / 'use.md').write_text('legacy nested tiny command', encoding='utf-8')
-            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'], cwd=d, check=True, capture_output=True, text=True, encoding='utf-8')
+            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'], cwd=d, env=clean_install_env(), check=True, capture_output=True, text=True, encoding='utf-8')
             base = Path(d)
             installed_commands = {p.name for p in (base / '.claude/commands/tink').glob('*.md')}
             self.assertEqual(installed_commands, EXPECTED_INSTALLED_COMMANDS)
@@ -584,7 +591,7 @@ class TemplateTests(unittest.TestCase):
             self.assertTrue((base / '.gitignore').exists())
 
         with tempfile.TemporaryDirectory() as d:
-            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes', '--with-hook'], cwd=d, check=True, capture_output=True, text=True, encoding='utf-8')
+            subprocess.run(['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes', '--with-hook'], cwd=d, env=clean_install_env(), check=True, capture_output=True, text=True, encoding='utf-8')
             base = Path(d)
             settings = json.loads((base / '.claude/settings.json').read_text(encoding='utf-8'))
             hooks = settings['hooks']['UserPromptSubmit']
@@ -1201,6 +1208,7 @@ class TemplateTests(unittest.TestCase):
                 subprocess.run(
                     [NPM, 'exec', '--yes', '--package', str(tarball), '--', 'tink-harness', 'install', '--lang=ko', '--yes', '--scope=repo'],
                     cwd=base,
+                    env=clean_install_env(),
                     check=True,
                     capture_output=True,
                     text=True,
@@ -1231,7 +1239,7 @@ class TemplateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             subprocess.run(
                 ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'],
-                cwd=d, check=True, capture_output=True, text=True, encoding='utf-8',
+                cwd=d, env=clean_install_env(), check=True, capture_output=True, text=True, encoding='utf-8',
             )
             base = Path(d)
             pairs = [
@@ -1260,14 +1268,14 @@ class TemplateTests(unittest.TestCase):
             base = Path(d)
             subprocess.run(
                 ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes'],
-                cwd=d, check=True, capture_output=True, text=True, encoding='utf-8',
+                cwd=d, env=clean_install_env(), check=True, capture_output=True, text=True, encoding='utf-8',
             )
             target = base / '.claude/commands/tink/cast.md'
             original = target.read_bytes()
             target.write_text('TAMPERED', encoding='utf-8')
             subprocess.run(
                 ['node', str(ROOT / 'bin/install.js'), 'install', '--lang=ko', '--yes', '--force'],
-                cwd=d, check=True, capture_output=True, text=True, encoding='utf-8',
+                cwd=d, env=clean_install_env(), check=True, capture_output=True, text=True, encoding='utf-8',
             )
             self.assertEqual(
                 target.read_bytes(),

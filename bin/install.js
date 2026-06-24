@@ -228,10 +228,10 @@ function codexHome() {
   return process.env.CODEX_HOME || path.join(os.homedir(), '.codex');
 }
 
-// CLAUDE_CONFIG_DIR replaces ~/.claude for global installs (like direnv per-project overrides).
-// Repo-scope installs always use <repo>/.claude regardless of this env var.
+// CLAUDE_CONFIG_DIR replaces ~/.claude whenever set (mirrors CODEX_HOME behavior).
+// Unset: repo-scope uses <repo>/.claude, global uses ~/.claude.
 function claudeDir(target) {
-  if (process.env.CLAUDE_CONFIG_DIR && target === os.homedir()) {
+  if (process.env.CLAUDE_CONFIG_DIR) {
     return process.env.CLAUDE_CONFIG_DIR;
   }
   return path.join(target, '.claude');
