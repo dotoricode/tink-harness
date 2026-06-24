@@ -6,6 +6,13 @@ All notable changes to Tink are tracked here.
 
 - Added a geobench product spec and runbook for measuring Tink's LLM answer visibility with hit rate, MRR, share of voice, and citation metrics. The runbook keeps benchmark execution separate from this repo and says to publish aggregate metrics only.
 
+## [1.15.0] - 2026-06-24
+
+- Added cast mode system: `/tink:cast` now supports three modes — `quick` (forces Lane 1 fast path), `standard` (default, auto triage), and `deep` (structured interview before planning). The active mode is persisted in `.tink/config.json` as `cast_mode`. Setting the mode with `/tink:cast <mode>` shows the current mode and offers a change option when called without a task.
+- Added `deep` mode interview pipeline: Round 0 topology lock confirms inferred components before questions start; Rounds 1–10 ask one question per round with a `[Round N/10 ████░░░]` progress indicator, target the weakest clarity dimension (goal/constraint/success criteria/context), investigate brownfield code before asking, handle counter-questions and clarification requests within the same round, allow early exit from Round 3+, and shift from Contrarian to Simplifier questioning as clarity improves. The interview produces a Goal/Topology/Constraints/Success Criteria/Open Questions spec written to `plan.md` before harness selection begins.
+- Upgraded Stitch to Phase A / Phase B: Phase A (Blocking — safety, missing success criteria, goal ambiguity, harness mismatch) always runs and always surfaces when triggered. Phase B (Plan-shaping — minimality, reuse, deletion/substitution) runs only when a concrete code-grounded alternative exists and is skipped entirely in `deep` mode. Phase B never suggests reducing trust-boundary validation, data-loss prevention, security, accessibility, or explicitly requested requirements.
+- Codex: Rule 27 added for `cast_mode` and `deep` mode behavior; Rule 11 updated for Stitch Phase A/B.
+
 ## [1.14.0] - 2026-06-19
 
 - Added `CLAUDE_CONFIG_DIR` support: global installs now respect the env var (set via direnv or shell) so commands and skills land in the right config directory instead of always defaulting to `~/.claude`.
