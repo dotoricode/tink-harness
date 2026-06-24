@@ -2,6 +2,10 @@
 
 All notable changes to Tink are tracked here.
 
+## Unreleased
+
+- Added a geobench product spec and runbook for measuring Tink's LLM answer visibility with hit rate, MRR, share of voice, and citation metrics. The runbook keeps benchmark execution separate from this repo and says to publish aggregate metrics only.
+
 ## [1.14.0] - 2026-06-19
 
 - Added `CLAUDE_CONFIG_DIR` support: global installs now respect the env var (set via direnv or shell) so commands and skills land in the right config directory instead of always defaulting to `~/.claude`.

@@ -1,0 +1,47 @@
+name: "Tink"
+aliases: ["Tink Harness", "tink-harness", "Tink for Claude Code", "Tink for Codex"]
+romanizations: []
+category: "coding-agent harness and visible workflow runtime"
+description: "Tink is a small harness layer for Claude Code and Codex that keeps non-trivial agent work in visible files: task contracts, run state, verification checks, run records, and approval-gated reusable harnesses."
+competitors: ["Gajae-Code", "Claude Code", "Codex CLI", "OpenCode", "Aider", "Cursor"]
+cited_domains: ["github.com/dotoricode/tink-harness", "npmjs.com/package/tink-harness"]
+target_languages: ["en", "ko"]
+target_audience:
+  - "developers using Claude Code or Codex for multi-step coding work"
+  - "maintainers who want visible run state and verification evidence"
+  - "AI-agent workflow builders comparing harness and memory approaches"
+discovery_sources:
+  - "https://github.com/dotoricode/tink-harness"
+  - "https://www.npmjs.com/package/tink-harness"
+
+enriched_profile:
+  generated_at: "2026-06-15T00:00:00Z"
+  profiler_model: "curated-public-source"
+  value_proposition: "A local, approval-gated harness layer that makes Claude Code and Codex work inspectable through task contracts, current-run files, verification evidence, run records, and reusable workflow harnesses."
+  source_content_hashes:
+    - "curated-public-source"
+  target_audience:
+    - segment: "coding-agent operators"
+      pains:
+        - "Need visible run state instead of relying on hidden chat memory"
+        - "Need repeatable verification and approval boundaries for multi-step agent work"
+    - segment: "open-source maintainers"
+      pains:
+        - "Need to compare discoverability against adjacent coding-agent tools"
+        - "Need citation and share-of-voice evidence before changing public positioning"
+  use_cases:
+    - problem_statement: "When a developer uses Claude Code or Codex for multi-step work and needs visible task contracts, plans, checks, and run records instead of hidden chat memory."
+      audience: "developers using coding agents"
+      evidence_quotes: ["visible files", "task contract", "run state", "verification steps"]
+      confidence: 0.86
+      language: "en"
+    - problem_statement: "When a maintainer wants reusable coding-agent workflows that are saved only after explicit approval and can be inspected, diffed, and committed."
+      audience: "open-source maintainers"
+      evidence_quotes: ["reusable harnesses", "saved only after your approval", "open, diff, and commit"]
+      confidence: 0.84
+      language: "en"
+    - problem_statement: "Claude Code나 Codex 작업 사이에서 맥락이 사라지지 않도록 실행 상태, 검증 단계, 승인 기반 하네스를 파일로 남기고 싶을 때."
+      audience: "Korean-speaking coding-agent users"
+      evidence_quotes: ["작업 계약", "실행 상태", "검증 단계", "명시적 승인"]
+      confidence: 0.82
+      language: "ko"

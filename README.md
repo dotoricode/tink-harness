@@ -139,6 +139,18 @@ No server, no telemetry, no hidden cache - it is a static local page that only p
 
 ---
 
+## Measure GEO visibility
+
+Tink includes a geobench product spec so maintainers can measure how often LLM answers mention, rank, and cite Tink across providers.
+
+- Spec: [`geobench/tink-harness.yaml`](geobench/tink-harness.yaml)
+- Runbook: [`docs/geobench.md`](docs/geobench.md)
+- Metrics: hit rate, MRR, share of voice, citation rate/share, and confidence intervals
+
+Use the benchmark for aggregate visibility checks only. Do not publish raw provider answers, secrets, or private run logs.
+
+---
+
 ## Why I made this
 
 *Tink is <strong>knit</strong> in reverse: untying tangled workflows and knitting better ones back together. It also nods to Tinker Bell, the small helper at your side.*
@@ -282,6 +294,7 @@ The dashboard is a static local page rendered from those files — the harness h
 - Harness health summary: `docs/harness-lifecycle-signals.md`, `docs/harness-lifecycle-signals.ko.md`
 - External context safety: `docs/mcp-safe-profile.md`, `docs/external-context-policy.md`
 - Reading `.tink/current/` state: `docs/work-state.md`, `docs/work-state.ko.md`
+- GEO visibility benchmark: `docs/geobench.md` · spec: `geobench/tink-harness.yaml`
 - Update confidence: `docs/phase-5-update-confidence.md`, `docs/phase-5-update-confidence.ko.md`
 - Context efficiency: `docs/context-budget-ledger.md`, `docs/context-budget-ledger.ko.md`, `docs/context-metrics-evaluator.md`, `docs/context-metrics-evaluator.ko.md`, `docs/context-run-history-rollup.md`, `docs/context-run-history-rollup.ko.md`, `docs/context-threshold-status.md`, `docs/context-threshold-status.ko.md`, `docs/context-run-record-policy.md`, `docs/context-run-record-policy.ko.md`
 - Planned work units: `docs/planned-work-units.md`, `docs/planned-work-units.ko.md` · roadmap and idea audit: `docs/tink-idea-implementation-plan.ko.md`
