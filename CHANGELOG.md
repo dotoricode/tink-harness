@@ -6,6 +6,11 @@ All notable changes to Tink are tracked here.
 
 - Added a geobench product spec and runbook for measuring Tink's LLM answer visibility with hit rate, MRR, share of voice, and citation metrics. The runbook keeps benchmark execution separate from this repo and says to publish aggregate metrics only.
 
+## [1.15.4] - 2026-06-24
+
+- Deep mode interview: round indicator no longer shows `/10` as a fixed denominator; bar fills relative to the 10-round maximum. Indicator is omitted entirely when no questions are asked. Actual round count is shown on the final spec line.
+- Deep mode Round 0 renamed from "Topology lock" to "구성 파악"; component list now uses emojis for readability.
+
 ## [1.15.3] - 2026-06-24
 
 - Fixed `$tink:cast` with no argument in Codex showing a task prompt instead of mode descriptions. Codex now displays the current mode and all three mode descriptions directly, matching Claude Code behavior.
