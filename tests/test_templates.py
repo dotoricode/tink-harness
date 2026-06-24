@@ -20,7 +20,7 @@ def clean_install_env():
 
 REQUIRED_README = [
     'Why I made this',
-    'Install',
+    'Try it',
     'Commands',
     'How it works',
     'What Tink is not',
@@ -83,8 +83,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('TINK', installer)
         self.assertIn('A small harness layer for Claude Code and Codex', (ROOT / 'README.md').read_text(encoding='utf-8'))
         pkg_version = json.loads((ROOT / 'package.json').read_text())['version']
-        self.assertIn(f'Latest package:</strong> v{pkg_version}', (ROOT / 'README.md').read_text(encoding='utf-8'))
-        self.assertIn('href="CHANGELOG.md"', (ROOT / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn(f'## [{pkg_version}]', (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8'))
+        self.assertIn('[Changelog](CHANGELOG.md)', (ROOT / 'README.md').read_text(encoding='utf-8'))
         self.assertIn('## [1.8.0]', (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8'))
         self.assertIn('graph-rule seed rules', (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8'))
         self.assertIn('<strong>knit</strong> in reverse', (ROOT / 'README.md').read_text(encoding='utf-8'))

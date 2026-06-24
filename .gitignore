@@ -16,5 +16,8 @@ __pycache__/
 
 # npm credentials
 .npmrc
+
+# Marketing drafts (local only, not for public commit)
+marketing/
 .tink/maintenance/harness-health-report.html
 .tink/maintenance/harness-lifecycle.json
