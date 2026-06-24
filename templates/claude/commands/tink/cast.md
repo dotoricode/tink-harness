@@ -138,10 +138,16 @@ When `cast_mode` is `deep`, run a structured interview before the normal Procedu
 Before asking any questions, present the high-level components Claude infers from the request and visible codebase context. Ask the user to confirm, add, remove, or merge components. This prevents deep focus on one component from obscuring others.
 
 **Interview loop — Rounds 1–10**
-Show a progress indicator at the start of each question:
+Show a progress indicator at the start of each question. Do not show `/10` as a fixed denominator — the actual number of rounds is not known upfront:
 
 ```
-[Round N/10 ████████░░░░░░░░░░░░]
+[Round N  ██░░░░░░░░]
+```
+
+The bar fills N/10 cells to show relative progress toward the maximum. When the interview ends early, replace the indicator with the actual count on the final spec line:
+
+```
+[인터뷰 완료 · N라운드]   (English: [Interview done · N rounds])
 ```
 
 Rules:
