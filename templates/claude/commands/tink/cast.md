@@ -33,7 +33,7 @@ A valid `/tink:cast` response must do one of these:
 If the task is clear enough to classify, do not ask broad clarification first. Make a best recommendation, ask for approval, then act.
 
 ## Cast mode
-`/tink:cast` without a task argument shows the current mode and offers a change option. `/tink:cast <mode>` sets the mode and saves it to `cast_mode` in `.tink/config.json`.
+`/tink:cast` without a task argument shows the current mode and the description of all three modes directly — no change prompt, just information. `/tink:cast <mode>` sets the mode and saves it to `cast_mode` in `.tink/config.json` with a single confirmation line and no Lane 1 framing.
 
 Modes:
 - `quick` — Forces Lane 1 fast path regardless of task complexity. Skips harness selection and starts immediately.
