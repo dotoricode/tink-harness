@@ -24,7 +24,7 @@
   <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
-<p><strong>Latest package:</strong> v1.15.0 - <code>/tink:cast</code> now supports three modes (quick / standard / deep); deep mode runs a structured 10-round interview before planning, and Stitch is split into Phase A (blocking) and Phase B (plan-shaping). See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
+<p><strong>Latest package:</strong> v1.15.1 - <code>CLAUDE_CONFIG_DIR</code> is now respected for repo-scope installs, matching <code>CODEX_HOME</code> behavior. See <a href="CHANGELOG.md">CHANGELOG</a> for release history.</p>
 
 **English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
 
