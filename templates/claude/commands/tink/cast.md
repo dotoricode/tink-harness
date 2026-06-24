@@ -32,6 +32,14 @@ A valid `/tink:cast` response must do one of these:
 
 If the task is clear enough to classify, do not ask broad clarification first. Make a best recommendation, ask for approval, then act.
 
+## Cast mode
+`/tink:cast` without a task argument shows the current mode and offers a change option. `/tink:cast <mode>` sets the mode and saves it to `cast_mode` in `.tink/config.json`.
+
+Modes:
+- `quick` — Forces Lane 1 fast path regardless of task complexity. Skips harness selection and starts immediately.
+- `standard` — Default behavior. Quick triage selects the right lane automatically.
+- `deep` — Runs a structured interview before planning. See **Deep mode** below.
+
 ## Interaction policy
 Always call the `AskUserQuestion` tool for choice prompts. Do not render `❯` text format. Do not ask the user to type a number inline.
 
@@ -79,12 +87,21 @@ When Stitch is visible, show exactly one proposal in this order: proposal, reaso
 2. reason
 3. choices
 
-Choose the one proposal by priority:
-1. safety or irreversibility
-2. success criteria or verification
-3. goal or scope ambiguity
-4. harness mismatch
-5. reusable improvement opportunity
+**Phase A — Blocking checks** (always run; always surface when triggered):
+1. Safety or irreversibility
+2. Missing success criteria or verification
+3. Goal or scope ambiguity
+4. Harness mismatch
+
+**Phase B — Plan-shaping checks** (run after Phase A; surface only when a concrete code-grounded alternative exists):
+5. Minimality — is the plan larger than the request warrants? Are new files, abstractions, or dependencies justified?
+6. Reuse — does an existing helper, pattern, or flow already solve this?
+7. Deletion/substitution — can the addition be replaced with deleting, configuring, or extending an existing path?
+
+Phase B proposal rules:
+- Never surface Phase B without a concrete alternative grounded in observed code or project state. "This looks large, consider simplifying" is not a valid finding.
+- Never suggest reducing: trust boundary input validation, data loss prevention, security measures, accessibility basics, or explicitly requested requirements.
+- In `deep` mode, skip Phase B entirely — the interview already covered minimality and reuse.
 
 Stitch may change the order or method of work, but it must not change the user's goal without separate approval.
 
@@ -113,6 +130,38 @@ When Stitch is visible and the user responds, record current-run state:
 If the user chooses `Continue as-is` / `이대로 진행`, proceed with the explicit assumptions recorded in `answers.md`.
 
 Do not record a clean Stitch pass.
+
+## Deep mode
+When `cast_mode` is `deep`, run a structured interview before the normal Procedure. The interview refines the task into a spec that feeds harness selection.
+
+**Round 0 — Topology lock** (not counted in progress)
+Before asking any questions, present the high-level components Claude infers from the request and visible codebase context. Ask the user to confirm, add, remove, or merge components. This prevents deep focus on one component from obscuring others.
+
+**Interview loop — Rounds 1–10**
+Show a progress indicator at the start of each question:
+
+```
+[Round N/10 ████████░░░░░░░░░░░░]
+```
+
+Rules:
+- Ask one question per round. Never ask multiple questions in one round.
+- Target the weakest clarity dimension each round: goal (0.35 weight), constraint (0.25), success criteria (0.25), context (0.15). These weights are internal judgment guides, not computed scores. Always pick the dimension where ambiguity most limits the next action.
+- Brownfield rule: investigate the codebase before asking. Do not ask about things already visible in the code. Confirm findings rather than ask from scratch.
+- Counter-question (user answers but also asks a question back): answer the counter-question first, then treat the combined response as this round's answer. Round counter does not advance.
+- Clarification request (user does not understand the question): rephrase and re-ask within the same round. Round counter does not advance.
+- Round 3+: user may exit the interview early and proceed directly to spec generation.
+- Round 10: hard cap. End the interview and produce the spec regardless of ambiguity.
+- End early when goal, constraint, and success criteria are all sufficiently clear, without waiting for Round 10.
+
+**Question mode shift** (triggered by clarity state, not round number):
+- When goal and constraint are sufficiently clear → shift to Contrarian mode: "What if the opposite were true? What if this assumption is wrong?"
+- When those are also resolved → shift to Simplifier mode: "What is the smallest version that still has meaningful value?"
+
+**Spec → plan.md → harness selection**
+When the interview ends, write `.tink/current/plan.md` with these top-level sections: Goal, Topology, Constraints, Success Criteria, Open Questions.
+
+Then proceed to the normal Procedure starting at step 3 (read harness index). Use the spec as the harness selection input instead of the raw task request. Stitch Phase A runs after harness selection as normal. Phase B is skipped.
 
 ## Reusable State Save Gate
 Reusable State Save Gate is a separate absolute hard approval gate, not merely a Stitch subtype. Current-run approval does not authorize reusable-state writes.
@@ -401,6 +450,7 @@ If any of the following is true, the task goes to Lane 3:
 - The task description mentions any of the above concepts
 
 **Step 2 — Lane decision (only if step 1 finds no hard-gate):**
+If `cast_mode` is `quick`, always select Lane 1 here regardless of task signals.
 
 **Lane 1 — instant start.** Any of these signals, with no contradicting complexity signal:
 - a question, explanation, or lookup with no file edits
