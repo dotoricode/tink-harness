@@ -10,6 +10,7 @@
   "install_scope": "repo",
   "hook_scope": "off",
   "completion_policy": "normal",
+  "cast_mode": "standard",
   "default_harnesses_per_task": 4,
   "harness_lines_warning": 100,
   "context_budget": "soft",
