@@ -4,7 +4,9 @@ All notable changes to Tink are tracked here.
 
 ## Unreleased
 
-- Added a geobench product spec and runbook for measuring Tink's LLM answer visibility with hit rate, MRR, share of voice, and citation metrics. The runbook keeps benchmark execution separate from this repo and says to publish aggregate metrics only.
+## [1.16.0] - 2026-06-25
+
+- `/tink:deep-cast` 신규 명령 추가: `cast_mode`를 변경하지 않고 이번 작업 한 번만 deep 모드(구조화 인터뷰)로 실행한다. `/tink:cast deep`이 기본값을 영구 변경하는 것과 구분된다.
 
 ## [1.15.4] - 2026-06-24
 

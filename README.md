@@ -155,6 +155,7 @@ Tink is plugin-first in Claude Code. Commands are namespaced under `tink`: `/tin
 | Command | What it does |
 |---|---|
 | `/tink:cast` | Read the task, pick or draft the right harness, create `.tink/current/`, start the first safe step |
+| `/tink:deep-cast` | Same as `cast` but always runs the structured deep interview — without changing your default `cast_mode` |
 | `/tink:verify` | Run the checks promised in `contract.json` — proves "done" with evidence, not vibes |
 | `/tink:frog` | Find unused, overlapping, or too-broad harnesses — proposes cleanup, never deletes without approval |
 | `/tink:weave` | Improve a harness from real failures and corrections — saves only after approval |
@@ -194,7 +195,6 @@ Three rules drive all of it:
 - Harness health summary: `docs/harness-lifecycle-signals.md`, `docs/harness-lifecycle-signals.ko.md`
 - External context safety: `docs/mcp-safe-profile.md`, `docs/external-context-policy.md`
 - Reading `.tink/current/` state: `docs/work-state.md`, `docs/work-state.ko.md`
-- GEO visibility benchmark: `docs/geobench.md` · spec: `geobench/tink-harness.yaml`
 - Update confidence: `docs/phase-5-update-confidence.md`, `docs/phase-5-update-confidence.ko.md`
 - Context efficiency: `docs/context-budget-ledger.md`, `docs/context-budget-ledger.ko.md`, `docs/context-metrics-evaluator.md`, `docs/context-metrics-evaluator.ko.md`, `docs/context-run-history-rollup.md`, `docs/context-run-history-rollup.ko.md`, `docs/context-threshold-status.md`, `docs/context-threshold-status.ko.md`, `docs/context-run-record-policy.md`, `docs/context-run-record-policy.ko.md`
 - Planned work: `docs/planned-work-units.md`, `docs/planned-work-units.ko.md` · roadmap and idea audit: `docs/tink-idea-implementation-plan.ko.md`
@@ -239,19 +239,6 @@ If `CODEX_HOME` is not set, Codex skills default to `%USERPROFILE%\.codex` on Wi
 The package exposes a `tink-harness` binary — if it is on your `PATH`, you can run `tink-harness update` directly; otherwise keep using `npx tink-harness@latest update`.
 
 Verify: `docs/update-verification-recipe.md` or `docs/update-verification-recipe.ko.md`. Troubleshoot: `docs/update-troubleshooting.md` or `docs/update-troubleshooting.ko.md`.
-
-</details>
-
-<details>
-<summary><strong>GEO visibility benchmark</strong></summary>
-
-Tink includes a geobench product spec so maintainers can measure how often LLM answers mention, rank, and cite Tink across providers.
-
-- Spec: [`geobench/tink-harness.yaml`](geobench/tink-harness.yaml)
-- Runbook: [`docs/geobench.md`](docs/geobench.md)
-- Metrics: hit rate, MRR, share of voice, citation rate/share, and confidence intervals
-
-Use the benchmark for aggregate visibility checks only. Do not publish raw provider answers, secrets, or private run logs.
 
 </details>
 
