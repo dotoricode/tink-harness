@@ -35,8 +35,8 @@ HARNESS_SECTIONS = [
     '## If it fails, Tink back',
 ]
 
-EXPECTED_COMMANDS = {'setup.md', 'cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
-EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
+EXPECTED_COMMANDS = {'setup.md', 'cast.md', 'deep-cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
+EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'cast.md', 'deep-cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
 EXPECTED_CODEX_SKILLS = {
     'tink-cast',
     'tink-verify',
@@ -207,6 +207,8 @@ class TemplateTests(unittest.TestCase):
         pairs = [
             ('commands/cast.md', 'templates/claude/commands/tink/cast.md'),
             ('commands/cast.md', '.claude/commands/tink/cast.md'),
+            ('commands/deep-cast.md', 'templates/claude/commands/tink/deep-cast.md'),
+            ('commands/deep-cast.md', '.claude/commands/tink/deep-cast.md'),
             ('commands/verify.md', 'templates/claude/commands/tink/verify.md'),
             ('commands/verify.md', '.claude/commands/tink/verify.md'),
             ('commands/frog.md', 'templates/claude/commands/tink/frog.md'),

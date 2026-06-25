@@ -50,6 +50,17 @@
       "verified_by": "test_dual_format_paths_stay_in_sync"
     },
     {
+      "name": "deep-cast-command",
+      "kind": "claude-command",
+      "rule": "byte-identical",
+      "files": [
+        "commands/deep-cast.md",
+        "templates/claude/commands/tink/deep-cast.md",
+        ".claude/commands/tink/deep-cast.md"
+      ],
+      "verified_by": "test_dual_format_paths_stay_in_sync"
+    },
+    {
       "name": "verify-command",
       "kind": "claude-command",
       "rule": "byte-identical",
@@ -339,6 +350,7 @@
     "allowed": [
       "setup.md",
       "cast.md",
+      "deep-cast.md",
       "verify.md",
       "list.md",
       "frog.md",
