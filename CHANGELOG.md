@@ -4,6 +4,10 @@ All notable changes to Tink are tracked here.
 
 ## Unreleased
 
+## [1.16.1] - 2026-06-25
+
+- Codex에서 `$tink:deep-cast` 명령이 보이지 않던 문제 수정 — `templates/codex/skills/tink-deep-cast/SKILL.md` 누락이 원인
+
 ## [1.16.0] - 2026-06-25
 
 - `/tink:deep-cast` 신규 명령 추가: `cast_mode`를 변경하지 않고 이번 작업 한 번만 deep 모드(구조화 인터뷰)로 실행한다. `/tink:cast deep`이 기본값을 영구 변경하는 것과 구분된다.
