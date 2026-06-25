@@ -39,6 +39,7 @@ EXPECTED_COMMANDS = {'setup.md', 'cast.md', 'deep-cast.md', 'verify.md', 'list.m
 EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'cast.md', 'deep-cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
 EXPECTED_CODEX_SKILLS = {
     'tink-cast',
+    'tink-deep-cast',
     'tink-verify',
     'tink-list',
     'tink-setup',
