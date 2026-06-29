@@ -20,6 +20,10 @@
 
 ---
 
+*I kept adding new AI coding tools. Each was useful on its own, but stacking them made my setup heavy and tangled — and I'd burn a real slice of my token budget just reconfiguring before any actual work began. I wanted the opposite: something small that adapts to me, not the other way around. That's Tink.*
+
+---
+
 Without Tink, agent tasks live only in chat history — context resets on every run, workflows repeat by hand, and nothing gets better over time.
 
 With Tink, every non-trivial task leaves plain files you can read, diff, and commit: a task contract, a visible plan, verification steps. Reusable workflows — *harnesses* — are saved only after your explicit approval, then improved from real run data. One command turns those records into a local health dashboard.
@@ -129,15 +133,21 @@ Under the hood it runs two read-only helpers (`node .tink/tools/generate-harness
 
 *Tink is <strong>knit</strong> in reverse: untying tangled workflows and knitting better ones back together. It also nods to Tinker Bell, the small helper at your side.*
 
-New coding harnesses show up almost every day. Many are genuinely useful. But the more I mixed them, the more my environment got tangled. Resetting everything again and again was tiring.
+New AI tools and content flood in every day. Many are worth trying. But the bigger harness-engineering tools — the ones with real power — are built for specific tasks and scales. Switching between them is friction: heavy setup, hard to reconfigure, awkward to use for something small. I kept bouncing between them and resetting my environment from scratch.
 
-Then I used Hermes Agent for a while. What stayed with me was the way it gets better through use: repeated work turns into reusable skills, mistakes become memory, and the system slowly adapts to the person using it.
+Then I used Hermes Agent for a while. What stayed with me wasn't any feature — it was the *principle*. A system that gets better through use: repeated work turns into reusable skills, mistakes become memory, the tool slowly adapts to the person using it.
 
 Tink started from a simple question:
 
-> Could Claude Code or Codex grow with me in the same way?
+> Could an AI Agent tool like Claude Code or Codex grow with me in the same way?
 
-Not by adding a big framework. Not by running more agents. Just by helping Claude or Codex choose the right harness for the current task, create one when nothing fits, and improve the set over time.
+Not by adding a big framework. Not by running more agents. Just by helping the agent choose the right approach for the current task, create one when nothing fits, and quietly improve the set over time.
+
+I also had to accept something: people can't produce perfect prompts, and AI agents aren't perfect yet either. So the tool needed to go both ways — correcting and refining task instructions, not just executing them faster. That's why `cast` runs a structured interview when the task is unclear, and why failed checks get recorded so the same mistake doesn't repeat.
+
+The knitting metaphors aren't decorative. **cast** (코잡기) is how you start — picking or drafting the right harness for this task. **frog** (풀시오) is how you clean up what stopped being useful. **weave** (실오라기 정리) is how you tighten what stays. A harness that worked once can be saved and reused; one that didn't gets removed or merged.
+
+It's not finished. But I reach for it every day at work, and it keeps getting more useful. The core bet: if humans and AI agents are both imperfect, the tool between them should help each side compensate for the other — not lock either into a fixed setup.
 
 ---
 
@@ -246,15 +256,7 @@ Verify: `docs/update-verification-recipe.md` or `docs/update-verification-recipe
 
 ## What Tink is not
 
-Tink is not:
-
-- a coding agent
-- a workflow engine
-- a multi-agent runtime
-- a prompt library
-- a replacement for Claude Code or Codex
-
-It is a small harness layer for Claude Code or Codex.
+Tink is not a coding agent, workflow engine, multi-agent runtime, or prompt library. It is a small harness layer for Claude Code or Codex.
 
 ## Contributing
 

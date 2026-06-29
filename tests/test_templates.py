@@ -255,7 +255,7 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('Hermes Agent', text)
         self.assertIn('untying tangled workflows', text)
         self.assertIn('the small helper at your side', text)
-        self.assertIn('Could Claude Code or Codex grow with me in the same way?', text)
+        self.assertIn('Could an AI Agent tool like Claude Code or Codex grow with me in the same way?', text)
         self.assertIn('/tink:cast', text)
         self.assertIn('$tink:cast', text)
         self.assertIn('/tink:frog', text)
