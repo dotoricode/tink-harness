@@ -4,6 +4,13 @@ All notable changes to Tink are tracked here.
 
 ## Unreleased
 
+## [1.17.2] - 2026-06-30
+
+- E2E 테스트 5종 추가: install smoke, update preservation, Codex surface, pack manifest, metadata 검증.
+- `package.json` scripts 분리: `test:templates`, `test:syntax`, `test:metadata`, `test:pack`, `test:e2e`, `check`.
+- CI에 macOS 매트릭스 추가 및 `test:pack`, `test:e2e` step 포함.
+- `CONTRIBUTING.md` 테스트 명령표 갱신, `README.md`/`README.ko.md`에 Verification 섹션 추가.
+
 ## [1.17.1] - 2026-06-30
 
 - README / README.ko.md에 Before→After 대비 블록과 run record·verify evidence 실물 예시 추가.

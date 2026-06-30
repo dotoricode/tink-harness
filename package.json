@@ -1,6 +1,6 @@
 {
   "name": "tink-harness",
-  "version": "1.17.1",
+  "version": "1.17.2",
   "description": "Self-growing harnesses for Claude Code and Codex.",
   "license": "MIT",
   "type": "module",
@@ -23,8 +23,13 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "python tests/test_templates.py && node --check bin/install.js",
-    "check": "npm test"
+    "test": "npm run test:templates && npm run test:syntax && npm run test:metadata",
+    "test:templates": "python tests/test_templates.py",
+    "test:syntax": "node --check bin/install.js",
+    "test:metadata": "node tests/test_metadata.mjs",
+    "test:pack": "node tests/test_pack.mjs",
+    "test:e2e": "node tests/test_install_smoke.mjs && node tests/test_update_preservation.mjs && node tests/test_codex_home.mjs",
+    "check": "npm test && npm run test:pack"
   },
   "keywords": [
     "claude-code",

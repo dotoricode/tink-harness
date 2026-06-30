@@ -304,9 +304,20 @@ Verify: `docs/update-verification-recipe.md` or `docs/update-verification-recipe
 
 Tink is not a coding agent, workflow engine, multi-agent runtime, or prompt library. It is a small harness layer for Claude Code or Codex.
 
+## Verification
+
+```bash
+npm test              # template sync, syntax, version parity
+npm run test:pack     # pack manifest: required files, no secrets
+npm run test:e2e      # real install into tmpdir, update preservation, Codex surface
+npm run check         # npm test + test:pack together
+```
+
+CI runs `npm test`, `test:pack`, and `test:e2e` on Ubuntu and macOS.
+
 ## Contributing
 
-Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) — the short version: run `npm test`, keep command templates in sync across their three copies, and describe changes as problem / solution / verification.
+Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) — the short version: run `npm test && npm run test:pack`, keep command templates in sync across their three copies, and describe changes as problem / solution / verification.
 
 If Tink saves you time, a ⭐ helps other developers find it.
 

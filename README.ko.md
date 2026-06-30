@@ -296,9 +296,20 @@ npx tink-harness@latest update
 
 코딩 에이전트도, 워크플로 엔진도, 멀티 에이전트 런타임도, 프롬프트 라이브러리도 아닙니다. Claude Code와 Codex 위에 얹는 작은 하네스 레이어입니다.
 
+## 검증
+
+```bash
+npm test              # 템플릿 동기화, 문법, 버전 일치
+npm run test:pack     # 배포 파일 목록: 필수 파일 존재, 시크릿 미포함
+npm run test:e2e      # tmpdir 실제 설치, 업데이트 보존, Codex 서피스
+npm run check         # npm test + test:pack 한 번에
+```
+
+CI는 Ubuntu와 macOS에서 `npm test`, `test:pack`, `test:e2e`를 모두 실행합니다.
+
 ## 기여
 
-이슈와 PR을 환영합니다. [CONTRIBUTING.md](CONTRIBUTING.md)를 참고하세요 — 핵심은 `npm test` 실행, 명령 템플릿 3벌 동기화, 문제/해결/검증 구조의 설명입니다.
+이슈와 PR을 환영합니다. [CONTRIBUTING.md](CONTRIBUTING.md)를 참고하세요 — 핵심은 `npm test && npm run test:pack` 실행, 명령 템플릿 3벌 동기화, 문제/해결/검증 구조의 설명입니다.
 
 Tink가 시간을 아껴줬다면 ⭐ 하나가 다른 개발자들이 Tink를 찾는 데 큰 도움이 됩니다.
 

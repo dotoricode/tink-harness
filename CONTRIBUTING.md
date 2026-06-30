@@ -9,12 +9,22 @@ Thanks for helping make Tink better. This guide is short on purpose — most rul
 ```bash
 git clone https://github.com/dotoricode/tink-harness
 cd tink-harness
-npm test   # python tests/test_templates.py + node --check bin/install.js
+npm test        # template sync + syntax + metadata checks
+npm run test:pack   # npm pack dry-run: required files, forbidden paths
+npm run test:e2e    # real installs into tmpdir (requires Node 20+)
 ```
 
 Requirements: Node.js 18+, Python 3.10+. No build step — templates are plain files.
 
-> 개발 환경: Node 18+, Python 3.10+. 빌드 단계 없음. `npm test` 하나로 전체 검증.
+| Command | What it checks |
+|---------|----------------|
+| `npm test` | Template sync (3-copy rule), syntax, version parity |
+| `npm run test:pack` | Pack manifest: required files present, secrets/junk absent |
+| `npm run test:e2e` | Real install, update preservation, Codex surface install |
+| `npm run check` | `npm test` + `test:pack` together |
+
+> 개발 환경: Node 18+, Python 3.10+. 빌드 단계 없음.
+> `npm test` — 기본 검증 / `npm run test:pack` — 배포 파일 검증 / `npm run test:e2e` — 실제 설치 검증.
 
 ## The three-copy rule
 
@@ -37,7 +47,7 @@ A release touches three version fields together: `package.json`, `package-lock.j
 ## Pull requests
 
 - Describe changes as **problem / solution / verification** (문제 / 해결 / 검증) — the PR template scaffolds this.
-- Run `npm test` before pushing; CI runs the same suite on macOS and Windows targets.
+- Run `npm test && npm run test:pack` before pushing; CI runs the full suite on Ubuntu and macOS.
 - New behavior that affects installs should consider both Claude Code and Codex, and both macOS and Windows (`docs/compatibility-policy.md`).
 - Keep Tink's core promise intact: suggestions only — reusable-state changes (harness edits, memory, deletion) always go through explicit approval gates.
 
