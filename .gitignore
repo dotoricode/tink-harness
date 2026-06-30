@@ -21,3 +21,4 @@ __pycache__/
 marketing/
 .tink/maintenance/harness-health-report.html
 .tink/maintenance/harness-lifecycle.json
+ROADMAP.md
