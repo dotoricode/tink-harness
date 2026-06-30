@@ -135,6 +135,23 @@
     ]
   },
   {
+    "name": "loop-engineering",
+    "kind": "built-in",
+    "context": "small",
+    "use_when": "User explicitly wants to iterate act-observe-evaluate-fix against a measurable acceptance signal until it passes or a budget is hit. For 'make X pass / reach quality bar Y' goals. Not for ordinary multi-step work (goal-checkpoint) or hard-bug diagnosis (bug-diagnosis-loop).",
+    "asks": [
+      "What single acceptance signal judges each iteration?",
+      "What is the iteration budget before stopping to report?",
+      "What evaluates results independently of the change?"
+    ],
+    "checks": [
+      "One bottleneck fixed per iteration",
+      "Acceptance signal is runnable, not self-judged",
+      "Each iteration logged before the next change",
+      "Budget respected; stop-and-report instead of infinite loop"
+    ]
+  },
+  {
     "name": "ship",
     "kind": "built-in",
     "context": "small",

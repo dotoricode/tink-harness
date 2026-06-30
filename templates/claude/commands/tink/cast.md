@@ -533,7 +533,7 @@ Rule: while such a run is active, END every assistant response with a progress b
 ## Base run (no harness)
 Generic task-type harnesses (`code-change`, `bug-fix`, `research`, `review`, `docs`) are retired from the default set. Generic work runs as a **base run**: the run state contract alone - `plan.md`, `checks.md`, `steps.json`, `contract.json` - already enforces scope, verification commands, and evidence for ordinary code, bug, research, review, and docs work.
 
-- Select a harness only when its specialized procedure changes what would actually happen: visible-thinking overlays (`requirements-interview`, `plan-consensus`, `goal-checkpoint`, `delegation-brief`), focused work harnesses (`issue-triage`, `bug-diagnosis-loop`, `review-two-axis`, `decision-map`, `architecture-deepening`), risk gates (`ship`, `pre-publish-multi-agent-verify`, `pr-merge`), meta harnesses (`harness-curation`, `harness-synthesis`), `tink-feedback-apply`, or user-created and synthesized domain harnesses.
+- Select a harness only when its specialized procedure changes what would actually happen: visible-thinking overlays (`requirements-interview`, `plan-consensus`, `goal-checkpoint`, `delegation-brief`), focused work harnesses (`issue-triage`, `bug-diagnosis-loop`, `review-two-axis`, `decision-map`, `architecture-deepening`, `loop-engineering`), risk gates (`ship`, `pre-publish-multi-agent-verify`, `pr-merge`), meta harnesses (`harness-curation`, `harness-synthesis`), `tink-feedback-apply`, or user-created and synthesized domain harnesses.
 - Never force a loose-fit harness just to show a harness name. "No harness" is a valid and common selection.
 - In user-facing output call this `기본 절차` (Korean) or `base run` (English), with one short explanation line such as `기본 절차로 진행합니다 - 별도 하네스 없이 실행 상태 계약(계획·검증·증거)만 사용`.
 - The base run does not weaken anything: contract checks, Stitch, overlay rules, and the progress display still apply unchanged.
@@ -580,6 +580,7 @@ This is the Lane 3 full path from Quick triage. Lanes 1 and 2 intentionally skip
    - Use `review-two-axis` for PR/branch/diff review when Standards and Spec should be reported separately.
    - Use `decision-map` only when a loose idea has multiple unresolved decisions that need research, prototype, or discussion tickets across sessions.
    - Use `architecture-deepening` only when the work is explicitly about module/interface/seam shape, deep modules, leverage, locality, or testability.
+   - Use `loop-engineering` only when the user explicitly asks to iterate until a measurable bar passes (tests/lint/build green, coverage, benchmark, score). Not for ordinary multi-step work (`goal-checkpoint`) or hard bugs (`bug-diagnosis-loop`).
 
    **Overlay selection is rule-bound, not taste.** After drafting the Goals list for the approval payload, re-check before presenting it:
    - `goal-checkpoint` is REQUIRED (not optional) when ANY of these is true: the Goals list has 2+ goals; 2+ harnesses run sequentially; the plan is expected to need 4+ steps; or the work spans multiple components/directories. Create `goals.json` after approval.

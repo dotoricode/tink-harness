@@ -70,7 +70,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.16.1')
+        self.assertEqual(pkg['version'], '1.17.0')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -497,6 +497,7 @@ class TemplateTests(unittest.TestCase):
             'goal-checkpoint', 'delegation-brief',
             'issue-triage', 'bug-diagnosis-loop', 'review-two-axis',
             'decision-map', 'architecture-deepening',
+            'loop-engineering',
             'harness-synthesis', 'harness-curation',
             'pre-publish-multi-agent-verify', 'tink-feedback-apply',
             'pr-merge',
@@ -514,6 +515,7 @@ class TemplateTests(unittest.TestCase):
             'goal-checkpoint', 'delegation-brief',
             'issue-triage', 'bug-diagnosis-loop', 'review-two-axis',
             'decision-map', 'architecture-deepening',
+            'loop-engineering',
         }
         for name in work_harnesses:
             text = (ROOT / f'templates/tink/harnesses/{name}.md').read_text(encoding='utf-8')

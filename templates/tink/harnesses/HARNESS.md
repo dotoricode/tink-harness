@@ -17,6 +17,7 @@
 - **[review-two-axis](./review-two-axis.md)** (small) — PR·브랜치·diff를 Standards와 Spec 두 축으로 분리해 검토.
 - **[decision-map](./decision-map.md)** (small-heavy) — 여러 세션이 필요한 느슨한 아이디어를 research/prototype/discuss ticket 지도와 frontier로 관리.
 - **[architecture-deepening](./architecture-deepening.md)** (small-heavy) — deep module, interface, seam, leverage, locality 관점으로 구조 개선 후보와 계획을 정리.
+- **[loop-engineering](./loop-engineering.md)** (small) — 측정 가능한 수용 신호(테스트/lint/build 통과, 커버리지, 벤치마크 등)를 향해 반복(한 병목→수정→재검증)하며 예산 내 종료를 강제.
 - **[ship](./ship.md)** (small) — PR 준비, 릴리스, 배포. 위험·롤백 명시. cast 시작 시 안전판이 미리 켜집니다.
 
 ## 관리용 메타 하네스
