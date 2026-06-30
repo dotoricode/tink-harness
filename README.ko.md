@@ -83,6 +83,24 @@ $tink:cast 인증 모듈 리팩터링     # Codex
 
 ## 실제로 남는 것
 
+**Tink 없이 (Claude Code / Codex 단독):**
+
+```text
+"인증 모듈 리팩터링"
+→ 계획은 채팅 기록에만
+→ 완료 기준 없음
+→ 다음 세션에서 맥락 소실
+```
+
+**Tink 사용 후 (`/tink:cast 인증 모듈 리팩터링`):**
+
+```text
+→ .tink/current/contract.json  — 완료 조건
+→ plan.md / checks.md          — 보이는 계획 + 검증 단계
+→ /tink:verify                 — "된 것 같다"가 아닌 증거로 증명
+→ .tink/runs/…md               — 재사용 가능한 간결한 기록
+```
+
 사소하지 않은 작업마다 열어보고, diff하고, 커밋할 수 있는 평범한 파일이 남습니다:
 
 ```text
@@ -95,6 +113,34 @@ $tink:cast 인증 모듈 리팩터링     # Codex
 .tink/harnesses/
   refactor-review.md                # 재사용 작업 방식 — 승인해야 저장
 ```
+
+<details>
+<summary><strong>완성된 run은 이렇게 남습니다</strong></summary>
+
+**Run 기록** (`.tink/runs/YYYY-MM-DD-HHMM-작업명.md`):
+
+```text
+Status: completed
+Goal: Codex에서 직접 호출 가능한 entrypoint 스킬 추가.
+Changed: `$tink:<action>` 별칭을 인식하도록 main `tink` 스킬 수정; 래퍼 스킬 추가.
+Evidence: `find … | rg 'tink(-|/)'` 로 모든 SKILL.md와 main 스킬 확인.
+Notes: 재사용 메모리·하네스 변경 없음.
+```
+
+**Verify 증거** (`/tink:verify`, 두 가지 사례):
+
+```text
+✅  evidence_kind: command
+    evidence_ref:  npm test
+    observed:      테스트 47개 통과, 실패 없음
+
+⚠️  evidence_kind: manual
+    evidence_ref:  클린 설치 스모크 테스트 (macOS)
+    observed:      미실행 — CI 러너는 Linux 전용
+    next_action:   배포 전 macOS에서 수동 실행 필요
+```
+
+</details>
 
 ## CLAUDE.md·슬래시 명령·스킬만으로는 왜 부족할까?
 

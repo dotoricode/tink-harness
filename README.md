@@ -83,6 +83,24 @@ $tink:cast refactor the auth module     # Codex
 
 ## What you actually get
 
+**Before (plain Claude Code / Codex):**
+
+```text
+"refactor the auth module"
+→ plan lives in chat only
+→ no completion criteria
+→ context lost next session
+```
+
+**After (`/tink:cast refactor the auth module`):**
+
+```text
+→ .tink/current/contract.json  — what must be true when done
+→ plan.md / checks.md          — visible plan and verification steps
+→ /tink:verify                 — proves "done" with evidence, not vibes
+→ .tink/runs/…md               — compact record, reusable next time
+```
+
 Every non-trivial task leaves plain files you can open, diff, and commit:
 
 ```text
@@ -95,6 +113,34 @@ Every non-trivial task leaves plain files you can open, diff, and commit:
 .tink/harnesses/
   refactor-review.md                # reusable ways of working — approval-gated
 ```
+
+<details>
+<summary><strong>What a finished run actually looks like</strong></summary>
+
+**Run record** (`.tink/runs/YYYY-MM-DD-HHMM-task.md`):
+
+```text
+Status: completed
+Goal: make Tink easier to invoke in Codex with direct entrypoint skills.
+Changed: updated main `tink` skill to recognize `$tink:<action>` aliases; added thin wrapper skills.
+Evidence: `find … | rg 'tink(-|/)'` showed all SKILL.md files plus the main skill.
+Notes: no reusable memory or harness was changed.
+```
+
+**Verify evidence** (`/tink:verify`, two outcomes):
+
+```text
+✅  evidence_kind: command
+    evidence_ref:  npm test
+    observed:      47 tests passed, 0 failures
+
+⚠️  evidence_kind: manual
+    evidence_ref:  clean install smoke (macOS)
+    observed:      not run — CI runner is Linux only
+    next_action:   run manually on macOS before publish
+```
+
+</details>
 
 ## Why not just CLAUDE.md / slash commands / skills?
 

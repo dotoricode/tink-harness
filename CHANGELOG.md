@@ -4,6 +4,10 @@ All notable changes to Tink are tracked here.
 
 ## Unreleased
 
+## [1.17.1] - 2026-06-30
+
+- README / README.ko.md에 Before→After 대비 블록과 run record·verify evidence 실물 예시 추가.
+
 ## [1.17.0] - 2026-06-30
 
 - `loop-engineering` 하네스 추가: 측정 가능한 수용 신호(테스트·lint·build 통과, 커버리지, 벤치마크, 점수 등)를 향해 한 번에 한 병목씩 반복하고, 예산 초과 시 현재 상태·원인·다음 행동을 보고한다. 독립 평가(자기 채점 금지)와 반복 로그를 강제. `goal-checkpoint`(일반 다단계)·`bug-diagnosis-loop`(버그 진단)와 `use_when`에서 명시적으로 구분됨.
