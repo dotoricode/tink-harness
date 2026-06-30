@@ -155,5 +155,22 @@
       "Minimum viable change only",
       "Triggering scenario verified"
     ]
+  },
+  {
+    "name": "ko-tech-doc-audit",
+    "kind": "synthesized",
+    "context": "small",
+    "use_when": "Audit Korean technical document content completeness — find empty claims, missing evidence, unactionable sentences, missing verification, and missing failure conditions. Use when the document reads well but leaves no information behind. Persona (reviewer perspective) is injectable at cast time.",
+    "asks": [
+      "Which document should be audited?",
+      "Which reviewer persona should be applied? (default: Korean technical document editor)",
+      "Should the output include a revised version, or findings only?"
+    ],
+    "checks": [
+      "Every key claim linked to evidence, procedure, verification, or failure condition",
+      "Empty claims, unactionable sentences, missing verification, missing failure conditions listed",
+      "No facts added that are absent from the original",
+      "Persona does not weaken acceptance criteria"
+    ]
   }
 ]

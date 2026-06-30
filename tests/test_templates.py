@@ -70,7 +70,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.17.2')
+        self.assertEqual(pkg['version'], '1.18.0')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -501,6 +501,7 @@ class TemplateTests(unittest.TestCase):
             'harness-synthesis', 'harness-curation',
             'pre-publish-multi-agent-verify', 'tink-feedback-apply',
             'pr-merge',
+            'ko-tech-doc-audit',
         }
         self.assertEqual(names, expected_names)
         retired_names = {'code-change', 'bug-fix', 'research', 'review', 'docs'}

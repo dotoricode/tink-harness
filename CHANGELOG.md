@@ -4,6 +4,12 @@ All notable changes to Tink are tracked here.
 
 ## Unreleased
 
+## [1.18.0] - 2026-06-30
+
+- `ko-tech-doc-audit` 하네스 추가: 한국어 기술 문서의 내용 완성도 감사. 공허한 주장·빠진 근거·실행 불가 문장·빠진 검증·실패 조건을 적발한다. 문체 정리는 Patina에 위임. cast 시점에 페르소나(보안 엔지니어, 주니어 독자, 온콜 엔지니어 등) 주입 가능; 페르소나는 관점·어조만 바꾸고 합격 기준(주장-근거 연결 규칙)은 고정이다.
+- `/tink:cast 승인 흐름 데모 스크린샷 추가.
+- `ROADMAP.md` repo에서 제거 (`.gitignore`로 이동).
+
 ## [1.17.2] - 2026-06-30
 
 - E2E 테스트 5종 추가: install smoke, update preservation, Codex surface, pack manifest, metadata 검증.

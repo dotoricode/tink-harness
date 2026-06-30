@@ -29,6 +29,7 @@
 ## 합성된 도메인 하네스
 
 - **[pre-publish-multi-agent-verify](./pre-publish-multi-agent-verify.md)** (small) — 공개 publish 직전 격리 환경에서 여러 에이전트로 install·UX·docs·leak·slash 표면을 병렬 검증. 시나리오 사전 잠금, evidence-only, blocker/major/minor/nit 분류.
+- **[ko-tech-doc-audit](./ko-tech-doc-audit.md)** (small) — 한국어 기술 문서의 내용 완성도 감사. 공허한 주장·빠진 근거·실행 불가 문장·빠진 검증·실패 조건을 적발하고, 문체 정리는 Patina에 위임. cast 시점에 페르소나(보안 엔지니어, 주니어 독자, 온콜 엔지니어 등) 주입 가능.
 
 ## 사용 원칙
 
