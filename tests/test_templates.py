@@ -35,8 +35,8 @@ HARNESS_SECTIONS = [
     '## If it fails, Tink back',
 ]
 
-EXPECTED_COMMANDS = {'setup.md', 'cast.md', 'deep-cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
-EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'cast.md', 'deep-cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md'}
+EXPECTED_COMMANDS = {'setup.md', 'cast.md', 'deep-cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md', 'doc-audit.md'}
+EXPECTED_INSTALLED_COMMANDS = {'setup.md', 'cast.md', 'deep-cast.md', 'verify.md', 'list.md', 'frog.md', 'weave.md', 'update.md', 'doc-audit.md'}
 EXPECTED_CODEX_SKILLS = {
     'tink-cast',
     'tink-deep-cast',
@@ -70,7 +70,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.18.0')
+        self.assertEqual(pkg['version'], '1.18.1')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -222,6 +222,8 @@ class TemplateTests(unittest.TestCase):
             ('commands/update.md', '.claude/commands/tink/update.md'),
             ('commands/weave.md', 'templates/claude/commands/tink/weave.md'),
             ('commands/weave.md', '.claude/commands/tink/weave.md'),
+            ('commands/doc-audit.md', 'templates/claude/commands/tink/doc-audit.md'),
+            ('commands/doc-audit.md', '.claude/commands/tink/doc-audit.md'),
             ('skills/tink/SKILL.md', 'templates/claude/skills/tink/SKILL.md'),
         ]
         drift = []

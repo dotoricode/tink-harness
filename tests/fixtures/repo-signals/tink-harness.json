@@ -355,7 +355,8 @@
       "list.md",
       "frog.md",
       "weave.md",
-      "update.md"
+      "update.md",
+      "doc-audit.md"
     ],
     "forbidden": [
       "index.md",
