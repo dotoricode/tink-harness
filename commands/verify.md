@@ -55,11 +55,25 @@ Unknown fields are allowed. Missing required fields should be reported as contra
 
 Use one runner model for Claude Code `/tink:verify` and Codex `$tink:verify`.
 
-The runner has three phases:
+The runner has four phases:
 
+0. **Contract Coverage**: map the semantic contract before commands can create a false sense of completion.
 1. **Plan**: read the contract, normalize checks into a short runner plan, and classify each check as `command` or `manual`.
 2. **Run**: execute safe command checks and inspect manual checks.
 3. **Record**: write `.tink/current/verification.json`, write `.tink/current/evidence.md`, update notes, and append maintenance signals only when their files already exist.
+
+## Phase 0 — Contract Coverage
+
+Before planning command checks:
+- For every `success_conditions[]` item, assign `SC-1`, `SC-2`, and so on, then record whether it has a plan step, implementation result, verification item, and evidence. Use `proven`, `missing_plan`, `missing_implementation`, `missing_check`, or `missing_evidence`.
+- For every `forbidden[]` item, assign `F-1`, `F-2`, and so on, then record `proven_absent`, `violated`, or `not_proven` with diff or review evidence.
+- Review `intent.open_questions[]`; unresolved blocking questions must remain visible and cannot be treated as agent decisions.
+- Review `intent.assumptions[]`; list every assumption whose status is not `approved` and that affected implementation.
+- Review `approval`; record the revision as `approved`, `unapproved`, or `legacy`. A contract without the optional Understanding fields remains a supported legacy contract.
+
+Write these results to `contract_coverage`, `forbidden_review`, `unapproved_assumptions`, `unresolved_questions`, and `contract_revision` in `verification.json`.
+
+In strict completion, any missing coverage state, `violated` or `not_proven` forbidden item, unresolved blocking question, unapproved assumption, or unapproved revision makes the overall result `blocked`. Passing command checks cannot override semantic missingness.
 
 Runner plan entries should contain:
 
@@ -109,28 +123,32 @@ Failure, blocked, and skipped handling:
 
 1. Read `.tink/current/contract.json` first.
 2. Validate that `task_type`, `success_conditions`, `forbidden`, and `verification` are present.
-3. Build a verify runner plan from `verification.commands[]` and `verification.manual_checks[]`.
-4. List the checks that will run. Keep the list short and evidence-oriented.
-5. For each `verification.commands[]` entry:
+3. Run Phase 0 Contract Coverage. Do not execute commands until missingness is visible.
+4. Build a verify runner plan from `verification.commands[]` and `verification.manual_checks[]`.
+5. List the checks that will run. Keep the list short and evidence-oriented.
+6. For each `verification.commands[]` entry:
    - run exactly the command listed, unless it is destructive or externally visible;
    - if the command is risky, ask for approval first;
    - capture pass/fail, exit code, and a short evidence handle.
-6. For each `verification.manual_checks[]` entry, inspect the named file or artifact and record pass/fail/skipped/blocked.
-7. Write `.tink/current/verification.json` with compact evidence: check name, kind, status, exit code when available, evidence handle, and timestamp. Do not include raw logs.
-8. Write `.tink/current/evidence.md` as a short evidence summary card. Keep it human-readable and compact:
+7. For each `verification.manual_checks[]` entry, inspect the named file or artifact and record pass/fail/skipped/blocked.
+8. Write `.tink/current/verification.json` with semantic coverage plus compact check evidence: check name, kind, status, exit code when available, evidence handle, and timestamp. Do not include raw logs.
+9. Write `.tink/current/evidence.md` as a short evidence summary card. Keep it human-readable and compact:
    - `Done claim`: what can honestly be called done.
+   - `Contract coverage`: proven and unproven success-condition refs.
+   - `Missing`: required meaning that lacks plan, implementation, check, or evidence.
+   - `Unapproved assumptions`: pending assumptions that affected the work.
    - `Evidence`: checks that passed or were inspected.
    - `Not verified`: checks not run, optional skips, or claims outside this run.
    - `Risk`: remaining manual, environment, or release risk.
    - `Next action`: smallest useful continuation or recovery step.
-9. If `.tink/schemas/verification.schema.json` exists, use it as the JSON evidence shape. Do not paste the schema into the user response.
-10. Update `.tink/current/notes.md` with the notes summary format below.
-11. Append a `verify` entry to `.tink/maintenance/ledger.jsonl` when it exists, using result `pass`, `fail`, or `blocked`.
-12. If any required check fails, append a `check_failed` signal to `.tink/maintenance/weave-queue.json` when it exists.
-13. If any required check is blocked, append a `check_blocked` signal to `.tink/maintenance/weave-queue.json` when it exists.
-14. If an optional check is skipped and the skip matters for future harness quality, append a `check_skipped` signal to `.tink/maintenance/weave-queue.json` when it exists.
-15. If any check fails, is skipped, or is blocked, append a compact entry to `.tink/maintenance/friction.jsonl` when it exists.
-16. Report the result using the final report format below.
+10. If `.tink/schemas/verification.schema.json` exists, use it as the JSON evidence shape. Do not paste the schema into the user response.
+11. Update `.tink/current/notes.md` with the notes summary format below.
+12. Append a `verify` entry to `.tink/maintenance/ledger.jsonl` when it exists, using result `pass`, `fail`, or `blocked`.
+13. If any required check fails, append a `check_failed` signal to `.tink/maintenance/weave-queue.json` when it exists.
+14. If any required check or semantic coverage is blocked, append a `check_blocked` signal to `.tink/maintenance/weave-queue.json` when it exists.
+15. If an optional check is skipped and the skip matters for future harness quality, append a `check_skipped` signal to `.tink/maintenance/weave-queue.json` when it exists.
+16. If any check fails, is skipped, or is blocked, append a compact entry to `.tink/maintenance/friction.jsonl` when it exists.
+17. Report the result using the final report format below.
 
 ## Final report format
 
@@ -185,6 +203,15 @@ Write this file after every verification attempt:
 ## Done claim
 - ...
 
+## Contract coverage
+- SC-1: proven
+
+## Missing
+- none
+
+## Unapproved assumptions
+- none
+
 ## Evidence
 - ...
 
@@ -212,6 +239,11 @@ Write this file:
   "platform": "windows|macos|linux|unknown",
   "result": "pass",
   "summary": "",
+  "contract_coverage": [],
+  "forbidden_review": [],
+  "unapproved_assumptions": [],
+  "unresolved_questions": [],
+  "contract_revision": { "revision": 1, "status": "approved|unapproved|legacy" },
   "checks": [
     {
       "name": "",

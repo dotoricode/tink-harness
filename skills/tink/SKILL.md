@@ -63,6 +63,10 @@ Use only these commands:
 25. If a check fails, update `.tink/current/notes.md`, state the failure, last safe point, and next single action. Append compact friction to `.tink/maintenance/friction.jsonl` when it exists. Feed repeated failures to `/tink:weave`.
 26. Keep context compact. Do not paste raw logs or full diffs.
 27. Use calm, clear, concise language. Prefer plain everyday words over technical terms if a simpler word works. No jokes.
+28. For non-trivial standard and deep runs, add a compact optional Understanding Contract to `contract.json`: `intent`, `understanding_proof`, and revisioned `approval`. Existing contracts remain valid. Before approval, show an Intent Proof with intended success, the winning priority, one false-success case, and unresolved questions or pending assumptions. Deep, strict, or high-risk work also shows one Agent Self-test and answer; Lane 1 skips this ceremony unless a hard-gate signal applies.
+29. Freeze approved goal, priority, scope, success conditions, and forbidden actions. A semantic change requires a visible proposal, current-run approval, revision increment, and history in `answers.md` plus the discovery reason in `notes.md`; never rewrite the contract to make verification pass.
+30. Treat Gauge as a base-run habit beside Evidence Split. Run it after planning, at goal or major-step boundaries, when assumptions/scope/API/dependencies change, after a failed check changes the approach, and before final verification. Record observable `aligned`, `adjustment_needed`, or `blocked` status in `notes.md`; Gauge checks meaning, missing coverage, assumptions, scope, and priority—not style or general code quality.
+31. Before command checks, run Phase 0 Contract Coverage: every success condition needs plan, implementation, check, and evidence links; forbidden items need review evidence; blocking questions, assumptions, and revision approval must be settled. Record `missing_plan`, `missing_implementation`, `missing_check`, or `missing_evidence` instead of a numeric score. In strict completion, missing evidence or any unapproved semantic state blocks completion even when commands pass.
 
 ## Quality bar
 The user should not have to repeat themselves. If the same mistake appears twice, propose `/tink:weave`, a rule graph update, an opt-in guard candidate, or a memory update through `/tink:cast`.
@@ -70,8 +74,10 @@ The user should not have to repeat themselves. If the same mistake appears twice
 A successful Tink run leaves evidence:
 - current run files exist or were intentionally archived,
 - `contract.json` states what must be true,
+- non-trivial runs prove the initial understanding and keep approved meaning revision-safe,
 - context artifacts explain what was included and excluded,
 - checks were verified or explicitly blocked,
+- verification reports missing contract coverage as well as failed checks,
 - `.tink/current/evidence.md` summarizes the done claim, evidence, not-verified items, risk, and next action,
 - the final answer reports changed files and evidence,
 - reusable learning is proposed only when it will matter again.

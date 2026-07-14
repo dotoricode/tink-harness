@@ -66,6 +66,8 @@ $tink:cast refactor the auth module     # Codex
 
 `cast` picks (or drafts) the right harness, writes a visible plan into `.tink/current/`, and starts the first safe step after your approval.
 
+Before work, Tink makes the agent prove what it understood. During work, Gauge checks whether the task has drifted. Before completion, verify looks for missing requirements as well as failed checks.
+
 ![tink:cast approval flow — goals, harness selection, .tink/current/ files created, and progress indicator](.github/assets/demo-cast.png)
 
 ![Tink dashboard demo - clicking a health group, browsing harness cards, and inspecting the 3D map](.github/assets/demo.gif)

@@ -66,6 +66,8 @@ $tink:cast 인증 모듈 리팩터링     # Codex
 
 `cast`는 작업에 맞는 하네스를 고르고(없으면 초안을 만들고), `.tink/current/`에 보이는 계획을 쓰고, 승인 후 첫 안전한 단계를 시작합니다.
 
+작업 전에는 Agent가 무엇을 이해했는지 증명합니다. 작업 중에는 Gauge가 최초 의도에서 벗어났는지 확인합니다. 완료 전에는 verify가 실패한 검사뿐 아니라 빠진 요구사항도 찾습니다.
+
 ![/tink:cast 승인 흐름 — 목표·하네스 선택·파일 생성·진행도 표시](.github/assets/demo-cast.png)
 
 ![Tink 대시보드 데모 — 건강 그룹 클릭, 하네스 카드 탐색, 3D 지도 조작](.github/assets/demo.gif)

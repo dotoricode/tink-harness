@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "omission",
+      "request": ["preserve public API", "keep existing tests", "add failure test"],
+      "observed": ["public API preserved", "existing tests pass"],
+      "expected": {"gauge": "aligned", "verification": "blocked", "reason": "missing_evidence", "ref": "SC-3"}
+    },
+    {
+      "id": "drift",
+      "request": ["preserve existing structure"],
+      "observed": ["whole module refactor"],
+      "expected": {"gauge": "blocked", "verification": "blocked", "reason": "scope_drift"}
+    },
+    {
+      "id": "assumption",
+      "request": ["add retry behavior"],
+      "open_questions": ["retry count"],
+      "observed": ["agent chose five retries"],
+      "expected": {"gauge": "blocked", "verification": "blocked", "reason": "unapproved_assumption", "ref": "A1"}
+    },
+    {
+      "id": "quick",
+      "request": ["fix one README typo"],
+      "observed": ["one localized text edit"],
+      "expected": {"intent_proof": false, "gauge_output": false, "verification": "legacy_fast_path"}
+    },
+    {
+      "id": "resume",
+      "request": ["resume approved run"],
+      "observed": ["revision 2", "one unresolved question", "last Gauge aligned"],
+      "expected": {"restore_revision": 2, "restore_open_questions": true, "gauge": "aligned"}
+    }
+  ]
+}

@@ -11,6 +11,11 @@
     "evidence"
   ],
   "properties": {
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Optional contract format version. Omitted legacy contracts are treated as version 1."
+    },
     "task_type": {
       "type": "string",
       "description": "Compact task class such as code_change, bug_fix, research, review, docs, release, deploy, or publish."
@@ -23,6 +28,15 @@
       "type": "array",
       "items": { "type": "string" },
       "description": "Risk tags that should affect rule selection, such as public_publish, external_visibility, secrets, destructive, or broad_contract."
+    },
+    "intent": {
+      "$ref": "#/$defs/intent"
+    },
+    "understanding_proof": {
+      "$ref": "#/$defs/understanding_proof"
+    },
+    "approval": {
+      "$ref": "#/$defs/approval"
     },
     "success_conditions": {
       "type": "array",
@@ -105,6 +119,74 @@
           "type": "array",
           "items": { "type": "string" }
         }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "open_question": {
+      "type": "object",
+      "required": ["id", "question", "status"],
+      "properties": {
+        "id": { "type": "string" },
+        "question": { "type": "string" },
+        "status": { "type": "string", "enum": ["unresolved", "resolved", "deferred"] },
+        "answer": { "type": "string" },
+        "blocking": { "type": "boolean", "default": true }
+      },
+      "additionalProperties": true
+    },
+    "assumption": {
+      "type": "object",
+      "required": ["id", "statement", "source", "status"],
+      "properties": {
+        "id": { "type": "string" },
+        "statement": { "type": "string" },
+        "source": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] }
+      },
+      "additionalProperties": true
+    },
+    "intent": {
+      "type": "object",
+      "required": ["goal", "priority", "in_scope", "out_of_scope", "open_questions", "assumptions"],
+      "properties": {
+        "goal": { "type": "string" },
+        "priority": { "type": "string" },
+        "in_scope": { "type": "array", "maxItems": 5, "items": { "type": "string" } },
+        "out_of_scope": { "type": "array", "maxItems": 5, "items": { "type": "string" } },
+        "open_questions": { "type": "array", "items": { "$ref": "#/$defs/open_question" } },
+        "assumptions": { "type": "array", "items": { "$ref": "#/$defs/assumption" } }
+      },
+      "additionalProperties": true
+    },
+    "understanding_proof": {
+      "type": "object",
+      "required": ["success_statement", "dangerous_misread", "false_success"],
+      "properties": {
+        "success_statement": { "type": "string" },
+        "dangerous_misread": { "type": "string" },
+        "false_success": { "type": "string" },
+        "agent_self_test": {
+          "type": "object",
+          "required": ["question", "answer"],
+          "properties": {
+            "question": { "type": "string" },
+            "answer": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "approval": {
+      "type": "object",
+      "required": ["revision", "status"],
+      "properties": {
+        "revision": { "type": "integer", "minimum": 1 },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "approved_at": { "type": "string" },
+        "approved_by": { "type": "string" }
       },
       "additionalProperties": true
     }

@@ -28,6 +28,30 @@
     "summary": {
       "type": "string"
     },
+    "contract_coverage": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/coverage_item" }
+    },
+    "forbidden_review": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/forbidden_item" }
+    },
+    "unapproved_assumptions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/semantic_item" }
+    },
+    "unresolved_questions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/semantic_item" }
+    },
+    "contract_revision": {
+      "type": "object",
+      "properties": {
+        "revision": { "type": "integer", "minimum": 1 },
+        "status": { "type": "string", "enum": ["approved", "unapproved", "legacy"] }
+      },
+      "additionalProperties": true
+    },
     "checks": {
       "type": "array",
       "items": {
@@ -50,6 +74,41 @@
     }
   },
   "$defs": {
+    "coverage_item": {
+      "type": "object",
+      "required": ["ref", "statement", "status", "evidence"],
+      "properties": {
+        "ref": { "type": "string" },
+        "statement": { "type": "string" },
+        "status": { "type": "string", "enum": ["proven", "missing_plan", "missing_implementation", "missing_check", "missing_evidence"] },
+        "plan_refs": { "type": "array", "items": { "type": "string" } },
+        "implementation_refs": { "type": "array", "items": { "type": "string" } },
+        "check_refs": { "type": "array", "items": { "type": "string" } },
+        "evidence": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "forbidden_item": {
+      "type": "object",
+      "required": ["ref", "statement", "status"],
+      "properties": {
+        "ref": { "type": "string" },
+        "statement": { "type": "string" },
+        "status": { "type": "string", "enum": ["proven_absent", "violated", "not_proven"] },
+        "evidence": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "semantic_item": {
+      "type": "object",
+      "required": ["ref", "statement"],
+      "properties": {
+        "ref": { "type": "string" },
+        "statement": { "type": "string" },
+        "blocking": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
     "check_result": {
       "type": "object",
       "required": ["name", "kind", "status", "required", "evidence"],
