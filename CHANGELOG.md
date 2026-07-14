@@ -4,6 +4,13 @@ All notable changes to Tink are tracked here.
 
 ## Unreleased
 
+## [1.19.0] - 2026-07-14
+
+- Tink의 기존 `cast → work → verify` 흐름에 이해 무결성 계층을 추가했다. 사소하지 않은 cast는 Intent Proof로 목표·우선순위·위험한 오해·겉보기 성공을 공개하며, 승인된 의미 필드는 사용자 승인과 revision 증가 없이 바뀌지 않는다.
+- Gauge를 새 명령이나 하네스가 아닌 Base-run habit으로 추가했다. 계획·목표·가정·범위·실패 복구·최종 검증 경계에서 의미 이탈, 누락, 미승인 가정, 우선순위 역전을 `aligned`, `adjustment_needed`, `blocked` 상태로 기록한다.
+- verify에 Phase 0 Contract Coverage를 추가했다. success condition별 계획·구현·검사·증거와 forbidden review를 먼저 확인하며, strict completion은 미증명 조건·미승인 가정·미해결 질문·미승인 revision을 차단한다.
+- omission, drift, assumption, quick, resume fixture와 schema·Claude/Codex 동기화 테스트를 추가했다. 기존 contract는 optional field가 없는 legacy 형식으로 계속 지원한다.
+
 ## [1.18.1] - 2026-07-01
 
 - `/tink:doc-audit` 커맨드 추가: `ko-tech-doc-audit` 하네스 단축 호출. 독자를 "온보딩 신입 개발자"로 고정하고 페르소나·산출물 형태는 기본값 사용. `npx tink-harness update`로 설치·업데이트 가능.

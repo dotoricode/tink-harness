@@ -169,6 +169,45 @@ When the interview ends, write `.tink/current/plan.md` with these top-level sect
 
 Then proceed to the normal Procedure starting at step 3 (read harness index). Use the spec as the harness selection input instead of the raw task request. Stitch Phase A runs after harness selection as normal. Phase B is skipped.
 
+## Understanding integrity
+
+Keep understanding inside the existing `cast → work → verify` flow. Do not add `/tink:understand`, `/tink:drift`, `/tink:missing`, `/tink:quiz`, or a standalone Understanding harness.
+
+### Understanding Contract
+
+For non-trivial standard and deep runs, extend the normal contract with optional `schema_version`, `intent`, `understanding_proof`, and `approval` fields. Existing contracts without these fields remain valid legacy contracts.
+
+Keep the new fields compact:
+- `intent.goal`: one sentence.
+- `intent.priority`: the condition that wins when constraints conflict.
+- `intent.in_scope` and `intent.out_of_scope`: at most five items each.
+- `intent.open_questions`: unresolved, resolved, or explicitly deferred; never decide an unresolved blocking question silently.
+- `intent.assumptions`: inferred assumptions stay `pending` until the user approves or rejects them.
+- `understanding_proof`: one success statement, one dangerous misread, and one false-success case.
+- `approval`: revision starts at 1 and remains `pending` until current-run approval.
+
+### Intent Proof
+
+Add a short `이해 증명` / `Understanding proof` block to the normal approval payload. Restate the goal and highest-priority condition, name one false-success result, and list unresolved questions or pending assumptions.
+
+Standard mode keeps the proof to 3-5 lines. Deep mode shows the full proof. Deep mode, strict completion, and high-risk runs also add one Agent Self-test with the agent's answer. The self-test must test a real priority or forbidden boundary, not trivia. It exposes the agent's interpretation; it does not quiz the user.
+
+Skip Intent Proof for Lane 1 quick tasks unless a hard-gate risk forces Lane 3. A clear task must not gain a clarification question merely to populate the new fields.
+
+Treat these signals as strict even when cast mode is standard: public API or schema changes; security, authentication, authorization, or privacy; migration or data-loss risk; release, deploy, or publish; multiple components; four or more execution steps; two or more goals; resumed work or context recovery.
+
+### Approved meaning and revisions
+
+After approval, freeze `intent.goal`, `intent.priority`, `intent.in_scope`, `intent.out_of_scope`, `success_conditions`, and `forbidden`. Do not rewrite them to make implementation or verification pass.
+
+When work discovers a semantic change:
+1. Record the difference and reason in `notes.md`.
+2. Show the current revision, old meaning, proposed meaning, reason, and impact.
+3. Ask for current-run approval with `승인`, `조정`, `취소` / `Approve`, `Adjust`, `Cancel`.
+4. Only after approval, increment `approval.revision`, keep `approval.status` approved, and record the user decision in `answers.md`.
+
+An unapproved semantic revision is `blocked`. It is current-run approval, separate from the Reusable State Save Gate.
+
 ## Reusable State Save Gate
 Reusable State Save Gate is a separate absolute hard approval gate, not merely a Stitch subtype. Current-run approval does not authorize reusable-state writes.
 
@@ -246,6 +285,49 @@ Safety defaults:
 - Do not let multiple packets edit the same file concurrently.
 - Keep secrets, public contracts, broad refactors, release/publish actions, and final reconciliation under the main agent's control.
 - Keep each packet to 1-3 primary inputs when possible.
+
+## Gauge
+
+Gauge is a base-run habit beside Evidence Split, not a harness or public command.
+
+At these boundaries, run Evidence Split and then Gauge:
+1. after the plan is fixed;
+2. after a goal or major step completes;
+3. when a new assumption appears;
+4. when scope, dependencies, or a public API expands;
+5. when a failed check changes the approach;
+6. immediately before final verification.
+
+Gauge asks only about semantic integrity:
+- Does the current work directly support `intent.goal`?
+- Is every success condition connected to a plan step or verification item?
+- Did work touch `forbidden` or `intent.out_of_scope`?
+- Did a new assumption appear?
+- Was an unresolved question decided without approval?
+- Did implementation convenience reverse `intent.priority`?
+
+Do not turn Gauge into code review. It does not judge style, optimization, refactor quality, or general bugs.
+
+Record meaningful checkpoints in the existing `notes.md`:
+
+```md
+## Gauge checkpoint — post-goal-2
+
+- status: aligned|adjustment_needed|blocked
+- covered: SC-1, SC-2
+- uncovered: SC-3
+- scope drift: none
+- new assumption: A2 ...
+- assumption approval: pending
+- next action: ...
+```
+
+State handling:
+- `aligned`: continue.
+- `adjustment_needed`: stop before the affected implementation, propose a contract revision, and continue only after approval.
+- `blocked`: stop at the last safe point when forbidden scope, silent resolution, priority inversion, or a missing core condition makes the current direction invalid.
+
+Skip routine Gauge output for tiny Lane 1 work. Do not invent numeric understanding or alignment scores; report observable states and counts instead.
 
 Create `contract.json` before loading harness bodies. It should be short, factual, and based on the user request plus visible project context:
 
@@ -611,8 +693,8 @@ This is the Lane 3 full path from Quick triage. Lanes 1 and 2 intentionally skip
    - run a read-only diagnostic,
    - draft the first artifact,
    - or reproduce the issue.
-23. Keep `steps.json`, `notes.md`, `contract.json`, and `session.json` current as work progresses. Re-run Evidence Split when new uncertainty, coupling, failed checks, or context sprawl appears; update packetized steps and context evidence before continuing. When present, keep `goals.json` and `delegation.md` aligned with actual status and evidence. When the Progress display trigger applies, end every response with the progress block.
-24. Before final, run `/tink:verify` behavior for required contract checks or state why verification is blocked.
+23. Keep `steps.json`, `notes.md`, `contract.json`, and `session.json` current as work progresses. Re-run Evidence Split when new uncertainty, coupling, failed checks, or context sprawl appears. Run Gauge at the same meaningful boundaries, after a changed approach, and before final verification. Update packetized steps, semantic coverage, assumptions, and context evidence before continuing. When present, keep `goals.json` and `delegation.md` aligned with actual status and evidence. When the Progress display trigger applies, end every response with the progress block.
+24. Before final, run `/tink:verify` behavior, including Phase 0 contract coverage when an Understanding Contract exists, or state why verification is blocked.
 25. If the task exposed a repeated mistake or reusable improvement, use the Reusable State Save Gate approval payload below. Save only after separate user approval.
 
 
@@ -707,6 +789,11 @@ Approval option counts (always exactly one applies):
 - **오버레이 점검:** <예: goal-checkpoint 선택(목표 2개) · plan-consensus 제외(범위 좁음)>
 - **맞춤 절차 판단:** 별도 맞춤 절차는 불필요
 - **첫 실행:** 관련 파일을 먼저 읽고 검증 명령 후보를 확정합니다.
+
+**이해 증명**
+- 성공: <the result that must be true>
+- 겉보기 성공이지만 실패: <one false-success case>
+- 미결정/미승인: <none or compact refs>
 
 ? 진행할까요?
 ❯ 1. 승인 (권장) — 실행 상태 생성 후 첫 실행까지 진행

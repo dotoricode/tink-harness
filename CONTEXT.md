@@ -16,6 +16,24 @@ Tink는 도구를 최대한 많이 쓰게 하는 시스템이 아니다. 현재 
 
 Cast는 단순한 하네스 생성 명령이 아니다. 작업, 환경 제약, 사용 습관을 바탕으로 하네스 선택 (Harness Selection), 하네스 만들기 (Harness Synthesis), 하네스 정리 (Harness Curation), 사용 습관 보정 (Habit Calibration) 중 필요한 판단을 하고 실행 상태 (Run State)를 만든 뒤 첫 안전 행동을 시작한다.
 
+### Intent Proof (이해 증명)
+
+사소하지 않은 작업을 승인하기 전에 Agent가 이해한 목표, 가장 중요한 우선순위, 위험한 오해 또는 겉보기 성공 사례, 미결정 질문과 미승인 가정을 짧게 공개하는 절차.
+
+Intent Proof는 사용자에게 퀴즈를 내는 기능이 아니다. deep·strict·고위험 작업의 Agent Self-test는 Agent가 자신의 해석과 답을 먼저 공개해 사용자가 잘못된 이해를 교정할 수 있게 한다.
+
+### Gauge
+
+작업 중 현재 방향이 승인된 의미 계약에서 벗어나지 않았는지 확인하는 Base-run habit.
+
+Gauge는 별도 명령이나 하네스가 아니다. 계획 확정, 목표 완료, 새 가정이나 범위 확대, 접근 방식 변경, 최종 검증 직전 같은 의미 있는 경계에서 목표 지원, 성공 조건 누락, 금지·범위 밖 접촉, 미승인 가정, 미결정 질문의 임의 해결, 우선순위 역전을 확인한다. 결과는 `aligned`, `adjustment_needed`, `blocked`로 기록하며 숫자 점수를 쓰지 않는다.
+
+### Missingness Check (누락 검사)
+
+`/tink:verify`가 command/manual check를 실행하기 전에 각 성공 조건의 계획, 구현, 검사, 증거 연결과 금지 조건의 비위반 증거를 확인하는 Phase 0.
+
+strict completion에서는 빠진 계획·구현·검사·증거, 미검증 금지 조건, 미해결 blocking question, 미승인 assumption, 미승인 contract revision이 하나라도 있으면 command check가 통과해도 완료를 차단한다.
+
 
 ### Frog
 

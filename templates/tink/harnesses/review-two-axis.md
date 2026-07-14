@@ -35,7 +35,9 @@ Do not repeat questions already answered in `.tink/current/answers.md`.
    - tests or tooling expectations.
 5. Review along two separate axes:
    - Standards: violations of documented repo practice, maintainability, test style, compatibility, and local conventions.
-   - Spec: missing requirements, incorrect behavior, extra scope, and acceptance criteria gaps.
+   - Spec — Correctness: behavior that differs from the approved contract.
+   - Spec — Missingness: contract items absent or only partly implemented, checked, or evidenced.
+   - Spec — Scope drift: behavior added outside the approved contract.
 6. Keep findings evidence-first:
    - file and line when available,
    - cited spec or standard,
@@ -47,6 +49,7 @@ Do not repeat questions already answered in `.tink/current/answers.md`.
 ## Checks
 - The fixed point resolves and the diff is non-empty.
 - Standards and Spec are reported separately.
+- Spec findings label Correctness, Missingness, or Scope drift.
 - Each finding cites evidence and explains user or maintenance impact.
 - Missing spec is reported as a review limitation, not guessed around.
 - Tool-enforced style issues are not over-reported unless tooling is absent or failing.

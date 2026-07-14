@@ -70,7 +70,7 @@ class TemplateTests(unittest.TestCase):
         lock = json.loads((ROOT / 'package-lock.json').read_text())
         plugin = json.loads((ROOT / '.claude-plugin/plugin.json').read_text())
 
-        self.assertEqual(pkg['version'], '1.18.1')
+        self.assertEqual(pkg['version'], '1.19.0')
         self.assertEqual(lock['version'], pkg['version'])
         self.assertEqual(lock['packages']['']['version'], pkg['version'])
         self.assertEqual(plugin['version'], pkg['version'])
@@ -2291,6 +2291,10 @@ class TemplateTests(unittest.TestCase):
 
         self.assertIn('task_type', schema['required'])
         self.assertIn('verification', schema['properties'])
+        for field in ['schema_version', 'intent', 'understanding_proof', 'approval']:
+            self.assertIn(field, schema['properties'])
+        self.assertNotIn('intent', schema['required'])
+        self.assertNotIn('approval', schema['required'])
         self.assertIn('included', context_schema['required'])
         self.assertIn('excluded', context_schema['required'])
         self.assertIn('context_entry', context_schema['$defs'])
@@ -2332,6 +2336,8 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('blocked', verification_schema['properties'])
         self.assertIn('maintenance_signals', verification_schema['properties'])
         self.assertIn('report', verification_schema['properties'])
+        for field in ['contract_coverage', 'forbidden_review', 'unapproved_assumptions', 'unresolved_questions', 'contract_revision']:
+            self.assertIn(field, verification_schema['properties'])
         check_props = verification_schema['$defs']['check_result']['properties']
         self.assertIn('failure_type', check_props)
         self.assertIn('maintenance_signal', check_props)
@@ -2670,6 +2676,36 @@ class TemplateTests(unittest.TestCase):
         self.assertIn('generate-harness-lifecycle-summary.mjs', codex_core)
         self.assertIn('Low-confidence entries stay as observation', codex_core)
         self.assertIn('friction.jsonl', weave)
+
+    def test_understanding_engineering_contract_and_fixtures(self):
+        cast = (ROOT / 'commands/cast.md').read_text(encoding='utf-8')
+        verify = (ROOT / 'commands/verify.md').read_text(encoding='utf-8')
+        codex = (ROOT / 'templates/codex/skills/tink-core/RULES.md').read_text(encoding='utf-8')
+        skill = (ROOT / 'skills/tink/SKILL.md').read_text(encoding='utf-8')
+        cases = json.loads((ROOT / 'tests/fixtures/understanding-engineering/cases.json').read_text(encoding='utf-8'))
+
+        for text in [cast, codex, skill]:
+            self.assertIn('Intent Proof', text)
+            self.assertIn('Gauge', text)
+            self.assertIn('adjustment_needed', text)
+            self.assertIn('unapproved', text)
+        for text in [verify, codex, skill]:
+            self.assertIn('Contract Coverage', text)
+            self.assertIn('missing_evidence', text)
+            self.assertIn('forbidden', text)
+
+        expected_ids = {'omission', 'drift', 'assumption', 'quick', 'resume'}
+        by_id = {case['id']: case for case in cases['cases']}
+        self.assertEqual(set(by_id), expected_ids)
+        self.assertEqual(by_id['omission']['expected']['verification'], 'blocked')
+        self.assertEqual(by_id['drift']['expected']['gauge'], 'blocked')
+        self.assertEqual(by_id['assumption']['expected']['reason'], 'unapproved_assumption')
+        self.assertFalse(by_id['quick']['expected']['intent_proof'])
+        self.assertEqual(by_id['resume']['expected']['restore_revision'], 2)
+
+        visible_commands = {path.name for path in (ROOT / 'commands').glob('*.md')}
+        self.assertFalse({'understand.md', 'drift.md', 'missing.md', 'quiz.md'} & visible_commands)
+        self.assertFalse((ROOT / 'templates/tink/harnesses/understanding-engineering.md').exists())
 
     def test_language_command_naming_adr_exists(self):
         text = (ROOT / 'docs/adr/0001-language-and-command-naming-policy.md').read_text(encoding='utf-8')

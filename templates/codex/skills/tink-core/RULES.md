@@ -45,6 +45,11 @@ Accept legacy `$tink <action>` spelling for compatibility, but present `$tink:<a
 25. Keep context compact. Do not paste raw logs or full diffs.
 26. Use calm, clear, concise language. Prefer plain everyday words over technical terms. No jokes.
 27. Read `cast_mode` from `.tink/config.json` before classifying the task. If `quick`, force Lane 1 (instant start) unless a hard-gate signal is present. If `deep`, run the structured interview before harness selection: (Round 0) present inferred components as a structured list with one emoji per component line for readability (🖥️ 🔗 ⚡ 🚫 📂 🔄 etc.) and confirm with the user; (Rounds 1–10 max) ask one question per round targeting the weakest clarity dimension — goal (0.35 weight), constraint (0.25), success criteria (0.25), context (0.15) — investigate brownfield code before asking, do not ask what is already visible; show `[Round N  ██░░░░░░░░]` (no `/10` — actual round count is not known upfront; bar fills N/10 cells) only when a question is actually asked — omit the indicator entirely if the task is clear after Round 0 and no questions are needed; when ending early, show `[인터뷰 완료 · N라운드]` on the final spec line; allow early exit from Round 3+; shift to Contrarian questioning when goal and constraint are clear, then Simplifier when those resolve; end by writing Goal, Topology, Constraints, Success Criteria, Open Questions to `.tink/current/plan.md`, then proceed to harness selection with Stitch Phase A only. If `$tink:cast` is invoked with no task argument, show the current `cast_mode` value and one-line descriptions of all three modes (quick / standard / deep) and stop — do not ask for a task. To change the mode, run `$tink:cast <mode>`; that sets `cast_mode` in `.tink/config.json` and confirms with a single line, no other output.
+28. For non-trivial standard and deep runs, add an optional Understanding Contract: `schema_version`, `intent` (`goal`, `priority`, `in_scope`, `out_of_scope`, `open_questions`, `assumptions`), `understanding_proof`, and `approval`. Legacy contracts without these fields remain valid. Keep goal/priority to one sentence, scope lists to five items, and standard-mode proof to 3-5 lines.
+29. Before current-run approval, show an Intent Proof: intended success, the highest-priority condition, one dangerous misread or false-success result, and unresolved questions or pending assumptions. Deep, strict, or high-risk work also shows one Agent Self-test and the agent's answer. Do not quiz the user. Skip this ceremony for Lane 1 unless a hard-gate signal forces the full path.
+30. After approval, freeze `intent.goal`, `intent.priority`, `intent.in_scope`, `intent.out_of_scope`, `success_conditions`, and `forbidden`. A semantic change requires a visible current revision, old/new meaning, reason, impact, user approval, revision increment, and an `answers.md` history entry. Never rewrite the contract to make verification pass.
+31. Treat Gauge as a base-run habit beside Evidence Split, not a harness or command. Run it after planning, after goals or major steps, on new assumptions or expanded scope/API/dependencies, after a failure changes the approach, and before final verification. Check only goal support, success-condition coverage, forbidden/out-of-scope contact, new assumptions, silent resolution, and priority inversion. Record meaningful `aligned`, `adjustment_needed`, or `blocked` checkpoints in `notes.md`; do not use numeric alignment scores.
+32. Before final, run missingness-first verification: map each success condition to plan, implementation, check, and evidence; review each forbidden item; list unresolved blocking questions, unapproved assumptions, and revision approval. Use observable states including `missing_plan`, `missing_implementation`, `missing_check`, and `missing_evidence`. In strict completion, any missing coverage/evidence, unproven forbidden condition, unresolved blocker, unapproved assumption, or unapproved revision blocks `pass` even when command checks pass.
 
 ## Codex Approval Protocol
 
@@ -55,6 +60,7 @@ Codex `$tink:cast` must show a visible approval step for every non-trivial run. 
 - first safe step after approval
 - checks that will prove completion
 - whether any reusable state might be proposed later
+- an Intent Proof for non-trivial standard/deep runs
 
 When multiple harnesses or a run-only draft are selected, briefly explain each harness and include a short section labeled `하네스 선택 과정`: candidates considered, selected harnesses, and the reason each earns its place. Use natural Korean scope wording such as `완료 기준을 먼저 나누겠습니다` or `이번 점검은 두 범위로 보겠습니다`; avoid awkward phrasing like `"더 잘 동작하기"의 기준이 두 갈래입니다`.
 
@@ -63,6 +69,8 @@ Default Korean options are `승인`, `조정`, `취소`. If a run-only draft is 
 Option label quality rules: use short, common, readable labels only. Good Korean labels include `승인`, `조정`, `취소`, `요구사항 입력`, `기본 절차만 사용`, `새 하네스 초안 만들기`, `구조 점검`, `내용 점검`, and `전체 점검`. Do not invent compressed Korean labels, transliterated fragments, or unclear summaries such as `콘데의달 지질`. If the idea is too specific for a clean 1-5 word label, put the detail in `description` and use a generic label such as `내용 점검` or `전체 점검`. Before calling `request_user_input`, reread each Korean label; if it looks misspelled, unnatural, or semantically unclear, replace it with a plain fallback label.
 
 When `request_user_input` is unavailable, write the same approval request as a normal assistant message and wait for the user's answer. Do not create run state, load harness bodies, edit files, run commands, or continue the task before the answer. A user's `$tink:cast` invocation means "prepare and ask for approval", not "start immediately". Exception - quick triage Lane 1: when the request is clearly simple and safe (a question, a read-only check, or one obvious localized edit with no hard-gate signals), start immediately with a one-line marker instead of asking; full preparation applies to non-trivial tasks. Overlay selection is rule-bound: goal-checkpoint is REQUIRED when the run has 2+ goals, 2+ sequential harnesses, 4+ expected steps, or spans multiple components; plan-consensus must be explicitly considered (with a recorded reason if skipped) for from-scratch implementations, reimplementations, migrations, or public contract design. The synthesis-probe verdict only covers custom procedures and must never be presented as the whole harness set being sufficient. When an active plan has 3 or more steps, end every response with the Tink progress block (10-cell bar, current step, remaining steps); right after creating or restructuring a plan, completing a goal/phase, or resuming a run, show the full progress map instead (one bar per phase with the active row marked, an overall bar, and the active phase's steps).
+
+Treat standard runs as strict when they involve a public API/schema, security/auth/privacy, migration/data-loss risk, release/deploy/publish, multiple components, four or more steps, two or more goals, or resumed/context-recovery work.
 
 Use this compact approval request shape. Keep it short; do not expose internal terms such as Stitch, Probe, synthesis probe, generic fit, or hard gate in user-facing text. Translate them into plain wording such as `확인할 점`, `맞춤 절차 판단`, `별도 맞춤 절차는 불필요`, or `기본 절차만으로는 부족함`. Never use `기본 하네스로 충분` - the probe verdict covers custom procedures only, not the whole harness set.
 
@@ -77,6 +85,11 @@ Korean:
 - 승인 후 첫 단계: Codex core rules에 승인 요청 형식 추가
 - 완료 확인: `npm test`, `git diff --check`
 - 재사용 상태 저장: 이번 작업에서는 저장하지 않음
+
+이해 증명
+- 성공: <what must be true>
+- 겉보기 성공이지만 실패: <false-success case>
+- 미결정/미승인: <none or compact refs>
 
 진행해도 될까요?
 ```
@@ -212,10 +225,11 @@ A successful Tink run leaves evidence: current run files exist or were intention
 
 For `$tink:verify`, use the same runner model as Claude Code `/tink:verify`:
 
-1. Plan checks from `.tink/current/contract.json`.
-2. Run safe command checks exactly as listed, from repo root unless `cwd` is set.
-3. Inspect manual checks by `target` and `method`.
-4. Record `.tink/current/verification.json` using `.tink/schemas/verification.schema.json` when present, and write `.tink/current/evidence.md` as the human-readable evidence summary.
+1. Phase 0 — Contract Coverage: for each success condition record plan, implementation, check, and evidence links; review forbidden items; collect unresolved blocking questions, unapproved assumptions, and revision approval. Legacy contracts may record revision status `legacy`.
+2. Plan command and manual checks from `.tink/current/contract.json`.
+3. Run safe command checks exactly as listed, from repo root unless `cwd` is set.
+4. Inspect manual checks by `target` and `method`.
+5. Record `.tink/current/verification.json` using `.tink/schemas/verification.schema.json` when present, including `contract_coverage`, `forbidden_review`, `unapproved_assumptions`, `unresolved_questions`, and `contract_revision`; then write `.tink/current/evidence.md` as the human-readable evidence summary.
 
 Keep command checks portable across macOS and Windows. Prefer repo-relative paths, `npm`, `node`, or `python` commands, and do not rewrite commands into platform-specific shell syntax unless the contract explicitly provides platform-specific alternatives.
 
@@ -227,6 +241,8 @@ Use the same result vocabulary as `/tink:verify`:
 - `skipped`: an optional check was intentionally not run.
 
 Record `check_failed`, `check_blocked`, and `check_skipped` separately in verification evidence. A required skipped check is blocked, not passed. Include the next smallest recovery action when a check fails or is blocked.
+
+In strict completion, `missing_plan`, `missing_implementation`, `missing_check`, `missing_evidence`, `violated` or `not_proven` forbidden items, unresolved blocking questions, unapproved assumptions, and an unapproved revision make the overall result `blocked`. Command success never overrides semantic missingness.
 
 Final `$tink:verify` reports should use the same order as `/tink:verify`: result, checked items, problems, remaining work, and next action. Keep the report compact, do not paste raw logs, and mirror the same summary under `report` in `.tink/current/verification.json`.
 

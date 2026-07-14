@@ -13,12 +13,14 @@ Break a long run into a small set of durable current-run goals with explicit com
 2. Write `.tink/current/goals.json` with goal id, description, status, done criteria, verification, and evidence.
 3. Mark exactly one goal as active when work begins.
 4. Checkpoint each goal as complete, blocked, or deferred with evidence.
-5. Keep `steps.json` aligned with the active goal.
+5. After each completed goal, run Gauge before activating the next goal: record success-condition coverage, scope drift, new assumptions, unresolved decisions, and priority changes in `notes.md`.
+6. Keep `steps.json` aligned with the active goal.
 
 ## Checks
 - Goals are few enough to scan and specific enough to verify.
 - Each goal has completion evidence, not just a task label.
 - Blocked goals include the smallest unblock action.
+- Do not activate the next goal while a new assumption is unapproved, scope expanded without approval, or a required success condition has no remaining plan or check path.
 - Do not repeat questions already answered in `.tink/current/answers.md`.
 
 ## Done means

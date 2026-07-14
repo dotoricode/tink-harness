@@ -33,7 +33,8 @@ Do not repeat questions already answered in `.tink/current/answers.md`.
 3. Each iteration: identify the single biggest failure cause, make one focused change
    for that cause only, then re-run the same acceptance signal.
 4. Append one log line per iteration to `notes.md`: iteration number, the one change,
-   result (pass/fail + score), next bottleneck.
+   result (pass/fail + score), Gauge invariant, next bottleneck. The Gauge invariant is
+   the intent, priority, public boundary, or forbidden condition that must remain unchanged.
 5. Stop when the acceptance signal passes, or when the budget is reached. Never stop
    merely because a file was edited.
 6. On budget exhaustion, stop and report current state, failing check, suspected root
@@ -44,6 +45,7 @@ Do not repeat questions already answered in `.tink/current/answers.md`.
 - The acceptance signal is a runnable command or observable check, not a self-judgment.
 - Every iteration is logged in `notes.md` with its result before the next change.
 - Evaluation is independent of the change (separate command or review pass).
+- A passing acceptance signal is not complete when the Gauge invariant was violated.
 - The loop respects the budget and stops with a report instead of looping forever.
 
 ## Done means

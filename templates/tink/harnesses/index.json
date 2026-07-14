@@ -11,7 +11,9 @@
     "checks": [
       "One blocking question at a time",
       "Success conditions explicit before implementation",
-      "Assumptions recorded instead of hidden"
+      "Assumptions recorded instead of hidden",
+      "Dangerous misread and false-success case explicit",
+      "Unresolved questions are not silently decided"
     ]
   },
   {
@@ -26,7 +28,8 @@
     "checks": [
       "Planner, Architect, Critic, and Final stages represented",
       "Rejected alternatives tied to concrete tradeoffs",
-      "Final plan ready for implementation"
+      "Final plan ready for implementation",
+      "Every success condition linked to a plan or verification item"
     ]
   },
   {
@@ -41,7 +44,8 @@
     "checks": [
       ".tink/current/goals.json created when selected",
       "Exactly one active goal while work is underway",
-      "Blocked goals include the smallest unblock action"
+      "Blocked goals include the smallest unblock action",
+      "Gauge runs before the next goal activates"
     ]
   },
   {
@@ -101,6 +105,7 @@
     "checks": [
       "The fixed point resolves and the diff is non-empty",
       "Standards and Spec are reported separately",
+      "Spec distinguishes Correctness, Missingness, and Scope drift",
       "Each finding cites evidence and impact"
     ]
   },
@@ -148,6 +153,7 @@
       "One bottleneck fixed per iteration",
       "Acceptance signal is runnable, not self-judged",
       "Each iteration logged before the next change",
+      "Gauge invariant remains true even when acceptance passes",
       "Budget respected; stop-and-report instead of infinite loop"
     ]
   },

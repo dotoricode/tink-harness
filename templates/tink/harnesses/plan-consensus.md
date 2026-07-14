@@ -13,8 +13,8 @@ Plan broad architecture, large refactors, or work where a second-pass critique c
 2. Architect: challenge interfaces, data flow, compatibility, and migration concerns.
 3. When interface shape is the decision, compare at least two meaningfully different designs before choosing.
 4. When the plan has fog of war, split unresolved decisions into ordered research, prototype, or discussion tickets.
-5. Critic: look for missing tests, unsafe assumptions, and overbuilt steps.
-6. Final: merge the useful objections into one implementation-ready plan.
+5. Critic: look for missing tests, unsafe or unapproved assumptions, forbidden risk, false-success outcomes, overbuilt steps, and success conditions without a plan or verification link.
+6. Final: merge the useful objections into one implementation-ready plan and map every success condition to at least one plan step or verification item.
 7. Record the final plan in `.tink/current/plan.md` and unresolved objections in `notes.md`.
 
 ## Checks
@@ -22,6 +22,7 @@ Plan broad architecture, large refactors, or work where a second-pass critique c
 - Critique changes the plan or is explicitly rejected with a reason.
 - Interface or decision alternatives are compared when they could change the plan.
 - The plan does not require a subagent, tmux worker, or separate runtime to be valid.
+- Every success condition has a plan or verification link; forbidden scope and pending assumptions are explicit.
 - Do not repeat questions already answered in `.tink/current/answers.md`.
 
 ## Done means
