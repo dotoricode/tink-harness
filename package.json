@@ -1,7 +1,7 @@
 {
   "name": "tink-harness",
   "version": "1.19.0",
-  "description": "Self-growing harnesses for Claude Code and Codex.",
+  "description": "Keep Claude Code and Codex aligned with task requirements using intent proof, drift checks, and evidence-based verification.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -33,18 +33,18 @@
   },
   "keywords": [
     "claude-code",
-    "codex",
-    "ai-agents",
+    "claude-code-plugin",
+    "codex-cli",
+    "coding-agents",
     "agent-harness",
+    "harness-engineering",
+    "context-engineering",
+    "agent-workflows",
+    "ai-coding",
     "developer-tools",
-    "cli",
-    "automation",
+    "task-verification",
     "agentic-coding",
-    "llm",
-    "workflow-automation",
-    "code-agents",
-    "hooks",
-    "skills"
+    "intent-integrity"
   ],
   "repository": {
     "type": "git",
