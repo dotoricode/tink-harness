@@ -1,36 +1,40 @@
+# Tink
+
+**Keep coding agents aligned with what you actually asked for.**
+
+For non-trivial work, Tink makes Claude Code and Codex prove what they understood, detect drift while working, and prove every requirement before claiming done.
+
+**Intent Proof → Gauge → Evidence-based Verify**
+
+<sub>Local files only—no server, telemetry, or hidden state.</sub>
+
 <p align="center">
-  <img src=".github/assets/hero.webp" alt="Tink Hero Banner" width="100%">
+  <img src=".github/assets/hero-v2.webp" alt="Tink workflow: a task enters Intent Proof, Gauge checks alignment, and Verify proves every requirement" width="100%">
 </p>
-
-<h1><strong>Tink</strong></h1>
-
-<p><strong>Claude Code and Codex agent tasks — visible, reusable, approval-gated. No server, no hidden state.</strong></p>
-
-<p><sub>A small harness layer for Claude Code and Codex</sub></p>
 
 <p>
   <a href="https://github.com/dotoricode/tink-harness/releases/latest"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
-  <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
-  <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
 **English** · [한국어](README.ko.md) · [Changelog](CHANGELOG.md)
 
----
-
-*I kept adding new AI coding tools. Each was useful on its own, but stacking them made my setup heavy and tangled — and I'd burn a real slice of my token budget just reconfiguring before any actual work began. I wanted the opposite: something small that adapts to me, not the other way around. That's Tink.*
-
----
-
-Without Tink, agent tasks live only in chat history — context resets on every run, workflows repeat by hand, and nothing gets better over time.
-
-With Tink, every non-trivial task leaves plain files you can read, diff, and commit: a task contract, a visible plan, verification steps. Reusable workflows — *harnesses* — are saved only after your explicit approval, then improved from real run data. One command turns those records into a local health dashboard.
-
 ## Try it in one minute
 
-**Claude Code (plugin):**
+```bash
+npx tink-harness@latest install
+```
+
+```text
+/tink:cast refactor auth without changing token behavior  # Claude Code
+$tink:cast refactor auth without changing token behavior  # Codex
+```
+
+The installer lets you choose Claude Code, Codex, or both. For non-trivial runs, `cast` shows its understanding before implementation, then starts after your approval; tiny low-risk tasks keep the fast path.
+
+<details>
+<summary><strong>Alternative: Claude Code plugin</strong></summary>
 
 ```text
 /plugin marketplace add dotoricode/tink-harness
@@ -39,40 +43,21 @@ With Tink, every non-trivial task leaves plain files you can read, diff, and com
 /tink:setup
 ```
 
-**Claude Code or Codex (standalone):**
-
-```bash
-npx tink-harness@latest install
-```
-
-The installer auto-detects `LANG` (English fallback); pass `--lang=en|ko|zh` to override. During install you can pick `Claude Code`, `Codex`, or both.
-
-<details>
-<summary>Repo-local Codex smoke test (CODEX_HOME)</summary>
-
-```bash
-set CODEX_HOME=%CD%/.codex
-npx tink-harness@latest install --yes
-```
-
 </details>
 
-Then hand Tink a real task instead of reading more docs:
+The installer auto-detects `LANG` with an English fallback; pass `--lang=en|ko|zh` to override.
 
-```text
-/tink:cast refactor the auth module     # Claude Code
-$tink:cast refactor the auth module     # Codex
-```
+## What Tink prevents
 
-`cast` picks (or drafts) the right harness, writes a visible plan into `.tink/current/`, and starts the first safe step after your approval.
+| Failure | Protection |
+|---|---|
+| The agent misunderstood a non-trivial task | Intent Proof reveals its interpretation before implementation |
+| Work drifted from the approved goal | Gauge records drift and unapproved assumptions at meaningful checkpoints |
+| Requirements were silently omitted | Contract Coverage maps every completion condition to implementation and evidence |
+| The agent claimed “done” without proof | Evidence-based Verify blocks completion when required evidence is missing |
+| Context disappeared between sessions | Plain files in `.tink/current/` preserve the active contract, plan, checks, and evidence |
 
-Before work, Tink makes the agent prove what it understood. During work, Gauge checks whether the task has drifted. Before completion, verify looks for missing requirements as well as failed checks.
-
-![tink:cast approval flow — goals, harness selection, .tink/current/ files created, and progress indicator](.github/assets/demo-cast.png)
-
-![Tink dashboard demo - clicking a health group, browsing harness cards, and inspecting the 3D map](.github/assets/demo.gif)
-
-<sub>If this matches your workflow, a ⭐ helps other developers find it.</sub>
+Everything Tink leaves behind is local, readable, diffable, and approval-gated.
 
 ---
 

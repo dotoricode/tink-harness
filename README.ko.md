@@ -1,36 +1,40 @@
-<p align="center">
-  <img src=".github/assets/hero.webp" alt="Tink Hero Banner" width="100%">
-</p>
-
 # Tink
 
-**Claude Code · Codex 에이전트 작업을 눈에 보이게, 재사용 가능하게, 승인 게이트로. 서버도, 숨은 상태도 없이.**
+**코딩 에이전트가 내가 실제로 요청한 내용에서 벗어나지 않게 하세요.**
 
-<sub>Claude Code와 Codex를 위한 작은 하네스 레이어</sub>
+사소하지 않은 작업에서 Tink는 Claude Code와 Codex가 무엇을 이해했는지 먼저 공개하고, 작업 중 이탈을 감지하며, 완료를 주장하기 전에 모든 요구사항을 증명하게 합니다.
+
+**Intent Proof → Gauge → Evidence-based Verify**
+
+<sub>모든 상태는 로컬 파일에만 남으며 서버, 텔레메트리, 숨은 상태가 없습니다.</sub>
+
+<p align="center">
+  <img src=".github/assets/hero-v2.webp" alt="Tink 흐름: 작업이 Intent Proof로 들어가고, Gauge가 정렬 상태를 확인하며, Verify가 모든 요구사항을 증명합니다" width="100%">
+</p>
 
 <p>
   <a href="https://github.com/dotoricode/tink-harness/releases/latest"><img src="https://img.shields.io/github/v/release/dotoricode/tink-harness?label=release&color=2ea44f" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/tink-harness"><img src="https://img.shields.io/npm/v/tink-harness?label=npm&color=cb3837" alt="npm version"></a>
   <a href="https://github.com/dotoricode/tink-harness/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/dotoricode/tink-harness/ci.yml?branch=main&label=ci" alt="CI"></a>
-  <a href="https://github.com/dotoricode/tink-harness/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dotoricode/tink-harness" alt="License"></a>
-  <a href="https://github.com/dotoricode/tink-harness/stargazers"><img src="https://img.shields.io/github/stars/dotoricode/tink-harness?style=social" alt="GitHub stars"></a>
 </p>
 
 [English](README.md) · **한국어** · [변경 이력](CHANGELOG.md)
 
----
-
-*새 AI 코딩 도구를 계속 붙여 썼습니다. 하나씩은 다 쓸 만한데, 쌓을수록 환경이 무겁고 엉켰고 — 정작 일을 시작하기도 전에 토큰을 설정 다시 맞추는 데 적잖이 썼습니다. 저는 반대를 원했어요. 내가 도구에 맞추는 게 아니라, 도구가 나에게 맞춰지는 가벼운 것. 그게 Tink입니다.*
-
----
-
-Tink가 없으면 에이전트 작업의 맥락은 매번 채팅 기록 속으로 사라집니다. 같은 리뷰·리팩터링·디버깅을 손으로 반복하고, 재사용하겠다고 적어둔 워크플로는 어딘가에 묻혀버립니다.
-
-Tink를 쓰면 사소하지 않은 모든 작업마다 읽고, diff하고, 커밋할 수 있는 파일이 남습니다 — 작업 계약, 눈에 보이는 계획, 검증 단계. 재사용 워크플로(하네스)는 명시적 승인 후에만 저장되고, 실제 run 기록을 바탕으로 점점 나아집니다. 그 기록이 로컬 건강 대시보드가 됩니다.
-
 ## 1분이면 시작됩니다
 
-**Claude Code (플러그인):**
+```bash
+npx tink-harness@latest install
+```
+
+```text
+/tink:cast 토큰 동작을 바꾸지 않고 인증 모듈 리팩터링  # Claude Code
+$tink:cast 토큰 동작을 바꾸지 않고 인증 모듈 리팩터링  # Codex
+```
+
+설치 중 Claude Code, Codex 또는 둘 다를 선택할 수 있습니다. 사소하지 않은 run에서는 `cast`가 구현 전에 이해 내용을 보여주고 승인 후 작업을 시작하며, 위험이 낮은 작은 작업은 빠른 경로를 유지합니다.
+
+<details>
+<summary><strong>다른 설치 방법: Claude Code 플러그인</strong></summary>
 
 ```text
 /plugin marketplace add dotoricode/tink-harness
@@ -39,40 +43,21 @@ Tink를 쓰면 사소하지 않은 모든 작업마다 읽고, diff하고, 커�
 /tink:setup
 ```
 
-**Claude Code 또는 Codex (스탠드얼론):**
-
-```bash
-npx tink-harness@latest install
-```
-
-설치 중 `Claude Code`, `Codex`, 또는 둘 다를 선택할 수 있고, 언어는 `LANG`을 자동 감지합니다(`--lang=en|ko|zh`로 변경 가능).
-
-<details>
-<summary>repo 내부 Codex smoke 검증 (CODEX_HOME)</summary>
-
-```bash
-set CODEX_HOME=%CD%\.codex
-npx tink-harness@latest install
-```
-
 </details>
 
-문서를 더 읽는 대신 실제 작업을 맡겨 보세요:
+언어는 `LANG`을 자동 감지하고 영어로 대체합니다. `--lang=en|ko|zh`로 직접 지정할 수도 있습니다.
 
-```text
-/tink:cast 인증 모듈 리팩터링     # Claude Code
-$tink:cast 인증 모듈 리팩터링     # Codex
-```
+## Tink가 막는 실패
 
-`cast`는 작업에 맞는 하네스를 고르고(없으면 초안을 만들고), `.tink/current/`에 보이는 계획을 쓰고, 승인 후 첫 안전한 단계를 시작합니다.
+| 실패 | Tink의 대응 |
+|---|---|
+| 에이전트가 사소하지 않은 요청을 잘못 이해함 | Intent Proof가 구현 전에 에이전트의 해석을 공개 |
+| 작업이 승인된 목표에서 벗어남 | Gauge가 의미 있는 점검 지점마다 이탈과 미승인 가정을 기록 |
+| 일부 요구사항을 빠뜨림 | Contract Coverage가 모든 완료 조건을 구현과 증거에 연결 |
+| 증거 없이 “완료”를 주장함 | Evidence-based Verify가 필수 증거가 빠진 완료를 차단 |
+| 다음 세션에서 맥락이 사라짐 | `.tink/current/`의 일반 파일이 계약·계획·검사·증거를 유지 |
 
-작업 전에는 Agent가 무엇을 이해했는지 증명합니다. 작업 중에는 Gauge가 최초 의도에서 벗어났는지 확인합니다. 완료 전에는 verify가 실패한 검사뿐 아니라 빠진 요구사항도 찾습니다.
-
-![/tink:cast 승인 흐름 — 목표·하네스 선택·파일 생성·진행도 표시](.github/assets/demo-cast.png)
-
-![Tink 대시보드 데모 — 건강 그룹 클릭, 하네스 카드 탐색, 3D 지도 조작](.github/assets/demo.gif)
-
-<sub>워크플로와 맞는다면 ⭐ 하나가 다른 개발자들이 찾는 데 도움이 됩니다.</sub>
+Tink가 남기는 것은 모두 로컬에서 읽고, diff하고, 승인할 수 있는 파일입니다.
 
 ---
 
