@@ -6,10 +6,10 @@ Tink makes Claude Code and Codex prove what they understood, detect drift while 
 
 **Intent Proof → Gauge → Evidence-based Verify**
 
-<sub>Local files only. No server, telemetry, or hidden state.</sub>
+<sub>Local files only—no server, telemetry, or hidden state.</sub>
 
 <p align="center">
-  <img src=".github/assets/hero-v2.webp" alt="Tink workflow: Intent Proof reveals understanding, Gauge detects drift, and Verify proves every requirement" width="100%">
+  <img src=".github/assets/hero-v2.webp" alt="Tink workflow: a task enters Intent Proof, Gauge checks alignment, and Verify proves every requirement" width="100%">
 </p>
 
 <p>

@@ -6,10 +6,10 @@ Tink는 Claude Code와 Codex가 무엇을 이해했는지 먼저 공개하고, �
 
 **Intent Proof → Gauge → Evidence-based Verify**
 
-<sub>모든 상태는 로컬 파일에만 남습니다. 서버도, 텔레메트리도, 숨은 상태도 없습니다.</sub>
+<sub>모든 상태는 로컬 파일에만 남으며 서버, 텔레메트리, 숨은 상태가 없습니다.</sub>
 
 <p align="center">
-  <img src=".github/assets/hero-v2.webp" alt="Tink 흐름: Intent Proof가 이해 내용을 공개하고, Gauge가 이탈을 감지하며, Verify가 모든 요구사항을 증명합니다" width="100%">
+  <img src=".github/assets/hero-v2.webp" alt="Tink 흐름: 작업이 Intent Proof로 들어가고, Gauge가 정렬 상태를 확인하며, Verify가 모든 요구사항을 증명합니다" width="100%">
 </p>
 
 <p>
