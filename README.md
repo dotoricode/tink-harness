@@ -2,7 +2,7 @@
 
 **Keep coding agents aligned with what you actually asked for.**
 
-Tink makes Claude Code and Codex prove what they understood, detect drift while working, and prove every requirement before claiming done.
+For non-trivial work, Tink makes Claude Code and Codex prove what they understood, detect drift while working, and prove every requirement before claiming done.
 
 **Intent Proof → Gauge → Evidence-based Verify**
 
@@ -31,7 +31,7 @@ npx tink-harness@latest install
 $tink:cast refactor auth without changing token behavior  # Codex
 ```
 
-The installer lets you choose Claude Code, Codex, or both. `cast` shows its understanding before implementation, then starts after your approval.
+The installer lets you choose Claude Code, Codex, or both. For non-trivial runs, `cast` shows its understanding before implementation, then starts after your approval; tiny low-risk tasks keep the fast path.
 
 <details>
 <summary><strong>Alternative: Claude Code plugin</strong></summary>
@@ -51,7 +51,7 @@ The installer auto-detects `LANG` with an English fallback; pass `--lang=en|ko|z
 
 | Failure | Protection |
 |---|---|
-| The agent misunderstood the task | Intent Proof reveals its interpretation before implementation |
+| The agent misunderstood a non-trivial task | Intent Proof reveals its interpretation before implementation |
 | Work drifted from the approved goal | Gauge records drift and unapproved assumptions at meaningful checkpoints |
 | Requirements were silently omitted | Contract Coverage maps every completion condition to implementation and evidence |
 | The agent claimed “done” without proof | Evidence-based Verify blocks completion when required evidence is missing |

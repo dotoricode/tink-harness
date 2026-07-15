@@ -2,7 +2,7 @@
 
 **코딩 에이전트가 내가 실제로 요청한 내용에서 벗어나지 않게 하세요.**
 
-Tink는 Claude Code와 Codex가 무엇을 이해했는지 먼저 공개하고, 작업 중 이탈을 감지하며, 완료를 주장하기 전에 모든 요구사항을 증명하게 합니다.
+사소하지 않은 작업에서 Tink는 Claude Code와 Codex가 무엇을 이해했는지 먼저 공개하고, 작업 중 이탈을 감지하며, 완료를 주장하기 전에 모든 요구사항을 증명하게 합니다.
 
 **Intent Proof → Gauge → Evidence-based Verify**
 
@@ -31,7 +31,7 @@ npx tink-harness@latest install
 $tink:cast 토큰 동작을 바꾸지 않고 인증 모듈 리팩터링  # Codex
 ```
 
-설치 중 Claude Code, Codex 또는 둘 다를 선택할 수 있습니다. `cast`는 구현 전에 이해 내용을 보여주고, 승인 후 작업을 시작합니다.
+설치 중 Claude Code, Codex 또는 둘 다를 선택할 수 있습니다. 사소하지 않은 run에서는 `cast`가 구현 전에 이해 내용을 보여주고 승인 후 작업을 시작하며, 위험이 낮은 작은 작업은 빠른 경로를 유지합니다.
 
 <details>
 <summary><strong>다른 설치 방법: Claude Code 플러그인</strong></summary>
@@ -51,7 +51,7 @@ $tink:cast 토큰 동작을 바꾸지 않고 인증 모듈 리팩터링  # Codex
 
 | 실패 | Tink의 대응 |
 |---|---|
-| 에이전트가 요청을 잘못 이해함 | Intent Proof가 구현 전에 에이전트의 해석을 공개 |
+| 에이전트가 사소하지 않은 요청을 잘못 이해함 | Intent Proof가 구현 전에 에이전트의 해석을 공개 |
 | 작업이 승인된 목표에서 벗어남 | Gauge가 의미 있는 점검 지점마다 이탈과 미승인 가정을 기록 |
 | 일부 요구사항을 빠뜨림 | Contract Coverage가 모든 완료 조건을 구현과 증거에 연결 |
 | 증거 없이 “완료”를 주장함 | Evidence-based Verify가 필수 증거가 빠진 완료를 차단 |
